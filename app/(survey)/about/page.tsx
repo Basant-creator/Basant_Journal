@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { SceneTitle } from "@/components/world/SceneTitle";
+import { SceneTitle } from "@/components/scene/SceneTitle";
 import { CampScene } from "@/components/scenes/CampScene";
 import { SurveyAnnotation } from "@/components/annotations/SurveyAnnotation";
 import { education, getLocation, person } from "@/lib/content/portfolio";

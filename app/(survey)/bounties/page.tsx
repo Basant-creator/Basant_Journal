@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { SceneTitle } from "@/components/world/SceneTitle";
+import { SceneTitle } from "@/components/scene/SceneTitle";
 import { Stamp } from "@/components/world/Stamp";
 import { TornPaper } from "@/components/world/TornPaper";
 import { getLocation, getProject, metrics } from "@/lib/content/portfolio";

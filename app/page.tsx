@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ButtonLink } from "@/components/shared/Button";
-import { Atmosphere } from "@/components/world/Atmosphere";
+import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
 import { Wordmark } from "@/components/world/Wordmark";
 import { links, meta, person } from "@/lib/content/portfolio";
 import { terrain } from "@/lib/map/terrain";
@@ -59,7 +59,7 @@ export default function LandingPage() {
         </svg>
       </div>
 
-      <Atmosphere variant="drift" className={styles.air} />
+      <SceneAtmosphere variant="drift" className={styles.air} />
 
       <div className={styles.inner}>
         <p className={styles.eyebrow}>

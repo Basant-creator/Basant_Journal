@@ -1,0 +1,16 @@
+.layer {
+  transform: translate3d(
+    calc(var(--px, 0) * var(--layer-shift, 0px)),
+    calc(var(--py, 0) * var(--layer-shift, 0px) * var(--layer-vertical, 0.38)),
+    0
+  );
+  transition: transform var(--depth-settle) var(--ease-standard);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    transform: none !important;
+    transition: none !important;
+  }
+}

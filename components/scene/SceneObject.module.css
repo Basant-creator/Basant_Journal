@@ -1,0 +1,99 @@
+.object {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-white-warm);
+  text-align: left;
+  transition:
+    border-color var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard);
+}
+
+.object:hover,
+.object:focus-visible,
+.active {
+  border-color: var(--color-border-strong);
+  background: var(--color-hover-wash);
+}
+
+.object:focus-visible {
+  outline: 2px solid var(--color-paper-light);
+  outline-offset: 2px;
+}
+
+/* The object's name is always legible against the scene behind it. The note
+   is the reward for reaching, and never carries a fact found nowhere else. */
+.label {
+  font-family: var(--font-display);
+  font-size: clamp(0.66rem, 1.1vw, 0.86rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-paper-light);
+  opacity: 0.55;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  transition: opacity var(--duration-normal) var(--ease-standard);
+}
+
+.note {
+  font-family: var(--font-hand);
+  font-size: clamp(0.8rem, 1.3vw, 1.02rem);
+  line-height: 1.1;
+  color: var(--ink-annotation);
+  opacity: 0;
+  transform: translateY(3px);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  transition:
+    opacity var(--duration-normal) var(--ease-standard),
+    transform var(--duration-normal) var(--ease-standard);
+}
+
+.object:hover .label,
+.object:focus-visible .label,
+.active .label {
+  opacity: 1;
+}
+
+.object:hover .note,
+.object:focus-visible .note,
+.active .note {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.asLink .note {
+  color: var(--color-paper-dark);
+}
+
+/* Phones get the labels permanently legible and the notes dropped: a note
+   that only appears on hover is worth nothing to a thumb. */
+@media (max-width: 720px) {
+  .object {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-color: var(--color-border-subtle);
+  }
+
+  .label {
+    opacity: 0.9;
+    font-size: 0.62rem;
+  }
+
+  .note {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note {
+    transform: none;
+  }
+}

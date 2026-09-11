@@ -146,21 +146,21 @@ export function CampScene({
         >
           <defs>
             <linearGradient id="campSky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#0d0b09" />
-              <stop offset="52%" stopColor="#1a1410" />
-              <stop offset="84%" stopColor="#33241a" />
-              <stop offset="100%" stopColor="#4a3220" />
+              <stop offset="0%" stopColor="var(--scene-night)" />
+              <stop offset="52%" stopColor="var(--scene-dark)" />
+              <stop offset="84%" stopColor="var(--scene-dusk)" />
+              <stop offset="100%" stopColor="var(--scene-ember)" />
             </linearGradient>
 
             <radialGradient id="fireGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(214, 138, 74, 0.52)" />
-              <stop offset="42%" stopColor="rgba(166, 81, 69, 0.22)" />
-              <stop offset="100%" stopColor="rgba(166, 81, 69, 0)" />
+              <stop offset="0%" stopColor="var(--fire-glow)" />
+              <stop offset="42%" stopColor="var(--fire-glow-mid)" />
+              <stop offset="100%" stopColor="var(--fire-glow-edge)" />
             </radialGradient>
 
             <linearGradient id="tableTop" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3a2a1c" />
-              <stop offset="100%" stopColor="#1d150e" />
+              <stop offset="0%" stopColor="var(--timber-light)" />
+              <stop offset="100%" stopColor="var(--timber-deep)" />
             </linearGradient>
 
             <filter id="smokeBlur">
@@ -172,7 +172,7 @@ export function CampScene({
           <g className={styles.sky}>
             <rect x="0" y="0" width={CAMP_WIDTH} height={CAMP_HEIGHT} fill="url(#campSky)" />
             {STARS.map((s, i) => (
-              <circle key={`star-${i}`} cx={s.cx} cy={s.cy} r={s.r} fill="#F2E9D7" opacity={s.o} />
+              <circle key={`star-${i}`} cx={s.cx} cy={s.cy} r={s.r} fill="var(--color-white-warm)" opacity={s.o} />
             ))}
           </g>
 

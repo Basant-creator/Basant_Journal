@@ -9,13 +9,13 @@
      and back to this, so a missing animation means an unseen card, never a
      card stuck over the page. */
   opacity: 0;
-  animation: sceneHold 2200ms var(--ease-cinematic) both;
+  animation: sceneHold var(--chapter-hold) var(--ease-cinematic) both;
 }
 
 .veil {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 90% 70% at 50% 50%, #14100d 0%, #0b0907 100%);
+  background: radial-gradient(ellipse 90% 70% at 50% 50%, var(--chapter-veil-core) 0%, var(--chapter-veil-edge) 100%);
 }
 
 .plate {
@@ -41,7 +41,7 @@
     transparent
   );
   opacity: 0;
-  animation: ruleIn 900ms var(--ease-cinematic) 120ms both;
+  animation: ruleIn var(--chapter-rule-in) var(--ease-cinematic) 120ms both;
 }
 
 .ruleBottom {
@@ -57,7 +57,7 @@
   margin: 0;
   /* The chapter mark arrives first. */
   opacity: 0;
-  animation: markIn 700ms var(--ease-cinematic) 180ms both;
+  animation: markIn var(--chapter-mark-in) var(--ease-cinematic) 180ms both;
 }
 
 .title {
@@ -70,7 +70,7 @@
   text-wrap: balance;
   /* Then the name settles into place beneath it. */
   opacity: 0;
-  animation: titleIn 1000ms var(--ease-cinematic) 460ms both;
+  animation: titleIn var(--chapter-title-in) var(--ease-cinematic) 460ms both;
 }
 
 .subtitle {

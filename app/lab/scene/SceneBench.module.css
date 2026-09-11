@@ -1,0 +1,114 @@
+.bench {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.toggle {
+  min-height: 40px;
+  padding: 0 var(--space-5);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+}
+
+.toggle:hover {
+  background: var(--color-hover-wash);
+}
+
+.readout {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.readout strong {
+  color: var(--color-paper-light);
+}
+
+.art {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Depth reads through tone as well as parallax rate. */
+.sky {
+  fill: var(--scene-night);
+}
+
+.disc {
+  fill: var(--scene-depth-0);
+}
+
+.mid {
+  fill: var(--scene-depth-2);
+}
+
+.fore {
+  fill: var(--scene-depth-5);
+}
+
+.mark {
+  fill: var(--paper-aged);
+  stroke: var(--paper-edge);
+  stroke-width: 2;
+  transition:
+    fill var(--duration-normal) var(--ease-standard),
+    stroke var(--duration-normal) var(--ease-standard);
+}
+
+.markOpen {
+  fill: var(--color-paper-light);
+  stroke: var(--color-red);
+}
+
+.markInk {
+  fill: none;
+  stroke: var(--paper-rule);
+  stroke-width: 3;
+}
+
+.panel {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 3px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  padding: var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: var(--measure-prose);
+}
+
+.panelTag {
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-red-light);
+}
+
+.panelBody {
+  font-family: var(--font-editorial);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+}
+
+.panelName {
+  font-family: var(--font-chapter);
+  font-size: var(--text-xl);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-paper-light);
+}

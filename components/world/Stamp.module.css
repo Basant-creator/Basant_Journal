@@ -13,7 +13,7 @@
   background: transparent;
   cursor: help;
   /* Struck ink: uneven coverage, slightly lifted off true. */
-  opacity: 0.82;
+  opacity: var(--stamp-opacity);
   transition:
     opacity var(--duration-fast) var(--ease-standard),
     transform var(--duration-fast) var(--ease-standard);
@@ -39,11 +39,11 @@
 }
 
 .red {
-  color: var(--color-red-dark);
+  color: var(--stamp-red);
 }
 
 .ink {
-  color: var(--color-earth-dark);
+  color: var(--stamp-ink);
 }
 
 /* On a dark surface the stamp takes the warm tones instead. */
@@ -59,7 +59,7 @@
   font-family: var(--font-hand);
   font-size: var(--text-lg);
   line-height: 1.2;
-  color: var(--color-red-dark);
+  color: var(--ink-annotation-paper);
   opacity: 0;
   transform: translateX(-6px);
   transition:

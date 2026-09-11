@@ -12,10 +12,10 @@
   inset: -20%;
   background: radial-gradient(
     ellipse 60% 50% at 30% 70%,
-    rgba(155, 133, 101, 0.075),
+    var(--haze-tint),
     transparent 70%
   );
-  animation: hazeDrift 46s ease-in-out infinite alternate;
+  animation: hazeDrift var(--haze-drift) ease-in-out infinite alternate;
 }
 
 /*
@@ -35,8 +35,8 @@
     radial-gradient(circle at 12% 22%, rgba(216, 199, 165, 0.5) 0 0.7px, transparent 1.4px),
     radial-gradient(circle at 68% 74%, rgba(216, 199, 165, 0.4) 0 0.6px, transparent 1.2px);
   background-size: 320px 280px, 260px 340px;
-  opacity: 0.28;
-  animation: driftFar 96s linear infinite;
+  opacity: var(--dust-opacity-far);
+  animation: driftFar var(--dust-drift-far) linear infinite;
 }
 
 .mid {
@@ -44,8 +44,8 @@
     radial-gradient(circle at 42% 8%, rgba(231, 217, 188, 0.55) 0 0.9px, transparent 1.8px),
     radial-gradient(circle at 84% 58%, rgba(216, 199, 165, 0.45) 0 0.8px, transparent 1.6px);
   background-size: 420px 380px, 360px 300px;
-  opacity: 0.22;
-  animation: driftMid 68s linear infinite;
+  opacity: var(--dust-opacity-mid);
+  animation: driftMid var(--dust-drift-mid) linear infinite;
 }
 
 .near {
@@ -55,8 +55,8 @@
     transparent 2.4px
   );
   background-size: 560px 520px;
-  opacity: 0.16;
-  animation: driftNear 44s linear infinite;
+  opacity: var(--dust-opacity-near);
+  animation: driftNear var(--dust-drift-near) linear infinite;
 }
 
 /* Each depth drifts a different distance: parallax, at dust scale. */

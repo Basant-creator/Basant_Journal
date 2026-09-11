@@ -6,8 +6,8 @@
   padding: clamp(44px, 8vh, 104px) var(--page-pad) var(--space-8);
   overflow: hidden;
   background:
-    radial-gradient(ellipse 120% 90% at 50% 18%, #241d16 0%, transparent 62%),
-    linear-gradient(180deg, #191410 0%, var(--color-ink) 48%, #120e0b 100%);
+    radial-gradient(ellipse 120% 90% at 50% 18%, var(--scene-depth-0) 0%, transparent 62%),
+    linear-gradient(180deg, var(--scene-dark) 0%, var(--color-ink) 48%, var(--scene-depth-3) 100%);
 }
 
 /* --- the dark it opens from --------------------------------------------- */
@@ -16,7 +16,7 @@
   position: absolute;
   inset: 0;
   z-index: var(--z-overlay);
-  background: #070605;
+  background: var(--scene-void);
   pointer-events: none;
   /* Resting state is gone. Without the entry stamp this never appears, so it
      can never sit over the page. */
@@ -47,16 +47,16 @@
 /* Aerial perspective: the far ridge is closest to the sky's tone, the near
    one nearly black. That difference is what reads as distance. */
 .ridgeFar {
-  fill: #241e18;
+  fill: var(--scene-depth-0);
   opacity: 0.9;
 }
 
 .ridgeMid {
-  fill: #1a1511;
+  fill: var(--scene-depth-1);
 }
 
 .ridgeNear {
-  fill: #100c09;
+  fill: var(--scene-depth-4);
 }
 
 /* --- the surfacing sheet fragment ---------------------------------------- */

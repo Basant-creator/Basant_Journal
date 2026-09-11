@@ -1,6 +1,6 @@
-import styles from "./Atmosphere.module.css";
+import styles from "./SceneAtmosphere.module.css";
 
-interface AtmosphereProps {
+interface SceneAtmosphereProps {
   /** `still` is haze only; `drift` adds dust. Dust is for scenes, not pages. */
   variant?: "still" | "drift";
   className?: string;
@@ -19,7 +19,7 @@ interface AtmosphereProps {
  * without announcing that someone discovered CSS transforms. Off entirely
  * under reduced motion and on phones.
  */
-export function Atmosphere({ variant = "drift", className }: AtmosphereProps) {
+export function SceneAtmosphere({ variant = "drift", className }: SceneAtmosphereProps) {
   return (
     <div
       className={[styles.air, styles[variant], className].filter(Boolean).join(" ")}

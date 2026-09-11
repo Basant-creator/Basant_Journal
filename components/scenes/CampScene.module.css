@@ -14,7 +14,7 @@
   overflow: hidden;
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
-  background: #0d0b09;
+  background: var(--scene-night);
   --px: 0;
   --py: 0;
 }
@@ -30,16 +30,16 @@
 /* Each band shifts by a different amount: the sky barely moves, the table
    moves most. Small numbers on purpose — this is a head tilt, not a swoop. */
 .sky {
-  transform: translate3d(calc(var(--px) * 6px), calc(var(--py) * 4px), 0);
+  transform: translate3d(calc(var(--px) * var(--depth-shift-0)), calc(var(--py) * 4px), 0);
 }
 
 .ridge {
-  fill: #14100c;
-  transform: translate3d(calc(var(--px) * 12px), calc(var(--py) * 6px), 0);
+  fill: var(--scene-depth-2);
+  transform: translate3d(calc(var(--px) * var(--depth-shift-1)), calc(var(--py) * 6px), 0);
 }
 
 .ridgeNear {
-  fill: #0f0c09;
+  fill: var(--scene-depth-4);
 }
 
 .trees0,
@@ -49,33 +49,33 @@
 }
 
 .trees0 {
-  fill: #120e0b;
-  transform: translate3d(calc(var(--px) * 18px), calc(var(--py) * 8px), 0);
+  fill: var(--scene-depth-3);
+  transform: translate3d(calc(var(--px) * var(--depth-shift-2)), calc(var(--py) * 8px), 0);
 }
 
 .trees1 {
-  fill: #0e0b08;
-  transform: translate3d(calc(var(--px) * 26px), calc(var(--py) * 11px), 0);
+  fill: var(--scene-depth-4);
+  transform: translate3d(calc(var(--px) * var(--depth-shift-3)), calc(var(--py) * 11px), 0);
 }
 
 .trees2 {
-  fill: #0a0806;
-  transform: translate3d(calc(var(--px) * 36px), calc(var(--py) * 14px), 0);
+  fill: var(--scene-depth-5);
+  transform: translate3d(calc(var(--px) * var(--depth-shift-4)), calc(var(--py) * 14px), 0);
 }
 
 .tent,
 .fire,
 .smoke,
 .groundGlow {
-  transform: translate3d(calc(var(--px) * 30px), calc(var(--py) * 12px), 0);
+  transform: translate3d(calc(var(--px) * var(--depth-shift-3)), calc(var(--py) * 12px), 0);
 }
 
 .table {
-  transform: translate3d(calc(var(--px) * 46px), calc(var(--py) * 16px), 0);
+  transform: translate3d(calc(var(--px) * var(--depth-shift-5)), calc(var(--py) * 16px), 0);
 }
 
 .objects {
-  transform: translate3d(calc(var(--px) * 58px), calc(var(--py) * 20px), 0);
+  transform: translate3d(calc(var(--px) * var(--depth-shift-6)), calc(var(--py) * 20px), 0);
 }
 
 .sky,
@@ -89,59 +89,59 @@
 .groundGlow,
 .table,
 .objects {
-  transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: transform var(--depth-settle) var(--ease-standard);
   will-change: transform;
 }
 
 /* --- tent ---------------------------------------------------------------- */
 
 .tent {
-  fill: #17120d;
+  fill: var(--canvas-lit);
 }
 
 .tentDark {
-  fill: #0e0b08;
+  fill: var(--canvas-shade);
 }
 
 .tentMouth {
-  fill: #2a1c12;
+  fill: var(--canvas-mouth);
 }
 
 .tentLine {
   fill: none;
-  stroke: #2e2318;
+  stroke: var(--canvas-seam);
   stroke-width: 2;
 }
 
 /* --- fire ---------------------------------------------------------------- */
 
 .embers {
-  fill: #a6512f;
+  fill: var(--fire-ember);
   opacity: 0.75;
 }
 
 .log {
   fill: none;
-  stroke: #2a1d13;
+  stroke: var(--fire-log);
   stroke-width: 11;
   stroke-linecap: round;
 }
 
 .flameOuter {
-  fill: #c4703a;
+  fill: var(--fire-body);
   opacity: 0.92;
   transform-origin: 650px 582px;
-  animation: flicker 2.6s ease-in-out infinite alternate;
+  animation: flicker var(--fire-flicker) ease-in-out infinite alternate;
 }
 
 .flameInner {
-  fill: #e8b070;
+  fill: var(--fire-core);
   transform-origin: 650px 580px;
-  animation: flicker 1.9s ease-in-out infinite alternate-reverse;
+  animation: flicker calc(var(--fire-flicker) * 0.73) ease-in-out infinite alternate-reverse;
 }
 
 .groundGlow {
-  animation: breathe 4.4s ease-in-out infinite alternate;
+  animation: breathe var(--fire-breathe) ease-in-out infinite alternate;
 }
 
 @keyframes flicker {
@@ -168,21 +168,21 @@
 
 .smoke {
   fill: none;
-  stroke: rgba(200, 186, 164, 0.16);
-  stroke-width: 26;
+  stroke: var(--smoke-tint);
+  stroke-width: var(--smoke-width);
   stroke-linecap: round;
 }
 
 .plume0 {
-  animation: rise 15s linear infinite;
+  animation: rise var(--smoke-rise) linear infinite;
 }
 
 .plume1 {
-  animation: rise 19s linear infinite 3s;
+  animation: rise calc(var(--smoke-rise) * 1.27) linear infinite 3s;
 }
 
 .plume2 {
-  animation: rise 23s linear infinite 7s;
+  animation: rise calc(var(--smoke-rise) * 1.53) linear infinite 7s;
 }
 
 @keyframes rise {
@@ -203,14 +203,14 @@
 
 .tableEdge {
   fill: none;
-  stroke: #55402a;
+  stroke: var(--timber-edge);
   stroke-width: 3;
   opacity: 0.7;
 }
 
 .grain {
   fill: none;
-  stroke: #2b2015;
+  stroke: var(--timber-grain);
   stroke-width: 2;
   opacity: 0.55;
 }
@@ -218,100 +218,100 @@
 /* --- objects -------------------------------------------------------------- */
 
 .bookCover {
-  fill: #3d2a1d;
-  stroke: #58402c;
+  fill: var(--timber-light);
+  stroke: var(--timber-edge);
   stroke-width: 1.5;
 }
 
 .bookPages {
-  fill: #cdbb97;
+  fill: var(--paper-aged);
 }
 
 .bookSpine {
-  stroke: #22170f;
+  stroke: var(--timber-dark);
   stroke-width: 7;
 }
 
 .bookRibbon {
-  fill: #7a2e2e;
+  fill: var(--color-red);
 }
 
 .bookMark {
   fill: none;
-  stroke: #6d5233;
+  stroke: var(--ink-map);
   stroke-width: 2.5;
   opacity: 0.6;
 }
 
 .photoMat {
-  fill: #e7d9bc;
-  stroke: #a08a66;
+  fill: var(--color-paper-light);
+  stroke: var(--paper-mat);
   stroke-width: 1.2;
 }
 
 .photoImage {
-  fill: #6b5a45;
+  fill: var(--color-earth);
 }
 
 .photoScene {
   fill: none;
-  stroke: #3a2f23;
+  stroke: var(--color-earth-dark);
   stroke-width: 4;
   stroke-linejoin: round;
 }
 
 .photoSun {
-  fill: #cbb28a;
+  fill: var(--color-paper-dark);
 }
 
 .noteSheet {
-  fill: #c9b795;
-  stroke: #9a8563;
+  fill: var(--paper-aged);
+  stroke: var(--paper-edge);
   stroke-width: 1;
 }
 
 .noteTop {
-  fill: #ded0ae;
-  stroke: #9a8563;
+  fill: var(--paper-aged-light);
+  stroke: var(--paper-edge);
   stroke-width: 1;
 }
 
 .noteRule {
   fill: none;
-  stroke: #8d7855;
+  stroke: var(--paper-rule);
   stroke-width: 1.6;
   opacity: 0.7;
 }
 
 .noteInk {
   fill: none;
-  stroke: #542020;
+  stroke: var(--ink-annotation-paper);
   stroke-width: 2.6;
   opacity: 0.8;
 }
 
 .mapSheet {
-  fill: #d0bd98;
-  stroke: #8d7855;
+  fill: var(--map-field-light);
+  stroke: var(--paper-rule);
   stroke-width: 1.2;
 }
 
 .mapFold {
   fill: none;
-  stroke: #a08a66;
+  stroke: var(--paper-mat);
   stroke-width: 1.6;
 }
 
 .mapInk {
   fill: none;
-  stroke: #6d5233;
+  stroke: var(--ink-map);
   stroke-width: 1.8;
   opacity: 0.75;
 }
 
 .mapTrail {
   fill: none;
-  stroke: #a65145;
+  stroke: var(--ink-annotation);
   stroke-width: 2.6;
   stroke-dasharray: 7 5;
   opacity: 0.7;
@@ -326,7 +326,7 @@
 }
 
 .mapPin {
-  fill: #7a2e2e;
+  fill: var(--color-red);
 }
 
 /* Objects lift a touch when their control is hovered or open. */
@@ -474,7 +474,7 @@
   font-family: var(--font-editorial);
   font-size: var(--text-md);
   line-height: var(--leading-relaxed);
-  color: #2c2520;
+  color: var(--paper-body);
 }
 
 .recordList {

@@ -1,0 +1,126 @@
+"use client";
+
+import Link from "next/link";
+import type { CSSProperties, KeyboardEvent } from "react";
+import { useSceneInteraction } from "./SceneContext";
+import styles from "./SceneObject.module.css";
+
+/** Position and size as a share of the scene, matching the artwork. */
+export interface ObjectBox {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+interface SceneObjectProps {
+  id: string;
+  box: ObjectBox;
+  /** Always readable. The object's name. */
+  label: string;
+  /** The small reward for reaching for it. Never the only copy of a fact. */
+  note?: string;
+  /** Given an href, the object navigates and is a link rather than a tab. */
+  href?: string;
+  onHoverChange?: (hovering: boolean) => void;
+  className?: string;
+}
+
+/**
+ * A thing in a scene you can pick up.
+ *
+ * It is a real control positioned over the artwork, never a click handler on
+ * an SVG path: a button or a link, in the tab order, with an accessible name.
+ * That is the whole reason the box is expressed as percentages — the artwork
+ * and the control are positioned from the same numbers, so they cannot drift
+ * apart at any width.
+ */
+export function SceneObject({
+  id,
+  box,
+  label,
+  note,
+  href,
+  onHoverChange,
+  className,
+}: SceneObjectProps) {
+  const scene = useSceneInteraction();
+  const active = scene?.activeId === id;
+
+  const style = {
+    left: `${box.x}%`,
+    top: `${box.y}%`,
+    width: `${box.w}%`,
+    height: `${box.h}%`,
+  } as CSSProperties;
+
+  const body = (
+    <>
+      <span className={styles.label}>{label}</span>
+      {note ? <span className={styles.note}>{note}</span> : null}
+    </>
+  );
+
+  const classes = [styles.object, active ? styles.active : "", className]
+    .filter(Boolean)
+    .join(" ");
+
+  const hover = (on: boolean) => {
+    scene?.hover(on ? id : null);
+    onHoverChange?.(on);
+  };
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className={`${classes} ${styles.asLink}`}
+        style={style}
+        onMouseOver={() => hover(true)}
+        onMouseOut={() => hover(false)}
+        onFocus={() => hover(true)}
+        onBlur={() => hover(false)}
+      >
+        {body}
+      </Link>
+    );
+  }
+
+  const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (!scene) return;
+    const map: Record<string, number | "first" | "last"> = {
+      ArrowRight: 1,
+      ArrowDown: 1,
+      ArrowLeft: -1,
+      ArrowUp: -1,
+      Home: "first",
+      End: "last",
+    };
+    const delta = map[event.key];
+    if (delta === undefined) return;
+    event.preventDefault();
+    scene.moveFocus(id, delta);
+  };
+
+  return (
+    <button
+      type="button"
+      role="tab"
+      id={scene ? `${scene.baseId}-tab-${id}` : undefined}
+      aria-selected={active}
+      aria-controls={scene ? `${scene.baseId}-panel` : undefined}
+      tabIndex={active ? 0 : -1}
+      ref={(el) => scene?.register(id, el)}
+      className={classes}
+      style={style}
+      onClick={() => scene?.select(id)}
+      onKeyDown={onKeyDown}
+      onMouseOver={() => hover(true)}
+      onMouseOut={() => hover(false)}
+      onFocus={() => hover(true)}
+      onBlur={() => hover(false)}
+    >
+      {body}
+    </button>
+  );
+}

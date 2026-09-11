@@ -1,0 +1,39 @@
+.stage {
+  position: relative;
+  aspect-ratio: var(--scene-ratio, 1600 / 900);
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--scene-night);
+}
+
+/* The frame itself arrives, once, when the scene mounts. */
+.stage[data-entry-scene="true"] {
+  animation: stageIn var(--scene-enter) var(--ease-cinematic) both;
+}
+
+@keyframes stageIn {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* A tall frame crops badly on a phone; the compact ratio is a deliberate
+   second composition rather than the same picture squeezed. */
+@media (max-width: 720px) {
+  .stage {
+    aspect-ratio: var(--scene-ratio-compact, 16 / 10);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage[data-entry-scene="true"] {
+    animation: none;
+  }
+}

@@ -188,6 +188,123 @@
   --map-stroke-medium: 2px;
   --map-stroke-major: 3px;
 
+  /* ========================================================================
+     PHASE 4 ADDITION — THE SCENE
+     A fifth layer above THE DARK / THE TERRAIN / THE PAPER / THE HAND.
+     Where the other four describe surfaces, this one describes *places*:
+     the air in them, the light in them, the depth through them, and the time
+     they take to arrive and leave.
+
+     Nothing below is allowed to be re-typed inside a component. The scenes
+     built before this layer existed carried forty loose hex values between
+     them, which is precisely the drift this block ends.
+     ======================================================================== */
+
+  /* --- environment: the sky, top to ground ------------------------------- */
+  --scene-void: #070605; /* the black a scene opens from */
+  --scene-night: #0d0b09; /* zenith */
+  --scene-dark: #1a1410;
+  --scene-dusk: #33241a; /* the warm band at the horizon */
+  --scene-ember: #4a3220; /* ground nearest the fire */
+
+  /* --- depth: tone darkens as a layer comes forward ---------------------- */
+  --scene-depth-0: #241e18; /* furthest ridge */
+  --scene-depth-1: #1a1511;
+  --scene-depth-2: #14100c;
+  --scene-depth-3: #120e0b;
+  --scene-depth-4: #0e0b08;
+  --scene-depth-5: #0a0806; /* nearest treeline */
+
+  /* Parallax travel per band. Small on purpose: a head tilt, not a swoop. */
+  --depth-shift-0: 6px;
+  --depth-shift-1: 12px;
+  --depth-shift-2: 18px;
+  --depth-shift-3: 26px;
+  --depth-shift-4: 36px;
+  --depth-shift-5: 46px;
+  --depth-shift-6: 58px;
+  --depth-settle: 420ms;
+
+  /* --- firelight ---------------------------------------------------------- */
+  --fire-core: #e8b070;
+  --fire-body: #c4703a;
+  --fire-ember: #a6512f;
+  --fire-log: #2a1d13;
+  --fire-glow: rgba(214, 138, 74, 0.52);
+  --fire-glow-mid: rgba(166, 81, 69, 0.22);
+  --fire-glow-edge: rgba(166, 81, 69, 0);
+  --fire-flicker: 2.6s;
+  --fire-breathe: 4.4s;
+
+  /* --- smoke, dust, haze -------------------------------------------------- */
+  --smoke-tint: rgba(200, 186, 164, 0.16);
+  --smoke-width: 26px;
+  --smoke-rise: 15s;
+  --haze-tint: rgba(155, 133, 101, 0.075);
+  --haze-drift: 46s;
+  --dust-opacity-far: 0.28;
+  --dust-opacity-mid: 0.22;
+  --dust-opacity-near: 0.16;
+  --dust-drift-far: 96s;
+  --dust-drift-mid: 68s;
+  --dust-drift-near: 44s;
+
+  /* --- timber and canvas: tents, tables, notice boards -------------------- */
+  --timber-light: #3a2a1c;
+  --timber: #241a11;
+  --timber-dark: #1a120c;
+  --timber-deep: #1d150e;
+  --timber-edge: #55402a;
+  --timber-grain: #2b2015;
+  --canvas-lit: #17120d;
+  --canvas-shade: #0e0b08;
+  --canvas-mouth: #2a1c12;
+  --canvas-seam: #2e2318;
+  --nail-head: #c9b48c;
+  --nail-body: #6b5638;
+  --nail-shadow: #2b2016;
+
+  /* --- torn paper --------------------------------------------------------- */
+  --paper-tear-amplitude: 0.022;
+  --paper-tear-segments: 14;
+  --paper-tear-shadow: 0 10px 22px rgba(0, 0, 0, 0.34);
+  --paper-fringe-opacity: 0.55;
+  /* A sheet darkens where it has been handled. */
+  --paper-handled:
+    inset 0 0 60px rgba(64, 50, 37, 0.14),
+    inset 0 0 140px rgba(64, 50, 37, 0.07);
+  --paper-body: #2c2520; /* editorial ink on a paper surface */
+  --paper-body-soft: #3a312a;
+  --paper-rule: #8d7855;
+  --paper-edge: #9a8563;
+  --paper-mat: #a08a66;
+  --paper-aged: #c9b795;
+  --paper-aged-light: #ded0ae;
+
+  /* --- ink and stamps ------------------------------------------------------ */
+  --stamp-red: var(--color-red-dark);
+  --stamp-ink: var(--color-earth-dark);
+  --stamp-opacity: 0.82;
+  --stamp-tilt: -4deg;
+  --ink-annotation: var(--color-red-light);
+  --ink-annotation-paper: var(--color-red-dark);
+  --ink-map: #6d5233;
+
+  /* --- chapter cards and location titles ----------------------------------- */
+  --chapter-opacity: 1;
+  --chapter-veil-core: #14100d;
+  --chapter-veil-edge: #0b0907;
+  --chapter-hold: 2200ms;
+  --chapter-mark-in: 700ms;
+  --chapter-title-in: 1000ms;
+  --chapter-rule-in: 900ms;
+
+  /* --- scene timing --------------------------------------------------------- */
+  --scene-transition: 900ms;
+  --scene-enter: 1900ms;
+  --scene-exit: 500ms;
+  --paper-reveal: 760ms;
+
   /* --- motion ------------------------------------------------------------ */
   --duration-fast: 160ms;
   --duration-normal: 280ms;
