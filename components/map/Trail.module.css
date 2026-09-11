@@ -1,0 +1,103 @@
+.trail {
+  fill: none;
+  stroke-linecap: round;
+  transition:
+    stroke var(--duration-normal) var(--ease-standard),
+    stroke-width var(--duration-normal) var(--ease-standard),
+    opacity var(--duration-normal) var(--ease-standard);
+}
+
+/* A walked route: ink, dashed the way a surveyor marks a trail. */
+.route {
+  stroke: var(--map-ink-soft);
+  stroke-width: var(--map-stroke-medium);
+  stroke-dasharray: 9 7;
+  opacity: 0.68;
+}
+
+.route.lit {
+  stroke: var(--map-ink);
+  stroke-width: var(--map-stroke-major);
+  opacity: 1;
+}
+
+/* THE HAND: the primary trail is an annotation, not terrain. */
+.primary {
+  stroke: var(--map-hand);
+  stroke-width: var(--map-stroke-medium);
+  stroke-dasharray: 16 8 3 8;
+  opacity: 0.9;
+}
+
+.primary.lit {
+  stroke-width: var(--map-stroke-major);
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------------
+   Entry: the trails draw themselves, in order, after the ink has settled.
+   Gated on the pre-paint stamp so a JS-less document shows them complete.
+   ------------------------------------------------------------------------ */
+
+:global([data-entry="play"]) .trail {
+  stroke-dashoffset: 1;
+  animation: drawTrail 760ms var(--ease-cinematic) var(--trail-delay, 600ms) both;
+}
+
+@keyframes drawTrail {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* The dash pattern is part of each trail's identity, so it is restored the
+   instant the draw finishes rather than being animated away. */
+:global([data-entry="play"]) .route {
+  animation-name: drawRoute;
+}
+
+@keyframes drawRoute {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  99% {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dasharray: 9 7;
+    stroke-dashoffset: 0;
+  }
+}
+
+:global([data-entry="play"]) .primary {
+  animation-name: drawPrimary;
+}
+
+@keyframes drawPrimary {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  99% {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dasharray: 16 8 3 8;
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trail {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}

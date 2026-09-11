@@ -1,0 +1,39 @@
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: var(--measure-note);
+}
+
+.left {
+  padding-left: var(--space-3);
+  border-left: var(--rule-hand);
+}
+
+.right {
+  padding-right: var(--space-3);
+  border-right: var(--rule-hand);
+  text-align: right;
+  align-items: flex-end;
+}
+
+.tag {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-red-light);
+}
+
+.hand {
+  font-family: var(--font-hand);
+  font-size: var(--text-lg);
+  line-height: 1.35;
+  color: var(--color-red-light);
+}
+
+/* On parchment or paper, red text drops to red-dark: 5.3:1 instead of 3.8:1. */
+:global(.surfacePaper) .hand,
+:global(.surfacePaper) .tag {
+  color: var(--color-red-dark);
+}

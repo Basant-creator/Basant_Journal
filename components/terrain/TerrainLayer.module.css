@@ -1,0 +1,195 @@
+/* Ink on parchment. Every stroke colour is a token; nothing here is literal. */
+
+.contour,
+.hachure,
+.ridge,
+.waterBank,
+.marsh,
+.road,
+.bridge,
+.scrub,
+.station,
+.stationLine,
+.frame,
+.tick,
+.register {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.contour {
+  stroke: var(--map-ink-faint);
+  stroke-width: var(--map-stroke-hair);
+}
+
+.hachure {
+  stroke: var(--map-ink-soft);
+  stroke-width: var(--map-stroke-hair);
+  opacity: 0.55;
+}
+
+.ridge {
+  stroke: var(--map-ink-soft);
+  stroke-width: var(--map-stroke-small);
+}
+
+.waterBank {
+  stroke: var(--map-water);
+  stroke-width: var(--map-stroke-hair);
+  opacity: 0.4;
+}
+
+.waterChannel {
+  fill: none;
+  stroke: var(--map-water);
+  stroke-width: var(--map-stroke-medium);
+  stroke-linecap: round;
+}
+
+.marsh {
+  stroke: var(--map-water);
+  stroke-width: var(--map-stroke-hair);
+  opacity: 0.6;
+}
+
+.road {
+  stroke: var(--map-ink);
+  stroke-width: var(--map-stroke-hair);
+  opacity: 0.72;
+}
+
+.bridge {
+  stroke: var(--map-ink);
+  stroke-width: var(--map-stroke-small);
+}
+
+.scrub {
+  stroke: var(--map-ink-soft);
+  stroke-width: var(--map-stroke-hair);
+  opacity: 0.5;
+}
+
+.station {
+  stroke: var(--map-ink);
+  stroke-width: var(--map-stroke-small);
+  fill: var(--map-plate);
+}
+
+.stationLine {
+  stroke: var(--map-ink-faint);
+  stroke-width: var(--map-stroke-hair);
+  stroke-dasharray: 10 6 2 6;
+}
+
+.frame {
+  stroke: var(--map-ink);
+  stroke-width: var(--map-stroke-small);
+  opacity: 0.8;
+}
+
+.tick,
+.register {
+  stroke: var(--map-ink);
+  stroke-width: var(--map-stroke-hair);
+  opacity: 0.55;
+}
+
+/* --- lettering ---------------------------------------------------------- */
+
+.nameTerrain,
+.nameWater,
+.nameSurvey,
+.nameRoad {
+  font-family: var(--font-display);
+  fill: var(--map-ink);
+  opacity: 0.78;
+  user-select: none;
+}
+
+.nameWater {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  fill: var(--map-water);
+  opacity: 0.95;
+}
+
+.nameSurvey,
+.nameRoad {
+  font-family: var(--font-ui);
+  letter-spacing: 0.12em;
+  fill: var(--map-ink-soft);
+  opacity: 0.8;
+}
+
+.scaleFrame {
+  fill: var(--map-plate);
+  stroke: var(--map-ink);
+  stroke-width: var(--map-stroke-hair);
+}
+
+.scaleFill {
+  fill: var(--map-ink);
+  opacity: 0.82;
+}
+
+.scaleCaption,
+.sheetMark {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  fill: var(--map-ink-soft);
+  opacity: 0.85;
+  user-select: none;
+}
+
+.sheetMark {
+  font-size: 13px;
+}
+
+/* ========================================================================
+   FIRST-ENTRY CHOREOGRAPHY
+   Driven by the pre-paint stamp on <html>, so nothing is ever left hidden
+   when JavaScript does not run: without the stamp, none of these rules match
+   and the sheet renders complete.
+   Sequence: dark -> field -> ink -> names and instruments. ~1.2s total.
+   ======================================================================== */
+
+:global([data-entry="play"]) .enterBase {
+  animation: fieldIn 620ms var(--ease-cinematic) both;
+}
+
+:global([data-entry="play"]) .enterInk {
+  animation: inkIn 720ms var(--ease-cinematic) 260ms both;
+}
+
+:global([data-entry="play"]) .enterLate {
+  animation: inkIn 620ms var(--ease-cinematic) 620ms both;
+}
+
+@keyframes fieldIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes inkIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enterBase,
+  .enterInk,
+  .enterLate {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}

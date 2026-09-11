@@ -1,0 +1,465 @@
+/* ==========================================================================
+   THE FRONTIER — Design Tokens
+   Basant Bhushan · Personal Portfolio · Phase 1 source of truth
+   --------------------------------------------------------------------------
+   THE THREE-LAYER MODEL governs every decision in this file.
+
+     Layer 0 — THE DARK   The world. Ink ground, vignette, grain. Distance and
+                          unknown territory. Holds the map, the shell, the
+                          navigation. Never dense with body text.
+     Layer 1 — THE PAPER  The record. Documents laid on the dark. Holds all
+                          long-form content. Always legible, always warm.
+     Layer 2 — THE HAND   The annotation. Red ink, handwriting, pins, rules,
+                          measurement marks. Scarce by design. Marks attention.
+
+   Rules that fall out of the model:
+     - Long-form content never floats on the dark without a paper surface.
+     - Red belongs to Layer 2 only. It is never a background field, never a
+       section wash, never more than ~3% of any viewport.
+     - Handwriting belongs to Layer 2 only. Never body, never navigation.
+
+   Every component must consume these tokens. Do not hard-code color, spacing,
+   radius, shadow, duration or easing in a component.
+   ========================================================================== */
+
+:root {
+
+  /* ---------------------------------------------------------------------
+     1. COLOR — PRIMITIVES
+     Never reference these directly in components. Use the semantic layer.
+     --------------------------------------------------------------------- */
+
+  --color-ink:          #1B1713;
+  --color-ink-soft:     #2A231D;
+
+  --color-paper:        #D8C7A5;
+  --color-paper-light:  #E7D9BC;
+  --color-paper-dark:   #B7A27D;
+
+  --color-earth:        #66503A;
+  --color-earth-dark:   #403225;
+
+  --color-red:          #7A2E2E;
+  --color-red-dark:     #542020;
+  --color-red-light:    #A65145;
+
+  /* Added in Phase 1. --color-red-light as a button fill under warm-white
+     text measures 4.48:1 — it fails WCAG AA by a hair. This is the corrected
+     hover fill: 6.21:1. See docs/design-direction.md section 10. */
+  --color-red-hover:    #8E3A35;
+
+  --color-dust:         #9B8565;
+  --color-smoke:        #746B5D;
+
+  --color-border:       #806D50;
+  --color-muted:        #A49476;
+
+  --color-white-warm:   #F2E9D7;
+
+
+  /* ---------------------------------------------------------------------
+     2. COLOR — SEMANTIC (Layer 0: the dark shell)
+     --------------------------------------------------------------------- */
+
+  --color-bg-primary:    var(--color-ink);
+  --color-bg-secondary:  var(--color-ink-soft);
+
+  --color-surface:       var(--color-paper);
+  --color-surface-muted: var(--color-paper-dark);
+
+  --color-text-primary:   var(--color-white-warm);   /* 14.8:1 on ink */
+  --color-text-secondary: #C6B99F;                   /*  9.2:1 on ink */
+  --color-text-muted:     var(--color-muted);        /*  6.0:1 on ink */
+  --color-text-on-paper:  var(--color-ink);          /* 10.7:1 on paper */
+
+  /* Added: the secondary reading colour for paper surfaces. --color-earth
+     is 4.55:1 on paper — legal, but only at >= 16px. Below that, use
+     --color-text-on-paper-muted (7.4:1). */
+  --color-text-on-paper-soft:  var(--color-earth);
+  --color-text-on-paper-muted: var(--color-earth-dark);
+
+  --color-accent:       var(--color-red);
+  --color-accent-hover: var(--color-red-hover);
+
+  --color-border-subtle: rgba(216, 199, 165, 0.22);
+  --color-border-strong: rgba(216, 199, 165, 0.48);
+
+  /* Focus is surface-dependent. Warm white on paper is 1.19:1 — invisible.
+     The shell sets the dark value; .surface-paper overrides it below. */
+  --focus-ring-color:  var(--color-paper-light);     /* 12.8:1 on ink */
+  --focus-ring-width:  2px;
+  --focus-ring-offset: 3px;
+
+  /* Selection, scrim, and state washes */
+  --color-selection-bg: rgba(166, 81, 69, 0.32);
+  --color-scrim:        rgba(11, 9, 7, 0.72);
+  --color-hover-wash:   rgba(216, 199, 165, 0.06);
+  --color-pressed-wash: rgba(216, 199, 165, 0.12);
+
+
+  /* ---------------------------------------------------------------------
+     3. TYPOGRAPHY
+     --------------------------------------------------------------------- */
+
+  /* Display — chapter titles, location names, project names, map labels.
+     Cap at ~6 words: this face is inscriptional and gets shouty in long
+     strings. The THE FRONTIER wordmark is bespoke SVG lettering, not a
+     webfont — see docs/design-direction.md section 4. */
+  --font-display:   "Cinzel", "IM Fell English SC", "IM FELL English", Georgia, serif;
+
+  /* Editorial — all long-form reading: journal entries, project write-ups,
+     biography. This carries the bulk of the technical content. */
+  --font-editorial: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+
+  /* Interface — navigation, buttons, metadata, tech labels, dates, numbers. */
+  --font-ui:        "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Hand — annotations and decorative marginalia ONLY. Never body text,
+     never navigation, never anything load-bearing. */
+  --font-hand:      "Caveat", "Segoe Script", cursive;
+
+  /* Numeric — tabular alignment for bounty metrics and timeline dates. */
+  --font-numeric:   var(--font-ui);
+
+  /* Scale */
+  --text-xs:   0.72rem;
+  --text-sm:   0.82rem;
+  --text-md:   1rem;
+  --text-lg:   1.25rem;
+  --text-xl:   1.6rem;
+  --text-2xl:  2.25rem;
+  --text-3xl:  3.2rem;
+  --text-4xl:  4.5rem;
+  --text-hero: clamp(4rem, 10vw, 9rem);
+
+  /* Added in Phase 1 — the original spec had no line-height, tracking or
+     measure tokens, which is where token systems usually leak. */
+  --leading-tight:   1.06;   /* display, hero */
+  --leading-snug:    1.22;   /* section headings */
+  --leading-normal:  1.45;   /* UI text, metadata */
+  --leading-relaxed: 1.68;   /* editorial body on paper */
+
+  --tracking-tight:  -0.02em;  /* large display */
+  --tracking-normal: 0;
+  --tracking-wide:   0.06em;   /* small-caps UI labels, buttons */
+  --tracking-label:  0.08em;   /* metadata labels */
+  --tracking-hero:   0.14em;   /* eyebrow text, map labels */
+
+  --measure-prose: 66ch;   /* editorial column on paper */
+  --measure-lede:  54ch;   /* hero paragraph, section intros */
+  --measure-note:  38ch;   /* annotations, marginalia */
+
+
+  /* ---------------------------------------------------------------------
+     4. SPACING — 4px base
+     --------------------------------------------------------------------- */
+
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* Layout rhythm — fluid, so the cinematic scale survives the breakpoints */
+  --page-pad:      clamp(20px, 5vw, 96px);
+  --section-gap:   clamp(96px, 12vw, 160px);
+  --narrative-gap: clamp(48px, 6vw, 80px);
+  --card-pad:      clamp(24px, 3vw, 32px);
+  --component-gap: var(--space-4);
+
+  --container-max: 1440px;
+  --content-max:   1180px;
+  --grid-cols:     12;
+  --grid-gutter:   var(--space-6);
+
+
+  /* ---------------------------------------------------------------------
+     5. BORDERS
+     --------------------------------------------------------------------- */
+
+  --border-thin:   1px;
+  --border-medium: 2px;
+
+  --border-paper:        1px solid rgba(64, 50, 37, 0.35);
+  --border-paper-strong: 2px solid rgba(64, 50, 37, 0.55);
+
+  --border-dark:        1px solid rgba(216, 199, 165, 0.22);
+  --border-dark-strong: 1px solid rgba(216, 199, 165, 0.45);
+
+  /* Ink rules — the hairlines that separate editorial blocks on paper */
+  --rule-ink:  1px solid rgba(64, 50, 37, 0.28);
+  --rule-hand: 2px solid rgba(122, 46, 46, 0.55);
+
+
+  /* ---------------------------------------------------------------------
+     6. RADIUS
+     --------------------------------------------------------------------- */
+
+  --radius-none: 0px;
+  --radius-sm:   2px;
+  --radius-md:   4px;
+  --radius-lg:   8px;
+  --radius-pill: 999px;
+
+
+  /* ---------------------------------------------------------------------
+     7. SHADOW — physical paper depth, not UI elevation
+     --------------------------------------------------------------------- */
+
+  --shadow-paper:      0 8px 24px rgba(0, 0, 0, 0.20);
+  --shadow-paper-deep: 0 18px 50px rgba(0, 0, 0, 0.32);
+  --shadow-inset:      inset 0 0 40px rgba(27, 23, 19, 0.12);
+  --shadow-none:       none;
+
+  /* Lift on hover — paper picking up off the table, never a scale transform */
+  --shadow-paper-lift: 0 14px 34px rgba(0, 0, 0, 0.28);
+
+
+  /* ---------------------------------------------------------------------
+     8. TEXTURE
+     Subtlety is the whole point: felt before it is noticed.
+     --------------------------------------------------------------------- */
+
+  --texture-grain-opacity:    0.04;
+  --texture-paper-opacity:    0.08;
+  --texture-dust-opacity:     0.04;
+  --texture-vignette-opacity: 0.22;
+
+  --texture-grain-size: 240px;
+  --texture-paper-size: 420px;
+
+  /* Fine film grain — high-frequency monochrome noise */
+  --texture-grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)' opacity='0.9'/%3E%3C/svg%3E");
+
+  /* Paper fibre — low-frequency blotching, multiplied onto paper surfaces */
+  --texture-paper-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23p)' opacity='0.9'/%3E%3C/svg%3E");
+
+  --texture-vignette: radial-gradient(
+      ellipse 120% 90% at 50% 42%,
+      transparent 38%,
+      rgba(11, 9, 7, 0.55) 100%);
+
+
+  /* ---------------------------------------------------------------------
+     9. MAP / ILLUSTRATION
+     --------------------------------------------------------------------- */
+
+  --map-line:        #806D50;                    /* 3.58:1 on ink — clears the
+                                                    3:1 non-text bar */
+  --map-line-muted:  rgba(128, 109, 80, 0.55);   /* 1.95:1 — DECORATIVE ONLY.
+                                                    Never the sole indicator
+                                                    of an interactive trail. */
+  --map-line-active: #A65145;
+
+  --map-stroke-small:  1px;
+  --map-stroke-medium: 2px;
+  --map-stroke-major:  3px;
+
+  --map-terrain:   rgba(128, 109, 80, 0.30);   /* contours, hatching */
+  --map-water:     rgba(116, 107, 93, 0.60);
+  --map-node:      var(--color-paper-dark);
+  --map-node-live: var(--color-paper-light);
+  --map-label:     var(--color-text-secondary);
+
+  --map-dash: 6 7;     /* untravelled trail */
+
+
+  /* ---------------------------------------------------------------------
+     10. ICON — engraved / hand-drawn line symbols
+     --------------------------------------------------------------------- */
+
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 28px;
+  --icon-xl: 40px;
+
+  --icon-stroke:    1.5px;
+  --icon-stroke-lg: 2px;
+  --icon-linecap:   round;
+
+
+  /* ---------------------------------------------------------------------
+     11. MOTION
+     --------------------------------------------------------------------- */
+
+  --duration-fast:      160ms;
+  --duration-normal:    280ms;
+  --duration-slow:      500ms;
+  --duration-cinematic: 900ms;
+  --duration-reveal:    1200ms;
+
+  --ease-standard:  cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Stagger unit for sequenced reveals (map nodes, journal entries) */
+  --stagger: 70ms;
+
+  /* Physical displacement on hover — movement, never scale */
+  --lift-sm: 2px;
+  --lift-md: 4px;
+
+
+  /* ---------------------------------------------------------------------
+     12. Z-INDEX
+     --------------------------------------------------------------------- */
+
+  --z-base:       0;
+  --z-content:    10;
+  --z-map:        20;
+  --z-texture:    40;   /* added: grain/vignette sit above content, below UI */
+  --z-overlay:    50;
+  --z-navigation: 100;
+  --z-modal:      200;
+  --z-cursor:     500;
+
+
+  /* ---------------------------------------------------------------------
+     13. COMPONENT TOKENS
+     --------------------------------------------------------------------- */
+
+  /* Buttons */
+  --btn-height:    46px;
+  --btn-height-sm: 38px;
+  --btn-pad-x:     24px;
+  --btn-radius:    var(--radius-md);
+  --btn-font:      var(--font-ui);
+  --btn-weight:    600;
+  --btn-size:      var(--text-sm);
+  --btn-tracking:  var(--tracking-wide);
+
+  --btn-primary-bg:       var(--color-accent);
+  --btn-primary-fg:       var(--color-white-warm);   /* 7.7:1 */
+  --btn-primary-bg-hover: var(--color-accent-hover); /* 6.2:1 */
+
+  --btn-secondary-bg:     transparent;
+  --btn-secondary-fg:     var(--color-white-warm);
+  --btn-secondary-border: var(--color-border-strong);
+
+  /* Paper / journal card */
+  --paper-bg:     var(--color-surface);
+  --paper-fg:     var(--color-text-on-paper);
+  --paper-border: var(--border-paper);
+  --paper-shadow: var(--shadow-paper);
+  --paper-radius: var(--radius-sm);
+  --paper-pad:    var(--card-pad);
+
+  /* Metadata label */
+  --label-font:      var(--font-ui);
+  --label-size:      var(--text-xs);
+  --label-tracking:  var(--tracking-label);
+  --label-transform: uppercase;
+  --label-color:     var(--color-muted);
+  --label-weight:    500;
+
+  /* Bounty metric */
+  --metric-font:        var(--font-display);
+  --metric-size:        var(--text-3xl);
+  --metric-size-lg:     var(--text-4xl);
+  --metric-color:       var(--color-paper-light);
+  --metric-label-color: var(--color-muted);
+
+  /* Tag */
+  --tag-bg:     rgba(216, 199, 165, 0.08);
+  --tag-fg:     var(--color-text-secondary);
+  --tag-border: 1px solid var(--color-border-subtle);
+  --tag-radius: var(--radius-sm);
+  --tag-pad:    4px 10px;
+  --tag-size:   var(--text-xs);
+
+  /* Navigation */
+  --nav-height: 68px;
+  --nav-bg:     rgba(27, 23, 19, 0.88);
+  --nav-border: var(--border-dark);
+
+  /* Modal */
+  --modal-max:   880px;
+  --modal-scrim: var(--color-scrim);
+}
+
+
+/* ==========================================================================
+   SURFACE SCOPES
+   Applying a surface class re-points the contextual tokens so nested
+   components stay correct without knowing where they are.
+   ========================================================================== */
+
+.surface-paper {
+  --color-text-primary:   var(--color-text-on-paper);
+  --color-text-secondary: var(--color-text-on-paper-soft);
+  --color-text-muted:     var(--color-text-on-paper-muted);
+  --color-border-subtle:  rgba(64, 50, 37, 0.28);
+  --color-border-strong:  rgba(64, 50, 37, 0.55);
+  --focus-ring-color:     var(--color-ink);          /* 10.7:1 on paper */
+  --color-hover-wash:     rgba(64, 50, 37, 0.05);
+  --color-pressed-wash:   rgba(64, 50, 37, 0.10);
+  --tag-bg:               rgba(64, 50, 37, 0.07);
+  --tag-fg:               var(--color-earth-dark);
+  --tag-border:           1px solid rgba(64, 50, 37, 0.30);
+  --label-color:          var(--color-earth);
+  --metric-color:         var(--color-earth-dark);
+  --btn-secondary-fg:     var(--color-ink);
+  --btn-secondary-border: rgba(64, 50, 37, 0.55);
+
+  background: var(--color-surface);
+  color: var(--color-text-on-paper);
+}
+
+.surface-dark {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+
+/* ==========================================================================
+   BASE BEHAVIOURS THAT BELONG WITH THE TOKENS
+   ========================================================================== */
+
+::selection {
+  background: var(--color-selection-bg);
+  color: var(--color-white-warm);
+}
+
+:where(a, button, [tabindex], summary, input, select, textarea):focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+
+/* ==========================================================================
+   REDUCED MOTION
+   The frontier still has to feel deliberate with everything switched off.
+   Reveals become instant-and-present, not absent: opacity snaps to 1,
+   transforms are removed, continuous loops stop. Nothing disappears.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast:      1ms;
+    --duration-normal:    1ms;
+    --duration-slow:      1ms;
+    --duration-cinematic: 1ms;
+    --duration-reveal:    1ms;
+    --stagger:            0ms;
+    --lift-sm:            0px;
+    --lift-md:            0px;
+    --texture-dust-opacity: 0;   /* drifting particles are motion */
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

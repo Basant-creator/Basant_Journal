@@ -1,0 +1,78 @@
+.paper {
+  position: relative;
+  background: var(--color-paper);
+  color: var(--color-text-on-paper);
+  border: var(--border-paper);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-paper);
+  padding: var(--card-pad);
+  isolation: isolate;
+}
+
+.light {
+  background: var(--color-paper-light);
+}
+
+/* A working surface rather than a finished document — used inside the map. */
+.field {
+  background: var(--color-paper-dark);
+}
+
+.elevated {
+  box-shadow: var(--shadow-paper-deep);
+}
+
+/* Paper fibre, multiplied so it darkens rather than fogs the sheet. */
+.paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-image: var(--texture-paper-url);
+  background-size: 420px;
+  opacity: var(--texture-paper-opacity);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* The faint cupping that stops paper reading as a flat rectangle. */
+.paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: var(--shadow-inset);
+  pointer-events: none;
+}
+
+/* Edge variation: the sheet's corners have been handled. */
+.worn {
+  border-radius: var(--radius-sm);
+  clip-path: polygon(
+    0.4% 0%,
+    99.5% 0.5%,
+    100% 99.2%,
+    0.6% 100%
+  );
+}
+
+.inner {
+  position: relative;
+}
+
+/* --- editorial defaults for anything laid on paper --- */
+
+.inner :global(p) {
+  font-family: var(--font-editorial);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  max-width: var(--measure-prose);
+  color: var(--color-text-on-paper);
+}
+
+.inner :global(h2),
+.inner :global(h3) {
+  color: var(--color-text-on-paper);
+}

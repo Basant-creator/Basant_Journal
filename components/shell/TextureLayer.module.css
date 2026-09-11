@@ -1,0 +1,26 @@
+/* Two stacked effects with different jobs, so they need different opacities:
+   the vignette does real work at 0.62, the grain must stay subliminal at 0.04.
+   Putting both on one element would force them to share one opacity. */
+
+.texture {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-texture);
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 120% 90% at 50% 42%,
+    transparent 38%,
+    rgba(11, 9, 7, 0.62) 100%
+  );
+}
+
+.texture::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--texture-grain-url);
+  background-size: 240px;
+  background-repeat: repeat;
+  opacity: var(--texture-grain-opacity);
+  mix-blend-mode: overlay;
+}

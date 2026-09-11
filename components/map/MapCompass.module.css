@@ -1,0 +1,50 @@
+.rose {
+  opacity: 0.88;
+}
+
+.ring,
+.ringInner {
+  fill: none;
+  stroke: var(--map-ink);
+  stroke-width: var(--map-stroke-hair);
+  opacity: 0.75;
+}
+
+.ringInner {
+  stroke-dasharray: 3 5;
+}
+
+.tick {
+  stroke: var(--map-ink);
+  stroke-width: var(--map-stroke-hair);
+  opacity: 0.7;
+}
+
+.armLight {
+  fill: var(--map-plate);
+  stroke: var(--map-ink);
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+}
+
+.armShade {
+  fill: var(--map-ink);
+  stroke: var(--map-ink);
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+  opacity: 0.82;
+}
+
+.hub {
+  fill: var(--map-plate);
+  stroke: var(--map-ink);
+  stroke-width: 0.8;
+}
+
+.north {
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 0.1em;
+  fill: var(--map-ink);
+  user-select: none;
+}

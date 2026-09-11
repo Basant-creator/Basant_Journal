@@ -1,0 +1,290 @@
+.page {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: clamp(48px, 9vh, 120px) var(--page-pad) var(--space-8);
+  overflow: hidden;
+  background: radial-gradient(ellipse 110% 80% at 50% 30%, #221c16 0%, var(--color-ink) 58%);
+}
+
+/* --- terrain behind ------------------------------------------------------ */
+
+.terrain {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: min(62vh, 620px);
+  z-index: var(--z-base);
+  pointer-events: none;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 42%, #000 74%, transparent 100%);
+}
+
+.terrain svg {
+  width: 100%;
+  height: 100%;
+}
+
+.ridge,
+.hachure,
+.contour {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ridge {
+  stroke: var(--color-border);
+  stroke-width: 1.6;
+  opacity: 0.42;
+}
+
+.hachure {
+  stroke: var(--color-border);
+  stroke-width: 1;
+  opacity: 0.2;
+}
+
+.contour {
+  stroke: var(--color-border);
+  stroke-width: 1;
+  opacity: 0.14;
+}
+
+/* --- content -------------------------------------------------------------- */
+
+.inner {
+  position: relative;
+  z-index: var(--z-content);
+  max-width: var(--content-max);
+  width: 100%;
+  margin: 0 auto;
+  align-self: center;
+  /* Columns 9-12 stay empty so the terrain can breathe. */
+  padding-right: min(28%, 360px);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-hero);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: clamp(20px, 4vh, 40px);
+}
+
+.eyebrowRule {
+  flex: none;
+  width: clamp(28px, 7vw, 90px);
+  height: 1px;
+  background: var(--color-border-subtle);
+}
+
+.wordmark {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  line-height: 1;
+}
+
+.wordmarkThe {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1rem, 2.1vw, 1.6rem);
+  letter-spacing: 0.52em;
+  text-transform: uppercase;
+  color: var(--color-paper-dark);
+  padding-left: 0.3em;
+  margin-bottom: clamp(6px, 1.2vh, 14px);
+}
+
+.wordmarkMain {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-hero);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-white-warm);
+  line-height: 0.92;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-paper-light);
+  margin-top: clamp(22px, 4vh, 44px);
+}
+
+.rule {
+  display: block;
+  width: 132px;
+  height: 1px;
+  background: var(--color-border-strong);
+  margin: var(--space-5) 0 var(--space-6);
+}
+
+.lede {
+  font-family: var(--font-editorial);
+  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+  line-height: 1.58;
+  color: var(--color-text-secondary);
+  max-width: var(--measure-lede);
+}
+
+.doors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: clamp(28px, 5vh, 52px);
+}
+
+.doorNote {
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: 46ch;
+  margin-top: var(--space-5);
+}
+
+/* --- foot ---------------------------------------------------------------- */
+
+.foot {
+  position: relative;
+  z-index: var(--z-content);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  max-width: var(--content-max);
+  width: 100%;
+  margin: 0 auto;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.footMark,
+.footLinks a {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.footLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+}
+
+.footLinks a {
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid transparent;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+.footLinks a:hover {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-red-light);
+}
+
+/* ========================================================================
+   FIRST-ENTRY CHOREOGRAPHY
+   dark -> terrain -> survey lines -> THE FRONTIER -> the name -> the doors.
+   Gated on the pre-paint stamp; without it nothing here is hidden.
+   Total: ~1.35s.
+   ======================================================================== */
+
+:global([data-entry="play"]) .terrain {
+  animation: terrainIn 900ms var(--ease-cinematic) 120ms both;
+}
+
+:global([data-entry="play"]) .eyebrow {
+  animation: riseIn 620ms var(--ease-cinematic) 420ms both;
+}
+
+:global([data-entry="play"]) .wordmarkThe {
+  animation: riseIn 700ms var(--ease-cinematic) 560ms both;
+}
+
+:global([data-entry="play"]) .wordmarkMain {
+  animation: riseIn 820ms var(--ease-cinematic) 640ms both;
+}
+
+:global([data-entry="play"]) .name,
+:global([data-entry="play"]) .rule {
+  animation: riseIn 680ms var(--ease-cinematic) 900ms both;
+}
+
+:global([data-entry="play"]) .lede {
+  animation: riseIn 680ms var(--ease-cinematic) 1020ms both;
+}
+
+:global([data-entry="play"]) .doors,
+:global([data-entry="play"]) .doorNote {
+  animation: riseIn 640ms var(--ease-cinematic) 1150ms both;
+}
+
+:global([data-entry="play"]) .foot {
+  animation: riseIn 600ms var(--ease-cinematic) 1280ms both;
+}
+
+@keyframes terrainIn {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- responsive ---------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .inner {
+    padding-right: 0;
+  }
+
+  .terrain {
+    height: min(48vh, 420px);
+    opacity: 0.8;
+  }
+}
+
+@media (max-width: 560px) {
+  .doors > * {
+    flex: 1 1 100%;
+  }
+
+  .footLinks {
+    gap: var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .terrain {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

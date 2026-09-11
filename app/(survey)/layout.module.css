@@ -1,0 +1,16 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  background:
+    radial-gradient(ellipse 120% 70% at 50% 0%, #211b15 0%, transparent 62%),
+    var(--color-ink);
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: clamp(28px, 5vh, 56px) var(--page-pad) var(--space-24);
+}

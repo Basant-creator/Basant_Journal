@@ -1,0 +1,70 @@
+/* Buttons move; they never scale. Phase 1 §6. */
+
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  text-align: center;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.sm {
+  min-height: 38px;
+  padding: 0 var(--space-4);
+  font-size: var(--text-xs);
+}
+
+.label {
+  display: block;
+}
+
+/* THE HAND: red is reserved for the one action that matters on a screen. */
+.primary {
+  background: var(--color-accent);
+  color: var(--color-white-warm); /* 7.7:1 */
+  border: 1px solid transparent;
+}
+
+.primary:hover {
+  background: var(--color-accent-hover); /* 6.2:1 */
+  transform: translateY(calc(-1 * var(--lift-sm)));
+}
+
+.primary:active {
+  transform: translateY(0);
+  background: var(--color-red-dark);
+}
+
+.secondary {
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong);
+}
+
+.secondary:hover {
+  border-color: var(--color-paper-light);
+  background: var(--color-hover-wash);
+  transform: translateY(calc(-1 * var(--lift-sm)));
+}
+
+.secondary:active {
+  transform: translateY(0);
+}
+
+.base:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

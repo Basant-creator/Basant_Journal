@@ -1,0 +1,352 @@
+/* ==========================================================================
+   THE FRONTIER — global tokens and base layer
+   Phase 1 token system is the source of truth; Phase 2 adds only the tokens
+   the map required, each marked below.
+   --------------------------------------------------------------------------
+   THE FOUR-LAYER MODEL
+
+     THE DARK     Atmosphere, shell, navigation. Ink ground, vignette, grain.
+     THE TERRAIN  The map: parchment field, ink cartography, routes, locations.
+     THE PAPER    Documents, journals, reading surfaces.
+     THE HAND     Red ink. Measurement, annotation, human intervention. ~3%.
+
+   Rules that fall out of it:
+     - Long-form content never floats on the dark without a paper surface.
+     - Red is THE HAND only: never a background field, never a generic accent
+       on every button, never more than ~3% of any viewport.
+     - Handwriting annotates; it never carries information.
+   ========================================================================== */
+
+:root {
+  /* --- colour primitives ------------------------------------------------ */
+  --color-ink: #1b1713;
+  --color-ink-soft: #2a231d;
+  --color-ink-deep: #14100d; /* Phase 2: the ground behind the map sheet */
+
+  --color-paper: #d8c7a5;
+  --color-paper-light: #e7d9bc;
+  --color-paper-dark: #b7a27d;
+
+  --color-earth: #66503a;
+  --color-earth-dark: #403225;
+
+  --color-red: #7a2e2e;
+  --color-red-dark: #542020;
+  --color-red-light: #a65145;
+  /* Phase 1 audit: red-light as a button fill is 4.48:1 under warm white and
+     fails AA. This is the corrected hover fill at 6.21:1. */
+  --color-red-hover: #8e3a35;
+
+  --color-dust: #9b8565;
+  --color-smoke: #746b5d;
+  --color-border: #806d50;
+  --color-muted: #a49476;
+  --color-white-warm: #f2e9d7;
+
+  /* --- semantic: THE DARK ----------------------------------------------- */
+  --color-bg-primary: var(--color-ink);
+  --color-bg-secondary: var(--color-ink-soft);
+  --color-surface: var(--color-paper);
+  --color-surface-muted: var(--color-paper-dark);
+
+  --color-text-primary: var(--color-white-warm); /* 14.8:1 on ink */
+  --color-text-secondary: #c6b99f; /*  9.2:1 on ink */
+  --color-text-muted: var(--color-muted); /*  6.0:1 on ink */
+  --color-text-on-paper: var(--color-ink); /* 10.7:1 on paper */
+  --color-text-on-paper-soft: var(--color-earth); /* 4.55:1 — >=16px only */
+  --color-text-on-paper-muted: var(--color-earth-dark); /*  7.4:1 on paper */
+
+  --color-accent: var(--color-red);
+  --color-accent-hover: var(--color-red-hover);
+
+  --color-border-subtle: rgba(216, 199, 165, 0.22);
+  --color-border-strong: rgba(216, 199, 165, 0.48);
+
+  /* Focus is surface-scoped: paper-light on paper is 1.19:1 — invisible. */
+  --focus-ring-color: var(--color-paper-light);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 3px;
+
+  --color-selection-bg: rgba(166, 81, 69, 0.32);
+  --color-scrim: rgba(11, 9, 7, 0.72);
+  --color-hover-wash: rgba(216, 199, 165, 0.06);
+
+  /* --- typography -------------------------------------------------------- */
+  /* Faces are supplied by next/font in app/layout.tsx. */
+  --font-display: var(--font-cinzel), "IM Fell English SC", Georgia, serif;
+  --font-editorial: var(--font-source-serif), Georgia, serif;
+  --font-ui: var(--font-inter), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-hand: var(--font-caveat), "Segoe Script", cursive;
+
+  --text-xs: 0.72rem;
+  --text-sm: 0.82rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.6rem;
+  --text-2xl: 2.25rem;
+  --text-3xl: 3.2rem;
+  --text-4xl: 4.5rem;
+  --text-hero: clamp(3rem, 9vw, 8rem);
+
+  --leading-tight: 1.06;
+  --leading-snug: 1.22;
+  --leading-normal: 1.45;
+  --leading-relaxed: 1.68;
+
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.06em;
+  --tracking-label: 0.08em;
+  --tracking-hero: 0.14em;
+
+  --measure-prose: 66ch;
+  --measure-lede: 54ch;
+  --measure-note: 38ch;
+
+  /* --- spacing ----------------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  --page-pad: clamp(20px, 5vw, 96px);
+  --section-gap: clamp(96px, 12vw, 160px);
+  --narrative-gap: clamp(48px, 6vw, 80px);
+  --card-pad: clamp(24px, 3vw, 32px);
+
+  --container-max: 1440px;
+  --content-max: 1180px;
+
+  /* --- borders / radius / shadow ----------------------------------------- */
+  --border-paper: 1px solid rgba(64, 50, 37, 0.35);
+  --border-paper-strong: 2px solid rgba(64, 50, 37, 0.55);
+  --border-dark: 1px solid rgba(216, 199, 165, 0.22);
+  --border-dark-strong: 1px solid rgba(216, 199, 165, 0.45);
+  --rule-ink: 1px solid rgba(64, 50, 37, 0.28);
+  --rule-hand: 2px solid rgba(122, 46, 46, 0.55);
+
+  --radius-none: 0px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-pill: 999px;
+
+  --shadow-paper: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-paper-deep: 0 18px 50px rgba(0, 0, 0, 0.32);
+  --shadow-paper-lift: 0 14px 34px rgba(0, 0, 0, 0.28);
+  --shadow-inset: inset 0 0 40px rgba(27, 23, 19, 0.12);
+
+  /* --- texture ----------------------------------------------------------- */
+  --texture-grain-opacity: 0.04;
+  --texture-paper-opacity: 0.08;
+  --texture-vignette-opacity: 0.22;
+
+  --texture-grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)'/%3E%3C/svg%3E");
+  --texture-paper-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23p)'/%3E%3C/svg%3E");
+
+  /* ------------------------------------------------------------------------
+     PHASE 2 ADDITION — THE TERRAIN
+     Phase 1 drew the map as light lines on the dark ground. Phase 2's brief
+     calls for a parchment base, so the map sheet is now ink-on-parchment —
+     which is both more authentic to a surveyor's working map and better for
+     contrast: ink on parchment is 4.98:1 where map-line on ink was 3.58:1.
+     THE DARK still dominates: the sheet is inset in a dark field, burned at
+     the edges, and covered by the atmospheric layer.
+     ------------------------------------------------------------------------ */
+  --map-field: #b7a27d;
+  --map-field-light: #d0bd98;
+  --map-field-burn: rgba(35, 27, 20, 0.45);
+  /* Plates, haloes and instrument faces need to read as *lighter than the
+     field* wherever they sit on it, so they cannot borrow the field's own
+     tone. Ink on this is 9.4:1. */
+  --map-plate: #ede0c4;
+
+  --map-ink: #403225; /* 4.98:1 on the field — labels, primary linework */
+  --map-ink-soft: #66503a; /* terrain, hatching, secondary line */
+  --map-ink-faint: rgba(64, 50, 37, 0.34); /* contours, graticule, stipple */
+  --map-water: #746b5d; /* 3.16:1 — graphics threshold */
+
+  /* THE HAND on parchment. Red text uses red-dark (5.28:1); red marks and
+     rules use red (3.75:1, a graphics value). Never the reverse. */
+  --map-hand: var(--color-red);
+  --map-hand-text: var(--color-red-dark);
+
+  --map-stroke-hair: 0.8px;
+  --map-stroke-small: 1.2px;
+  --map-stroke-medium: 2px;
+  --map-stroke-major: 3px;
+
+  /* --- motion ------------------------------------------------------------ */
+  --duration-fast: 160ms;
+  --duration-normal: 280ms;
+  --duration-slow: 500ms;
+  --duration-cinematic: 900ms;
+  --duration-reveal: 1200ms;
+
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --stagger: 70ms;
+  --lift-sm: 2px;
+  --lift-md: 4px;
+
+  /* --- z-index ----------------------------------------------------------- */
+  --z-base: 0;
+  --z-content: 10;
+  --z-map: 20;
+  --z-texture: 40;
+  --z-overlay: 50;
+  --z-navigation: 100;
+  --z-modal: 200;
+}
+
+/* ==========================================================================
+   SURFACE SCOPES
+   A surface class re-points the contextual tokens so nested components stay
+   correct without knowing where they sit.
+   ========================================================================== */
+
+.surfacePaper,
+.surface-paper {
+  --color-text-primary: var(--color-text-on-paper);
+  --color-text-secondary: var(--color-text-on-paper-soft);
+  --color-text-muted: var(--color-text-on-paper-muted);
+  --color-border-subtle: rgba(64, 50, 37, 0.28);
+  --color-border-strong: rgba(64, 50, 37, 0.55);
+  --focus-ring-color: var(--color-ink);
+  --color-hover-wash: rgba(64, 50, 37, 0.05);
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  text-wrap: balance;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+svg {
+  display: block;
+}
+
+::selection {
+  background: var(--color-selection-bg);
+  color: var(--color-white-warm);
+}
+
+:where(a, button, [tabindex], summary, input, select, textarea):focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+/* `hidden` must win over any component display rule. Without this, a
+   `display: block` inside a media query silently outranks the user agent. */
+[hidden] {
+  display: none !important;
+}
+
+/* Visually hidden, still announced. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   The frontier still has to feel deliberate with everything switched off.
+   Reveals become instant-and-present, not absent: nothing disappears.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 1ms;
+    --duration-normal: 1ms;
+    --duration-slow: 1ms;
+    --duration-cinematic: 1ms;
+    --duration-reveal: 1ms;
+    --stagger: 0ms;
+    --lift-sm: 0px;
+    --lift-md: 0px;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}

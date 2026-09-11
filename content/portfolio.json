@@ -1,0 +1,396 @@
+{
+  "$comment": "THE FRONTIER — the single content source. The creative (exploration) renderer and the professional (newspaper) renderer both read this file and nothing else. If a fact is not here, it does not exist on the site. Framework-agnostic on purpose.",
+
+  "meta": {
+    "conceptTitle": "The Frontier",
+    "conceptSubtitle": "A survey of territory still being mapped",
+    "volume": "Volume I",
+    "sheet": "Sheet 1 of 1",
+    "surveyed": "2026",
+    "siteUrl": "https://example.com",
+    "siteUrlStatus": "unresolved"
+  },
+
+  "person": {
+    "name": "Basant Bhushan",
+    "shortName": "Basant",
+    "role": "Computer Science Student & Software Developer",
+    "tagline": "Computer Science student building software, experimenting with AI, and exploring how far engineering ideas can be pushed.",
+    "summary": "Third-year Computer Science and Engineering student at Lovely Professional University. I build backend-heavy full-stack systems — the kind with an algorithm at the centre and a real constraint to design around.",
+    "location": "Punjab, India",
+    "availability": "Open to internships and collaboration",
+    "interests": [
+      "Algorithm design under real throughput constraints",
+      "Applied LLM systems with deterministic fallbacks",
+      "Backend architecture, auth and data modelling",
+      "Interface design that respects the reader"
+    ],
+    "journey": [
+      {
+        "year": "2024",
+        "title": "Setting out",
+        "body": "Started B.Tech CSE at Lovely Professional University, and started writing C++ for data structures the same month I started writing JavaScript for the web."
+      },
+      {
+        "year": "2025",
+        "title": "Groundwork",
+        "body": "Web Development MOOC and Cloud Fundamentals, both with proctored assessment. Moved from following tutorials to shipping things other people had to be able to run."
+      },
+      {
+        "year": "2026",
+        "title": "Three systems",
+        "body": "Built BobAI, OnSight and TuneIt back to back — a code generator, an examination platform, and a music sequencing engine. Each forced a different part of engineering: scaffolding, security, and algorithmic throughput."
+      }
+    ]
+  },
+
+  "links": {
+    "github": "https://github.com/Basant-creator",
+    "linkedin": "https://linkedin.com/in/basant-bhushan-7a49a0336",
+    "email": "basantbhushan89@gmail.com",
+    "phone": "+91 8077519705",
+    "resume": "/BasantBhushan_CV.pdf",
+    "resumeStatus": "unresolved"
+  },
+
+  "navigationLocations": [
+    {
+      "id": "camp",
+      "label": "Camp",
+      "section": "About",
+      "route": "/camp",
+      "symbol": "tent",
+      "order": 1,
+      "coord": [300, 700],
+      "labelAnchor": "below",
+      "weight": 1,
+      "status": "surveying",
+      "description": "Where the journey is kept — who Basant is and how he got here."
+    },
+    {
+      "id": "gear",
+      "label": "Gear",
+      "section": "Skills",
+      "route": "/gear",
+      "symbol": "toolroll",
+      "order": 2,
+      "coord": [470, 430],
+      "labelAnchor": "below",
+      "weight": 1,
+      "status": "surveying",
+      "description": "What gets carried: languages, frameworks, databases and tooling."
+    },
+    {
+      "id": "journal",
+      "label": "Journal",
+      "section": "Projects",
+      "route": "/journal",
+      "symbol": "journal",
+      "order": 3,
+      "coord": [760, 470],
+      "labelAnchor": "below",
+      "weight": 1.4,
+      "status": "mapped",
+      "description": "Three systems, written up in full. The engineering work."
+    },
+    {
+      "id": "bounties",
+      "label": "Bounties",
+      "section": "Results",
+      "route": "/bounties",
+      "symbol": "notice",
+      "order": 4,
+      "coord": [1030, 250],
+      "labelAnchor": "below",
+      "weight": 1,
+      "status": "surveying",
+      "description": "Measured outcomes — throughput, smoothness, systems shipped."
+    },
+    {
+      "id": "town",
+      "label": "Town",
+      "section": "Education",
+      "route": "/town",
+      "symbol": "roofs",
+      "order": 5,
+      "coord": [1180, 640],
+      "labelAnchor": "below",
+      "weight": 1,
+      "status": "surveying",
+      "description": "Degree, training and certifications."
+    },
+    {
+      "id": "archive",
+      "label": "Archive",
+      "section": "Resume",
+      "route": "/archive",
+      "symbol": "sheaf",
+      "order": 6,
+      "coord": [1330, 520],
+      "labelAnchor": "right",
+      "weight": 1,
+      "status": "surveying",
+      "description": "The record of file — résumé and professional history."
+    },
+    {
+      "id": "trail-end",
+      "label": "Trail End",
+      "section": "Contact",
+      "route": "/trail-end",
+      "symbol": "signpost",
+      "order": 7,
+      "coord": [1470, 830],
+      "labelAnchor": "left",
+      "weight": 1,
+      "status": "surveying",
+      "description": "Where the map stops and the conversation starts."
+    }
+  ],
+
+  "projects": [
+    {
+      "id": "tuneit",
+      "title": "TuneIt",
+      "subtitle": "Algorithmic Music Flow Sequencer & Energy Optimizer",
+      "date": "May 2026 — Aug 2026",
+      "chapter": "I",
+      "summary": "A sequencer that orders a playlist the way a DJ would: harmonically compatible, with a deliberate energy curve across the set.",
+      "problem": "Playlist ordering is usually left to shuffle or to recency. Neither respects musical key or energy, so sets lurch between incompatible tracks and flatten out emotionally.",
+      "objective": "Order an arbitrary playlist so consecutive tracks are harmonically compatible and the overall energy follows an intentional trajectory — at a throughput that makes it interactive rather than a batch job.",
+      "architecture": "A TypeScript/Express REST API fronts four independent sequencing engines. Track metadata is fetched from the YouTube Data API in batches of 12, rate-limited through Bottleneck, enriched by Google Gemini, and cached in PostgreSQL via Prisma so repeat analyses cost nothing. A Next.js 16 client renders the resulting energy trajectory and previews audio in-browser.",
+      "implementation": [
+        "Four algorithmic sequencing engines built on Camelot wheel harmonic matching plus regression-based energy optimization.",
+        "Tested and refined against music-analysis datasets including MusAV and MTG-Jamendo.",
+        "Express.js/TypeScript REST API with 12-track batching and Bottleneck rate limiting across the YouTube Data and Gemini APIs.",
+        "PostgreSQL + Prisma caching layer for track analysis results.",
+        "Next.js 16 frontend with interactive energy-trajectory visualisation and in-browser audio preview.",
+        "Google OAuth 2.0 for playlist synchronisation."
+      ],
+      "technologies": [
+        "TypeScript", "Next.js", "Express.js", "PostgreSQL", "Prisma",
+        "Google Gemini API", "YouTube Data API", "Google OAuth 2.0", "Bottleneck"
+      ],
+      "metrics": [
+        { "value": "157K+", "unit": "tracks / second", "label": "Sequencing throughput" },
+        { "value": "99.7%", "unit": "smoothness", "label": "500-track benchmark" },
+        { "value": "4", "unit": "engines", "label": "Sequencing engines" }
+      ],
+      "challenges": [
+        {
+          "challenge": "Third-party API quotas made per-track analysis untenable at playlist scale.",
+          "resolution": "Batched requests 12 at a time behind a Bottleneck limiter and cached every analysed track in PostgreSQL, so the quota cost of a playlist falls to near zero on re-analysis."
+        },
+        {
+          "challenge": "Harmonic compatibility and energy shape pull against each other — the most compatible next track is often the wrong energy.",
+          "resolution": "Separated the two concerns into distinct engines and scored candidates on a weighted objective, which let the trade-off be tuned rather than hard-coded."
+        }
+      ],
+      "lessons": "Caching is an architecture decision, not an optimisation. Deciding where the cache lived — at the analysed-track boundary rather than the request boundary — was what made the throughput number possible at all.",
+      "github": null,
+      "liveUrl": null,
+      "linksStatus": "unresolved",
+      "visualAssets": []
+    },
+    {
+      "id": "onsight",
+      "title": "OnSight",
+      "subtitle": "Automated Examination & Assessment Platform",
+      "date": "Mar 2026 — Apr 2026",
+      "chapter": "II",
+      "summary": "Turns a PDF question paper into a running, graded, audited online examination.",
+      "problem": "Setting up an online exam usually means re-typing an existing paper into a form builder, then trusting an ad-hoc grading script and a permissions model that was never really designed.",
+      "objective": "Ingest an existing PDF paper directly into a structured exam, grade submissions reliably inside enforced time windows, and make every access attempt auditable.",
+      "architecture": "A Node.js/Express service over MongoDB with Mongoose. Gemini's multimodal API handles PDF-to-MCQ extraction behind a JSON schema validator; a separate grading engine owns evaluation, timing enforcement and analytics; a hierarchical RBAC layer with JWT and refresh-token rotation guards every endpoint.",
+      "implementation": [
+        "PDF-to-MCQ ingestion pipeline on Gemini multimodal APIs, with JSON schema validation, input sanitisation, and fallback handling for transient extraction failures.",
+        "Grading engine that evaluates submissions, enforces exam time windows, and computes question-level performance analytics.",
+        "Post-exam grace-mark recalculation across an already-graded cohort.",
+        "Hierarchical RBAC with JWT authentication and refresh-token rotation.",
+        "Endpoint rate limiting and persistent audit logging of unauthorised access attempts."
+      ],
+      "technologies": [
+        "Node.js", "Express.js", "MongoDB", "Mongoose",
+        "Gemini Multimodal API", "JWT", "RBAC", "REST APIs", "JavaScript"
+      ],
+      "metrics": [
+        { "value": "PDF → exam", "unit": "ingestion", "label": "Schema-validated pipeline" },
+        { "value": "RBAC", "unit": "hierarchical", "label": "With refresh-token rotation" },
+        { "value": "Audited", "unit": "persistent log", "label": "Unauthorised access attempts" }
+      ],
+      "challenges": [
+        {
+          "challenge": "Multimodal extraction fails non-deterministically — a paper that parses cleanly once may not the next time.",
+          "resolution": "Validated every extraction against a JSON schema and wrapped the call in explicit fallback handling, so a transient failure degrades to a retry path instead of a corrupt exam."
+        },
+        {
+          "challenge": "Grades sometimes have to change after the fact, without losing the original submission record.",
+          "resolution": "Made grace-mark handling a recalculation pass over stored submissions rather than a mutation of stored grades, keeping the original record intact and auditable."
+        }
+      ],
+      "lessons": "Anything an LLM produces has to be treated as untrusted input. The schema validator and the fallback path are not defensive extras here — they are the feature that makes the pipeline usable.",
+      "github": null,
+      "liveUrl": null,
+      "linksStatus": "unresolved",
+      "visualAssets": []
+    },
+    {
+      "id": "bobai",
+      "title": "BobAI",
+      "subtitle": "Natural-Language Full-Stack Application Generator",
+      "date": "Feb 2026 — May 2026",
+      "chapter": "III",
+      "summary": "Describe an application in plain English; get a provisioned repository with a working multi-tier app in it.",
+      "problem": "Code generators tend to stop at a snippet. The gap between a generated file and a repository you can actually run is where the time goes.",
+      "objective": "Take a natural-language specification all the way to a provisioned GitHub repository containing a coherent multi-tier application with a matching SQL schema.",
+      "architecture": "A Flask REST API drives a modular scaffolding engine that targets vanilla JS, React, and Node/Express tiers. Gemini generates source, which a multi-file extraction pipeline splits with regex fallbacks; Pexels supplies contextual assets and design tokens; PyGithub provisions and pushes the repository; subprocess-driven integration tests verify the result.",
+      "implementation": [
+        "Flask REST API and modular scaffolding engine producing multi-tier applications across vanilla JS, React, and Node/Express, with generated SQL schemas.",
+        "Multi-file code extraction pipeline over Gemini output, with regex fallbacks for malformed responses.",
+        "Pexels API integration injecting contextual assets and design tokens into generated source.",
+        "Repository provisioning and GitHub deployment automated with PyGithub.",
+        "Subprocess-based integration tests validating API contracts, generated-file integrity, and deployment failure handling."
+      ],
+      "technologies": [
+        "Python", "Flask", "Google Gemini API", "PyGithub", "GitHub API",
+        "REST APIs", "React", "Node.js", "SQL", "Pexels API"
+      ],
+      "metrics": [
+        { "value": "3", "unit": "generation targets", "label": "Vanilla JS, React, Node/Express" },
+        { "value": "End to end", "unit": "language → repo", "label": "Provisioned and pushed" },
+        { "value": "Tested", "unit": "failure path", "label": "Integration-tested deployment" }
+      ],
+      "challenges": [
+        {
+          "challenge": "Model output does not reliably respect file boundaries, so a single malformed response can corrupt a whole generated project.",
+          "resolution": "Built extraction as a pipeline with regex fallbacks at each stage, so degraded output still yields separable files rather than one unusable blob."
+        },
+        {
+          "challenge": "A generated repository that does not run is worse than no repository.",
+          "resolution": "Added subprocess integration tests that exercise the API contracts and file integrity of the generated project — and the deployment failure path specifically."
+        }
+      ],
+      "lessons": "Testing the failure path mattered more than testing the happy path. Most of what made this reliable was deciding what should happen when generation goes wrong.",
+      "github": null,
+      "liveUrl": null,
+      "linksStatus": "unresolved",
+      "visualAssets": []
+    }
+  ],
+
+  "metrics": [
+    { "id": "throughput", "value": "157K+", "unit": "tracks / second", "label": "Sequencing throughput", "project": "tuneit", "context": "Measured across the four sequencing engines." },
+    { "id": "smoothness", "value": "99.7%", "unit": "smoothness", "label": "500-track benchmark", "project": "tuneit", "context": "Harmonic and energy continuity across consecutive tracks." },
+    { "id": "engines", "value": "4", "unit": "engines", "label": "Sequencing engines", "project": "tuneit", "context": "Independent algorithms, weighted against one objective." },
+    { "id": "systems", "value": "3", "unit": "systems", "label": "Major systems shipped", "project": null, "context": "TuneIt, OnSight and BobAI, built across 2026." }
+  ],
+
+  "skills": [
+    {
+      "group": "Languages",
+      "items": [
+        { "name": "C++", "projects": [] },
+        { "name": "JavaScript", "projects": ["onsight", "bobai"] },
+        { "name": "TypeScript", "projects": ["tuneit"] },
+        { "name": "SQL", "projects": ["tuneit", "bobai"] },
+        { "name": "Python", "projects": ["bobai"] }
+      ]
+    },
+    {
+      "group": "Frameworks & Libraries",
+      "items": [
+        { "name": "React", "projects": ["bobai"] },
+        { "name": "Next.js", "projects": ["tuneit"] },
+        { "name": "Node.js", "projects": ["onsight", "bobai"] },
+        { "name": "Express.js", "projects": ["tuneit", "onsight"] },
+        { "name": "Flask", "projects": ["bobai"] },
+        { "name": "Prisma", "projects": ["tuneit"] }
+      ]
+    },
+    {
+      "group": "Databases",
+      "items": [
+        { "name": "MongoDB", "projects": ["onsight"] },
+        { "name": "PostgreSQL", "projects": ["tuneit"] }
+      ]
+    },
+    {
+      "group": "AI / APIs",
+      "items": [
+        { "name": "Google Gemini API", "projects": ["tuneit", "onsight", "bobai"] },
+        { "name": "YouTube Data API", "projects": ["tuneit"] },
+        { "name": "Google OAuth 2.0", "projects": ["tuneit"] },
+        { "name": "REST APIs", "projects": ["tuneit", "onsight", "bobai"] }
+      ]
+    },
+    {
+      "group": "Cloud / Tools",
+      "items": [
+        { "name": "Git", "projects": [] },
+        { "name": "GitHub", "projects": ["bobai"] },
+        { "name": "Render", "projects": [] },
+        { "name": "Vercel", "projects": ["tuneit"] },
+        { "name": "PyGithub", "projects": ["bobai"] }
+      ]
+    },
+    {
+      "group": "Core Subjects",
+      "items": [
+        { "name": "Data Structures & Algorithms", "projects": ["tuneit"] },
+        { "name": "DBMS", "projects": ["tuneit", "onsight"] },
+        { "name": "OOP", "projects": ["bobai"] },
+        { "name": "Operating Systems", "projects": [] },
+        { "name": "Computer Networks", "projects": ["onsight"] }
+      ]
+    }
+  ],
+
+  "education": [
+    {
+      "institution": "Lovely Professional University",
+      "qualification": "B.Tech, Computer Science and Engineering",
+      "place": "Punjab, India",
+      "period": "Aug 2024 — Jun 2028",
+      "detail": "CGPA 6.75",
+      "showDetailInCreativeView": false,
+      "current": true
+    },
+    {
+      "institution": "Milton Public School",
+      "qualification": "Senior Secondary (Class XII)",
+      "place": "Agra, India",
+      "period": "2024",
+      "detail": "67.7%",
+      "showDetailInCreativeView": false,
+      "current": false
+    }
+  ],
+
+  "training": [
+    {
+      "title": "UI/UX Design and Prototyping for Web and Mobile Applications",
+      "issuer": "Centre for Professional Enhancement, Lovely Professional University",
+      "period": "Jun 2026 — Jul 2026",
+      "detail": "Grade A",
+      "body": "Wireframing, prototyping and usability testing, applied to responsive web and mobile interfaces.",
+      "certificate": null,
+      "certificateStatus": "unresolved"
+    }
+  ],
+
+  "certifications": [
+    {
+      "title": "Cloud Fundamentals with Proctored Exam",
+      "issuer": null,
+      "period": "Mar 2025",
+      "certificate": null,
+      "certificateStatus": "unresolved"
+    },
+    {
+      "title": "Web Development (Live MOOC)",
+      "issuer": null,
+      "period": "Jan 2025",
+      "certificate": null,
+      "certificateStatus": "unresolved"
+    }
+  ]
+}

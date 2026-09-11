@@ -1,0 +1,215 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 344px;
+  gap: clamp(24px, 3vw, 44px);
+  align-items: start;
+}
+
+.sheetColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* The aspect ratio is locked so the field-note overlay's percentage
+   positioning lines up exactly with the SVG's own coordinate space. */
+.sheet {
+  position: relative;
+  aspect-ratio: 1600 / 1000;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow-paper-deep);
+  background: var(--color-ink-deep);
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* transform-origin at the sheet's origin keeps the camera maths honest:
+   the composed transform is exactly translate(x, y) scale(k). */
+.camera {
+  transform-origin: 0 0;
+  transform-box: view-box;
+}
+
+.settle {
+  transform-origin: 50% 50%;
+  transform-box: view-box;
+}
+
+/* The camera settles once on arrival — the first thing §13 asks for. Done in
+   CSS on an outer group so it never fights Motion's transform on the inner. */
+:global([data-entry="play"]) .settle {
+  animation: settle 1500ms var(--ease-cinematic) both;
+}
+
+@keyframes settle {
+  from {
+    transform: scale(1.055) translate(-14px, -10px);
+  }
+  to {
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+/* --- THE HAND ----------------------------------------------------------- */
+
+.hand {
+  /* Budget check: five marks on a sheet this size is roughly 2-3% of ink. */
+  opacity: 0.92;
+}
+
+.handText {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  fill: var(--map-hand-text);
+  user-select: none;
+}
+
+.handNote {
+  font-family: var(--font-hand);
+  font-size: 26px;
+  fill: var(--map-hand-text);
+  user-select: none;
+}
+
+.handMark {
+  fill: none;
+  stroke: var(--map-hand);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.handRing {
+  fill: none;
+  stroke: var(--map-hand);
+  stroke-width: 2.2;
+  opacity: 0.78;
+  stroke-dasharray: 132 9 96 7;
+}
+
+:global([data-entry="play"]) .hand {
+  animation: handIn 700ms var(--ease-cinematic) 1500ms both;
+}
+
+@keyframes handIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.92;
+  }
+}
+
+/* --- field note --------------------------------------------------------- */
+
+/* Placement comes from the component (it depends on the marker's position and
+   weight); this rule owns only appearance, and the entry animation touches
+   opacity alone so it never fights the inline transform. */
+.fieldNote {
+  position: absolute;
+  z-index: var(--z-overlay);
+  width: min(240px, 26%);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  background: var(--color-paper-light);
+  border: 1px solid rgba(64, 50, 37, 0.45);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-paper);
+  pointer-events: none;
+  animation: noteIn var(--duration-normal) var(--ease-standard) both;
+}
+
+@keyframes noteIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fieldNoteTag {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-red-dark);
+  margin-bottom: var(--space-2);
+}
+
+.fieldNoteBody {
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.hint {
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+/* --- index column ------------------------------------------------------- */
+
+.indexColumn {
+  position: sticky;
+  top: calc(64px + var(--space-6));
+  min-width: 0;
+}
+
+.mobile {
+  display: none;
+}
+
+/* ------------------------------------------------------------------------
+   Responsive: the sheet simplifies on tablet and is replaced on phones.
+   ------------------------------------------------------------------------ */
+
+@media (max-width: 1180px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .indexColumn {
+    position: static;
+  }
+
+  /* Tablet drops the finest linework so the sheet stays readable at size. */
+  .svg :global([data-layer="cover"]),
+  .svg :global([data-layer="triangulation"]) {
+    display: none;
+  }
+
+  .fieldNote {
+    width: min(230px, 32%);
+  }
+}
+
+@media (max-width: 860px) {
+  .sheetColumn,
+  .indexColumn {
+    display: none;
+  }
+
+  .mobile {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settle,
+  .hand,
+  .fieldNote {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,23 @@
+.skip {
+  position: fixed;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: var(--z-modal);
+  transform: translateY(-160%);
+  background: var(--color-paper-light);
+  color: var(--color-ink);
+  border: 1px solid var(--color-earth-dark);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.skip:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}

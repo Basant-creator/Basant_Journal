@@ -1,0 +1,72 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 4vw, 48px);
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(24px, 4vw, 64px);
+  flex-wrap: wrap;
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.headText {
+  max-width: 62ch;
+}
+
+.eyebrow {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-hero);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.title {
+  font-size: clamp(2rem, 4.2vw, 3.2rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-white-warm);
+  line-height: var(--leading-tight);
+}
+
+.lede {
+  font-family: var(--font-editorial);
+  font-size: var(--text-md);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  max-width: var(--measure-lede);
+  margin-top: var(--space-4);
+}
+
+.sheetData {
+  display: flex;
+  gap: clamp(20px, 3vw, 44px);
+  margin: 0;
+  flex-wrap: wrap;
+}
+
+.sheetData div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sheetData dt {
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.sheetData dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--color-paper-light);
+  font-variant-numeric: tabular-nums;
+}
