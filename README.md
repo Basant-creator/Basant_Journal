@@ -38,35 +38,44 @@ Three rules follow, and they are enforceable:
 ```
 app/
   layout.tsx              fonts, metadata, pre-paint entry stamp, texture layer
-  page.tsx                the landing — arrival, two doors, nothing else
+  page.tsx                /            the landing — arrival, two doors
   (survey)/
     layout.tsx            the shell: persistent navigation
-    frontier/             the interactive survey map
-    professional/         the recruiter route (layer model inverted)
-    [location]/           the seven locations, data-driven
+    frontier/             /frontier    the interactive survey map
+    projects/             /projects    the Journal index
+      [project]/          /projects/*  the three field records
+    about/                /about       Camp
+    skills/               /skills      Gear
+    bounties/             /bounties    Bounties
+    archive/              /archive     Archive
+    contact/              /contact     Trail End
+    professional/         /professional (layer model inverted)
   opengraph-image.tsx     share card, drawn from the same tokens
 
 components/
   map/          FrontierMap, LocationNode, Trail, MapLayer, MapLegend,
                 MapCompass, MobileTrail, symbols
+  journal/      RecordNav — section rail and scroll spy for a field record
   terrain/      TerrainLayer — the sheet, in draughtsman's layer order
   paper/        PaperSurface — the reusable document surface
   annotations/  SurveyAnnotation — THE HAND in the DOM
   navigation/   Navigation, SkipLink
   metrics/      Metric
   shell/        TextureLayer
-  shared/       Button
+  shared/       Button, PageHeader, OnwardNav, Territory styles
 
 lib/
+  routes.ts     the single definition of where things are
   content/      types + the single read point for portfolio.json
-  map/          rng, geometry, terrain, locations (routes and camera maths)
+  map/          rng, geometry, terrain, locations, directional traversal
   motion/       entry choreography, shared Motion transitions
 
 content/
   portfolio.json          the only source of facts
 
 design/tokens.css         Phase 1 token reference (globals.css is the runtime copy)
-docs/                     design direction, visual spec, this phase's notes
+docs/                     design direction, visual spec, phase notes,
+                          routing & interaction contract
 ```
 
 ---
@@ -79,6 +88,10 @@ contour, hachure, river bank and stipple mark from seeded generators
 composition re-tunable by changing a number, gives the linework its
 irregularity for free, and — because the seed is fixed — renders byte-identical
 on the server and the client.
+
+**Route strings live in one place.** `lib/routes.ts` holds the map, and the
+content model carries each location's and project's own canonical `route`. No
+component writes a URL inline, so a route can be changed without drift.
 
 **Content lives in one file.** `content/portfolio.json` is read by the creative
 renderer and the professional renderer alike. A project added once appears
@@ -94,11 +107,29 @@ where its interruptibility earns its keep.
 
 ---
 
+## Navigation rules
+
+- Every destination has a stable URL and works as a direct link, with no prior
+  navigation required.
+- Map interaction — hover, focus, camera, the engaged marker — never reaches
+  the URL and never creates a history entry. `/frontier` is the only map URL.
+- Navigation is never delayed by an animation. Markers are plain links; the
+  camera starts on pointer-down and plays alongside the route change.
+- A location whose page does not exist stays visible and focusable but goes
+  nowhere: `status: "surveying"` in the content model, no fake URL.
+- The record sequence does not wrap. TuneIt → OnSight → BobAI → Journal.
+- Every page ends in a way onward, and the way out of a field record is the
+  map. See [docs/routing-contract.md](docs/routing-contract.md).
+
 ## Accessibility contract
 
-- The map is one composite widget: a single tab stop, arrow keys along the
-  trail, Home/End, Escape to leave.
-- `MapLegend` is the non-spatial route through the same seven locations — a
+- The map is one composite widget: a single tab stop, arrow keys (and WASD)
+  moving to the nearest location in that direction, Home/End for trail order,
+  Escape to leave.
+- The mobile drawer is a real dialog: background interaction disabled, focus
+  trapped, Escape closes and returns focus to the button, and it never survives
+  a navigation.
+- `MapLegend` is the non-spatial route through the same six locations — a
   plain list of links, and simultaneously the sheet's legend.
 - Every marker state differs by ring weight, fill and label plate, not colour
   alone. Labels are legible at rest; only the supporting note is on hover, and

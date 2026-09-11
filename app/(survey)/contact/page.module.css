@@ -1,0 +1,78 @@
+.card {
+  max-width: 72ch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.availability {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-red-dark);
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-5);
+  margin: 0;
+  padding: var(--space-5) 0;
+  border-top: var(--rule-ink);
+  border-bottom: var(--rule-ink);
+}
+
+.details div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.details dt {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-earth);
+}
+
+.details dd {
+  margin: 0;
+}
+
+.value {
+  font-family: var(--font-editorial);
+  font-size: var(--text-md);
+  color: var(--color-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 28px;
+}
+
+a.value {
+  border-bottom: 1px solid rgba(64, 50, 37, 0.4);
+}
+
+a.value:hover {
+  border-bottom-color: var(--color-red);
+  color: var(--color-red-dark);
+}
+
+/* External destinations are marked, not merely coloured. */
+.externalValue::after {
+  content: "↗";
+  font-size: 0.78em;
+  color: var(--color-red-dark);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.note {
+  margin-top: var(--space-2);
+}

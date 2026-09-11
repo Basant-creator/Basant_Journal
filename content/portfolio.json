@@ -1,6 +1,5 @@
 {
   "$comment": "THE FRONTIER — the single content source. The creative (exploration) renderer and the professional (newspaper) renderer both read this file and nothing else. If a fact is not here, it does not exist on the site. Framework-agnostic on purpose.",
-
   "meta": {
     "conceptTitle": "The Frontier",
     "conceptSubtitle": "A survey of territory still being mapped",
@@ -10,7 +9,6 @@
     "siteUrl": "https://example.com",
     "siteUrlStatus": "unresolved"
   },
-
   "person": {
     "name": "Basant Bhushan",
     "shortName": "Basant",
@@ -43,7 +41,6 @@
       }
     ]
   },
-
   "links": {
     "github": "https://github.com/Basant-creator",
     "linkedin": "https://linkedin.com/in/basant-bhushan-7a49a0336",
@@ -52,42 +49,50 @@
     "resume": "/BasantBhushan_CV.pdf",
     "resumeStatus": "unresolved"
   },
-
   "navigationLocations": [
     {
       "id": "camp",
       "label": "Camp",
       "section": "About",
-      "route": "/camp",
+      "route": "/about",
       "symbol": "tent",
       "order": 1,
-      "coord": [300, 700],
+      "coord": [
+        300,
+        700
+      ],
       "labelAnchor": "below",
       "weight": 1,
-      "status": "surveying",
+      "status": "mapped",
       "description": "Where the journey is kept — who Basant is and how he got here."
     },
     {
       "id": "gear",
       "label": "Gear",
       "section": "Skills",
-      "route": "/gear",
+      "route": "/skills",
       "symbol": "toolroll",
       "order": 2,
-      "coord": [470, 430],
+      "coord": [
+        470,
+        430
+      ],
       "labelAnchor": "below",
       "weight": 1,
-      "status": "surveying",
+      "status": "mapped",
       "description": "What gets carried: languages, frameworks, databases and tooling."
     },
     {
       "id": "journal",
       "label": "Journal",
       "section": "Projects",
-      "route": "/journal",
+      "route": "/projects",
       "symbol": "journal",
       "order": 3,
-      "coord": [760, 470],
+      "coord": [
+        760,
+        470
+      ],
       "labelAnchor": "below",
       "weight": 1.4,
       "status": "mapped",
@@ -100,56 +105,52 @@
       "route": "/bounties",
       "symbol": "notice",
       "order": 4,
-      "coord": [1030, 250],
+      "coord": [
+        1030,
+        250
+      ],
       "labelAnchor": "below",
       "weight": 1,
-      "status": "surveying",
+      "status": "mapped",
       "description": "Measured outcomes — throughput, smoothness, systems shipped."
-    },
-    {
-      "id": "town",
-      "label": "Town",
-      "section": "Education",
-      "route": "/town",
-      "symbol": "roofs",
-      "order": 5,
-      "coord": [1180, 640],
-      "labelAnchor": "below",
-      "weight": 1,
-      "status": "surveying",
-      "description": "Degree, training and certifications."
     },
     {
       "id": "archive",
       "label": "Archive",
-      "section": "Resume",
+      "section": "Records",
       "route": "/archive",
       "symbol": "sheaf",
-      "order": 6,
-      "coord": [1330, 520],
-      "labelAnchor": "right",
+      "order": 5,
+      "coord": [
+        1290,
+        560
+      ],
+      "labelAnchor": "below",
       "weight": 1,
-      "status": "surveying",
-      "description": "The record of file — résumé and professional history."
+      "status": "mapped",
+      "description": "The record office at the townsite: degree, training, certifications and resume."
     },
     {
       "id": "trail-end",
       "label": "Trail End",
       "section": "Contact",
-      "route": "/trail-end",
+      "route": "/contact",
       "symbol": "signpost",
-      "order": 7,
-      "coord": [1470, 830],
+      "order": 6,
+      "coord": [
+        1470,
+        830
+      ],
       "labelAnchor": "left",
       "weight": 1,
-      "status": "surveying",
+      "status": "mapped",
       "description": "Where the map stops and the conversation starts."
     }
   ],
-
   "projects": [
     {
       "id": "tuneit",
+      "route": "/projects/tuneit",
       "title": "TuneIt",
       "subtitle": "Algorithmic Music Flow Sequencer & Energy Optimizer",
       "date": "May 2026 — Aug 2026",
@@ -167,13 +168,32 @@
         "Google OAuth 2.0 for playlist synchronisation."
       ],
       "technologies": [
-        "TypeScript", "Next.js", "Express.js", "PostgreSQL", "Prisma",
-        "Google Gemini API", "YouTube Data API", "Google OAuth 2.0", "Bottleneck"
+        "TypeScript",
+        "Next.js",
+        "Express.js",
+        "PostgreSQL",
+        "Prisma",
+        "Google Gemini API",
+        "YouTube Data API",
+        "Google OAuth 2.0",
+        "Bottleneck"
       ],
       "metrics": [
-        { "value": "157K+", "unit": "tracks / second", "label": "Sequencing throughput" },
-        { "value": "99.7%", "unit": "smoothness", "label": "500-track benchmark" },
-        { "value": "4", "unit": "engines", "label": "Sequencing engines" }
+        {
+          "value": "157K+",
+          "unit": "tracks / second",
+          "label": "Sequencing throughput"
+        },
+        {
+          "value": "99.7%",
+          "unit": "smoothness",
+          "label": "500-track benchmark"
+        },
+        {
+          "value": "4",
+          "unit": "engines",
+          "label": "Sequencing engines"
+        }
       ],
       "challenges": [
         {
@@ -193,6 +213,7 @@
     },
     {
       "id": "onsight",
+      "route": "/projects/onsight",
       "title": "OnSight",
       "subtitle": "Automated Examination & Assessment Platform",
       "date": "Mar 2026 — Apr 2026",
@@ -209,13 +230,32 @@
         "Endpoint rate limiting and persistent audit logging of unauthorised access attempts."
       ],
       "technologies": [
-        "Node.js", "Express.js", "MongoDB", "Mongoose",
-        "Gemini Multimodal API", "JWT", "RBAC", "REST APIs", "JavaScript"
+        "Node.js",
+        "Express.js",
+        "MongoDB",
+        "Mongoose",
+        "Gemini Multimodal API",
+        "JWT",
+        "RBAC",
+        "REST APIs",
+        "JavaScript"
       ],
       "metrics": [
-        { "value": "PDF → exam", "unit": "ingestion", "label": "Schema-validated pipeline" },
-        { "value": "RBAC", "unit": "hierarchical", "label": "With refresh-token rotation" },
-        { "value": "Audited", "unit": "persistent log", "label": "Unauthorised access attempts" }
+        {
+          "value": "PDF → exam",
+          "unit": "ingestion",
+          "label": "Schema-validated pipeline"
+        },
+        {
+          "value": "RBAC",
+          "unit": "hierarchical",
+          "label": "With refresh-token rotation"
+        },
+        {
+          "value": "Audited",
+          "unit": "persistent log",
+          "label": "Unauthorised access attempts"
+        }
       ],
       "challenges": [
         {
@@ -235,6 +275,7 @@
     },
     {
       "id": "bobai",
+      "route": "/projects/bobai",
       "title": "BobAI",
       "subtitle": "Natural-Language Full-Stack Application Generator",
       "date": "Feb 2026 — May 2026",
@@ -251,13 +292,33 @@
         "Subprocess-based integration tests validating API contracts, generated-file integrity, and deployment failure handling."
       ],
       "technologies": [
-        "Python", "Flask", "Google Gemini API", "PyGithub", "GitHub API",
-        "REST APIs", "React", "Node.js", "SQL", "Pexels API"
+        "Python",
+        "Flask",
+        "Google Gemini API",
+        "PyGithub",
+        "GitHub API",
+        "REST APIs",
+        "React",
+        "Node.js",
+        "SQL",
+        "Pexels API"
       ],
       "metrics": [
-        { "value": "3", "unit": "generation targets", "label": "Vanilla JS, React, Node/Express" },
-        { "value": "End to end", "unit": "language → repo", "label": "Provisioned and pushed" },
-        { "value": "Tested", "unit": "failure path", "label": "Integration-tested deployment" }
+        {
+          "value": "3",
+          "unit": "generation targets",
+          "label": "Vanilla JS, React, Node/Express"
+        },
+        {
+          "value": "End to end",
+          "unit": "language → repo",
+          "label": "Provisioned and pushed"
+        },
+        {
+          "value": "Tested",
+          "unit": "failure path",
+          "label": "Integration-tested deployment"
+        }
       ],
       "challenges": [
         {
@@ -276,74 +337,235 @@
       "visualAssets": []
     }
   ],
-
   "metrics": [
-    { "id": "throughput", "value": "157K+", "unit": "tracks / second", "label": "Sequencing throughput", "project": "tuneit", "context": "Measured across the four sequencing engines." },
-    { "id": "smoothness", "value": "99.7%", "unit": "smoothness", "label": "500-track benchmark", "project": "tuneit", "context": "Harmonic and energy continuity across consecutive tracks." },
-    { "id": "engines", "value": "4", "unit": "engines", "label": "Sequencing engines", "project": "tuneit", "context": "Independent algorithms, weighted against one objective." },
-    { "id": "systems", "value": "3", "unit": "systems", "label": "Major systems shipped", "project": null, "context": "TuneIt, OnSight and BobAI, built across 2026." }
+    {
+      "id": "throughput",
+      "value": "157K+",
+      "unit": "tracks / second",
+      "label": "Sequencing throughput",
+      "project": "tuneit",
+      "context": "Measured across the four sequencing engines."
+    },
+    {
+      "id": "smoothness",
+      "value": "99.7%",
+      "unit": "smoothness",
+      "label": "500-track benchmark",
+      "project": "tuneit",
+      "context": "Harmonic and energy continuity across consecutive tracks."
+    },
+    {
+      "id": "engines",
+      "value": "4",
+      "unit": "engines",
+      "label": "Sequencing engines",
+      "project": "tuneit",
+      "context": "Independent algorithms, weighted against one objective."
+    },
+    {
+      "id": "systems",
+      "value": "3",
+      "unit": "systems",
+      "label": "Major systems shipped",
+      "project": null,
+      "context": "TuneIt, OnSight and BobAI, built across 2026."
+    }
   ],
-
   "skills": [
     {
       "group": "Languages",
       "items": [
-        { "name": "C++", "projects": [] },
-        { "name": "JavaScript", "projects": ["onsight", "bobai"] },
-        { "name": "TypeScript", "projects": ["tuneit"] },
-        { "name": "SQL", "projects": ["tuneit", "bobai"] },
-        { "name": "Python", "projects": ["bobai"] }
+        {
+          "name": "C++",
+          "projects": []
+        },
+        {
+          "name": "JavaScript",
+          "projects": [
+            "onsight",
+            "bobai"
+          ]
+        },
+        {
+          "name": "TypeScript",
+          "projects": [
+            "tuneit"
+          ]
+        },
+        {
+          "name": "SQL",
+          "projects": [
+            "tuneit",
+            "bobai"
+          ]
+        },
+        {
+          "name": "Python",
+          "projects": [
+            "bobai"
+          ]
+        }
       ]
     },
     {
       "group": "Frameworks & Libraries",
       "items": [
-        { "name": "React", "projects": ["bobai"] },
-        { "name": "Next.js", "projects": ["tuneit"] },
-        { "name": "Node.js", "projects": ["onsight", "bobai"] },
-        { "name": "Express.js", "projects": ["tuneit", "onsight"] },
-        { "name": "Flask", "projects": ["bobai"] },
-        { "name": "Prisma", "projects": ["tuneit"] }
+        {
+          "name": "React",
+          "projects": [
+            "bobai"
+          ]
+        },
+        {
+          "name": "Next.js",
+          "projects": [
+            "tuneit"
+          ]
+        },
+        {
+          "name": "Node.js",
+          "projects": [
+            "onsight",
+            "bobai"
+          ]
+        },
+        {
+          "name": "Express.js",
+          "projects": [
+            "tuneit",
+            "onsight"
+          ]
+        },
+        {
+          "name": "Flask",
+          "projects": [
+            "bobai"
+          ]
+        },
+        {
+          "name": "Prisma",
+          "projects": [
+            "tuneit"
+          ]
+        }
       ]
     },
     {
       "group": "Databases",
       "items": [
-        { "name": "MongoDB", "projects": ["onsight"] },
-        { "name": "PostgreSQL", "projects": ["tuneit"] }
+        {
+          "name": "MongoDB",
+          "projects": [
+            "onsight"
+          ]
+        },
+        {
+          "name": "PostgreSQL",
+          "projects": [
+            "tuneit"
+          ]
+        }
       ]
     },
     {
       "group": "AI / APIs",
       "items": [
-        { "name": "Google Gemini API", "projects": ["tuneit", "onsight", "bobai"] },
-        { "name": "YouTube Data API", "projects": ["tuneit"] },
-        { "name": "Google OAuth 2.0", "projects": ["tuneit"] },
-        { "name": "REST APIs", "projects": ["tuneit", "onsight", "bobai"] }
+        {
+          "name": "Google Gemini API",
+          "projects": [
+            "tuneit",
+            "onsight",
+            "bobai"
+          ]
+        },
+        {
+          "name": "YouTube Data API",
+          "projects": [
+            "tuneit"
+          ]
+        },
+        {
+          "name": "Google OAuth 2.0",
+          "projects": [
+            "tuneit"
+          ]
+        },
+        {
+          "name": "REST APIs",
+          "projects": [
+            "tuneit",
+            "onsight",
+            "bobai"
+          ]
+        }
       ]
     },
     {
       "group": "Cloud / Tools",
       "items": [
-        { "name": "Git", "projects": [] },
-        { "name": "GitHub", "projects": ["bobai"] },
-        { "name": "Render", "projects": [] },
-        { "name": "Vercel", "projects": ["tuneit"] },
-        { "name": "PyGithub", "projects": ["bobai"] }
+        {
+          "name": "Git",
+          "projects": []
+        },
+        {
+          "name": "GitHub",
+          "projects": [
+            "bobai"
+          ]
+        },
+        {
+          "name": "Render",
+          "projects": []
+        },
+        {
+          "name": "Vercel",
+          "projects": [
+            "tuneit"
+          ]
+        },
+        {
+          "name": "PyGithub",
+          "projects": [
+            "bobai"
+          ]
+        }
       ]
     },
     {
       "group": "Core Subjects",
       "items": [
-        { "name": "Data Structures & Algorithms", "projects": ["tuneit"] },
-        { "name": "DBMS", "projects": ["tuneit", "onsight"] },
-        { "name": "OOP", "projects": ["bobai"] },
-        { "name": "Operating Systems", "projects": [] },
-        { "name": "Computer Networks", "projects": ["onsight"] }
+        {
+          "name": "Data Structures & Algorithms",
+          "projects": [
+            "tuneit"
+          ]
+        },
+        {
+          "name": "DBMS",
+          "projects": [
+            "tuneit",
+            "onsight"
+          ]
+        },
+        {
+          "name": "OOP",
+          "projects": [
+            "bobai"
+          ]
+        },
+        {
+          "name": "Operating Systems",
+          "projects": []
+        },
+        {
+          "name": "Computer Networks",
+          "projects": [
+            "onsight"
+          ]
+        }
       ]
     }
   ],
-
   "education": [
     {
       "institution": "Lovely Professional University",
@@ -364,7 +586,6 @@
       "current": false
     }
   ],
-
   "training": [
     {
       "title": "UI/UX Design and Prototyping for Web and Mobile Applications",
@@ -376,7 +597,6 @@
       "certificateStatus": "unresolved"
     }
   ],
-
   "certifications": [
     {
       "title": "Cloud Fundamentals with Proctored Exam",

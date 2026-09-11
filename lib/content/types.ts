@@ -12,7 +12,14 @@
 
 export type UnresolvedStatus = "unresolved" | "resolved";
 
-/** A location's implementation state. Drives the map's "unmapped" treatment. */
+/**
+ * A location's implementation state.
+ *
+ * `surveying` means the route does not exist yet: the marker stays visible and
+ * keyboard-focusable, shows an unmapped treatment, and does not navigate
+ * anywhere. Promoting a location is a one-word data change — the map component
+ * does not need to know.
+ */
 export type LocationStatus = "mapped" | "surveying";
 
 export type LabelAnchor = "below" | "above" | "left" | "right";
@@ -98,6 +105,11 @@ export interface VisualAsset {
 
 export interface Project {
   id: string;
+  /**
+   * Canonical route. The content model owns it so components never write
+   * "/projects/tuneit" inline, which is how route drift starts.
+   */
+  route: string;
   title: string;
   subtitle: string;
   date: string;

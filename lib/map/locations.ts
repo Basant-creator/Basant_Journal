@@ -30,8 +30,7 @@ const BOW: Record<string, number> = {
   "camp>gear": -34,
   "gear>journal": -38,
   "journal>bounties": -30,
-  "bounties>town": 40,
-  "town>archive": -26,
+  "bounties>archive": 44,
   "archive>trail-end": 34,
 };
 

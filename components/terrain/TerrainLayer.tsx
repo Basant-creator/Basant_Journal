@@ -118,6 +118,15 @@ export function TerrainLayer() {
         </g>
       </MapLayer>
 
+      {/* --- the townsite: a place, not a destination -------------------- */}
+      <MapLayer name="settlement" className={styles.enterInk}>
+        <g className={styles.settlement}>
+          {terrain.settlement.map((d, i) => (
+            <path key={`town-${i}`} d={d} />
+          ))}
+        </g>
+      </MapLayer>
+
       {/* --- triangulation: the measured lines -------------------------- */}
       <MapLayer name="triangulation" className={styles.enterInk}>
         <g className={styles.stationLine}>

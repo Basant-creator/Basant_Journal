@@ -8,6 +8,7 @@
 .road,
 .bridge,
 .scrub,
+.settlement,
 .station,
 .stationLine,
 .frame,
@@ -68,6 +69,12 @@
   stroke: var(--map-ink-soft);
   stroke-width: var(--map-stroke-hair);
   opacity: 0.5;
+}
+
+.settlement {
+  stroke: var(--map-ink-soft);
+  stroke-width: var(--map-stroke-hair);
+  opacity: 0.8;
 }
 
 .station {

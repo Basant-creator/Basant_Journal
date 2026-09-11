@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import { useRouter } from "next/navigation";
 import {
   type FocusEvent,
   type KeyboardEvent,
@@ -21,10 +20,11 @@ import {
   trails,
   trailsTouching,
 } from "@/lib/map/locations";
+import { directionForKey, nearestInDirection } from "@/lib/map/navigation";
 import { SHEET_HEIGHT, SHEET_WIDTH } from "@/lib/map/terrain";
 import { completeEntry } from "@/lib/motion/entry";
 import { survey } from "@/lib/motion/variants";
-import { LocationNode } from "./LocationNode";
+import { LocationNode, type NodeRef } from "./LocationNode";
 import { MapLayer } from "./MapLayer";
 import { MapLegend } from "./MapLegend";
 import { MobileTrail } from "./MobileTrail";
@@ -32,34 +32,28 @@ import { Trail } from "./Trail";
 import styles from "./FrontierMap.module.css";
 
 /**
- * The interaction state model.
+ * Interaction state.
  *
  *   initial            the entry sequence is still playing
  *   exploring          at rest, nothing under the pointer
  *   location-focused   a location is hovered or keyboard-focused
- *   location-selected  a location has been chosen; the camera is travelling
+ *   location-active    a location has been engaged; the camera is travelling
  *
- * `professional-mode`, `reduced-motion` and `mobile` are deliberately not in
- * this union — they are a route, a media query and a media query
- * respectively, and modelling them as app state would mean duplicating
- * something the platform already tracks.
+ * None of it reaches the URL. The URL says where the visitor is; this says
+ * what they are doing there. Hover, focus, camera and selection therefore
+ * create no history entries — only following a marker's link does.
  */
-type MapState = "initial" | "exploring" | "location-focused" | "location-selected";
-
-/** How long the camera travels before the route actually changes. */
-const TRAVEL_MS = 520;
+type MapState = "initial" | "exploring" | "location-focused" | "location-active";
 
 export function FrontierMap() {
-  const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
 
   const [state, setState] = useState<MapState>("exploring");
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [engagedId, setEngagedId] = useState<string | null>(null);
   const [focusIndex, setFocusIndex] = useState(0);
 
-  const anchorRefs = useRef<Array<HTMLAnchorElement | null>>([]);
-  const travelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nodeRefs = useRef<Array<NodeRef>>([]);
 
   const primary = useMemo(
     () => locations.find((l) => l.id === primaryLocationId) ?? null,
@@ -98,91 +92,73 @@ export function FrontierMap() {
     };
   }, []);
 
-  useEffect(
-    () => () => {
-      if (travelTimer.current) clearTimeout(travelTimer.current);
-    },
-    [],
-  );
-
   /* --- hover and focus ---------------------------------------------------- */
 
   const enter = useCallback((id: string) => {
     setActiveId((current) => (current === id ? current : id));
-    setState((s) => (s === "location-selected" ? s : "location-focused"));
+    setState((s) => (s === "location-active" ? s : "location-focused"));
   }, []);
 
   const leave = useCallback(() => {
     setActiveId(null);
-    setState((s) => (s === "location-selected" ? s : "exploring"));
+    setState((s) => (s === "location-active" ? s : "exploring"));
   }, []);
 
-  /* --- selection: the camera travels, then the route changes -------------- */
+  /**
+   * Engaging a location starts the camera and the active treatment. It does
+   * not navigate and it does not delay navigation — the marker is a real link,
+   * and the browser follows it while this plays alongside.
+   */
+  const engage = useCallback((id: string) => {
+    setEngagedId(id);
+    setState("location-active");
+  }, []);
 
-  const select = useCallback(
-    (id: string) => {
-      const location = locations.find((l) => l.id === id);
-      if (!location) return;
+  /* --- roving tabindex, traversed by geography ---------------------------- */
 
-      setSelectedId(id);
-      setState("location-selected");
-
-      if (prefersReducedMotion) {
-        router.push(location.route);
-        return;
-      }
-
-      if (travelTimer.current) clearTimeout(travelTimer.current);
-      travelTimer.current = setTimeout(() => {
-        router.push(location.route);
-      }, TRAVEL_MS);
-    },
-    [prefersReducedMotion, router],
-  );
-
-  /* --- roving tabindex: the map is one composite widget ------------------- */
-
-  const moveFocus = useCallback((next: number) => {
-    const clamped = (next + locations.length) % locations.length;
+  const focusAt = useCallback((index: number) => {
+    const clamped = Math.max(0, Math.min(index, locations.length - 1));
     setFocusIndex(clamped);
-    anchorRefs.current[clamped]?.focus();
+    nodeRefs.current[clamped]?.focus();
   }, []);
 
   const onNodeKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLAnchorElement>, index: number) => {
-      switch (event.key) {
-        case "ArrowRight":
-        case "ArrowDown":
-          event.preventDefault();
-          moveFocus(index + 1);
-          break;
-        case "ArrowLeft":
-        case "ArrowUp":
-          event.preventDefault();
-          moveFocus(index - 1);
-          break;
-        case "Home":
-          event.preventDefault();
-          moveFocus(0);
-          break;
-        case "End":
-          event.preventDefault();
-          moveFocus(locations.length - 1);
-          break;
-        case "Escape":
-          event.preventDefault();
-          event.currentTarget.blur();
-          leave();
-          break;
-        default:
-          break;
+    (event: KeyboardEvent, index: number) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        (event.currentTarget as HTMLElement | SVGElement).blur();
+        leave();
+        return;
       }
+
+      if (event.key === "Home") {
+        event.preventDefault();
+        focusAt(0);
+        return;
+      }
+
+      if (event.key === "End") {
+        event.preventDefault();
+        focusAt(locations.length - 1);
+        return;
+      }
+
+      // Enter and Space are left to the browser on a real link; on an unmapped
+      // marker there is nothing to activate, so they do nothing either.
+      const direction = directionForKey(event.key);
+      if (!direction) return;
+
+      const next = nearestInDirection(locations[index], locations, direction);
+      if (!next) return;
+
+      event.preventDefault();
+      focusAt(locations.findIndex((l) => l.id === next.id));
     },
-    [leave, moveFocus],
+    [focusAt, leave],
   );
 
   const onNodeFocus = useCallback(
-    (event: FocusEvent<HTMLAnchorElement>, index: number, id: string) => {
+    (event: FocusEvent, index: number, id: string) => {
       void event;
       setFocusIndex(index);
       enter(id);
@@ -193,32 +169,30 @@ export function FrontierMap() {
   /* --- derived ------------------------------------------------------------ */
 
   const litTrails = useMemo(() => {
-    const id = selectedId ?? activeId;
+    const id = engagedId ?? activeId;
     if (!id) return new Set<string>();
     return new Set(trailsTouching(id));
-  }, [activeId, selectedId]);
+  }, [activeId, engagedId]);
 
   const camera: Camera = useMemo(() => {
     if (prefersReducedMotion) return RESTING_CAMERA;
-    if (state === "location-selected" && selectedId) {
-      const location = locations.find((l) => l.id === selectedId);
+    if (state === "location-active" && engagedId) {
+      const location = locations.find((l) => l.id === engagedId);
       if (location) return cameraFor(location.coord);
     }
     return RESTING_CAMERA;
-  }, [prefersReducedMotion, selectedId, state]);
+  }, [engagedId, prefersReducedMotion, state]);
 
   const noted: NavigationLocation | null = useMemo(() => {
-    if (!activeId || state === "location-selected") return null;
+    if (!activeId) return null;
     return locations.find((l) => l.id === activeId) ?? null;
-  }, [activeId, state]);
+  }, [activeId]);
 
   /**
-   * Where the field note sits relative to its marker.
-   *
-   * It has to clear the marker's own label plate — which is taller for
-   * Journal, because Journal is drawn heavier — and stay inside the sheet.
-   * So it flips above the marker in the lower half, and anchors its near edge
-   * rather than its centre when the marker is close to a side.
+   * Where the field note sits relative to its marker: clear of that marker's
+   * own label plate (taller for Journal, which is drawn heavier) and inside
+   * the sheet. It flips above the marker in the lower half, and anchors its
+   * near edge rather than its centre close to a side.
    */
   const notePlacement = useMemo(() => {
     if (!noted) return null;
@@ -232,13 +206,12 @@ export function FrontierMap() {
       ? ((y + radius + 92) / SHEET_HEIGHT) * 100
       : ((y - radius - 30) / SHEET_HEIGHT) * 100;
 
-    const tx = xPct > 72 ? "-100%" : xPct < 26 ? "0%" : "-50%";
-    const ty = below ? "0%" : "-100%";
-
     return {
       left: `${xPct}%`,
       top: `${top}%`,
-      transform: `translate(${tx}, ${ty})`,
+      transform: `translate(${xPct > 72 ? "-100%" : xPct < 26 ? "0%" : "-50%"}, ${
+        below ? "0%" : "-100%"
+      })`,
     };
   }, [noted]);
 
@@ -251,7 +224,7 @@ export function FrontierMap() {
             className={styles.svg}
             viewBox={`0 0 ${SHEET_WIDTH} ${SHEET_HEIGHT}`}
             role="navigation"
-            aria-label="Frontier survey map. Seven locations; use arrow keys to move between them."
+            aria-label="Frontier survey map. Six locations; arrow keys move to the nearest location in that direction."
           >
             {/* Outer group: the entry settle, in CSS so it cannot fight Motion. */}
             <g className={styles.settle}>
@@ -325,7 +298,12 @@ export function FrontierMap() {
                       markerHeight="5"
                       orient="auto"
                     >
-                      <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="var(--map-hand)" strokeWidth="1.6" />
+                      <path
+                        d="M 0 1 L 9 5 L 0 9"
+                        fill="none"
+                        stroke="var(--map-hand)"
+                        strokeWidth="1.6"
+                      />
                     </marker>
                   </defs>
                 </MapLayer>
@@ -338,16 +316,16 @@ export function FrontierMap() {
                       location={location}
                       index={index}
                       hovered={activeId === location.id}
-                      selected={selectedId === location.id}
+                      active={engagedId === location.id}
                       tabIndex={focusIndex === index ? 0 : -1}
                       anchorRef={(el) => {
-                        anchorRefs.current[index] = el;
+                        nodeRefs.current[index] = el;
                       }}
                       onEnter={enter}
                       onLeave={leave}
                       onFocus={(event) => onNodeFocus(event, index, location.id)}
                       onKeyDown={(event) => onNodeKeyDown(event, index)}
-                      onSelect={select}
+                      onEngage={engage}
                     />
                   ))}
                 </MapLayer>
@@ -355,20 +333,26 @@ export function FrontierMap() {
             </g>
           </svg>
 
-          {/* The small paper annotation that appears beside a location.
-              Its content is duplicated in the index below, so nothing here is
-              hover-only. Hidden while the camera is travelling, because the
-              overlay is positioned against the resting sheet. */}
+          {/* The small paper annotation beside a location. Its content is
+              duplicated in the index below, so nothing here is hover-only. */}
           {noted && notePlacement ? (
             <div className={styles.fieldNote} style={notePlacement} aria-hidden="true">
-              <span className={styles.fieldNoteTag}>Field note</span>
+              <span className={styles.fieldNoteTag}>
+                {noted.status === "surveying" ? "Unmapped" : "Field note"}
+              </span>
               <p className={styles.fieldNoteBody}>{noted.description}</p>
+              {noted.status === "surveying" ? (
+                <p className={styles.fieldNoteStatus}>
+                  Survey in progress — no record filed yet.
+                </p>
+              ) : null}
             </div>
           ) : null}
         </div>
 
         <p className={styles.hint}>
-          Hover or tab a location. Arrow keys move along the trail; Enter travels.
+          Hover or tab a location. Arrow keys move to the nearest location in that
+          direction; Enter opens it; Escape dismisses the note.
         </p>
       </div>
 

@@ -159,6 +159,23 @@
 .project {
   padding-left: var(--space-5);
   border-left: 2px solid rgba(64, 50, 37, 0.35);
+  /* Clears the sticky bar when arriving at /professional#tuneit. */
+  scroll-margin-top: calc(64px + var(--space-6));
+}
+
+/* A fragment arrival is briefly marked so the reader can see where they
+   landed — the browser's own :target, no JavaScript involved. */
+.project:target {
+  border-left-color: var(--color-red);
+}
+
+.projectLink {
+  border-bottom: 1px solid transparent;
+}
+
+.projectLink:hover {
+  border-bottom-color: var(--color-red);
+  color: var(--color-red-dark);
 }
 
 .projectHead {

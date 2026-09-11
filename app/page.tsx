@@ -4,11 +4,12 @@ import { ButtonLink } from "@/components/shared/Button";
 import { links, meta, person } from "@/lib/content/portfolio";
 import { terrain } from "@/lib/map/terrain";
 import styles from "./page.module.css";
+import { routes } from "@/lib/routes";
 
 export const metadata: Metadata = {
   title: `${person.name} — The Frontier`,
   description: person.tagline,
-  alternates: { canonical: "/" },
+  alternates: { canonical: routes.home },
 };
 
 /**
@@ -63,10 +64,10 @@ export default function LandingPage() {
         <p className={styles.lede}>{person.tagline}</p>
 
         <div className={styles.doors}>
-          <ButtonLink href="/frontier" variant="primary">
+          <ButtonLink href={routes.frontier} variant="primary">
             Enter the frontier
           </ButtonLink>
-          <ButtonLink href="/professional" variant="secondary">
+          <ButtonLink href={routes.professional} variant="secondary">
             Professional view
           </ButtonLink>
         </div>
@@ -87,7 +88,7 @@ export default function LandingPage() {
             LinkedIn
           </a>
           <a href={`mailto:${links.email}`}>Email</a>
-          <Link href="/professional">Résumé</Link>
+          <Link href={routes.archive}>Records</Link>
         </nav>
       </footer>
     </main>

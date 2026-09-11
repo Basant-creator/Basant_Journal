@@ -145,25 +145,25 @@
   stroke-dasharray: 4 4;
 }
 
-/* --- selected ---------------------------------------------------------- */
+/* --- active: engaged, and the route is being followed ------------------- */
 
-.selected .ring {
+.active .ring {
   stroke: var(--map-hand);
   stroke-width: 3;
   opacity: 1;
 }
 
-.selected .core {
+.active .core {
   fill: var(--map-hand);
   stroke: var(--map-hand);
 }
 
-.selected .plate,
-.selected .section {
+.active .plate,
+.active .section {
   opacity: 1;
 }
 
-.selected .label {
+.active .label {
   opacity: 1;
 }
 

@@ -1,0 +1,70 @@
+.timeline {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--space-6);
+  padding: var(--space-6) 0;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.step:last-child {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.year {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  letter-spacing: 0.08em;
+  color: var(--color-paper-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.stepTitle {
+  font-size: var(--text-lg);
+  letter-spacing: 0.05em;
+  color: var(--color-paper-light);
+}
+
+.interests {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.interests li {
+  position: relative;
+  padding-left: var(--space-6);
+}
+
+.interests li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 14px;
+  height: 1px;
+  background: rgba(64, 50, 37, 0.6);
+}
+
+.note {
+  margin-top: var(--space-6);
+}
+
+@media (max-width: 620px) {
+  .step {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+}

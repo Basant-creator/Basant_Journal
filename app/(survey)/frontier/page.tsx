@@ -18,7 +18,7 @@ export default function FrontierPage() {
           <p className={styles.eyebrow}>{meta.volume} · The survey</p>
           <h1 className={styles.title}>The Frontier</h1>
           <p className={styles.lede}>
-            Seven locations, walked in order. The red route is the one that
+            Six locations, walked in order. The red route is the one that
             matters — it runs from camp straight to the engineering work, and
             you are not expected to take the long way round.
           </p>
@@ -34,7 +34,7 @@ export default function FrontierPage() {
           </div>
           <div>
             <dt>Locations</dt>
-            <dd>7</dd>
+            <dd>6</dd>
           </div>
         </dl>
       </header>

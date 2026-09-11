@@ -81,11 +81,11 @@
   flex: none;
 }
 
-.active {
+.current {
   color: var(--color-text-primary);
 }
 
-.active .dot {
+.current .dot {
   background: var(--color-red-light);
   border-color: var(--color-red-light);
 }
@@ -127,19 +127,21 @@
   border-radius: var(--radius-md);
 }
 
-.srOnlyInline {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
+/* Background interaction is disabled while the drawer is up: the scrim
+   swallows pointer events and body scroll is locked by the component. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--color-scrim);
 }
 
 .drawer {
   display: none;
   border-top: var(--border-dark);
   background: var(--color-bg-secondary);
+  max-height: calc(100svh - 64px);
+  overflow-y: auto;
 }
 
 .drawerList {

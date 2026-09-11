@@ -1,0 +1,131 @@
+/* Shared page furniture for the territories: About, Skills, Bounties,
+   Archive, Contact and the Journal index all read as the same publication,
+   so the layout primitives live in one file rather than being re-typed. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 4vw, 52px);
+  max-width: var(--content-max);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.sectionHeading {
+  font-size: var(--text-xl);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-paper-light);
+}
+
+.prose {
+  font-family: var(--font-editorial);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  max-width: var(--measure-prose);
+}
+
+.label {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: clamp(18px, 2.4vw, 28px);
+  list-style: none;
+}
+
+.cardsTwo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: clamp(18px, 2.4vw, 28px);
+  list-style: none;
+}
+
+/* --- things on paper ---------------------------------------------------- */
+
+.paperTitle {
+  font-size: var(--text-lg);
+  letter-spacing: 0.04em;
+  color: var(--color-ink);
+}
+
+.paperMeta {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-earth);
+}
+
+.paperBody {
+  font-family: var(--font-editorial);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: #2c2520;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.tag {
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+  color: var(--color-earth-dark);
+  background: rgba(64, 50, 37, 0.07);
+  border: 1px solid rgba(64, 50, 37, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+}
+
+/* A skill with no project behind it is a claim, not evidence — and is shown
+   as one rather than dressed up the same way. */
+.tagClaim {
+  color: var(--color-earth);
+  background: transparent;
+  border-style: dashed;
+}
+
+.rule {
+  height: 1px;
+  background: var(--color-border-subtle);
+  border: 0;
+  margin: 0;
+}
+
+/* --- external destinations --------------------------------------------- */
+
+.external {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.external:hover {
+  border-bottom-color: var(--color-red-light);
+}
+
+.external::after {
+  content: "↗";
+  font-size: 0.8em;
+  color: var(--color-red-light);
+}

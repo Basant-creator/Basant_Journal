@@ -2,29 +2,30 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ButtonLink } from "@/components/shared/Button";
 import styles from "./not-found.module.css";
+import { routes } from "@/lib/routes";
 
 export const metadata: Metadata = {
-  title: "Off the map",
+  title: "Survey record not found",
 };
 
 export default function NotFound() {
   return (
     <main id="main" className={styles.page}>
       <p className={styles.eyebrow}>Unsurveyed</p>
-      <h1 className={styles.title}>Off the map</h1>
+      <h1 className={styles.title}>Survey record not found</h1>
       <p className={styles.body}>
-        Nothing has been recorded at this position. The sheet covers seven
-        locations; this is not one of them.
+        This territory has not been mapped. Nothing has been recorded at this
+        position — no harm done; the sheet is one click away.
       </p>
       <div className={styles.actions}>
-        <ButtonLink href="/frontier" variant="primary">
-          Back to the sheet
+        <ButtonLink href={routes.frontier} variant="primary">
+          Return to frontier
         </ButtonLink>
-        <ButtonLink href="/professional" variant="secondary">
+        <ButtonLink href={routes.professional} variant="secondary">
           Professional view
         </ButtonLink>
       </div>
-      <Link href="/" className={styles.home}>
+      <Link href={routes.home} className={styles.home}>
         Return to the beginning
       </Link>
     </main>

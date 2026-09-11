@@ -3,6 +3,7 @@ import { locations } from "@/lib/content/portfolio";
 import { terrain } from "@/lib/map/terrain";
 import { LocationGlyph } from "./symbols";
 import styles from "./MobileTrail.module.css";
+import { routes } from "@/lib/routes";
 
 /**
  * The mobile composition.
@@ -80,7 +81,7 @@ export function MobileTrail() {
 
       <div className={styles.shortcut}>
         <span className={styles.shortcutNote}>Prefer the plain version?</span>
-        <Link href="/professional" className={styles.shortcutLink}>
+        <Link href={routes.professional} className={styles.shortcutLink}>
           Professional view
         </Link>
       </div>

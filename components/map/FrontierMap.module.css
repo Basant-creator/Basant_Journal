@@ -153,6 +153,15 @@
   margin: 0;
 }
 
+.fieldNoteStatus {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-red-dark);
+  margin: var(--space-2) 0 0;
+}
+
 .hint {
   font-size: var(--text-xs);
   letter-spacing: 0.04em;

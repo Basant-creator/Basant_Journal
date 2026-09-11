@@ -1,0 +1,68 @@
+.rail {
+  position: sticky;
+  top: calc(64px + var(--space-6));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.heading {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.link:hover {
+  color: var(--color-text-primary);
+}
+
+/* The active section is marked by a filled tick as well as by colour. */
+.tick {
+  width: 14px;
+  height: 1px;
+  background: currentColor;
+  flex: none;
+  transition: width var(--duration-fast) var(--ease-standard);
+}
+
+.active {
+  color: var(--color-paper-light);
+}
+
+.active .tick {
+  width: 26px;
+  height: 2px;
+  background: var(--color-red-light);
+}
+
+@media (max-width: 1080px) {
+  .rail {
+    position: static;
+    flex-direction: column;
+  }
+
+  .list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+  }
+}

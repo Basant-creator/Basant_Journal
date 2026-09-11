@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { routes } from "@/lib/routes";
 import {
   certifications,
   education,
@@ -15,7 +16,7 @@ import styles from "./page.module.css";
 export const metadata: Metadata = {
   title: "Professional view",
   description: `${person.name} — ${person.role}. Skills, projects, education and contact, on one page.`,
-  alternates: { canonical: "/professional" },
+  alternates: { canonical: routes.professional },
 };
 
 /**
@@ -28,9 +29,9 @@ export const metadata: Metadata = {
  * It reads the same content file as the map. There is no second copy, so a
  * project added once appears correctly in both modes.
  *
- * Phase 2 builds this as a working shell; the full broadsheet treatment —
- * multi-column density, print stylesheet, résumé download — lands with the
- * Archive in a later phase.
+ * Each project carries an id, so /professional#tuneit lands on that entry.
+ * Project highlighting is a fragment, never a route of its own — it is the
+ * same document, scrolled.
  */
 export default function ProfessionalPage() {
   return (
@@ -79,9 +80,13 @@ export default function ProfessionalPage() {
         </h2>
         <div className={styles.projects}>
           {projects.map((project) => (
-            <article key={project.id} className={styles.project}>
+            <article key={project.id} id={project.id} className={styles.project}>
               <div className={styles.projectHead}>
-                <h3 className={styles.projectTitle}>{project.title}</h3>
+                <h3 className={styles.projectTitle}>
+                  <Link href={project.route} className={styles.projectLink}>
+                    {project.title}
+                  </Link>
+                </h3>
                 <span className={styles.projectDate}>{project.date}</span>
               </div>
               <p className={styles.projectSubtitle}>{project.subtitle}</p>
@@ -189,8 +194,8 @@ export default function ProfessionalPage() {
             <a href={`mailto:${links.email}`}>{links.email}</a>.
           </p>
         </div>
-        <Link href="/frontier" className={styles.backLink}>
-          Return to the frontier
+        <Link href={routes.frontier} className={styles.backLink}>
+          Return to frontier
         </Link>
       </footer>
     </div>

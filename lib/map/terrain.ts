@@ -49,6 +49,7 @@ export interface Stain {
 
 export interface TerrainModel {
   frame: { outer: string; inner: string; ticks: string[]; corners: string[] };
+  settlement: string[];
   mountains: { ridges: string[]; hachures: string[] };
   contours: string[];
   river: { channel: string; banks: string[]; tributary: string };
@@ -281,6 +282,36 @@ function scrubPatch(seed: string, x0: number, x1: number, y0: number, y1: number
 }
 
 /* -------------------------------------------------------------------------
+   The townsite.
+
+   Town is drawn as a place on the ground, not as a navigable location: the
+   record office (Archive) is the destination, and it stands just north-east of
+   the settlement. Keeping the town as terrain means the territory still reads
+   as inhabited without inventing a second URL for the same content.
+   ------------------------------------------------------------------------- */
+
+function buildSettlement(): string[] {
+  const rng = createRng(seedFrom("townsite"));
+  const out: string[] = [];
+
+  for (let i = 0; i < 11; i += 1) {
+    const x = Math.round(rng.range(1096, 1242));
+    const y = Math.round(rng.range(628, 700));
+    const w = Math.round(rng.range(8, 14));
+    const h = Math.round(rng.range(6, 10));
+    // A roof over a wall line: the smallest mark that still reads as a building.
+    out.push(`M ${x - w} ${y} L ${x} ${y - h} L ${x + w} ${y} Z`);
+    out.push(`M ${x - w + 1} ${y} v ${Math.round(rng.range(3, 6))}`);
+    out.push(`M ${x + w - 1} ${y} v ${Math.round(rng.range(3, 6))}`);
+  }
+
+  // A church or meeting hall, marked by its spire.
+  out.push("M 1160 704 L 1160 676 M 1152 704 L 1160 662 L 1168 704");
+
+  return out;
+}
+
+/* -------------------------------------------------------------------------
    Triangulation — the measured lines that make it a survey and not a drawing
    ------------------------------------------------------------------------- */
 
@@ -329,6 +360,7 @@ const LABELS: MapLabel[] = [
   { x: 236, y: 566, text: "T H E   L O N G   D R A W", kind: "terrain", size: 18, rotate: -6, anchor: "start" },
   { x: 566, y: 348, text: "D R Y   F O R K", kind: "water", size: 17, rotate: 50 },
   { x: 1146, y: 774, text: "C O L D   S P R I N G", kind: "water", size: 15, rotate: 62 },
+  { x: 1168, y: 736, text: "T O W N S I T E", kind: "terrain", size: 16 },
   { x: 742, y: 842, text: "T H E   S H A L L O W S", kind: "water", size: 16 },
   { x: 372, y: 906, text: "O L D   P O S T   R O A D", kind: "road", size: 15, rotate: -2 },
   { x: 1072, y: 214, text: "EL. 2140", kind: "survey", size: 15 },
@@ -344,6 +376,7 @@ const LABELS: MapLabel[] = [
 function build(): TerrainModel {
   return {
     frame: buildFrame(),
+    settlement: buildSettlement(),
     mountains: buildMountains(),
     contours: [
       ...contourSet("contour-bounties", 1030, 250, 5, 186, 104),
