@@ -1,0 +1,82 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.stamp {
+  display: inline-flex;
+  padding: 5px 12px;
+  border: 2px solid currentColor;
+  border-radius: 2px;
+  background: transparent;
+  cursor: help;
+  /* Struck ink: uneven coverage, slightly lifted off true. */
+  opacity: 0.82;
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.stamp:hover,
+.stamp:focus-visible {
+  opacity: 1;
+}
+
+.stamp:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.inner {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.red {
+  color: var(--color-red-dark);
+}
+
+.ink {
+  color: var(--color-earth-dark);
+}
+
+/* On a dark surface the stamp takes the warm tones instead. */
+:global(.surfaceDark) .red {
+  color: var(--color-red-light);
+}
+
+:global(.surfaceDark) .ink {
+  color: var(--color-paper-dark);
+}
+
+.note {
+  font-family: var(--font-hand);
+  font-size: var(--text-lg);
+  line-height: 1.2;
+  color: var(--color-red-dark);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity var(--duration-normal) var(--ease-standard),
+    transform var(--duration-normal) var(--ease-standard);
+  pointer-events: none;
+  max-width: var(--measure-note);
+}
+
+.noteOpen {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note {
+    transform: none;
+    transition: opacity 1ms;
+  }
+}

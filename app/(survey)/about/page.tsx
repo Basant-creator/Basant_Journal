@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SceneTitle } from "@/components/world/SceneTitle";
-import { PaperSurface } from "@/components/paper/PaperSurface";
+import { CampScene } from "@/components/scenes/CampScene";
 import { SurveyAnnotation } from "@/components/annotations/SurveyAnnotation";
-import { getLocation, person } from "@/lib/content/portfolio";
+import { education, getLocation, person } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
 import shared from "@/components/shared/Territory.module.css";
 import styles from "./page.module.css";
@@ -17,6 +17,14 @@ export const metadata: Metadata = {
   alternates: { canonical: routes.about },
 };
 
+/**
+ * Camp.
+ *
+ * The scene carries the introduction: a notebook, a photograph and a bundle of
+ * field notes rest on the table, and picking one up shows its record. The
+ * journey below it stays as a plain timeline, because a sequence of years
+ * reads better as a list than as an object to be found.
+ */
 export default function AboutPage() {
   return (
     <div className={shared.page}>
@@ -25,8 +33,22 @@ export default function AboutPage() {
       <PageHeader
         eyebrow="Camp · About"
         title="Camp"
-        lede={person.summary}
+        lede="A fire, a table, and the papers that happen to be on it. Pick something up."
         symbol={location?.symbol}
+      />
+
+      <CampScene
+        name={person.name}
+        role={person.role}
+        summary={person.summary}
+        interests={person.interests}
+        education={education.map((entry) => ({
+          qualification: entry.qualification,
+          institution: entry.institution,
+          period: entry.period,
+          place: entry.place,
+        }))}
+        mapHref={routes.frontier}
       />
 
       <section className={shared.section} aria-labelledby="journey">
@@ -44,24 +66,9 @@ export default function AboutPage() {
             </li>
           ))}
         </ol>
-      </section>
-
-      <section className={shared.section} aria-labelledby="interests">
-        <h2 id="interests" className={shared.sectionHeading}>
-          What I am working on
-        </h2>
-        <PaperSurface edge="worn">
-          <ul className={styles.interests}>
-            {person.interests.map((interest) => (
-              <li key={interest} className={shared.paperBody}>
-                {interest}
-              </li>
-            ))}
-          </ul>
-          <SurveyAnnotation tag="Field note" className={styles.note}>
-            Third year. Still mapping — which is the point.
-          </SurveyAnnotation>
-        </PaperSurface>
+        <SurveyAnnotation tag="Field note" className={styles.note}>
+          Third year. Still mapping — which is the point.
+        </SurveyAnnotation>
       </section>
 
       <OnwardNav

@@ -59,7 +59,10 @@ export function TornPaper({
         {
           "--torn-clip": `url(#${clipId})`,
           "--torn-fringe": `url(#${fringeId})`,
-          ...(tilt ? { transform: `rotate(${tilt}deg)` } : null),
+          // A custom property rather than an inline transform: inline styles
+          // beat every stylesheet rule, so a caller could never compose a
+          // hover lift on top of the rest angle.
+          "--tilt": `${tilt}deg`,
         } as CSSProperties
       }
     >
