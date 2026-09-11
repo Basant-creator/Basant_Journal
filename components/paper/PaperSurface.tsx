@@ -1,4 +1,5 @@
-import type { ElementType, ReactNode } from "react";
+import type { ReactNode } from "react";
+import type { SurfaceTag } from "@/lib/dom/tags";
 import styles from "./PaperSurface.module.css";
 
 type Tone = "default" | "light" | "field";
@@ -6,8 +7,8 @@ type Edge = "clean" | "worn";
 
 interface PaperSurfaceProps {
   children: ReactNode;
-  /** Rendered element — section, article, aside, li… */
-  as?: ElementType;
+  /** Rendered element. A short list, not ElementType — see lib/dom/tags. */
+  as?: SurfaceTag;
   tone?: Tone;
   edge?: Edge;
   /** Degrees of rest. A document laid down by hand is never quite square. */

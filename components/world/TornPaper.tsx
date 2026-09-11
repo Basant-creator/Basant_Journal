@@ -1,4 +1,5 @@
-import type { CSSProperties, ElementType, ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import type { SurfaceTag } from "@/lib/dom/tags";
 import { type TornEdge, fringePath, tornPath } from "@/lib/world/torn";
 import styles from "./TornPaper.module.css";
 
@@ -16,7 +17,7 @@ interface TornPaperProps {
   tone?: "paper" | "light" | "dark";
   /** Degrees of rest. A sheet put down by hand is never quite square. */
   tilt?: number;
-  as?: ElementType;
+  as?: SurfaceTag;
   className?: string;
   id?: string;
 }

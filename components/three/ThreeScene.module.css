@@ -1,0 +1,19 @@
+.stage {
+  position: relative;
+  isolation: isolate;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  /* The canvas is scenery. Every control over it is a real DOM element, so
+     the canvas itself never needs to take a pointer. */
+  pointer-events: none;
+}
