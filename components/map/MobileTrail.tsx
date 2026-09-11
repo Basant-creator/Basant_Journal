@@ -35,6 +35,20 @@ export function MobileTrail() {
         <span className={styles.bannerLabel}>Signal Ridge</span>
       </div>
 
+      {/* The same trailhead as the sheet, as a full-width control. Nobody has
+          to find and tap a hairline trail on a phone. */}
+      <div className={styles.trailhead}>
+        <p className={styles.trailheadTag}>Camp · Trailhead</p>
+        <p className={styles.trailheadBody}>
+          Begin the survey. The primary trail runs from camp straight to the
+          engineering work.
+        </p>
+        <Link href={routes.projects} className={styles.trailheadAction}>
+          Follow the trail
+          <span aria-hidden="true">&nbsp;→</span>
+        </Link>
+      </div>
+
       <ol className={styles.trail}>
         {locations.map((location, index) => {
           const primary = location.weight > 1;

@@ -46,6 +46,63 @@
   color: var(--color-text-muted);
 }
 
+/* --- the trailhead ------------------------------------------------------- */
+
+.trailhead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-paper-light);
+  color: var(--color-ink);
+  border: var(--border-paper);
+  border-left: 3px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-paper);
+}
+
+.trailheadTag {
+  font-family: var(--font-ui);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-red-dark);
+}
+
+.trailheadBody {
+  font-family: var(--font-editorial);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--color-ink);
+}
+
+.trailheadAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  min-height: 48px;
+  padding: 0 var(--space-5);
+  background: var(--color-accent);
+  color: var(--color-white-warm);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.trailheadAction:active {
+  background: var(--color-red-dark);
+}
+
+.trailheadAction:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
 /* --- the vertical trail -------------------------------------------------- */
 
 .trail {

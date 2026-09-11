@@ -7,7 +7,7 @@
 
 import { locations, originLocationId, primaryLocationId } from "@/lib/content/portfolio";
 import type { NavigationLocation } from "@/lib/content/types";
-import { arcPath, pt } from "./geometry";
+import { type PointOnPath, arcPath, pointOnArc, pt } from "./geometry";
 import { SHEET_HEIGHT, SHEET_WIDTH } from "./terrain";
 
 export type TrailKind = "route" | "primary";
@@ -76,6 +76,31 @@ function buildTrails(): Trail[] {
 }
 
 export const trails: Trail[] = buildTrails();
+
+/** The Camp -> Journal shortcut: the narrative route, drawn in red. */
+export const primaryTrail: Trail | undefined = trails.find((t) => t.kind === "primary");
+
+/**
+ * Survey arrows laid along the primary trail.
+ *
+ * Direction is communicated by static marks on the line rather than by a
+ * moving one — a trail that reads as "this way" when nothing is animating at
+ * all, which is what reduced-motion and a failed stylesheet both need.
+ */
+export const primaryTrailArrows: PointOnPath[] = (() => {
+  const origin = locations.find((l) => l.id === originLocationId);
+  const primary = locations.find((l) => l.id === primaryLocationId);
+  if (!origin || !primary) return [];
+
+  return [0.3, 0.56, 0.82].map((t) =>
+    pointOnArc(
+      pt(origin.coord[0], origin.coord[1]),
+      pt(primary.coord[0], primary.coord[1]),
+      PRIMARY_BOW,
+      t,
+    ),
+  );
+})();
 
 /** Trail segments that touch a location — used to brighten the route on hover. */
 export function trailsTouching(locationId: string): string[] {

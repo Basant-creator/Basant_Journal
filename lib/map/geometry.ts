@@ -119,3 +119,30 @@ export function arcPath(a: Point, b: Point, bow: number): string {
   const control = pt(mid.x + nrm.x * bow, mid.y + nrm.y * bow);
   return `M ${round(a.x)} ${round(a.y)} Q ${round(control.x)} ${round(control.y)} ${round(b.x)} ${round(b.y)}`;
 }
+
+export interface PointOnPath extends Point {
+  /** Tangent heading in degrees, for orienting a mark along the path. */
+  angle: number;
+}
+
+/**
+ * A point on the same quadratic curve `arcPath` draws, with its heading.
+ *
+ * Used to lay survey arrows along a trail so they sit on the line and point
+ * the way it runs — computed from the curve rather than eyeballed, so they
+ * stay correct if the bow is retuned.
+ */
+export function pointOnArc(a: Point, b: Point, bow: number, t: number): PointOnPath {
+  const mid = pt((a.x + b.x) / 2, (a.y + b.y) / 2);
+  const nrm = normal(a, b);
+  const c = pt(mid.x + nrm.x * bow, mid.y + nrm.y * bow);
+
+  const u = 1 - t;
+  const x = u * u * a.x + 2 * u * t * c.x + t * t * b.x;
+  const y = u * u * a.y + 2 * u * t * c.y + t * t * b.y;
+
+  const dx = 2 * u * (c.x - a.x) + 2 * t * (b.x - c.x);
+  const dy = 2 * u * (c.y - a.y) + 2 * t * (b.y - c.y);
+
+  return { x, y, angle: (Math.atan2(dy, dx) * 180) / Math.PI };
+}

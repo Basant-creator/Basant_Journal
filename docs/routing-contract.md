@@ -126,7 +126,43 @@ Nothing on the site depends on an animation completing.
 
 ---
 
-## 7. Still outstanding
+## 7. The main trail entry
+
+Camp carries two separate ideas, and they are deliberately different objects:
+
+| | Control | Destination |
+|---|---|---|
+| **Location** | the Camp marker on the sheet | `/about` |
+| **Trailhead** | the `FOLLOW THE TRAIL →` bar | `/projects` |
+
+**The trailhead sits beneath the sheet, not on it.** It was first built pinned
+beside Camp, which looked better and was wrong: its box overlapped the Camp
+marker's own hit area, so the control for the journey was covering the location
+it points at — at some widths blocking it outright. Below the sheet it is
+always fully visible, never blocks the map, and cannot collide with a marker at
+any size. It is a real `<a>`, so keyboard, screen reader and touch all reach it;
+an SVG path is never the only way into the Journal.
+
+**Arrival is framed on Camp and opens out.** The settle animation starts the
+sheet at 1.22x centred on Camp and pulls back to the whole territory over
+1.9s. Camp reads as the trailhead without the camera ever parking somewhere
+that hides the rest of the map. Camp is also the initial active location, so
+its marker and label are already resolved on arrival.
+
+**Direction is stated statically.** Three survey arrows sit on the primary
+trail, computed from the curve itself (`pointOnArc`) so they lie on the line
+and point along it. The trail also drifts its dash pattern once every nine
+seconds — the single looping element Phase 1 budgeted for drifting dust, which
+was never built. Both the arrows and the drift are switched off under reduced
+motion, and the arrows alone carry the direction when nothing moves.
+
+**Neither the trail nor the shortcut is the only way.** Journal remains
+directly clickable on the map and in the index; every other location is
+reachable without touching the trail at all.
+
+---
+
+## 8. Still outstanding
 
 1. **Project URLs.** `github` and `liveUrl` remain `null` with
    `linksStatus: "unresolved"`, so the *View source* and *Live system* buttons

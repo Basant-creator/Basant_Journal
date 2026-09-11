@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import Link from "next/link";
 import {
   type FocusEvent,
   type KeyboardEvent,
@@ -11,15 +12,18 @@ import {
   useState,
 } from "react";
 import { TerrainLayer } from "@/components/terrain/TerrainLayer";
-import { locations, primaryLocationId } from "@/lib/content/portfolio";
+import { locations, originLocationId, primaryLocationId } from "@/lib/content/portfolio";
 import type { NavigationLocation } from "@/lib/content/types";
 import {
   type Camera,
   RESTING_CAMERA,
   cameraFor,
+  primaryTrail,
+  primaryTrailArrows,
   trails,
   trailsTouching,
 } from "@/lib/map/locations";
+import { routes } from "@/lib/routes";
 import { directionForKey, nearestInDirection } from "@/lib/map/navigation";
 import { SHEET_HEIGHT, SHEET_WIDTH } from "@/lib/map/terrain";
 import { completeEntry } from "@/lib/motion/entry";
@@ -49,7 +53,8 @@ export function FrontierMap() {
   const prefersReducedMotion = useReducedMotion();
 
   const [state, setState] = useState<MapState>("exploring");
-  const [activeId, setActiveId] = useState<string | null>(null);
+  // Camp is the initial active location — the sheet opens at the trailhead.
+  const [activeId, setActiveId] = useState<string | null>(originLocationId);
   const [engagedId, setEngagedId] = useState<string | null>(null);
   const [focusIndex, setFocusIndex] = useState(0);
 
@@ -184,7 +189,9 @@ export function FrontierMap() {
   }, [engagedId, prefersReducedMotion, state]);
 
   const noted: NavigationLocation | null = useMemo(() => {
-    if (!activeId) return null;
+    // Camp's annotation is the trailhead card, which is always on screen, so
+    // it never also gets the generic hover note.
+    if (!activeId || activeId === originLocationId) return null;
     return locations.find((l) => l.id === activeId) ?? null;
   }, [activeId]);
 
@@ -245,14 +252,25 @@ export function FrontierMap() {
 
                 {/* ---- THE HAND: someone walked this and wrote on it ------ */}
                 <MapLayer name="annotations" className={styles.hand}>
-                  <text className={styles.handText} x={84} y={672} textAnchor="start">
-                    START HERE
-                  </text>
+                  {/* The arrow points from the trailhead card into Camp. The
+                      words that used to sit here now live in that card, where
+                      they can carry a real link. */}
                   <path
                     className={styles.handMark}
-                    d="M 196 682 Q 236 694 262 699"
+                    d="M 176 676 Q 224 692 262 699"
                     markerEnd="url(#handArrow)"
                   />
+
+                  {/* Direction along the primary trail, stated by static marks
+                      so it still reads with every animation switched off. */}
+                  {primaryTrailArrows.map((point, i) => (
+                    <path
+                      key={`survey-arrow-${i}`}
+                      className={styles.trailArrow}
+                      d="M -7 -6 L 1.5 0 L -7 6"
+                      transform={`translate(${point.x.toFixed(1)} ${point.y.toFixed(1)}) rotate(${point.angle.toFixed(1)})`}
+                    />
+                  ))}
 
                   {primary ? (
                     <ellipse
@@ -308,6 +326,25 @@ export function FrontierMap() {
                   </defs>
                 </MapLayer>
 
+                {/* The drawn trail responds to the pointer, but it is never
+                    the only way in: the trailhead card below is the real
+                    control, and it is keyboard and screen-reader reachable. */}
+                {primaryTrail ? (
+                  <MapLayer name="trail-target" interactive>
+                    {/* onMouseOver/onMouseOut rather than the Enter/Leave
+                        pair: React synthesises enter/leave from the over/out
+                        events, and that synthesis does not fire reliably for
+                        an SVG <path> hit-tested by its stroke. The plain
+                        bubbling events do. */}
+                    <path
+                      className={styles.trailTarget}
+                      d={primaryTrail.path}
+                      onMouseOver={() => enter(primaryLocationId)}
+                      onMouseOut={leave}
+                    />
+                  </MapLayer>
+                ) : null}
+
                 {/* ---- interaction layer --------------------------------- */}
                 <MapLayer name="locations" interactive>
                   {locations.map((location, index) => (
@@ -348,6 +385,32 @@ export function FrontierMap() {
               ) : null}
             </div>
           ) : null}
+        </div>
+
+        {/* THE TRAILHEAD.
+            Camp carries two separate ideas: the marker is a location and leads
+            to /about; this is the trailhead and leads to /projects. They are
+            deliberately different objects, so neither is mistaken for the
+            other.
+
+            It sits beneath the sheet rather than on it. Pinned beside Camp it
+            overlapped the marker's own hit area — the control for the journey
+            would have been covering the location it points at, at some
+            breakpoints blocking it entirely. Below the sheet it is always
+            fully visible, never blocks the map, and cannot collide with a
+            marker at any size. */}
+        <div className={styles.trailhead}>
+          <div className={styles.trailheadText}>
+            <p className={styles.trailheadTag}>Camp · Trailhead</p>
+            <p className={styles.trailheadBody}>
+              Begin the survey. The primary trail runs from camp straight to the
+              engineering work.
+            </p>
+          </div>
+          <Link href={routes.projects} className={styles.trailheadAction}>
+            Follow the trail
+            <span aria-hidden="true">&nbsp;→</span>
+          </Link>
         </div>
 
         <p className={styles.hint}>

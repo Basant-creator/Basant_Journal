@@ -95,8 +95,30 @@
   }
 }
 
+/* ------------------------------------------------------------------------
+   The one continuous motion on the site.
+   Phase 1 budgeted a single looping element and spent it on drifting dust,
+   which was never built. The primary trail inherits that budget: a slow dash
+   drift that says which way the route runs. It is deliberately below the
+   threshold of noticing — 9 seconds for one dash period — and it is the first
+   thing switched off under reduced motion.
+   ------------------------------------------------------------------------ */
+.primary {
+  animation: trailDrift 9s linear infinite;
+}
+
+@keyframes trailDrift {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -35;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .trail {
+  .trail,
+  .primary {
     animation: none !important;
     stroke-dashoffset: 0 !important;
   }
