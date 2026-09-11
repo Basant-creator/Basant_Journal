@@ -1,53 +1,92 @@
-.page {
+.scene {
   position: relative;
   min-height: 100svh;
   display: grid;
   grid-template-rows: 1fr auto;
-  padding: clamp(48px, 9vh, 120px) var(--page-pad) var(--space-8);
+  padding: clamp(44px, 8vh, 104px) var(--page-pad) var(--space-8);
   overflow: hidden;
-  background: radial-gradient(ellipse 110% 80% at 50% 30%, #221c16 0%, var(--color-ink) 58%);
+  background:
+    radial-gradient(ellipse 120% 90% at 50% 18%, #241d16 0%, transparent 62%),
+    linear-gradient(180deg, #191410 0%, var(--color-ink) 48%, #120e0b 100%);
 }
 
-/* --- terrain behind ------------------------------------------------------ */
+/* --- the dark it opens from --------------------------------------------- */
 
-.terrain {
+.blackout {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: #070605;
+  pointer-events: none;
+  /* Resting state is gone. Without the entry stamp this never appears, so it
+     can never sit over the page. */
+  opacity: 0;
+}
+
+/* --- horizon ------------------------------------------------------------- */
+
+.horizon {
   position: absolute;
   inset: auto 0 0 0;
-  height: min(62vh, 620px);
+  height: min(74vh, 780px);
   z-index: var(--z-base);
   pointer-events: none;
-  mask-image: linear-gradient(180deg, transparent 0%, #000 42%, #000 74%, transparent 100%);
 }
 
-.terrain svg {
+.horizon svg {
   width: 100%;
   height: 100%;
 }
 
-.ridge,
-.hachure,
-.contour {
+.ridgeFar,
+.ridgeMid,
+.ridgeNear {
+  stroke: none;
+}
+
+/* Aerial perspective: the far ridge is closest to the sky's tone, the near
+   one nearly black. That difference is what reads as distance. */
+.ridgeFar {
+  fill: #241e18;
+  opacity: 0.9;
+}
+
+.ridgeMid {
+  fill: #1a1511;
+}
+
+.ridgeNear {
+  fill: #100c09;
+}
+
+/* --- the surfacing sheet fragment ---------------------------------------- */
+
+.fragment {
+  position: absolute;
+  inset: 6% 0 auto 0;
+  height: min(58vh, 620px);
+  z-index: var(--z-base);
+  pointer-events: none;
+  opacity: 0.5;
+  /* Torn out of the dark on every side rather than fading in a rectangle. */
+  mask-image: radial-gradient(ellipse 62% 66% at 52% 46%, #000 8%, transparent 72%);
+}
+
+.fragment svg {
+  width: 100%;
+  height: 100%;
+}
+
+.fragmentInk {
   fill: none;
-  stroke-linecap: round;
+  stroke: var(--color-border);
+  stroke-width: 1.1;
+  opacity: 0.42;
   stroke-linejoin: round;
 }
 
-.ridge {
-  stroke: var(--color-border);
-  stroke-width: 1.6;
-  opacity: 0.42;
-}
-
-.hachure {
-  stroke: var(--color-border);
-  stroke-width: 1;
-  opacity: 0.2;
-}
-
-.contour {
-  stroke: var(--color-border);
-  stroke-width: 1;
-  opacity: 0.14;
+.air {
+  z-index: var(--z-content);
 }
 
 /* --- content -------------------------------------------------------------- */
@@ -59,8 +98,10 @@
   width: 100%;
   margin: 0 auto;
   align-self: center;
-  /* Columns 9-12 stay empty so the terrain can breathe. */
-  padding-right: min(28%, 360px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .eyebrow {
@@ -71,7 +112,9 @@
   letter-spacing: var(--tracking-hero);
   text-transform: uppercase;
   color: var(--color-text-muted);
-  margin-bottom: clamp(20px, 4vh, 40px);
+  margin-bottom: clamp(24px, 5vh, 48px);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .eyebrowRule {
@@ -81,72 +124,44 @@
   background: var(--color-border-subtle);
 }
 
-.wordmark {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  line-height: 1;
-}
-
-.wordmarkThe {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(1rem, 2.1vw, 1.6rem);
-  letter-spacing: 0.52em;
-  text-transform: uppercase;
-  color: var(--color-paper-dark);
-  padding-left: 0.3em;
-  margin-bottom: clamp(6px, 1.2vh, 14px);
-}
-
-.wordmarkMain {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: var(--text-hero);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-white-warm);
-  line-height: 0.92;
-}
-
 .name {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(1rem, 2.2vw, 1.4rem);
-  letter-spacing: 0.24em;
+  font-size: clamp(0.88rem, 2vw, 1.2rem);
+  letter-spacing: 0.5em;
   text-transform: uppercase;
   color: var(--color-paper-light);
-  margin-top: clamp(22px, 4vh, 44px);
+  margin-bottom: clamp(14px, 2.5vh, 26px);
+  /* Tracking pushes the line right; pull it back to true centre. */
+  text-indent: 0.5em;
 }
 
-.rule {
-  display: block;
-  width: 132px;
-  height: 1px;
-  background: var(--color-border-strong);
-  margin: var(--space-5) 0 var(--space-6);
+.wordmark {
+  width: min(100%, 860px);
+  margin: 0;
 }
 
 .lede {
   font-family: var(--font-editorial);
-  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
-  line-height: 1.58;
+  font-size: clamp(1.02rem, 1.5vw, 1.24rem);
+  line-height: 1.6;
   color: var(--color-text-secondary);
   max-width: var(--measure-lede);
+  margin-top: clamp(24px, 4vh, 44px);
 }
 
 .doors {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-4);
-  margin-top: clamp(28px, 5vh, 52px);
+  margin-top: clamp(26px, 4.5vh, 48px);
 }
 
 .doorNote {
   font-family: var(--font-editorial);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
-  max-width: 46ch;
+  max-width: 48ch;
   margin-top: var(--space-5);
 }
 
@@ -195,54 +210,95 @@
 }
 
 /* ========================================================================
-   FIRST-ENTRY CHOREOGRAPHY
-   dark -> terrain -> survey lines -> THE FRONTIER -> the name -> the doors.
-   Gated on the pre-paint stamp; without it nothing here is hidden.
-   Total: ~1.35s.
+   THE ARRIVAL
+   dark -> air -> horizon -> sheet fragment -> the name -> the mark -> the way
+   in. ~2.6s, and only on a first visit: without the pre-paint stamp none of
+   these rules match and the scene is simply present and complete.
    ======================================================================== */
 
-:global([data-entry="play"]) .terrain {
-  animation: terrainIn 900ms var(--ease-cinematic) 120ms both;
+:global([data-entry="play"]) .blackout {
+  animation: blackoutLift 1500ms var(--ease-cinematic) both;
+}
+
+:global([data-entry="play"]) .horizon {
+  animation: horizonRise 1700ms var(--ease-cinematic) 260ms both;
+}
+
+:global([data-entry="play"]) .fragment {
+  animation: fragmentSurface 1900ms var(--ease-cinematic) 700ms both;
+}
+
+:global([data-entry="play"]) .air {
+  animation: fadeIn 2000ms linear 300ms both;
 }
 
 :global([data-entry="play"]) .eyebrow {
-  animation: riseIn 620ms var(--ease-cinematic) 420ms both;
+  animation: riseIn 800ms var(--ease-cinematic) 1150ms both;
 }
 
-:global([data-entry="play"]) .wordmarkThe {
-  animation: riseIn 700ms var(--ease-cinematic) 560ms both;
+:global([data-entry="play"]) .name {
+  animation: letterSettle 1100ms var(--ease-cinematic) 1400ms both;
 }
 
-:global([data-entry="play"]) .wordmarkMain {
-  animation: riseIn 820ms var(--ease-cinematic) 640ms both;
-}
-
-:global([data-entry="play"]) .name,
-:global([data-entry="play"]) .rule {
-  animation: riseIn 680ms var(--ease-cinematic) 900ms both;
+/* The mark is the climax: it arrives last and it arrives as an impression,
+   scaling down onto the surface rather than fading up off it. */
+:global([data-entry="play"]) .wordmark {
+  animation: press 1200ms cubic-bezier(0.16, 1, 0.24, 1) 1750ms both;
 }
 
 :global([data-entry="play"]) .lede {
-  animation: riseIn 680ms var(--ease-cinematic) 1020ms both;
+  animation: riseIn 760ms var(--ease-cinematic) 2320ms both;
 }
 
 :global([data-entry="play"]) .doors,
 :global([data-entry="play"]) .doorNote {
-  animation: riseIn 640ms var(--ease-cinematic) 1150ms both;
+  animation: riseIn 720ms var(--ease-cinematic) 2480ms both;
 }
 
 :global([data-entry="play"]) .foot {
-  animation: riseIn 600ms var(--ease-cinematic) 1280ms both;
+  animation: fadeIn 700ms linear 2700ms both;
 }
 
-@keyframes terrainIn {
+@keyframes blackoutLift {
+  0% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes horizonRise {
   from {
     opacity: 0;
-    transform: translateY(22px);
+    transform: translateY(5%) scale(1.04);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fragmentSurface {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(1.03);
+  }
+  to {
+    opacity: 0.5;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -257,16 +313,50 @@
   }
 }
 
+/* Letters drawing together, the way a line is composed. */
+@keyframes letterSettle {
+  from {
+    opacity: 0;
+    letter-spacing: 1.1em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.5em;
+  }
+}
+
+/* The press: down onto the surface, overshooting a touch, then settling. */
+@keyframes press {
+  0% {
+    opacity: 0;
+    transform: scale(1.14);
+    filter: blur(10px);
+  }
+  62% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
 /* --- responsive ---------------------------------------------------------- */
 
-@media (max-width: 900px) {
-  .inner {
-    padding-right: 0;
+@media (max-width: 720px) {
+  .horizon {
+    height: min(52vh, 420px);
   }
 
-  .terrain {
-    height: min(48vh, 420px);
-    opacity: 0.8;
+  .fragment {
+    opacity: 0.34;
+  }
+
+  .name {
+    letter-spacing: 0.34em;
+    text-indent: 0.34em;
   }
 }
 
@@ -281,10 +371,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page *,
-  .terrain {
+  .scene *,
+  .horizon,
+  .fragment,
+  .blackout,
+  .air {
     animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
+  }
+
+  .blackout {
+    display: none;
   }
 }

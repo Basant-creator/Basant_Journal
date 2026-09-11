@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { SceneTitle } from "@/components/world/SceneTitle";
 import { PaperSurface } from "@/components/paper/PaperSurface";
 import { SurveyAnnotation } from "@/components/annotations/SurveyAnnotation";
 import { getLocation, person } from "@/lib/content/portfolio";
@@ -19,6 +20,8 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className={shared.page}>
+      <SceneTitle chapter="I" title="Camp" subtitle="Basant's territory" sceneId="camp" />
+
       <PageHeader
         eyebrow="Camp · About"
         title="Camp"

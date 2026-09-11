@@ -1,0 +1,115 @@
+.air {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: var(--z-content);
+}
+
+/* Slow warm haze, as if light were coming through dust. */
+.haze {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    ellipse 60% 50% at 30% 70%,
+    rgba(155, 133, 101, 0.075),
+    transparent 70%
+  );
+  animation: hazeDrift 46s ease-in-out infinite alternate;
+}
+
+/*
+  Motes are a repeating gradient of tiny dots rather than DOM nodes: one
+  composited layer per depth instead of a hundred elements. Each layer is
+  oversized so it can translate without its edge ever entering the frame.
+*/
+.motes {
+  position: absolute;
+  inset: -30% -30% -30% -30%;
+  background-repeat: repeat;
+  will-change: transform;
+}
+
+.far {
+  background-image:
+    radial-gradient(circle at 12% 22%, rgba(216, 199, 165, 0.5) 0 0.7px, transparent 1.4px),
+    radial-gradient(circle at 68% 74%, rgba(216, 199, 165, 0.4) 0 0.6px, transparent 1.2px);
+  background-size: 320px 280px, 260px 340px;
+  opacity: 0.28;
+  animation: driftFar 96s linear infinite;
+}
+
+.mid {
+  background-image:
+    radial-gradient(circle at 42% 8%, rgba(231, 217, 188, 0.55) 0 0.9px, transparent 1.8px),
+    radial-gradient(circle at 84% 58%, rgba(216, 199, 165, 0.45) 0 0.8px, transparent 1.6px);
+  background-size: 420px 380px, 360px 300px;
+  opacity: 0.22;
+  animation: driftMid 68s linear infinite;
+}
+
+.near {
+  background-image: radial-gradient(
+    circle at 28% 62%,
+    rgba(242, 233, 215, 0.5) 0 1.3px,
+    transparent 2.4px
+  );
+  background-size: 560px 520px;
+  opacity: 0.16;
+  animation: driftNear 44s linear infinite;
+}
+
+/* Each depth drifts a different distance: parallax, at dust scale. */
+@keyframes driftFar {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(180px, -90px, 0);
+  }
+}
+
+@keyframes driftMid {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(300px, -150px, 0);
+  }
+}
+
+@keyframes driftNear {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(460px, -230px, 0);
+  }
+}
+
+@keyframes hazeDrift {
+  from {
+    transform: translate3d(-3%, 2%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(4%, -2%, 0) scale(1.08);
+  }
+}
+
+/* Dust is the first thing to go: it is motion, and it is the least load-bearing
+   thing on the page. */
+@media (max-width: 860px) {
+  .motes {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motes {
+    display: none;
+  }
+
+  .haze {
+    animation: none;
+  }
+}

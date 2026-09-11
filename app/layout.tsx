@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Cinzel, Inter, Source_Serif_4 } from "next/font/google";
+import { Caveat, IM_Fell_English_SC, Inter, Rye, Source_Serif_4 } from "next/font/google";
 import { TextureLayer } from "@/components/shell/TextureLayer";
 import { SkipLink } from "@/components/navigation/SkipLink";
 import { person } from "@/lib/content/portfolio";
@@ -7,18 +7,34 @@ import { ENTRY_STAMP_SCRIPT } from "@/lib/motion/entry";
 import "./globals.css";
 
 /**
- * Faces are self-hosted through next/font: no render-blocking request to a
- * third party, no layout shift, and the display face is subsetted rather than
- * shipped whole.
+ * Five voices, self-hosted through next/font: no render-blocking third-party
+ * request, no layout shift, each face subsetted rather than shipped whole.
  *
- * Phase 1 flagged Cinzel as a placeholder worth replacing (it reads classical
- * rather than frontier). Swapping it is a one-line change here, because every
- * component reads --font-display and never the family name.
+ * Cinzel is gone. Phase 1 flagged it as a placeholder — it reads classical and
+ * luxurious, closer to a perfume campaign than a frontier survey — and this
+ * pass finally spends the decision:
+ *
+ *   Rye          19th-century wood type. Reserved for chapter cards, location
+ *                reveals and the wordmark. Rare on purpose: it is the loudest
+ *                thing on the site and would turn kitsch if used freely.
+ *   IM Fell      17th-century Fell types, with the ink spread the concept
+ *                wants. The general display face: section headings, map
+ *                lettering, document headers, large numbers.
+ *
+ * Nothing reads a family name directly; every component goes through a token,
+ * so either can be swapped in one line here.
  */
-const cinzel = Cinzel({
+const rye = Rye({
   subsets: ["latin"],
-  weight: ["400", "600"],
-  variable: "--font-cinzel",
+  weight: "400",
+  variable: "--font-rye",
+  display: "swap",
+});
+
+const fell = IM_Fell_English_SC({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-fell",
   display: "swap",
 });
 
@@ -89,7 +105,7 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const fontVars = [cinzel, sourceSerif, inter, caveat]
+  const fontVars = [rye, fell, sourceSerif, inter, caveat]
     .map((f) => f.variable)
     .join(" ");
 

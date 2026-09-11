@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ButtonLink } from "@/components/shared/Button";
+import { Atmosphere } from "@/components/world/Atmosphere";
+import { Wordmark } from "@/components/world/Wordmark";
 import { links, meta, person } from "@/lib/content/portfolio";
 import { terrain } from "@/lib/map/terrain";
-import styles from "./page.module.css";
 import { routes } from "@/lib/routes";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: `${person.name} — The Frontier`,
@@ -13,38 +15,51 @@ export const metadata: Metadata = {
 };
 
 /**
- * Arrival.
+ * Arrival — the opening of a story rather than a title with two buttons.
  *
- * The first screen carries four things and nothing else: the concept, the
- * name, one sentence, and two doors. No map (that is the next scene), no
- * project cards, no metrics, no social icon row, no loading screen.
+ * The scene plays in order: dark, then air, then a horizon, then a fragment of
+ * the survey sheet surfacing, then the name, then the mark, then the way in.
+ * About 2.6s on a first visit and nothing at all on a return, because the
+ * whole sequence hangs off the pre-paint `data-entry` stamp.
  *
- * The terrain behind is the same generated ridge as the survey sheet, cropped
- * — so entering the frontier reads as the camera pulling back from ground the
- * visitor has already seen, rather than a jump to a different place.
+ * It is a reveal, never a gate: the document is complete in the server HTML,
+ * every element's resting state is visible, and nothing here delays a click.
+ * Someone who arrives mid-sequence and hits Enter goes straight through.
  */
 export default function LandingPage() {
   return (
-    <main id="main" className={styles.page}>
-      <div className={styles.terrain} aria-hidden="true">
-        <svg viewBox="280 120 1240 320" preserveAspectRatio="xMidYMax slice">
-          <g className={styles.ridge}>
+    <main id="main" className={styles.scene}>
+      {/* The dark the scene opens from. It exists only while the entry plays. */}
+      <div className={styles.blackout} aria-hidden="true" />
+
+      {/* Horizon: three ridges, filled, each nearer and darker than the last. */}
+      <div className={styles.horizon} aria-hidden="true">
+        <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMax slice">
+          <path d={terrain.mountains.silhouettes[0]} className={styles.ridgeFar} />
+          <path d={terrain.mountains.silhouettes[1]} className={styles.ridgeMid} />
+          <path d={terrain.mountains.silhouettes[2]} className={styles.ridgeNear} />
+        </svg>
+      </div>
+
+      {/* A fragment of the survey sheet, surfacing out of the dark. */}
+      <div className={styles.fragment} aria-hidden="true">
+        <svg viewBox="300 140 1120 620" preserveAspectRatio="xMidYMid slice">
+          <g className={styles.fragmentInk}>
+            {terrain.contours.map((d, i) => (
+              <path key={`c-${i}`} d={d} />
+            ))}
             {terrain.mountains.ridges.map((d, i) => (
               <path key={`r-${i}`} d={d} />
             ))}
-          </g>
-          <g className={styles.hachure}>
-            {terrain.mountains.hachures.map((d, i) => (
-              <path key={`h-${i}`} d={d} />
-            ))}
-          </g>
-          <g className={styles.contour}>
-            {terrain.contours.map((d, i) => (
-              <path key={`c-${i}`} d={d} />
+            <path d={terrain.river.channel} />
+            {terrain.stations.lines.map((d, i) => (
+              <path key={`s-${i}`} d={d} />
             ))}
           </g>
         </svg>
       </div>
+
+      <Atmosphere variant="drift" className={styles.air} />
 
       <div className={styles.inner}>
         <p className={styles.eyebrow}>
@@ -53,13 +68,11 @@ export default function LandingPage() {
           <span>{meta.conceptSubtitle}</span>
         </p>
 
-        <h1 className={styles.wordmark}>
-          <span className={styles.wordmarkThe}>The</span>
-          <span className={styles.wordmarkMain}>Frontier</span>
-        </h1>
-
         <p className={styles.name}>{person.name}</p>
-        <span className={styles.rule} aria-hidden="true" />
+
+        <h1 className={styles.wordmark}>
+          <Wordmark title="The Frontier" />
+        </h1>
 
         <p className={styles.lede}>{person.tagline}</p>
 
@@ -73,8 +86,8 @@ export default function LandingPage() {
         </div>
 
         <p className={styles.doorNote}>
-          The frontier is the map. The professional view is everything, plainly,
-          on one page.
+          The frontier is the world. The professional view is everything,
+          plainly, on one page.
         </p>
       </div>
 

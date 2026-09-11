@@ -73,7 +73,11 @@
 
   /* --- typography -------------------------------------------------------- */
   /* Faces are supplied by next/font in app/layout.tsx. */
-  --font-display: var(--font-cinzel), "IM Fell English SC", Georgia, serif;
+  /* Chapter cards, location reveals and the wordmark only — the loudest
+     voice, kept rare so it stays dramatic instead of becoming kitsch. */
+  --font-chapter: var(--font-rye), "Rye", Georgia, serif;
+  /* The general display voice: headings, map lettering, document headers. */
+  --font-display: var(--font-fell), "IM Fell English SC", Georgia, serif;
   --font-editorial: var(--font-source-serif), Georgia, serif;
   --font-ui: var(--font-inter), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
   --font-hand: var(--font-caveat), "Segoe Script", cursive;

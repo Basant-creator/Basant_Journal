@@ -50,7 +50,7 @@ export interface Stain {
 export interface TerrainModel {
   frame: { outer: string; inner: string; ticks: string[]; corners: string[] };
   settlement: string[];
-  mountains: { ridges: string[]; hachures: string[] };
+  mountains: { ridges: string[]; hachures: string[]; silhouettes: string[] };
   contours: string[];
   river: { channel: string; banks: string[]; tributary: string };
   marsh: string[];
@@ -151,10 +151,23 @@ function hachuresFor(points: Point[], seed: string, density: number, length: num
   return out;
 }
 
+/** Closes a ridge down to the foot of the sheet, making a fillable shape. */
+function silhouette(points: Point[]): string {
+  const first = points[0];
+  const last = points[points.length - 1];
+  return `${polylinePath(points)} L ${last.x} ${SHEET_HEIGHT} L ${first.x} ${SHEET_HEIGHT} Z`;
+}
+
 function buildMountains(): TerrainModel["mountains"] {
   const far = ridgePoints("ridge-far", 330, 1540, 262, 7, 118);
   const mid = ridgePoints("ridge-mid", 380, 1500, 292, 5, 86);
   const near = ridgePoints("ridge-near", 300, 1120, 316, 4, 58);
+
+  // Widened so a filled silhouette reaches past the frame on the landing
+  // scene, where the ridge is scenery rather than cartography.
+  const wideFar = ridgePoints("sil-far", -120, 1760, 300, 8, 132);
+  const wideMid = ridgePoints("sil-mid", -160, 1740, 380, 6, 96);
+  const wideNear = ridgePoints("sil-near", -140, 1780, 470, 5, 64);
 
   const rngA = createRng(seedFrom("ridge-jitter-a"));
   const rngB = createRng(seedFrom("ridge-jitter-b"));
@@ -170,6 +183,7 @@ function buildMountains(): TerrainModel["mountains"] {
       ...hachuresFor(far, "hach-far", 16, 13),
       ...hachuresFor(mid, "hach-mid", 18, 10),
     ],
+    silhouettes: [silhouette(wideFar), silhouette(wideMid), silhouette(wideNear)],
   };
 }
 

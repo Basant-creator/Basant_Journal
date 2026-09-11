@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { SceneTitle } from "@/components/world/SceneTitle";
 import { PaperSurface } from "@/components/paper/PaperSurface";
 import { ButtonLink } from "@/components/shared/Button";
 import {
@@ -29,6 +30,8 @@ const resumeAvailable = links.resumeStatus === "resolved";
 export default function ArchivePage() {
   return (
     <div className={shared.page}>
+      <SceneTitle chapter="V" title="The Archive" subtitle="Records of file" sceneId="archive" />
+
       <PageHeader
         eyebrow="Archive · Records"
         title="Archive"

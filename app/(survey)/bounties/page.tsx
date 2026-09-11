@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { SceneTitle } from "@/components/world/SceneTitle";
 import { SurveyAnnotation } from "@/components/annotations/SurveyAnnotation";
 import { getLocation, getProject, metrics } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
@@ -20,6 +21,8 @@ export const metadata: Metadata = {
 export default function BountiesPage() {
   return (
     <div className={shared.page}>
+      <SceneTitle chapter="IV" title="The Board" subtitle="Notable findings" sceneId="board" />
+
       <PageHeader
         eyebrow="Bounties · Results"
         title="Bounties"

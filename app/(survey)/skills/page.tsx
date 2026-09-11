@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { SceneTitle } from "@/components/world/SceneTitle";
 import { PaperSurface } from "@/components/paper/PaperSurface";
 import { getLocation, getProject, skills } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
@@ -20,6 +21,8 @@ export const metadata: Metadata = {
 export default function SkillsPage() {
   return (
     <div className={shared.page}>
+      <SceneTitle chapter="III" title="The Workshop" subtitle="Tools of the trade" sceneId="workshop" />
+
       <PageHeader
         eyebrow="Gear · Skills"
         title="Gear"

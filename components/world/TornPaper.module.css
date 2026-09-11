@@ -1,0 +1,72 @@
+.sheet {
+  position: relative;
+  isolation: isolate;
+  color: var(--color-text-on-paper);
+  padding: var(--card-pad);
+  /* No border-radius and no border: a torn sheet has neither. Depth comes
+     from the drop shadow on the fringe, which follows the tear. */
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.34));
+}
+
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.fringe,
+.face {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Deeper tear, paler tone: the fibres that pulled away with the edge. */
+.fringe {
+  clip-path: var(--torn-fringe);
+  background: var(--color-paper-light);
+  opacity: 0.55;
+}
+
+.face {
+  clip-path: var(--torn-clip);
+  background: var(--sheet-tone, var(--color-paper));
+  background-image: var(--texture-paper-url);
+  background-size: 420px;
+  background-blend-mode: multiply;
+  /* Faded corners: a sheet darkens where it has been handled. */
+  box-shadow:
+    inset 0 0 60px rgba(64, 50, 37, 0.14),
+    inset 0 0 140px rgba(64, 50, 37, 0.07);
+}
+
+.paper {
+  --sheet-tone: var(--color-paper);
+}
+
+.light {
+  --sheet-tone: var(--color-paper-light);
+}
+
+/* A sheet that has been in the weather. */
+.dark {
+  --sheet-tone: var(--color-paper-dark);
+}
+
+.content {
+  position: relative;
+}
+
+.content :global(p) {
+  font-family: var(--font-editorial);
+  line-height: var(--leading-relaxed);
+  max-width: var(--measure-prose);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    transform: none !important;
+  }
+}

@@ -1,0 +1,51 @@
+.mark {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.face,
+.impression,
+.highlight {
+  font-family: var(--font-chapter);
+  font-size: 108px;
+  letter-spacing: 0.06em;
+}
+
+.the {
+  font-family: var(--font-display);
+  font-size: 30px;
+  letter-spacing: 0.62em;
+  /* The tracking pushes the word right; pull it back to true centre. */
+  transform: translateX(-0.31em);
+  fill: var(--wordmark-secondary, var(--color-paper-dark));
+}
+
+/* Pressed into the surface: dark below-right, warm light above-left. */
+.impression {
+  fill: var(--wordmark-impression, rgba(0, 0, 0, 0.62));
+}
+
+.highlight {
+  fill: var(--wordmark-highlight, rgba(242, 233, 215, 0.16));
+}
+
+.face {
+  fill: var(--wordmark-face, var(--color-white-warm));
+}
+
+.rule {
+  fill: var(--wordmark-secondary, var(--color-paper-dark));
+  stroke: var(--wordmark-secondary, var(--color-paper-dark));
+  stroke-width: 1.6;
+  opacity: 0.75;
+}
+
+/* Struck in ink on paper rather than embossed in the dark. */
+.stamp {
+  --wordmark-face: var(--color-red-dark);
+  --wordmark-impression: rgba(84, 32, 32, 0.3);
+  --wordmark-highlight: transparent;
+  --wordmark-secondary: var(--color-earth);
+}
