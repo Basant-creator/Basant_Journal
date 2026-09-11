@@ -1,0 +1,104 @@
+.bench {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  letter-spacing: 0.06em;
+  color: var(--color-paper-light);
+}
+
+.role {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-red-light);
+}
+
+.body {
+  font-family: var(--font-editorial);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  max-width: var(--measure-prose);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.button {
+  min-height: 42px;
+  padding: 0 var(--space-5);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+}
+
+.button:hover {
+  background: var(--color-hover-wash);
+  border-color: var(--color-paper-light);
+}
+
+/* Stands in for a page header: the nameplate is absolute inside this. */
+.stage {
+  position: relative;
+  margin-top: var(--space-4);
+  padding: var(--space-6);
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  min-height: 200px;
+}
+
+.under {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.underEyebrow {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-hero);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.underTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-white-warm);
+  line-height: var(--leading-tight);
+}
+
+.underLede {
+  font-family: var(--font-editorial);
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+  max-width: var(--measure-lede);
+}

@@ -129,3 +129,9 @@
   font-size: 0.8em;
   color: var(--color-red-light);
 }
+
+/* Gives LocationTitle something to be absolute inside. The nameplate overlays
+   the header and then fades, revealing the real one underneath. */
+.locate {
+  position: relative;
+}

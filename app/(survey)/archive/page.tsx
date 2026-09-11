@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { SceneTitle } from "@/components/scene/SceneTitle";
+import { LocationTitle } from "@/components/scene/LocationTitle";
 import { PaperSurface } from "@/components/paper/PaperSurface";
 import { ButtonLink } from "@/components/shared/Button";
 import {
@@ -30,14 +30,16 @@ const resumeAvailable = links.resumeStatus === "resolved";
 export default function ArchivePage() {
   return (
     <div className={shared.page}>
-      <SceneTitle chapter="V" title="The Archive" subtitle="Records of file" sceneId="archive" />
 
-      <PageHeader
-        eyebrow="Archive · Records"
-        title="Archive"
-        lede="The record office at the townsite: degree, training and certifications, filed as they were issued."
-        symbol={location?.symbol}
-      />
+      <div className={shared.locate}>
+        <LocationTitle title="The Archive" subtitle="Records of file" />
+        <PageHeader
+          eyebrow="Archive · Records"
+          title="Archive"
+          lede="The record office at the townsite: degree, training and certifications, filed as they were issued."
+          symbol={location?.symbol}
+        />
+      </div>
 
       <section className={shared.section} aria-labelledby="education">
         <h2 id="education" className={shared.sectionHeading}>

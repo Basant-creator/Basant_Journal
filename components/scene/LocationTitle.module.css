@@ -1,0 +1,95 @@
+/*
+  Absolutely positioned within the page's own header area rather than fixed to
+  the viewport: a nameplate belongs to the place, not to the screen. It has no
+  veil, so it cannot hide the content it sits over, and it is out of flow, so
+  it cannot shift the layout when it leaves.
+*/
+.plate {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  pointer-events: none;
+  opacity: 0;
+  animation: plateHold 1800ms var(--ease-cinematic) both;
+}
+
+.title {
+  font-family: var(--font-chapter);
+  font-size: clamp(1.8rem, 5vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--color-white-warm);
+  margin: 0;
+  text-wrap: balance;
+  opacity: 0;
+  /* Typography reveal and a slight vertical move — no zoom. */
+  animation: nameIn 760ms var(--ease-cinematic) 60ms both;
+}
+
+.subtitle {
+  font-family: var(--font-display);
+  font-size: clamp(0.72rem, 1.6vw, 0.92rem);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--color-red-light);
+  margin: 0;
+  text-indent: 0.34em;
+  opacity: 0;
+  animation: nameIn 720ms var(--ease-cinematic) 300ms both;
+}
+
+.rule {
+  display: block;
+  width: 92px;
+  height: 1px;
+  background: var(--color-border-strong);
+  opacity: 0;
+  transform-origin: left center;
+  animation: ruleDraw 640ms var(--ease-cinematic) 420ms both;
+}
+
+@keyframes plateHold {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  66% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes nameIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ruleDraw {
+  from {
+    opacity: 0;
+    transform: scaleX(0.1);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plate {
+    display: none;
+  }
+}

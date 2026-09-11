@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { SceneTitle } from "@/components/scene/SceneTitle";
+import { LocationTitle } from "@/components/scene/LocationTitle";
 import { PaperSurface } from "@/components/paper/PaperSurface";
 import { getLocation, getProject, skills } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
@@ -21,14 +21,16 @@ export const metadata: Metadata = {
 export default function SkillsPage() {
   return (
     <div className={shared.page}>
-      <SceneTitle chapter="III" title="The Workshop" subtitle="Tools of the trade" sceneId="workshop" />
 
-      <PageHeader
-        eyebrow="Gear · Skills"
-        title="Gear"
-        lede="What gets carried. Every entry that points at a project is evidenced in running code; the rest are marked as what they are — tools handled, not yet shipped."
-        symbol={location?.symbol}
-      />
+      <div className={shared.locate}>
+        <LocationTitle title="The Workshop" subtitle="Tools of the trade" />
+        <PageHeader
+          eyebrow="Gear · Skills"
+          title="Gear"
+          lede="What gets carried. Every entry that points at a project is evidenced in running code; the rest are marked as what they are — tools handled, not yet shipped."
+          symbol={location?.symbol}
+        />
+      </div>
 
       <ul className={shared.cards}>
         {skills.map((group) => (

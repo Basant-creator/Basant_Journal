@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { SceneTitle } from "@/components/scene/SceneTitle";
+import { ChapterCard } from "@/components/scene/ChapterCard";
 import { PaperSurface } from "@/components/paper/PaperSurface";
 import { Metric } from "@/components/metrics/Metric";
 import { getLocation, projects } from "@/lib/content/portfolio";
@@ -28,7 +28,8 @@ export const metadata: Metadata = {
 export default function JournalPage() {
   return (
     <div className={shared.page}>
-      <SceneTitle chapter="II" title="The Journal" subtitle="Field records" sceneId="journal" />
+      <ChapterCard chapter="II" title="The Journal" id="journal" />
+
 
       <PageHeader
         eyebrow="Journal · Projects"

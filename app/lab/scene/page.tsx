@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SceneTitle } from "@/components/scene/SceneTitle";
+import { ChapterCard } from "@/components/scene/ChapterCard";
 import { SceneBench } from "./SceneBench";
 
 export const metadata: Metadata = {
@@ -17,12 +17,7 @@ export const metadata: Metadata = {
 export default function SceneLabPage() {
   return (
     <>
-      <SceneTitle
-        chapter="0"
-        title="Scene Engine"
-        subtitle="Test bench"
-        sceneId="lab-scene"
-      />
+      <ChapterCard chapter="0" title="Scene Engine" id="lab-scene" />
 
       <header>
         <h1 style={{ fontFamily: "var(--font-chapter)", letterSpacing: "0.06em" }}>

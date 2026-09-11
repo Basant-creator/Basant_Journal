@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { SceneTitle } from "@/components/scene/SceneTitle";
+import { LocationTitle } from "@/components/scene/LocationTitle";
 import { Stamp } from "@/components/world/Stamp";
 import { TornPaper } from "@/components/world/TornPaper";
 import { getLocation, getProject, metrics } from "@/lib/content/portfolio";
@@ -40,14 +40,16 @@ const EDGES = [
 export default function BountiesPage() {
   return (
     <div className={shared.page}>
-      <SceneTitle chapter="IV" title="The Board" subtitle="Notable findings" sceneId="board" />
 
-      <PageHeader
-        eyebrow="Bounties · Results"
-        title="Bounties"
-        lede="Measured outcomes, not adjectives. Every number is pinned to the record that proves it."
-        symbol={location?.symbol}
-      />
+      <div className={shared.locate}>
+        <LocationTitle title="The Board" subtitle="Notable findings" />
+        <PageHeader
+          eyebrow="Bounties · Results"
+          title="Bounties"
+          lede="Measured outcomes, not adjectives. Every number is pinned to the record that proves it."
+          symbol={location?.symbol}
+        />
+      </div>
 
       <div className={styles.board}>
         <div className={styles.planks} aria-hidden="true" />
