@@ -99,7 +99,21 @@ export const TREELINE_Z = -12;
  * person crouched at it.
  */
 export const CAMERA_HOME: Vec3 = [0.35, 1.62, 5.6];
-export const CAMERA_TARGET: Vec3 = [-0.15, 0.82, 0.15];
+/**
+ * What the camera looks at.
+ *
+ * Raised from 0.82 after the sky went in and the arithmetic showed what it
+ * cost: aiming at the fire pitched the camera 8.3 degrees down and spent
+ * 70% of the frame on ground. §7 wants the mountain, the fire, the table and
+ * the tent in one view, and a scene that is two-thirds floor has no room
+ * left for the first of those.
+ *
+ * At 1.15 the pitch is 4.9 degrees, the sky takes 39% of the frame, and the
+ * table — the nearest thing that must stay in view — lands 69% down, which
+ * is comfortably inside it. Past about 1.3 the table starts crowding the
+ * bottom edge.
+ */
+export const CAMERA_TARGET: Vec3 = [-0.15, 1.15, 0.15];
 export const CAMERA_FOV = 41;
 
 /**
@@ -138,3 +152,31 @@ export const CAMERA_ARRIVAL = {
   from: [1.9, 4.7, 16.2] as Vec3,
   ms: 1900,
 };
+
+/* --- the sky -------------------------------------------------------------- */
+
+/** Behind the furthest ridge, far enough that leaning cannot reveal it as a
+ *  flat plane standing in the world. */
+export const SKY_Z = -86;
+export const SKY_SIZE: [number, number] = [420, 150];
+
+/** How high the furthest ridge crests. The sky and the ridges have to agree
+ *  about this or the afterglow ends up behind the mountains. */
+export const RIDGE_CREST = 9.2;
+
+/**
+ * Where the afterglow band sits on the sky plane.
+ *
+ * Aimed, not guessed — the same discipline the vista needed and the same
+ * mistake it made first. The furthest ridge crests at 9.2 units, 63.6 metres
+ * from the camera, which puts its top 6.6 degrees above eye level. The band
+ * has to clear that, so it is placed at 8 degrees:
+ *
+ *     y = camera height + sky distance * tan(8 deg)
+ *       = 1.62 + 90.6 * 0.1405
+ *       ≈ 14.3
+ *
+ * Below the crest line the gradient is academic; the ridges are drawn over it.
+ * Above it is the only light in the picture.
+ */
+export const SKY_BAND_Y = 14.3;

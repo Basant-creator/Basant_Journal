@@ -1,8 +1,10 @@
 "use client";
 
 import { CameraRig } from "../CameraRig";
+import { CampLighting } from "./CampLighting";
+import { CampSky } from "./CampSky";
 import { SceneCanvas } from "../SceneCanvas";
-import { scene } from "../palette";
+import { land, sky } from "./palette";
 import type { SceneProps } from "../types";
 import {
   CAMERA_ARRIVAL,
@@ -54,7 +56,10 @@ function World(_props: SceneProps) {
         lambda={2.1}
       />
 
-      {/* 01  sky and atmosphere            — step 04 */}
+      {/* 01  sky and atmosphere */}
+      <CampSky />
+      <CampLighting />
+
       {/* 02  distant mountains             — step 06 */}
       {/* 03  distant terrain               — step 05 */}
       {/* 04  tree line                     — step 06 */}
@@ -68,7 +73,7 @@ function World(_props: SceneProps) {
       */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, GROUND_Y, 0]}>
         <planeGeometry args={[220, 220]} />
-        <meshBasicMaterial color={scene.ground} fog />
+        <meshStandardMaterial color={land.ground} roughness={1} metalness={0} />
       </mesh>
 
       {/* 06  campfire                      — step 08 */}
@@ -86,10 +91,10 @@ function World(_props: SceneProps) {
 export function CampWorld(props: SceneProps) {
   return (
     <SceneCanvas
-      background={scene.night}
+      background={sky.zenith}
       /* Blue hour: the far bands should already be losing themselves before
          the near ones do. Tuned properly once the terrain exists. */
-      fog={{ color: scene.night, near: 14, far: 74 }}
+      fog={{ color: sky.haze, near: 16, far: 96 }}
       camera={{ position: CAMERA_HOME, fov: CAMERA_FOV }}
       onContextLost={props.onContextLost}
     >
