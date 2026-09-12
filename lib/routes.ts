@@ -6,6 +6,18 @@
  * be changed in one place without drift.
  */
 
+/**
+ * Where the site lives.
+ *
+ * Still a placeholder, and deliberately only one of them: the origin was
+ * written into app/layout.tsx while content/portfolio.json carried a different
+ * placeholder again, so the site described itself as two domains depending on
+ * which file you read. Everything absolute now resolves from here — the
+ * metadata base, the sitemap, and the robots policy — which makes pointing
+ * this at the real domain a single edit rather than a search.
+ */
+export const SITE_ORIGIN = "https://basantbhushan.dev";
+
 export const routes = {
   home: "/",
   frontier: "/frontier",

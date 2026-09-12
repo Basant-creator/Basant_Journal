@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/routes";
 import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import type { Metadata, Viewport } from "next";
 import { Caveat, IM_Fell_English_SC, Inter, Rye, Source_Serif_4 } from "next/font/google";
@@ -68,7 +69,7 @@ const DESCRIPTION =
   "The portfolio of Basant Bhushan — a Computer Science student building backend-heavy systems. Explored as a surveyor's record of territory still being mapped.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://basantbhushan.dev"),
+  metadataBase: new URL(SITE_ORIGIN),
   title: {
     default: `${person.name} — The Frontier`,
     template: `%s — ${person.name}`,
