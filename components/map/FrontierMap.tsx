@@ -14,6 +14,7 @@ import {
 } from "react";
 import { Scene } from "@/components/scene/Scene";
 import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
+import { ThreeScene } from "@/components/three/ThreeScene";
 
 /**
  * The country around the sheet, fetched rather than shipped.
@@ -360,7 +361,29 @@ export function FrontierMap() {
           compactRatio={`${VISTA_WIDTH} / ${VISTA_HEIGHT}`}
           entry={false}
         >
-          {surround ? <MapVista /> : null}
+          {/*
+            The country, rendered where a machine can and drawn where it
+            cannot — and the drawing is the same one either way.
+
+            The width gate stays outside the door on purpose. ThreeScene
+            would fall back to MapVista below 860px, and MapVista is itself a
+            deferred chunk: letting it get that far would load the 20 kB of
+            silhouettes back onto exactly the phones step 26 took it off.
+            Narrow gets neither, which is what it got before and what it
+            wants.
+
+            label={null} because this is scenery. The sheet in front of it is
+            already a described navigation region; announcing the ridges
+            would put a picture between a reader and the map.
+          */}
+          {surround ? (
+            <ThreeScene
+              scene="vista"
+              className={styles.vistaLayer}
+              label={null}
+              fallback={<MapVista />}
+            />
+          ) : null}
 
           {/* Air, behind the paper. The wrapper is what puts it there: it
               opens a stacking context so the atmosphere's own z-index is

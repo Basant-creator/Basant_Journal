@@ -23,6 +23,10 @@ const SCENES = {
   camp: dynamic(() => import("./scenes/CampScene3D").then((m) => m.CampScene3D), {
     ssr: false,
   }),
+  /** The country behind the survey sheet. Scenery, and only scenery. */
+  vista: dynamic(() => import("./scenes/VistaScene").then((m) => m.VistaScene), {
+    ssr: false,
+  }),
 } as const;
 
 export type SceneName = keyof typeof SCENES;
@@ -49,8 +53,15 @@ interface ThreeSceneProps {
    * table are named by the controls over the scene, and a label that
    * enumerates them too means hearing the same list twice before reaching
    * anything usable.
+   *
+   * `null` means the scene is scenery rather than a picture — the country
+   * behind the survey sheet, say, where the sheet itself is already a
+   * described navigation region. It is then hidden from the accessibility
+   * tree entirely, because announcing "ridges at dusk" in front of a map
+   * someone is trying to use is noise, not description. Null is a decision,
+   * not a default: the type will not let it be forgotten.
    */
-  label: string;
+  label: string | null;
   className?: string;
   children?: ReactNode;
   /**
@@ -128,6 +139,12 @@ export function ThreeScene({
     return () => window.clearTimeout(id);
   }, [capability]);
 
+  /* Described or hidden — the two honest options for a box with a picture
+     in it. Shared by both branches so they cannot drift apart. */
+  const pictureRole = label
+    ? ({ role: "img", "aria-label": label } as const)
+    : ({ "aria-hidden": true } as const);
+
   useEffect(() => {
     setCapability(detectSceneCapability());
 
@@ -152,7 +169,7 @@ export function ThreeScene({
         className={[styles.stage, className].filter(Boolean).join(" ")}
         data-scene-mode={capability}
       >
-        <div className={styles.picture} role="img" aria-label={label}>
+        <div className={styles.picture} {...pictureRole}>
           {fallback}
         </div>
         {children}
@@ -164,7 +181,7 @@ export function ThreeScene({
 
   return (
     <div className={[styles.stage, className].filter(Boolean).join(" ")} data-scene-mode="ready">
-      <div className={`${styles.picture} ${styles.arrives}`} role="img" aria-label={label}>
+      <div className={`${styles.picture} ${styles.arrives}`} {...pictureRole}>
         {/* The handler goes last so a caller cannot replace it. */}
         <Scene {...state} onContextLost={handleContextLost} />
       </div>
