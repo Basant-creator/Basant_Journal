@@ -1,0 +1,13 @@
+.objects {
+  position: absolute;
+  inset: 0;
+  /* Above the scene's air, so a focus ring is never under drifting dust. */
+  z-index: var(--z-overlay);
+  /* The container is a frame, not a surface: only the objects in it are
+     reachable, and the scene between them stays scene. */
+  pointer-events: none;
+}
+
+.objects > * {
+  pointer-events: auto;
+}

@@ -10,7 +10,12 @@ interface SceneInteractionProps {
   /** Which object is open on arrival. Something is always open. */
   initial?: string;
   onChange?: (id: string) => void;
-  label?: string;
+  /**
+   * Own the id space. A tabpanel rendered outside this provider — the record
+   * column beside a scene, usually — has to name the same ids the tabs use,
+   * and cannot reach a generated one.
+   */
+  id?: string;
 }
 
 /**
@@ -24,15 +29,21 @@ interface SceneInteractionProps {
  *
  * Objects that navigate rather than select (a map that returns to the survey)
  * opt out and render as plain links, because a link is not a tab.
+ *
+ * This provides the state and nothing else. The tablist element is
+ * SceneObjects, deliberately separate: artwork has to sit inside the provider
+ * so it can react to what is being reached for, and artwork has no business
+ * inside a tablist.
  */
 export function SceneInteraction({
   children,
   order,
   initial,
   onChange,
-  label,
+  id,
 }: SceneInteractionProps) {
-  const baseId = useId();
+  const generatedId = useId();
+  const baseId = id ?? generatedId;
   const [activeId, setActiveId] = useState<string | null>(initial ?? order[0] ?? null);
   const [hoverId, setHoverId] = useState<string | null>(null);
   const elements = useRef<Record<string, HTMLElement | null>>({});
@@ -75,9 +86,7 @@ export function SceneInteraction({
 
   return (
     <SceneInteractionContext.Provider value={value}>
-      <div role="tablist" aria-label={label} style={{ position: "absolute", inset: 0 }}>
-        {children}
-      </div>
+      {children}
     </SceneInteractionContext.Provider>
   );
 }

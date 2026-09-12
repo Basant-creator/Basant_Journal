@@ -17,6 +17,18 @@
     background-color var(--duration-normal) var(--ease-standard);
 }
 
+/*
+  Four states, and they have to be four.
+
+    rest     nothing; the object is just drawn
+    hover    the box appears, the name comes up, the note arrives
+    focus    the same, plus a ring — a ring belongs to the focusable thing
+    active   the same, plus a red rule beneath it: this is the one being read
+
+  Hover and focus looking alike is correct. Active looking like hover is not,
+  and it is the easy mistake: it leaves a scene where the thing you are
+  reading and the thing you happen to be pointing at are indistinguishable.
+*/
 .object:hover,
 .object:focus-visible,
 .active {
@@ -27,6 +39,12 @@
 .object:focus-visible {
   outline: 2px solid var(--color-paper-light);
   outline-offset: 2px;
+}
+
+.active {
+  /* THE HAND, at its smallest useful size: the open object is underlined in
+     red the way a reader marks the page they are on. */
+  box-shadow: inset 0 -2px 0 var(--color-red);
 }
 
 /* The object's name is always legible against the scene behind it. The note

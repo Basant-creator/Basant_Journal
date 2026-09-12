@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { useCallback, useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import { Scene } from "@/components/scene/Scene";
 import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
+import { SceneInteraction } from "@/components/scene/SceneInteraction";
+import { SceneObject } from "@/components/scene/SceneObject";
+import { SceneObjects } from "@/components/scene/SceneObjects";
 import { TornPaper } from "@/components/world/TornPaper";
 import { CAMP_HEIGHT, CAMP_WIDTH, type CampObjectId, objectBox } from "@/lib/world/camp";
 import { CampArt } from "./CampArt";
@@ -77,22 +79,6 @@ export function CampScene({
 }: CampSceneProps) {
   const baseId = useId();
   const [open, setOpen] = useState<RecordId>("notebook");
-  const [mapHot, setMapHot] = useState(false);
-  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-
-  const onTabKeyDown = useCallback((event: React.KeyboardEvent, index: number) => {
-    let next: number | null = null;
-    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = index + 1;
-    if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = index - 1;
-    if (event.key === "Home") next = 0;
-    if (event.key === "End") next = ORDER.length - 1;
-    if (next === null) return;
-
-    event.preventDefault();
-    const id = ORDER[(next + ORDER.length) % ORDER.length];
-    setOpen(id);
-    tabRefs.current[id]?.focus();
-  }, []);
 
   return (
     <div className={styles.camp}>
@@ -110,52 +96,44 @@ export function CampScene({
         compactRatio={`${CAMP_WIDTH} / ${CAMP_HEIGHT}`}
         entry={false}
       >
-        <CampArt mapHot={mapHot} />
+        {/*
+          The artwork sits inside the interaction provider so the objects can
+          react to being reached for — a scene where an invisible rectangle
+          lights up and the thing under it does nothing is not a scene. The
+          tablist element is separate, because artwork has no business in one.
+        */}
+        <SceneInteraction
+          id={baseId}
+          order={ORDER}
+          initial="notebook"
+          onChange={(id) => setOpen(id as RecordId)}
+        >
+          <CampArt />
 
-        {/* Smoke and firelight already move; this is the air between them. */}
-        <SceneAtmosphere variant="drift" className={styles.air} />
+          {/* Smoke and firelight already move; this is the air between them. */}
+          <SceneAtmosphere variant="drift" className={styles.air} />
 
-        {/* ---- the interactive objects ------------------------------- */}
-        <div className={styles.tablist} role="tablist" aria-label="Objects on the table">
-          {ORDER.map((id, index) => {
-            const selected = open === id;
-            return (
-              <button
+          <SceneObjects label="Objects on the table">
+            {ORDER.map((id) => (
+              <SceneObject
                 key={id}
-                ref={(el) => {
-                  tabRefs.current[id] = el;
-                }}
-                type="button"
-                role="tab"
-                id={`${baseId}-tab-${id}`}
-                aria-selected={selected}
-                aria-controls={`${baseId}-panel`}
-                tabIndex={selected ? 0 : -1}
-                className={selected ? `${styles.hotspot} ${styles.hotspotOn}` : styles.hotspot}
-                style={objectBox(id)}
-                onClick={() => setOpen(id)}
-                onKeyDown={(event) => onTabKeyDown(event, index)}
-              >
-                <span className={styles.hotspotLabel}>{LABELS[id].object}</span>
-                <span className={styles.hotspotNote}>{LABELS[id].note}</span>
-              </button>
-            );
-          })}
+                id={id}
+                box={objectBox(id)}
+                label={LABELS[id].object}
+                note={LABELS[id].note}
+              />
+            ))}
 
-          {/* The map is a link: it goes somewhere, so it is not a tab. */}
-          <Link
-            href={mapHref}
-            className={`${styles.hotspot} ${styles.hotspotLink}`}
-            style={objectBox("map")}
-            onMouseOver={() => setMapHot(true)}
-            onMouseOut={() => setMapHot(false)}
-            onFocus={() => setMapHot(true)}
-            onBlur={() => setMapHot(false)}
-          >
-            <span className={styles.hotspotLabel}>Map</span>
-            <span className={styles.hotspotNote}>Back to the survey</span>
-          </Link>
-        </div>
+            {/* The map is a link: it goes somewhere, so it is not a tab. */}
+            <SceneObject
+              id="map"
+              box={objectBox("map")}
+              label="Map"
+              note="Back to the survey"
+              href={mapHref}
+            />
+          </SceneObjects>
+        </SceneInteraction>
       </Scene>
 
       {/* ---- the record the open object carries ---------------------- */}

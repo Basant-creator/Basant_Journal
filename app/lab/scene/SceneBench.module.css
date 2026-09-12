@@ -68,9 +68,38 @@
     stroke var(--duration-normal) var(--ease-standard);
 }
 
-.markOpen {
+/* The bench's marks read their own state from the engine, which is the point
+   of a bench: if artwork cannot respond to being reached for here, it cannot
+   respond to it in a real scene either. */
+.markLift {
+  transition:
+    transform var(--duration-normal) var(--ease-standard),
+    filter var(--duration-normal) var(--ease-standard);
+}
+
+.markLift[data-state="hover"] {
+  transform: translateY(-9px);
+  filter: drop-shadow(0 12px 12px rgba(0, 0, 0, 0.5));
+}
+
+.markLift[data-state="active"] {
+  transform: translateY(-15px);
+  filter: drop-shadow(0 20px 18px rgba(0, 0, 0, 0.55));
+}
+
+.markLift[data-state="active"] .mark {
   fill: var(--color-paper-light);
   stroke: var(--color-red);
+}
+
+.markLift[data-state="hover"] .mark {
+  fill: var(--color-paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .markLift {
+    transition: none;
+  }
 }
 
 .markInk {

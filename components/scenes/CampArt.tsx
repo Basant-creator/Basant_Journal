@@ -1,13 +1,18 @@
+"use client";
+
+import { useObjectState } from "@/components/scene/SceneContext";
 import { SceneLayer } from "@/components/scene/SceneLayer";
 import { terrain } from "@/lib/map/terrain";
 import {
   CAMP_HEIGHT,
   CAMP_WIDTH,
+  type CampObjectId,
   SMOKE_PLUMES,
   buildGroundScatter,
   buildLoosePapers,
   buildStars,
   buildTreeline,
+  objectTransform,
 } from "@/lib/world/camp";
 import styles from "./CampArt.module.css";
 
@@ -16,9 +21,33 @@ const STARS = buildStars();
 const SCATTER = buildGroundScatter();
 const PAPERS = buildLoosePapers();
 
-interface CampArtProps {
-  /** The map object lights its drawn trail when its link is hovered. */
-  mapHot: boolean;
+/**
+ * One object on the table, and how it is lying.
+ *
+ * The outer group carries the placement, which comes off the same record the
+ * hit area does. The inner group carries the state, and has no transform
+ * attribute of its own — a CSS transform replaces an SVG one rather than
+ * composing with it, so an object that lifted on hover would jump to the
+ * origin as it did so.
+ */
+function CampObject({
+  id,
+  rotate,
+  children,
+}: {
+  id: CampObjectId;
+  rotate: number;
+  children: React.ReactNode;
+}) {
+  const state = useObjectState(id);
+
+  return (
+    <g transform={objectTransform(id, rotate)}>
+      <g className={styles.lift} data-state={state}>
+        {children}
+      </g>
+    </g>
+  );
 }
 
 /**
@@ -37,7 +66,7 @@ interface CampArtProps {
  * distances, and the objects would slide out from under their own controls —
  * which is precisely what the version before this one did.
  */
-export function CampArt({ mapHot }: CampArtProps) {
+export function CampArt() {
   return (
     <svg
       className={styles.art}
@@ -225,24 +254,24 @@ export function CampArt({ mapHot }: CampArtProps) {
 
       <g className={styles.objects}>
         {/* Notebook */}
-        <g transform="translate(392 782) rotate(-2.4)" className={styles.objNotebook}>
+        <CampObject id="notebook" rotate={-2.4}>
           <rect className={styles.bookPages} x="-146" y="-72" width="292" height="140" rx="3" />
           <rect className={styles.bookCover} x="-152" y="-78" width="292" height="140" rx="4" />
           <path className={styles.bookSpine} d="M -152 -78 v 140" />
           <path className={styles.bookRibbon} d="M 92 -78 v 170 l -13 -18 l -13 18 v -170 Z" />
           <path className={styles.bookMark} d="M -96 -18 h 120 M -96 4 h 86" />
-        </g>
+        </CampObject>
 
         {/* Photograph */}
-        <g transform="translate(760 806) rotate(3.6)" className={styles.objPhoto}>
+        <CampObject id="photograph" rotate={3.6}>
           <rect className={styles.photoMat} x="-84" y="-64" width="168" height="132" />
           <rect className={styles.photoImage} x="-70" y="-50" width="140" height="92" />
           <path className={styles.photoScene} d="M -70 22 L -30 -8 L -4 12 L 26 -22 L 70 20" />
           <circle className={styles.photoSun} cx="34" cy="-28" r="9" />
-        </g>
+        </CampObject>
 
         {/* Field notes */}
-        <g transform="translate(1032 780) rotate(-1.4)" className={styles.objNotes}>
+        <CampObject id="notes" rotate={-1.4}>
           <rect
             className={styles.noteSheet}
             x="-92"
@@ -265,23 +294,20 @@ export function CampArt({ mapHot }: CampArtProps) {
             d="M -66 -28 h 136 M -66 -6 h 136 M -66 16 h 108 M -66 38 h 124"
           />
           <path className={styles.noteInk} d="M -66 -46 h 58" />
-        </g>
+        </CampObject>
 
         {/* Folded map */}
-        <g transform="translate(1332 790) rotate(2.2)" className={styles.objMap}>
+        <CampObject id="map" rotate={2.2}>
           <rect className={styles.mapSheet} x="-108" y="-70" width="216" height="146" />
           <path className={styles.mapFold} d="M -36 -70 v 146 M 36 -70 v 146" />
           <path
             className={styles.mapInk}
             d="M -86 26 q 40 -34 86 -14 q 44 20 84 -20 M -86 -22 q 46 -12 74 -34"
           />
-          <path
-            className={mapHot ? `${styles.mapTrail} ${styles.mapTrailHot}` : styles.mapTrail}
-            d="M -72 46 q 52 -40 96 -30 q 46 10 82 -46"
-          />
+          <path className={styles.mapTrail} d="M -72 46 q 52 -40 96 -30 q 46 10 82 -46" />
           <circle className={styles.mapPin} cx="-72" cy="46" r="5" />
           <circle className={styles.mapPin} cx="106" cy="-30" r="5" />
-        </g>
+        </CampObject>
       </g>
 
       {/* --- 6 · foreground --------------------------------------------- */}

@@ -317,25 +317,56 @@
   stroke-width: 2.6;
   stroke-dasharray: 7 5;
   opacity: 0.7;
-  transition:
-    opacity var(--duration-normal) var(--ease-standard),
-    stroke-width var(--duration-normal) var(--ease-standard);
-}
-
-.mapTrailHot {
-  opacity: 1;
-  stroke-width: 4;
 }
 
 .mapPin {
   fill: var(--color-red);
 }
 
-.objNotebook,
-.objPhoto,
-.objNotes,
-.objMap {
-  transition: transform var(--duration-normal) var(--ease-standard);
+/*
+  What an object does when you reach for it.
+
+  Three states in the drawing — rest, hover, active — because the fourth,
+  focus, belongs to the control: a ring is drawn around the thing that has
+  focus, and that thing is the button. A focused object reports hover here, so
+  the keyboard gets the same object response the pointer does.
+
+  The lift is the whole idea. An object that rises off the table and casts a
+  shadow has been picked up; one that merely changes colour has been
+  highlighted. The open object stays up while the others lie flat, which is
+  what makes "which one am I reading" answerable from the picture alone.
+
+  Shadow lengths are SVG user units, not pixels: the frame is 1600 units wide
+  and renders around 800, so these are roughly half what they read as.
+*/
+.lift {
+  transition:
+    transform var(--duration-normal) var(--ease-standard),
+    filter var(--duration-normal) var(--ease-standard);
+}
+
+.lift[data-state="hover"] {
+  transform: translateY(-9px);
+  filter: brightness(1.14) drop-shadow(0 12px 12px rgba(0, 0, 0, 0.5));
+}
+
+.lift[data-state="active"] {
+  transform: translateY(-15px);
+  filter: brightness(1.2) drop-shadow(0 20px 18px rgba(0, 0, 0, 0.55));
+}
+
+/* The map's drawn trail brightens with it — the object's own answer to
+   "where does this go", given before the click rather than after. */
+.mapTrail {
+  transition:
+    opacity var(--duration-normal) var(--ease-standard),
+    stroke-width var(--duration-normal) var(--ease-standard);
+}
+
+.lift[data-state="hover"] .mapTrail,
+.lift[data-state="active"] .mapTrail {
+  opacity: 1;
+  stroke-width: 4;
 }
 
 /* --- foreground ----------------------------------------------------------- */
@@ -379,6 +410,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* The lift stays — it is the state, not the flourish — but it arrives
+     without travelling. */
+  .lift {
+    transition: none;
+  }
+
   .flameOuter,
   .flameInner,
   .groundGlow,

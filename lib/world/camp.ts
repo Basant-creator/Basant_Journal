@@ -201,19 +201,27 @@ export const CAMP_OBJECTS = {
 
 export type CampObjectId = keyof typeof CAMP_OBJECTS;
 
-/** An object's box as CSS percentages of the stage. */
-export function objectBox(id: CampObjectId): {
-  left: string;
-  top: string;
-  width: string;
-  height: string;
-} {
+/**
+ * An object's box as shares of the stage, in SceneObject's shape.
+ *
+ * The one conversion between how the scene is drawn and how it is reached
+ * into. Everything else — the drawing's own transform included — comes off
+ * CAMP_OBJECTS directly, so the control and the object cannot be positioned
+ * from two different sets of numbers.
+ */
+export function objectBox(id: CampObjectId): { x: number; y: number; w: number; h: number } {
   const o = CAMP_OBJECTS[id];
-  const pct = (n: number) => `${Math.round(n * 1000) / 1000}%`;
+  const round = (n: number) => Math.round(n * 1000) / 1000;
   return {
-    left: pct(((o.cx - o.w / 2) / CAMP_WIDTH) * 100),
-    top: pct(((o.cy - o.h / 2) / CAMP_HEIGHT) * 100),
-    width: pct((o.w / CAMP_WIDTH) * 100),
-    height: pct((o.h / CAMP_HEIGHT) * 100),
+    x: round(((o.cx - o.w / 2) / CAMP_WIDTH) * 100),
+    y: round(((o.cy - o.h / 2) / CAMP_HEIGHT) * 100),
+    w: round((o.w / CAMP_WIDTH) * 100),
+    h: round((o.h / CAMP_HEIGHT) * 100),
   };
+}
+
+/** Where an object's drawing is placed, and how it lies. */
+export function objectTransform(id: CampObjectId, rotate: number): string {
+  const o = CAMP_OBJECTS[id];
+  return `translate(${o.cx} ${o.cy}) rotate(${rotate})`;
 }

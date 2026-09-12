@@ -54,3 +54,25 @@ export const SceneInteractionContext = createContext<SceneInteractionValue | nul
 export function useSceneInteraction(): SceneInteractionValue | null {
   return useContext(SceneInteractionContext);
 }
+
+/** What an object is doing, from the artwork's point of view. */
+export type ObjectState = "rest" | "hover" | "active";
+
+/**
+ * The state of one object, for the drawing of it.
+ *
+ * The controls live in the DOM over the scene and the objects are drawn
+ * inside it, so without this the artwork cannot know that anyone is reaching
+ * for it — which is how you end up with a scene where an invisible rectangle
+ * lights up and the thing it is over does nothing.
+ *
+ * Three states, not four: `focus` is the control's, because a focus ring
+ * belongs to the focusable thing. A focused object reports `hover` here, so
+ * the drawing responds to the keyboard exactly as it does to the pointer.
+ */
+export function useObjectState(id: string): ObjectState {
+  const scene = useContext(SceneInteractionContext);
+  if (!scene) return "rest";
+  if (scene.activeId === id) return "active";
+  return scene.hoverId === id ? "hover" : "rest";
+}
