@@ -102,6 +102,30 @@ export function CampArt() {
           <feGaussianBlur stdDeviation="5" />
         </filter>
 
+        {/* The print on the table, printed into this world: desaturated,
+            re-warmed toward the earth range, and its black point lifted the
+            way an aged print's is. Done in SVG rather than CSS because the
+            photograph lives inside the scene's coordinate space. */}
+        <filter id="campPrint" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.44 0.42 0.12 0 0.06
+                    0.36 0.44 0.10 0 0.03
+                    0.26 0.32 0.14 0 0.01
+                    0    0    0    1 0"
+          />
+        </filter>
+
+        <clipPath id="campPhotoWindow">
+          <rect x="-70" y="-50" width="140" height="92" />
+        </clipPath>
+
+        <linearGradient id="campSheen" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="var(--fire-glow-mid)" />
+          <stop offset="54%" stopColor="transparent" />
+          <stop offset="100%" stopColor="var(--scene-depth-5)" />
+        </linearGradient>
+
         <linearGradient id="campNearShadow" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="rgba(7, 6, 5, 0)" />
           <stop offset="100%" stopColor="rgba(7, 6, 5, 0.55)" />
@@ -266,8 +290,21 @@ export function CampArt() {
         <CampObject id="photograph" rotate={3.6}>
           <rect className={styles.photoMat} x="-84" y="-64" width="168" height="132" />
           <rect className={styles.photoImage} x="-70" y="-50" width="140" height="92" />
-          <path className={styles.photoScene} d="M -70 22 L -30 -8 L -4 12 L 26 -22 L 70 20" />
-          <circle className={styles.photoSun} cx="34" cy="-28" r="9" />
+          {/* The actual print, at the size a print on a table actually is.
+              aria-hidden because the scene is decorative throughout — the
+              same photograph carries a real alt in the record it opens. */}
+          <image
+            href="/portrait/basant-small.jpg"
+            x="-70"
+            y="-50"
+            width="140"
+            height="92"
+            preserveAspectRatio="xMidYMin slice"
+            clipPath="url(#campPhotoWindow)"
+            filter="url(#campPrint)"
+            aria-hidden="true"
+          />
+          <rect className={styles.photoSheen} x="-70" y="-50" width="140" height="92" />
         </CampObject>
 
         {/* Field notes */}

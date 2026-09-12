@@ -1,0 +1,86 @@
+/* ==========================================================================
+   A print in its mount.
+
+   The mount is paper; the window is the image area; three layers over the
+   image do the printing. Nothing here modifies the file on disk.
+   ========================================================================== */
+
+.mount {
+  margin: 0;
+  padding: 14px 14px 0;
+  background: var(--color-paper-light);
+  border: 1px solid rgba(64, 50, 37, 0.32);
+  box-shadow: var(--shadow-paper);
+  transform: rotate(var(--tilt, -1.2deg));
+  max-width: 340px;
+}
+
+.window {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-earth-dark);
+  /* The print sits slightly proud of its mount, as one does. */
+  box-shadow: inset 0 0 0 1px rgba(36, 27, 18, 0.4);
+}
+
+.print {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /*
+    The duotone. sepia() alone is the obvious move and the wrong one — it
+    gives a uniform brown that belongs to no particular palette. Pulling
+    saturation down first and then re-warming lands it in this world's earth
+    range instead, and the slight contrast lift keeps the face from going flat
+    once the black point is raised below.
+  */
+  filter: grayscale(0.4) sepia(0.44) saturate(1.14) contrast(1.02) brightness(1.1);
+}
+
+/* Warm where the light is, cool in the shadows — and a raised black point,
+   because an aged print has no true black in it anywhere. */
+.tone {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(168deg, rgba(216, 199, 165, 0.2), rgba(58, 42, 28, 0.28)),
+    rgba(74, 54, 34, 0.16);
+  mix-blend-mode: soft-light;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  background-image: var(--texture-grain-url);
+  background-size: 240px;
+  opacity: 0.38;
+  mix-blend-mode: overlay;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  /* Enough to seat the print in the page, not enough to hide the face. A
+     portrait is the content here, not a mood. */
+  background: radial-gradient(
+    ellipse 84% 78% at 50% 42%,
+    transparent 54%,
+    rgba(36, 27, 18, 0.34) 100%
+  );
+}
+
+.caption {
+  font-family: var(--font-hand);
+  font-size: var(--text-lg);
+  line-height: 1.2;
+  color: var(--color-earth-dark);
+  text-align: center;
+  padding: var(--space-3) var(--space-2) var(--space-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mount {
+    transform: none;
+  }
+}

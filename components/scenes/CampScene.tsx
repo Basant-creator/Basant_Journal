@@ -6,6 +6,7 @@ import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
 import { SceneInteraction } from "@/components/scene/SceneInteraction";
 import { SceneObject } from "@/components/scene/SceneObject";
 import { SceneObjects } from "@/components/scene/SceneObjects";
+import { FieldPhotograph } from "@/components/world/FieldPhotograph";
 import { TornPaper } from "@/components/world/TornPaper";
 import { CAMP_HEIGHT, CAMP_WIDTH, type CampObjectId, objectBox } from "@/lib/world/camp";
 import { CampArt } from "./CampArt";
@@ -164,6 +165,19 @@ export function CampScene({
 
           {open === "photograph" ? (
             <>
+              {/* The photograph the object actually is. It carries the record
+                  rather than illustrating it: a picture of the surveyor,
+                  captioned with the posting, which is what a photograph in a
+                  field journal is for. */}
+              <FieldPhotograph
+                src="/portrait/basant.jpg"
+                alt={`${name} — ${role}`}
+                width={900}
+                height={1125}
+                caption={`${name}, Punjab`}
+                className={styles.portrait}
+              />
+
               <p className={styles.recordHead}>Education</p>
               <ul className={styles.recordList}>
                 {education.map((entry) => (

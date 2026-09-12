@@ -255,15 +255,12 @@
   fill: var(--color-earth);
 }
 
-.photoScene {
-  fill: none;
-  stroke: var(--color-earth-dark);
-  stroke-width: 4;
-  stroke-linejoin: round;
-}
-
-.photoSun {
-  fill: var(--color-paper-dark);
+/* Firelight falling across the print, and the corner darkening every small
+   photograph on a table has. Over the image, inside the same window. */
+.photoSheen {
+  fill: url(#campSheen);
+  opacity: 0.5;
+  mix-blend-mode: soft-light;
 }
 
 .noteSheet {
