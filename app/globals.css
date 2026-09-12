@@ -511,6 +511,15 @@ svg {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
+
+    /* Delay matters as much as duration and is the half everyone forgets.
+       Collapsing duration alone turns a staggered sequence into a set of
+       elements that hold their opening frame — invisible, offset, mid-fade —
+       for the length of their delay and then snap into place. That is more
+       motion than the animation would have been, not less, and it is exactly
+       what the setting was used to avoid. */
+    animation-delay: 0ms !important;
+    transition-delay: 0ms !important;
   }
 }
 

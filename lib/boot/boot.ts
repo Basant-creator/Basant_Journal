@@ -53,8 +53,18 @@ export const BOOT_FAILSAFE = 3600;
  * experience, and a direct load of /skills is not that: it has its own short
  * chapter reveal, and a boot screen over the top would hide it. Every framing
  * in the brief pairs the boot with Home — §1, §10, and the stack in §32.
+ *
+ * Reduced motion gets the short version rather than the full one, for the same
+ * reason the entry stamp checks it: this decision has to be made before paint,
+ * and CSS cannot make it. Stopping the wordmark animating while still holding
+ * the shell hidden for 900ms leaves that visitor watching a still screen for
+ * most of a second — a wait with no motion in it, which is the one thing the
+ * ceremony has no excuse for.
+ *
+ * Short rather than skipped, deliberately. The boot layer is what stops Home
+ * being seen half-built; removing it entirely would trade a wait for a flash.
  */
-export const BOOT_STAMP_SCRIPT = `(function(){var d=document.documentElement;try{if(location.pathname!=="/"){d.setAttribute("data-boot","done");return}var s=false;try{s=window.sessionStorage.getItem("${BOOT_KEY}")==="1"}catch(e){}d.setAttribute("data-boot",s?"short":"play");try{window.sessionStorage.setItem("${BOOT_KEY}","1")}catch(e){}setTimeout(function(){if(d.getAttribute("data-boot")!=="done"){d.setAttribute("data-boot","done")}},${BOOT_FAILSAFE})}catch(e){try{d.setAttribute("data-boot","done")}catch(x){}}})();`;
+export const BOOT_STAMP_SCRIPT = `(function(){var d=document.documentElement;try{if(location.pathname!=="/"){d.setAttribute("data-boot","done");return}var s=false;try{s=window.sessionStorage.getItem("${BOOT_KEY}")==="1"}catch(e){}var r=false;try{r=window.matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}d.setAttribute("data-boot",(s||r)?"short":"play");try{window.sessionStorage.setItem("${BOOT_KEY}","1")}catch(e){}setTimeout(function(){if(d.getAttribute("data-boot")!=="done"){d.setAttribute("data-boot","done")}},${BOOT_FAILSAFE})}catch(e){try{d.setAttribute("data-boot","done")}catch(x){}}})();`;
 
 export type BootPhase =
   | "BOOT_INIT"
