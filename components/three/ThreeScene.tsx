@@ -27,6 +27,10 @@ const SCENES = {
   vista: dynamic(() => import("./scenes/VistaScene").then((m) => m.VistaScene), {
     ssr: false,
   }),
+  /** Camp, in production. Built beside the prototype until it replaces it. */
+  campWorld: dynamic(() => import("./camp/CampWorld").then((m) => m.CampWorld), {
+    ssr: false,
+  }),
 } as const;
 
 export type SceneName = keyof typeof SCENES;
