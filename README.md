@@ -12,7 +12,7 @@ npm run typecheck  # tsc --noEmit
 
 ---
 
-## The four-layer model
+## The five-layer model
 
 Every visual decision in this repository resolves against one model. If a
 component does not belong to exactly one of these layers, it is wrong.
@@ -20,6 +20,7 @@ component does not belong to exactly one of these layers, it is wrong.
 | Layer | What it is | Where it lives |
 |---|---|---|
 | **THE DARK** | Atmosphere, shell, navigation. Ink ground, vignette, grain. | `app/globals.css`, `components/shell`, `components/navigation` |
+| **THE SCENE** | Places. Depth bands, air, camera, the world an artifact sits in. | `components/scene`, `lib/world`, the scene layers in `components/map` |
 | **THE TERRAIN** | The survey sheet: parchment field, ink cartography, routes, locations. | `lib/map`, `components/terrain`, `components/map` |
 | **THE PAPER** | Documents and reading surfaces. | `components/paper` |
 | **THE HAND** | Red ink. Measurement, annotation, human intervention. ~3% of any view. | `components/annotations`, the map's annotation layer |
@@ -80,7 +81,7 @@ docs/                     design direction, visual spec, phase notes,
 
 ---
 
-## Three decisions worth knowing
+## Four decisions worth knowing
 
 **The map is generated, not drawn.** `lib/map/terrain.ts` emits every ridge,
 contour, hachure, river bank and stipple mark from seeded generators
@@ -88,6 +89,16 @@ contour, hachure, river bank and stipple mark from seeded generators
 composition re-tunable by changing a number, gives the linework its
 irregularity for free, and — because the seed is fixed — renders byte-identical
 on the server and the client.
+
+**The map is an object in a place, not a panel.** `/frontier` renders the same
+map engine it always did — same SVG, same camera, same markers, same keys — set
+into a frame of world: ridgelines receding through haze above its top edge,
+near scrub crossing its bottom one, and the whole thing drifting a few pixels
+under the pointer. The environment moves; the interactive sheet does not,
+because parallax on a control makes the thing you are aiming at drift away from
+you. The margins are stated twice — `SHEET_INSET` in `lib/world/vista.ts` and
+the padding in `FrontierMap.module.css` — and they have to agree, or the
+horizon stops landing on the sheet's edge.
 
 **Route strings live in one place.** `lib/routes.ts` holds the map, and the
 content model carries each location's and project's own canonical `route`. No

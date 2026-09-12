@@ -1,0 +1,115 @@
+/* ==========================================================================
+   The country behind the sheet.
+   Sits at the bottom of the stage's stacking order; the sheet is painted on
+   top of it and the near ground on top of that.
+   ========================================================================== */
+
+.vista {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  /*
+    The sky warms downward and then holds.
+
+    The warm band has to land *above* the highest crest (about 3.5% of the
+    frame) or the ridges cover the only light in the picture and the whole
+    strip goes black — which is exactly what the first cut of this did. Below
+    the crests the gradient is academic: the ridges are painted over it.
+  */
+  background:
+    /* The last light, in a narrow band right where the far crest cuts it.
+       Without this the sky and the ridges are two similar browns and the
+       strip reads as a gradient rather than as a country. */
+    linear-gradient(
+      180deg,
+      transparent 0.8%,
+      rgba(122, 82, 47, 0.5) 3.1%,
+      transparent 6.4%
+    ),
+    linear-gradient(
+      180deg,
+      var(--scene-void) 0%,
+      var(--scene-night) 1.3%,
+      var(--scene-dark) 2.5%,
+      var(--scene-dusk) 3.8%,
+      var(--scene-dusk) 16.5%,
+      var(--scene-depth-2) 17.5%
+    );
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Furthest to nearest. Each is darker than the one behind it, which is the
+   opposite of what a photograph does and exactly what dusk does. */
+.ridge0 {
+  fill: var(--scene-depth-0);
+}
+
+.ridge1 {
+  fill: var(--scene-depth-1);
+}
+
+.ridge2 {
+  fill: var(--scene-depth-2);
+}
+
+/* Dusk pooling against a ridge: dense at the crest, gone within a hundred
+   units. Painted after its own ridge and before the next one, so each nearer
+   ridge cuts through the haze in front of the one behind it. */
+.hazeDense {
+  stop-color: var(--scene-dusk);
+  stop-opacity: 0.9;
+}
+
+.hazeClear {
+  stop-color: var(--scene-dusk);
+  stop-opacity: 0;
+}
+
+/*
+  How much air you are looking through.
+
+  Each wash is painted after its own ridge and before the next one, so the far
+  ridge is seen through all three and the near ridge through one. That is the
+  whole of aerial perspective, and it is the reason three flat silhouettes
+  read as distance instead of as three flat silhouettes.
+*/
+.haze0 {
+  opacity: 0.42;
+}
+
+.haze1 {
+  opacity: 0.3;
+}
+
+.haze2 {
+  opacity: 0.18;
+}
+
+/* The last of the light, caught where the sheet is. Also the thing that keeps
+   the ground behind the paper from reading as a flat grey field. */
+.glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 58% 44% at 50% 54%,
+    rgba(124, 97, 62, 0.32),
+    rgba(124, 97, 62, 0.1) 46%,
+    transparent 72%
+  );
+  transition: opacity var(--scene-transition) var(--ease-cinematic);
+}
+
+/* When the map's own camera travels to a location, the world deepens around
+   it. The state already exists on the stage; this is the environment paying
+   attention to it rather than a second animation system. */
+:global([data-camera="active"]) .glow {
+  opacity: 0.55;
+}

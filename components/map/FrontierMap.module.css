@@ -12,6 +12,37 @@
   min-width: 0;
 }
 
+/* --- the scene the sheet is read in -------------------------------------- */
+
+/* The stage is the frame of world; the sheet is inset into it. */
+.stage {
+  box-shadow: var(--shadow-paper-deep);
+}
+
+/* Air, behind the paper. Positioned so it opens its own stacking context and
+   the atmosphere's z-index stays scoped inside this layer. */
+.air {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/*
+  The inset, and the other half of lib/world/vista.ts's SHEET_INSET.
+
+  Percentage padding resolves against the container's width on every side,
+  which is what makes this exact rather than approximate: 64 / 210 / 130 vista
+  units of 1600 are 4% / 13.125% / 8.125%, and 1472 of 1600 is the sheet's
+  92%. Those add up to the stage's own 1600 x 1260 ratio, so the horizon lands
+  on the sheet's top edge at every width.
+*/
+.sheetHolder {
+  position: relative;
+  z-index: 2;
+  padding: 13.125% 4% 8.125%;
+}
+
 /* The aspect ratio is locked so the field-note overlay's percentage
    positioning lines up exactly with the SVG's own coordinate space. */
 .sheet {
@@ -20,7 +51,11 @@
   width: 100%;
   border-radius: var(--radius-sm);
   overflow: hidden;
-  box-shadow: var(--shadow-paper-deep);
+  /* Two shadows: the sheet's own, and the one it throws onto the ground it is
+     lying against. The second is what stops it floating. */
+  box-shadow:
+    0 30px 64px rgba(0, 0, 0, 0.55),
+    var(--shadow-paper-deep);
   background: var(--color-ink-deep);
 }
 
@@ -270,6 +305,39 @@
   text-transform: uppercase;
   color: var(--color-red-dark);
   margin: var(--space-2) 0 0;
+}
+
+/* --- the scene's title card ---------------------------------------------- */
+
+/*
+  Sits in the stage's bottom margin, over the one stretch of ground the scrub
+  generator is told to keep short. Above the foreground so the grass does not
+  grow through the words, and inert so it cannot take a pointer event that
+  belongs to the map.
+*/
+.sceneCaption {
+  position: absolute;
+  left: 4%;
+  bottom: 2.4%;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1vw, 14px);
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: clamp(0.52rem, 0.72vw, 0.66rem);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
+}
+
+.captionRule {
+  display: block;
+  width: clamp(10px, 1.6vw, 22px);
+  height: 1px;
+  background: var(--color-border-strong);
 }
 
 .hint {

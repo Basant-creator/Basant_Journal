@@ -1,0 +1,56 @@
+/* ==========================================================================
+   The near ground — painted over the sheet, and never in its way.
+   ========================================================================== */
+
+.foreground {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  /* Non-negotiable. Everything under here is the map's interaction surface. */
+  pointer-events: none;
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* The bank underfoot: the nearest thing in the frame, so the darkest. */
+.ground {
+  fill: var(--scene-depth-5);
+}
+
+/*
+  A near-field defocus — the difference between grass standing in front of the
+  sheet and grass drawn on it. An eye reads softness as proximity before it
+  reads anything else in a frame.
+
+  The radius is in the SVG's user units, not screen pixels: the frame is 1600
+  units wide and renders around 700, so this is roughly a pixel and a half of
+  actual blur. 1.1 here — a sensible-looking number — was half a pixel, which
+  is to say nothing at all.
+*/
+.blades {
+  fill: none;
+  stroke: var(--scene-depth-5);
+  stroke-linecap: round;
+  filter: blur(3.6px);
+}
+
+/* Light falls off at the edges of a frame. This is lens work rather than
+   mood: it stops the stage's corners competing with the sheet's own. */
+.vignette {
+  position: absolute;
+  inset: 0;
+  /* Gentle on purpose. The sheet fills almost the whole frame, so anything
+     heavier here is not a vignette on the scene — it is a wash over the map,
+     and the scale bar and the road label live in the corners it would wash. */
+  background: radial-gradient(
+    ellipse 84% 78% at 50% 50%,
+    transparent 55%,
+    rgba(7, 6, 5, 0.22) 100%
+  );
+}

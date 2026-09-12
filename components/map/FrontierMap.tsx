@@ -11,8 +11,11 @@ import {
   useRef,
   useState,
 } from "react";
+import { Scene } from "@/components/scene/Scene";
+import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
 import { TerrainLayer } from "@/components/terrain/TerrainLayer";
-import { locations, originLocationId, primaryLocationId } from "@/lib/content/portfolio";
+import { VISTA_HEIGHT, VISTA_WIDTH } from "@/lib/world/vista";
+import { locations, meta, originLocationId, primaryLocationId } from "@/lib/content/portfolio";
 import type { NavigationLocation } from "@/lib/content/types";
 import {
   type Camera,
@@ -29,8 +32,10 @@ import { SHEET_HEIGHT, SHEET_WIDTH } from "@/lib/map/terrain";
 import { completeEntry } from "@/lib/motion/entry";
 import { survey } from "@/lib/motion/variants";
 import { LocationNode, type NodeRef } from "./LocationNode";
+import { MapForeground } from "./MapForeground";
 import { MapLayer } from "./MapLayer";
 import { MapLegend } from "./MapLegend";
+import { MapVista } from "./MapVista";
 import { MobileTrail } from "./MobileTrail";
 import { Trail } from "./Trail";
 import styles from "./FrontierMap.module.css";
@@ -225,167 +230,223 @@ export function FrontierMap() {
   return (
     <div className={styles.layout}>
       {/* ================= desktop and tablet: the survey sheet ============ */}
-      <div className={styles.sheetColumn}>
-        <div className={styles.sheet}>
-          <svg
-            className={styles.svg}
-            viewBox={`0 0 ${SHEET_WIDTH} ${SHEET_HEIGHT}`}
-            role="navigation"
-            aria-label="Frontier survey map. Six locations; arrow keys move to the nearest location in that direction."
-          >
-            {/* Outer group: the entry settle, in CSS so it cannot fight Motion. */}
-            <g className={styles.settle}>
-              {/* Inner group: the interactive camera. */}
-              <motion.g
-                className={styles.camera}
-                animate={{ x: camera.x, y: camera.y, scale: camera.scale }}
-                initial={false}
-                transition={survey}
+      {/* data-camera is the one thing the environment is told about the map's
+          state: when the camera travels, the world deepens around it. It is an
+          attribute rather than a prop so the reaction stays in CSS and costs
+          no render. */}
+      <div
+        className={styles.sheetColumn}
+        data-camera={state === "location-active" ? "active" : "rest"}
+      >
+        {/*
+          THE SCENE.
+
+          The map engine is untouched — same SVG, same camera, same markers,
+          same keys. What changed is where it is: a frame of world around the
+          sheet, with the sheet inset into it. The inset here and SHEET_INSET
+          in lib/world/vista.ts are the same composition written twice, so the
+          ridge crest lands on the sheet's top edge and the bank on its bottom
+          one. Move one and you move both.
+
+          entry={false} deliberately: the sheet already has a 1.9s settle of
+          its own, and a second arrival animation stacked on the first is how
+          a cinematic becomes a wait.
+        */}
+        <Scene
+          className={styles.stage}
+          width={VISTA_WIDTH}
+          height={VISTA_HEIGHT}
+          compactRatio={`${VISTA_WIDTH} / ${VISTA_HEIGHT}`}
+          entry={false}
+        >
+          <MapVista />
+
+          {/* Air, behind the paper. The wrapper is what puts it there: it
+              opens a stacking context so the atmosphere's own z-index is
+              scoped inside this layer instead of floating over the map. */}
+          <div className={styles.air}>
+            <SceneAtmosphere variant="drift" />
+          </div>
+
+          <div className={styles.sheetHolder}>
+            <div className={styles.sheet}>
+              <svg
+                className={styles.svg}
+                viewBox={`0 0 ${SHEET_WIDTH} ${SHEET_HEIGHT}`}
+                role="navigation"
+                aria-label="Frontier survey map. Six locations; arrow keys move to the nearest location in that direction."
               >
-                <TerrainLayer />
-
-                <MapLayer name="trails">
-                  {trails.map((trail) => (
-                    <Trail key={trail.id} trail={trail} lit={litTrails.has(trail.id)} />
-                  ))}
-                </MapLayer>
-
-                {/* ---- THE HAND: someone walked this and wrote on it ------ */}
-                <MapLayer name="annotations" className={styles.hand}>
-                  {/* The arrow points from the trailhead card into Camp. The
-                      words that used to sit here now live in that card, where
-                      they can carry a real link. */}
-                  <path
-                    className={styles.handMark}
-                    d="M 176 676 Q 224 692 262 699"
-                    markerEnd="url(#handArrow)"
-                  />
-
-                  {/* Direction along the primary trail, stated by static marks
-                      so it still reads with every animation switched off. */}
-                  {primaryTrailArrows.map((point, i) => (
-                    <path
-                      key={`survey-arrow-${i}`}
-                      className={styles.trailArrow}
-                      d="M -7 -6 L 1.5 0 L -7 6"
-                      transform={`translate(${point.x.toFixed(1)} ${point.y.toFixed(1)}) rotate(${point.angle.toFixed(1)})`}
-                    />
-                  ))}
-
-                  {primary ? (
-                    <ellipse
-                      className={styles.handRing}
-                      cx={primary.coord[0]}
-                      cy={primary.coord[1]}
-                      rx={74}
-                      ry={62}
-                      transform={`rotate(-8 ${primary.coord[0]} ${primary.coord[1]})`}
-                    />
-                  ) : null}
-
-                  <text
-                    className={styles.handText}
-                    x={520}
-                    y={642}
-                    textAnchor="middle"
-                    transform="rotate(-25 520 642)"
+                {/* Outer group: the entry settle, in CSS so it cannot fight Motion. */}
+                <g className={styles.settle}>
+                  {/* Inner group: the interactive camera. */}
+                  <motion.g
+                    className={styles.camera}
+                    animate={{ x: camera.x, y: camera.y, scale: camera.scale }}
+                    initial={false}
+                    transition={survey}
                   >
-                    PRIMARY TRAIL
-                  </text>
+                    <TerrainLayer />
 
-                  <g className={styles.handMark}>
-                    <path d="M 372 690 l 10 -18 M 402 676 l 10 -18" />
-                  </g>
-                  <text
-                    className={styles.handNote}
-                    x={392}
-                    y={706}
-                    textAnchor="middle"
-                    transform="rotate(-25 392 706)"
-                  >
-                    4.2 mi
-                  </text>
+                    <MapLayer name="trails">
+                      {trails.map((trail) => (
+                        <Trail key={trail.id} trail={trail} lit={litTrails.has(trail.id)} />
+                      ))}
+                    </MapLayer>
 
-                  <defs>
-                    <marker
-                      id="handArrow"
-                      viewBox="0 0 10 10"
-                      refX="8"
-                      refY="5"
-                      markerWidth="5"
-                      markerHeight="5"
-                      orient="auto"
-                    >
+                    {/* ---- THE HAND: someone walked this and wrote on it ------ */}
+                    <MapLayer name="annotations" className={styles.hand}>
+                      {/* The arrow points from the trailhead card into Camp. The
+                          words that used to sit here now live in that card, where
+                          they can carry a real link. */}
                       <path
-                        d="M 0 1 L 9 5 L 0 9"
-                        fill="none"
-                        stroke="var(--map-hand)"
-                        strokeWidth="1.6"
+                        className={styles.handMark}
+                        d="M 176 676 Q 224 692 262 699"
+                        markerEnd="url(#handArrow)"
                       />
-                    </marker>
-                  </defs>
-                </MapLayer>
 
-                {/* The drawn trail responds to the pointer, but it is never
-                    the only way in: the trailhead card below is the real
-                    control, and it is keyboard and screen-reader reachable. */}
-                {primaryTrail ? (
-                  <MapLayer name="trail-target" interactive>
-                    {/* onMouseOver/onMouseOut rather than the Enter/Leave
-                        pair: React synthesises enter/leave from the over/out
-                        events, and that synthesis does not fire reliably for
-                        an SVG <path> hit-tested by its stroke. The plain
-                        bubbling events do. */}
-                    <path
-                      className={styles.trailTarget}
-                      d={primaryTrail.path}
-                      onMouseOver={() => enter(primaryLocationId)}
-                      onMouseOut={leave}
-                    />
-                  </MapLayer>
-                ) : null}
+                      {/* Direction along the primary trail, stated by static marks
+                          so it still reads with every animation switched off. */}
+                      {primaryTrailArrows.map((point, i) => (
+                        <path
+                          key={`survey-arrow-${i}`}
+                          className={styles.trailArrow}
+                          d="M -7 -6 L 1.5 0 L -7 6"
+                          transform={`translate(${point.x.toFixed(1)} ${point.y.toFixed(1)}) rotate(${point.angle.toFixed(1)})`}
+                        />
+                      ))}
 
-                {/* ---- interaction layer --------------------------------- */}
-                <MapLayer name="locations" interactive>
-                  {locations.map((location, index) => (
-                    <LocationNode
-                      key={location.id}
-                      location={location}
-                      index={index}
-                      hovered={activeId === location.id}
-                      active={engagedId === location.id}
-                      tabIndex={focusIndex === index ? 0 : -1}
-                      anchorRef={(el) => {
-                        nodeRefs.current[index] = el;
-                      }}
-                      onEnter={enter}
-                      onLeave={leave}
-                      onFocus={(event) => onNodeFocus(event, index, location.id)}
-                      onKeyDown={(event) => onNodeKeyDown(event, index)}
-                      onEngage={engage}
-                    />
-                  ))}
-                </MapLayer>
-              </motion.g>
-            </g>
-          </svg>
+                      {primary ? (
+                        <ellipse
+                          className={styles.handRing}
+                          cx={primary.coord[0]}
+                          cy={primary.coord[1]}
+                          rx={74}
+                          ry={62}
+                          transform={`rotate(-8 ${primary.coord[0]} ${primary.coord[1]})`}
+                        />
+                      ) : null}
 
-          {/* The small paper annotation beside a location. Its content is
-              duplicated in the index below, so nothing here is hover-only. */}
-          {noted && notePlacement ? (
-            <div className={styles.fieldNote} style={notePlacement} aria-hidden="true">
-              <span className={styles.fieldNoteTag}>
-                {noted.status === "surveying" ? "Unmapped" : "Field note"}
-              </span>
-              <p className={styles.fieldNoteBody}>{noted.description}</p>
-              {noted.status === "surveying" ? (
-                <p className={styles.fieldNoteStatus}>
-                  Survey in progress — no record filed yet.
-                </p>
+                      <text
+                        className={styles.handText}
+                        x={520}
+                        y={642}
+                        textAnchor="middle"
+                        transform="rotate(-25 520 642)"
+                      >
+                        PRIMARY TRAIL
+                      </text>
+
+                      <g className={styles.handMark}>
+                        <path d="M 372 690 l 10 -18 M 402 676 l 10 -18" />
+                      </g>
+                      <text
+                        className={styles.handNote}
+                        x={392}
+                        y={706}
+                        textAnchor="middle"
+                        transform="rotate(-25 392 706)"
+                      >
+                        4.2 mi
+                      </text>
+
+                      <defs>
+                        <marker
+                          id="handArrow"
+                          viewBox="0 0 10 10"
+                          refX="8"
+                          refY="5"
+                          markerWidth="5"
+                          markerHeight="5"
+                          orient="auto"
+                        >
+                          <path
+                            d="M 0 1 L 9 5 L 0 9"
+                            fill="none"
+                            stroke="var(--map-hand)"
+                            strokeWidth="1.6"
+                          />
+                        </marker>
+                      </defs>
+                    </MapLayer>
+
+                    {/* The drawn trail responds to the pointer, but it is never
+                        the only way in: the trailhead card below is the real
+                        control, and it is keyboard and screen-reader reachable. */}
+                    {primaryTrail ? (
+                      <MapLayer name="trail-target" interactive>
+                        {/* onMouseOver/onMouseOut rather than the Enter/Leave
+                            pair: React synthesises enter/leave from the over/out
+                            events, and that synthesis does not fire reliably for
+                            an SVG <path> hit-tested by its stroke. The plain
+                            bubbling events do. */}
+                        <path
+                          className={styles.trailTarget}
+                          d={primaryTrail.path}
+                          onMouseOver={() => enter(primaryLocationId)}
+                          onMouseOut={leave}
+                        />
+                      </MapLayer>
+                    ) : null}
+
+                    {/* ---- interaction layer --------------------------------- */}
+                    <MapLayer name="locations" interactive>
+                      {locations.map((location, index) => (
+                        <LocationNode
+                          key={location.id}
+                          location={location}
+                          index={index}
+                          hovered={activeId === location.id}
+                          active={engagedId === location.id}
+                          tabIndex={focusIndex === index ? 0 : -1}
+                          anchorRef={(el) => {
+                            nodeRefs.current[index] = el;
+                          }}
+                          onEnter={enter}
+                          onLeave={leave}
+                          onFocus={(event) => onNodeFocus(event, index, location.id)}
+                          onKeyDown={(event) => onNodeKeyDown(event, index)}
+                          onEngage={engage}
+                        />
+                      ))}
+                    </MapLayer>
+                  </motion.g>
+                </g>
+              </svg>
+
+              {/* The small paper annotation beside a location. Its content is
+                  duplicated in the index below, so nothing here is hover-only. */}
+              {noted && notePlacement ? (
+                <div className={styles.fieldNote} style={notePlacement} aria-hidden="true">
+                  <span className={styles.fieldNoteTag}>
+                    {noted.status === "surveying" ? "Unmapped" : "Field note"}
+                  </span>
+                  <p className={styles.fieldNoteBody}>{noted.description}</p>
+                  {noted.status === "surveying" ? (
+                    <p className={styles.fieldNoteStatus}>
+                      Survey in progress — no record filed yet.
+                    </p>
+                  ) : null}
+                </div>
               ) : null}
             </div>
-          ) : null}
-        </div>
+          </div>
+
+          <MapForeground />
+
+          {/* The scene's title, in the film sense: a location card burned into
+              the frame rather than a heading in the page. It sits in the
+              bottom margin, over the stretch of ground the generator keeps
+              short, and says what the sheet's own title block would say. The
+              page header carries the same three facts in real markup, so this
+              is decoration. */}
+          <p className={styles.sceneCaption} aria-hidden="true">
+            <span>The Frontier Territory</span>
+            <span className={styles.captionRule} />
+            <span>{meta.sheet}</span>
+            <span className={styles.captionRule} />
+            <span>Surveyed {meta.surveyed}</span>
+          </p>
+        </Scene>
 
         {/* THE TRAILHEAD.
             Camp carries two separate ideas: the marker is a location and leads
