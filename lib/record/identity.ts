@@ -12,9 +12,24 @@ import type { PaperVariant } from "@/components/paper/Paper";
  * It is data rather than conditionals in the page because there will be a
  * fourth project one day, and the cost of adding it should be an entry here.
  */
+/**
+ * How a record arrives.
+ *
+ *   PULL     a sheet drawn forward off a pile
+ *   DRAW     a file taken out of a stack
+ *   UNFOLD   a drawing opened along its crease
+ *
+ * Each belongs to the stock it arrives on: you pull a note, you draw a file,
+ * you unfold a blueprint. Picking one at random would make the motion
+ * decorative; picking the one the object would actually do makes it physical.
+ */
+export type RecordEntryKind = "PULL" | "DRAW" | "UNFOLD";
+
 export interface RecordIdentity {
   /** The stock. Set once per record; a manila file is manila throughout. */
   stock: PaperVariant;
+  /** What the document does on arrival. */
+  entry: RecordEntryKind;
   /** The strike on the masthead, and what it means. */
   stamp: { mark: string; note: string };
   /** The figure on the architecture sheet. */
@@ -30,6 +45,7 @@ const IDENTITIES: Record<string, RecordIdentity> = {
   /* A working notebook: ruled, warm, the surface you sketch a curve on. */
   tuneit: {
     stock: "FIELD_NOTE",
+    entry: "PULL",
     stamp: {
       mark: "Measured",
       note: "Sequencing throughput and smoothness measured against a 500-track benchmark.",
@@ -46,6 +62,7 @@ const IDENTITIES: Record<string, RecordIdentity> = {
   /* Buff manila, ruled at the head. A file that has been opened before. */
   onsight: {
     stock: "CASE_FILE",
+    entry: "DRAW",
     stamp: {
       mark: "Audited",
       note: "Unauthorised access attempts are written to a persistent log rather than only refused.",
@@ -62,6 +79,7 @@ const IDENTITIES: Record<string, RecordIdentity> = {
   /* Cyanotype: dark ground, light line. Drawings of things not yet built. */
   bobai: {
     stock: "BLUEPRINT",
+    entry: "UNFOLD",
     stamp: {
       mark: "Generated",
       note: "Scaffolded, provisioned and pushed end to end, with the deployment failure path under test.",
@@ -79,6 +97,7 @@ const IDENTITIES: Record<string, RecordIdentity> = {
 /** The default is the working notebook: the surface everything starts on. */
 const FALLBACK: RecordIdentity = {
   stock: "FIELD_NOTE",
+  entry: "PULL",
   stamp: { mark: "Filed", note: "Written up in full and filed." },
   figure: { label: "Fig. 1", caption: "", description: "" },
 };

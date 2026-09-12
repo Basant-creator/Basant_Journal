@@ -60,13 +60,6 @@
   min-width: 0;
 }
 
-.sections {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(36px, 5vw, 72px);
-  min-width: 0;
-}
-
 /*
   Everything on a sheet takes its colour from the sheet.
 
@@ -174,30 +167,21 @@
 /* ------------------------------------------------------------------------
    Arrival.
 
-   The record's parts settle in the order a reader meets them. Keyed on the
-   page's own children rather than on named blocks, because the blocks are the
-   document system's now and this page should not have to know their class
-   names to choreograph them.
+   The head and the filing strip settle plainly; the document itself arrives
+   the way its own stock would — a sheet pulled forward, a file drawn out, a
+   blueprint unfolded. See components/record/RecordEntry.
 
    `animation-fill-mode: both` on a sequence that runs from a *visible*
    resting state: if animations never run, the `from` state is never applied
-   and the content is simply there. Step 17 revisits this properly.
+   and the content is simply there.
    ------------------------------------------------------------------------ */
 
-.record > * {
-  animation: recordIn 420ms var(--ease-cinematic) both;
+.record > *:not([class*="RecordEntry"]) {
+  animation: recordIn 400ms var(--ease-cinematic) both;
 }
 
 .record > *:nth-child(2) {
-  animation-delay: 90ms;
-}
-
-.record > *:nth-child(3) {
-  animation-delay: 160ms;
-}
-
-.record > *:nth-child(4) {
-  animation-delay: 230ms;
+  animation-delay: 80ms;
 }
 
 @keyframes recordIn {

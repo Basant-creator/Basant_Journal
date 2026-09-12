@@ -8,6 +8,7 @@ import { FieldRecordHeader } from "@/components/record/FieldRecordHeader";
 import { MetricPanel } from "@/components/record/MetricPanel";
 import { ProjectNavigation } from "@/components/record/ProjectNavigation";
 import { ProjectSheet } from "@/components/record/ProjectSheet";
+import { RecordEntry } from "@/components/record/RecordEntry";
 import { TechnicalDiagram } from "@/components/record/TechnicalDiagram";
 import {
   DIAGRAM_HEIGHT,
@@ -141,7 +142,11 @@ export default async function ProjectRecordPage({ params }: PageProps) {
           <RecordNav />
         </aside>
 
-        <div className={styles.sections}>
+        <RecordEntry
+          kind={identity.entry}
+          recordId={project.id}
+          className={styles.sections}
+        >
           <ProjectSheet
             id="overview"
             heading="Overview"
@@ -244,7 +249,7 @@ export default async function ProjectRecordPage({ params }: PageProps) {
               {project.title} — {project.subtitle.toLowerCase()}.
             </FieldNote>
           </ProjectSheet>
-        </div>
+        </RecordEntry>
       </div>
 
       {/* The sequence does not wrap, and the way out of a record is the map

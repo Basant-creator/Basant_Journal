@@ -1,0 +1,151 @@
+/* ==========================================================================
+   Three arrivals, one for each stock.
+
+   All three run from an offset toward the resting state with
+   animation-fill-mode: both, and none of them is applied until after mount.
+   A browser that never runs them shows a finished document; the server's HTML
+   carries no state and matches nothing here.
+   ========================================================================== */
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(36px, 5vw, 72px);
+  min-width: 0;
+}
+
+/* Sheets settle in the order a reader meets them, close enough together that
+   the document arrives as one object rather than as a list assembling. */
+.entry[data-kind] > * {
+  animation-duration: 520ms;
+  animation-timing-function: var(--ease-cinematic);
+  animation-fill-mode: both;
+}
+
+.entry[data-kind] > *:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.entry[data-kind] > *:nth-child(3) {
+  animation-delay: 110ms;
+}
+
+.entry[data-kind] > *:nth-child(n + 4) {
+  animation-delay: 150ms;
+}
+
+/* --- PULL: a sheet drawn forward off a pile ------------------------------ */
+
+.entry[data-kind="PULL"] > * {
+  animation-name: pullForward;
+  transform-origin: 50% 0;
+}
+
+@keyframes pullForward {
+  from {
+    opacity: 0;
+    transform: scale(0.966) translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* --- DRAW: a file taken out of a stack ----------------------------------- */
+
+/*
+  The file comes out sideways and up, the way one does when a finger hooks the
+  tab. The stack it came from is drawn behind the first sheet and fades as the
+  file clears it — without that the motion is a slide, and a slide is not a
+  file being taken out of anything.
+*/
+.entry[data-kind="DRAW"] {
+  position: relative;
+}
+
+.entry[data-kind="DRAW"]::before,
+.entry[data-kind="DRAW"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 190px;
+  border-radius: var(--radius-sm);
+  background: var(--color-paper-dark);
+  box-shadow: var(--shadow-paper);
+  z-index: -1;
+  animation: stackSettle 520ms var(--ease-cinematic) both;
+}
+
+.entry[data-kind="DRAW"]::before {
+  transform: translate(10px, 12px) rotate(0.7deg);
+}
+
+.entry[data-kind="DRAW"]::after {
+  transform: translate(-6px, 20px) rotate(-0.5deg);
+  opacity: 0.7;
+}
+
+.entry[data-kind="DRAW"] > * {
+  animation-name: drawOut;
+}
+
+@keyframes drawOut {
+  from {
+    opacity: 0;
+    transform: translate(-26px, 26px) rotate(-1.1deg);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@keyframes stackSettle {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* --- UNFOLD: a drawing opened along its crease --------------------------- */
+
+/*
+  Hinged at the top edge and swinging toward the reader. The perspective is on
+  the element itself rather than a parent because each sheet folds on its own
+  crease; a shared vanishing point would make the column read as one rigid
+  board tipping, which is a door, not a drawing.
+*/
+.entry[data-kind="UNFOLD"] > * {
+  animation-name: unfold;
+  transform-origin: 50% 0;
+}
+
+@keyframes unfold {
+  from {
+    opacity: 0;
+    transform: perspective(1600px) rotateX(-22deg) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1600px) rotateX(0deg) translateY(0);
+  }
+}
+
+/* The component already declines to play under reduced motion. This covers a
+   preference that changes mid-arrival, which is the one way a sheet could be
+   left folded. */
+@media (prefers-reduced-motion: reduce) {
+  .entry[data-kind] > * {
+    animation: none;
+  }
+
+  .entry[data-kind="DRAW"]::before,
+  .entry[data-kind="DRAW"]::after {
+    display: none;
+  }
+}
