@@ -1,0 +1,74 @@
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.back {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  align-self: flex-start;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.back:hover {
+  color: var(--color-paper-light);
+}
+
+.masthead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 56px);
+  flex-wrap: wrap;
+}
+
+.titles {
+  min-width: 0;
+}
+
+.chapter {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-red-light);
+  margin-bottom: var(--space-3);
+}
+
+.title {
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: var(--leading-tight);
+  letter-spacing: 0.02em;
+  color: var(--color-white-warm);
+}
+
+.subtitle {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-2);
+  max-width: var(--measure-lede);
+}
+
+/* The stamp sits where a clerk's hand would reach: top right of the head,
+   clear of the title's measure. */
+.stamp {
+  flex: none;
+  padding-top: var(--space-4);
+}
+
+@media (max-width: 700px) {
+  .stamp {
+    padding-top: 0;
+  }
+}

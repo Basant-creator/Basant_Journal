@@ -1,0 +1,23 @@
+.strike {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+/* The line a clerk writes under a strike: when, and against what. Set small
+   and in the hand, because it is written rather than printed. */
+.filing {
+  font-family: var(--font-hand);
+  font-size: var(--text-md);
+  line-height: 1.1;
+  color: var(--color-red-light);
+  padding-left: var(--space-3);
+  transform: rotate(-1.4deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filing {
+    transform: none;
+  }
+}

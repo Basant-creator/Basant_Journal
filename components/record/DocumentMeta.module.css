@@ -1,0 +1,46 @@
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(20px, 4vw, 56px);
+  margin: 0;
+  padding: var(--space-4) 0 0;
+  /* Ruled above only. The header it sits in draws the rule beneath it, and
+     two lines a few pixels apart is a printing fault, not a filing strip. */
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.term {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  letter-spacing: 0.03em;
+  color: var(--color-paper-light);
+  font-variant-numeric: tabular-nums;
+}
+
+.link {
+  color: var(--color-paper-light);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--duration-fast) var(--ease-standard);
+}
+
+.link:hover {
+  text-decoration-color: var(--color-red-light);
+}

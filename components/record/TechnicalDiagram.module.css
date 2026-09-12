@@ -1,0 +1,72 @@
+.figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Drawing paper: a lighter stock than the sheet it sits on, ruled into a
+   grid at two scales the way a drawing sheet is. */
+.frame {
+  position: relative;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 23px, rgba(64, 50, 37, 0.07) 23px 24px),
+    repeating-linear-gradient(180deg, transparent 0 23px, rgba(64, 50, 37, 0.07) 23px 24px),
+    repeating-linear-gradient(90deg, transparent 0 119px, rgba(64, 50, 37, 0.13) 119px 120px),
+    repeating-linear-gradient(180deg, transparent 0 119px, rgba(64, 50, 37, 0.13) 119px 120px),
+    var(--paper-mat);
+  border: 1px solid rgba(64, 50, 37, 0.45);
+  padding: var(--space-4);
+}
+
+/* The clipped corner of a drawing sheet, where the title block would be
+   trimmed. One mark, and the frame stops being a rectangle. */
+.corner {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 18px;
+  height: 18px;
+  background: var(--color-paper);
+  border-left: 1px solid rgba(64, 50, 37, 0.45);
+  border-top: 1px solid rgba(64, 50, 37, 0.45);
+  transform: rotate(45deg) translate(9px, 0);
+  transform-origin: bottom right;
+}
+
+.drawing {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.caption {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.number {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-red-dark);
+  white-space: nowrap;
+}
+
+.captionText {
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  color: var(--color-earth);
+}
+
+.description {
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--paper-body-soft, var(--color-earth));
+  max-width: var(--measure-prose);
+}

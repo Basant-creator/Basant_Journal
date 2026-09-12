@@ -1,0 +1,102 @@
+.onward {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-top: var(--space-7);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-5);
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.step:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-hover-wash);
+}
+
+.forward {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.caption {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.label {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  letter-spacing: 0.03em;
+  color: var(--color-paper-light);
+}
+
+/* The exits are a different kind of move and are weighted differently: one
+   obvious way out, and quieter alternatives beside it. */
+.exits {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.exit {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-6);
+  background: var(--color-accent);
+  color: var(--color-white-warm);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.exit:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(calc(-1 * var(--lift-sm)));
+}
+
+.exitQuiet {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 5px;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.exitQuiet:hover {
+  color: var(--color-paper-light);
+}

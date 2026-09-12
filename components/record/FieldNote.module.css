@@ -1,0 +1,43 @@
+/* A note written on the sheet: indented from the measure and held by a rule
+   down its left edge, the way a hand-written aside sits in a margin. */
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) 0 var(--space-2) var(--space-5);
+  border-left: 1px solid rgba(64, 50, 37, 0.32);
+  max-width: var(--measure-prose);
+}
+
+.tag {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-earth);
+}
+
+.body {
+  font-family: var(--font-hand);
+  font-size: var(--text-lg);
+  line-height: 1.35;
+}
+
+/* Pencil: softer, greyer, and sitting slightly off square. It is a working
+   note, written on the spot. */
+.pencil .body {
+  color: #4a4239;
+  transform: rotate(-0.5deg);
+  transform-origin: left center;
+}
+
+/* Ink: written up afterwards, in the same brown as the rest of the record. */
+.ink .body {
+  color: var(--color-earth-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pencil .body {
+    transform: none;
+  }
+}
