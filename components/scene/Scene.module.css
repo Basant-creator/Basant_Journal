@@ -37,3 +37,71 @@
     animation: none;
   }
 }
+
+/* --- the scroll driver -----------------------------------------------------
+
+   Pointer parallax is mouse-only, and deliberately so: a scene that lurches
+   under a finger is worse than a scene that holds still. But that left touch
+   visitors with seven tuned depth bands and nothing to move them — the entire
+   depth system, invisible to anyone on a phone.
+
+   So depth gets a second driver rather than a second system. This writes the
+   same contract the pointer writes; SceneLayer sums the two and knows about
+   neither. Where there is a mouse, the pointer drives. Where there is not,
+   the scroll does. Every visitor gets depth, by whichever input they have.
+
+   It costs nothing per frame: the progress comes from the scroll timeline on
+   the compositor, not from a listener. Browsers without view timelines simply
+   never run it, and the scene is exactly what it was before.
+   ------------------------------------------------------------------------ */
+
+@property --sy {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* Runs backwards on purpose. A near band must appear to move *up* faster than
+   the frame it sits in as the page scrolls down — that is what makes it read
+   as near. Driving --sy from +1 to -1 keeps the sign convention identical to
+   the pointer's, so the layer formula stays one expression. */
+@keyframes sceneDrift {
+  from {
+    --sy: 1;
+  }
+  to {
+    --sy: -1;
+  }
+}
+
+@media (pointer: coarse) {
+  @supports (animation-timeline: view()) {
+    .stage {
+      animation: sceneDrift linear both;
+      animation-timeline: view();
+    }
+
+    /* Spelled out rather than inherited: the entry rule below is more specific
+       and its shorthand would drop the drift entirely. Two animations, two
+       timelines, matched by position. */
+    .stage[data-entry-scene="true"] {
+      animation:
+        stageIn var(--scene-enter) var(--ease-cinematic) both,
+        sceneDrift linear both;
+      animation-timeline: auto, view();
+    }
+  }
+}
+
+/* Last, and deliberately so.
+
+   The block above matches `.stage[data-entry-scene="true"]` at the same
+   specificity as the reduced-motion rule further up, so on a touch device
+   with reduced motion set it would otherwise win on source order and hand
+   the entry animation back to someone who asked for no animation. */
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .stage[data-entry-scene="true"] {
+    animation: none;
+  }
+}

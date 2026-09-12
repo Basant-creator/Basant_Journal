@@ -1,11 +1,36 @@
+/*
+  Two drivers, one expression.
+
+  --px/--py come from the pointer; --sy comes from the scroll timeline the
+  Scene runs where there is no pointer to read. A layer does not know or care
+  which one moved: it reads the numbers, multiplies by its own band distance,
+  and is done. That is the whole reason the parallax system costs zero
+  renders — and the reason a second driver was a new term here rather than a
+  new system anywhere.
+*/
 .layer {
   transform: translate3d(
     calc(var(--px, 0) * var(--layer-shift, 0px)),
-    calc(var(--py, 0) * var(--layer-shift, 0px) * var(--layer-vertical, 0.38)),
+    calc(
+      var(--py, 0) * var(--layer-shift, 0px) * var(--layer-vertical, 0.38) +
+        var(--sy, 0) * var(--layer-shift, 0px) * var(--scroll-ratio, 0.8)
+    ),
     0
   );
   transition: transform var(--depth-settle) var(--ease-standard);
   will-change: transform;
+}
+
+/*
+  The settle is there to smooth a pointer, which arrives in jumps. Scroll
+  progress does not: it is already continuous and already per-frame, and a
+  420ms ease on top of it reads as the layers being dragged along behind the
+  page rather than sitting at a depth in it.
+*/
+@media (pointer: coarse) {
+  .layer {
+    transition: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

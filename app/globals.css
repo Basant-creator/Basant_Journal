@@ -225,6 +225,11 @@
   --depth-shift-6: 58px;
   --depth-settle: 420ms;
 
+  /* How much of a band's travel the scroll driver spends. Larger than the
+     pointer's share because scroll travel is real and slow: a pointer nod
+     lasts a moment, a scroll-through lasts the length of the page. */
+  --scroll-ratio: 0.8;
+
   /* --- firelight ---------------------------------------------------------- */
   --fire-core: #e8b070;
   --fire-body: #c4703a;
