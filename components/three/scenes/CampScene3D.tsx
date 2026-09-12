@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import type { Group } from "three";
 import { CameraRig } from "../CameraRig";
+import { CampAir } from "../CampAir";
 import { CampLight } from "../CampLight";
 import { ObjectAnchors, type AnchorMap } from "../ObjectAnchors";
 import { SceneCanvas } from "../SceneCanvas";
@@ -93,12 +94,18 @@ function Rig({ activeId, hoverId, anchorTarget }: SceneProps) {
            amount that still reads as attention. */
         pull={0.16}
       />
-      <CampLight at={[0, 0.5, 0.9]} />
+      {/* Back and to the left, because that is where the illustrated camp has
+         it: SMOKE_PLUMES rise from x 646 of 1600, and the objects sit low and
+         centre. Centring the fire here would have put the smoke up behind the
+         papers instead of beside them, and made the two camps different
+         places. */}
+      <CampLight at={[-0.85, 0.5, 0.6]} />
+      <CampAir at={[-0.85, 0, 0.6]} />
       <Terrain />
 
       {/* The fire: three logs and a scatter of embers. The light does the
           work — this is only what the light is coming from. */}
-      <group position={[0, 0, 0.9]}>
+      <group position={[-0.85, 0, 0.6]}>
         {[-0.34, 0, 0.32].map((offset, i) => (
           <mesh key={i} position={[offset, 0.09, i === 1 ? 0.12 : 0]} rotation={[0, i * 0.7, 0.08]}>
             <cylinderGeometry args={[0.07, 0.08, 0.78, 6]} />
