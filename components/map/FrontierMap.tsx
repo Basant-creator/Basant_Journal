@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import {
@@ -13,6 +14,33 @@ import {
 } from "react";
 import { Scene } from "@/components/scene/Scene";
 import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
+
+/**
+ * The country around the sheet, fetched rather than shipped.
+ *
+ * The vista and the foreground are the two heaviest things on this page and
+ * the two least load-bearing: both are decorative, aria-hidden, propless, and
+ * both sit inside a column that is display:none below 860px. A phone was
+ * parsing every ridgeline and all 158 blades of scrub in order to show a list.
+ *
+ * Measured before changing anything: the hidden desktop composition was 63% of
+ * this page's gzipped transfer on a phone.
+ *
+ * ssr:false keeps them out of the HTML; the width gate keeps the chunk itself
+ * off phones, and with it the generation work — both modules build their
+ * geometry at module scope, so a chunk never fetched is also a loop never run.
+ *
+ * What makes this free on desktop is the sheet's own 1.9s settle. The surround
+ * arrives behind a sheet that is still arriving, over a stage that is already
+ * painted its night colour, so there is nothing to see appearing.
+ */
+const MapVista = dynamic(() => import("./MapVista").then((m) => m.MapVista), {
+  ssr: false,
+});
+const MapForeground = dynamic(
+  () => import("./MapForeground").then((m) => m.MapForeground),
+  { ssr: false },
+);
 import { TerrainLayer } from "@/components/terrain/TerrainLayer";
 import { VISTA_HEIGHT, VISTA_WIDTH } from "@/lib/world/vista";
 import {
@@ -37,10 +65,8 @@ import { SHEET_HEIGHT, SHEET_WIDTH } from "@/lib/map/terrain";
 import { completeEntry } from "@/lib/motion/entry";
 import { survey } from "@/lib/motion/variants";
 import { LocationNode, type NodeRef } from "./LocationNode";
-import { MapForeground } from "./MapForeground";
 import { MapLayer } from "./MapLayer";
 import { MapLegend } from "./MapLegend";
-import { MapVista } from "./MapVista";
 import { MobileTrail } from "./MobileTrail";
 import { Trail } from "./Trail";
 import { TrailheadAction } from "./TrailheadAction";
@@ -64,6 +90,10 @@ type MapState =
 export function FrontierMap() {
   const prefersReducedMotion = useReducedMotion();
 
+  /* Matches the breakpoint that hides the sheet column in CSS. The two are
+     the same decision and have to stay the same number. */
+  const [surround, setSurround] = useState(false);
+
   const [state, setState] = useState<MapState>("exploring");
   // Camp is the initial active location — the sheet opens at the trailhead.
   const [activeId, setActiveId] = useState<string | null>(originLocationId);
@@ -81,6 +111,16 @@ export function FrontierMap() {
     () => locations.find((l) => l.id === primaryLocationId) ?? null,
     [],
   );
+
+  /* The surround is desktop-only, so the gate is too. Same number as the CSS
+     breakpoint that hides the sheet column, and the same decision. */
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 861px)");
+    const sync = () => setSurround(wide.matches);
+    sync();
+    wide.addEventListener("change", sync);
+    return () => wide.removeEventListener("change", sync);
+  }, []);
 
   /* --- entry: complete on any interaction, and remember the visit --------- */
   useEffect(() => {
@@ -320,7 +360,7 @@ export function FrontierMap() {
           compactRatio={`${VISTA_WIDTH} / ${VISTA_HEIGHT}`}
           entry={false}
         >
-          <MapVista />
+          {surround ? <MapVista /> : null}
 
           {/* Air, behind the paper. The wrapper is what puts it there: it
               opens a stacking context so the atmosphere's own z-index is
@@ -507,7 +547,7 @@ export function FrontierMap() {
             </div>
           </div>
 
-          <MapForeground />
+          {surround ? <MapForeground /> : null}
 
           {/* The scene's title, in the film sense: a location card burned into
               the frame rather than a heading in the page. It sits in the
