@@ -146,18 +146,39 @@ it is inline, and that duplication is the point: `globals.css` and
 assume a token resolved. Its exit is a plain anchor rather than a router link,
 because client-side navigation is the machinery that broke.
 
-## What could not be verified
+## The unstyled page was the test rig, not the site
 
-`global-error` did **not** engage when the root layout was made to throw in the
-browser. The page rendered its server HTML unstyled instead — stylesheets
-present in `document.styleSheets`, none applying, default serif on white.
+**Correction to the first version of this section.** It reported that
+`global-error` failed to engage and left the page unstyled — stylesheets
+present, none applying, default serif on white. That observation was real and
+the conclusion drawn from it was wrong.
 
-That test is artificial: it turned `TextureLayer` into a client component that
-throws during hydration, which is not how a root layout usually fails. The
-honest reading is narrow — the file is Next's documented mechanism and costs
-nothing to keep, but **it is unproven**, and the failure mode observed is
-exactly the one it exists to prevent. Anyone touching this should treat it as
-untested rather than as a safety net.
+The cause was a stale `next start` process still holding port 3000 from an
+earlier build, serving its own HTML with CSS hashes the current build no
+longer contained. Two of five stylesheets 404'd. It survived a clean rebuild,
+a cache-busting query string and a brand-new tab, which is what finally ruled
+out the browser — and the giveaway was on disk the whole time: the prerendered
+`skills.html` referenced six stylesheets, all present, and none of the two
+that were failing.
+
+`pkill -f "next start"` in Git Bash never killed it. Use PowerShell:
+
+```
+Get-NetTCPConnection -LocalPort 3000 -State Listen |
+  ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+```
+
+## What the clean test actually showed
+
+With the stale server killed and `TextureLayer` throwing after hydration:
+the layer was dropped, and the site kept its ground colour, its fonts, its
+navigation, the atmosphere control and the Gear tally. Exactly the intended
+proportion — failing decoration costs the decoration.
+
+That is the `Quiet` boundary working, and it is why `global-error` did not
+fire: nothing reached it. So `global-error` remains **unexercised**, but for
+an ordinary reason rather than a worrying one. It stays as the last resort
+beneath a boundary that now handles the realistic case.
 
 ## Still blocking a deploy — all of them content, none of them code
 

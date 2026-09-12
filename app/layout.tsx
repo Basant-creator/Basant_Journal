@@ -3,6 +3,7 @@ import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import type { Metadata, Viewport } from "next";
 import { Caveat, IM_Fell_English_SC, Inter, Rye, Source_Serif_4 } from "next/font/google";
 import { AtmosphereControl } from "@/components/audio/AtmosphereControl";
+import { Quiet } from "@/components/shell/Quiet";
 import { TextureLayer } from "@/components/shell/TextureLayer";
 import { SkipLink } from "@/components/navigation/SkipLink";
 import { person } from "@/lib/content/portfolio";
@@ -140,10 +141,10 @@ export default function RootLayout({
           {/* One owner for route-entry choreography, above the router so it
               survives every navigation and sees the landing page too. */}
           <TransitionProvider>{children}</TransitionProvider>
-          <TextureLayer />
+          <Quiet name="TextureLayer"><TextureLayer /></Quiet>
           {/* Everywhere the air can play, so it can always be stopped —
               including the landing page, which has no navigation by design. */}
-          <AtmosphereControl />
+          <Quiet name="AtmosphereControl"><AtmosphereControl /></Quiet>
         </div>
 
         {/* Server-rendered, so it is in the first painted frame. The boot

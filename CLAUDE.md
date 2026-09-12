@@ -129,3 +129,12 @@ npm run check:3d     # must pass before commit
   via the DOM**, and say plainly when a visual could not be confirmed by eye.
 - `next dev` and `next build` share `.next` and corrupt each other. Stop the dev
   server and remove `.next` before building.
+- **`pkill -f "next start"` does not kill it in Git Bash here.** A stale server
+  keeps port 3000 and serves HTML from its own older build, referencing CSS
+  hashes the current build no longer contains — so pages render completely
+  unstyled and every measurement taken against them is fiction. It survives a
+  clean rebuild, a cache-busting query and a brand-new tab, so it does not
+  look like a server problem; it looks like your code. The tell is on disk:
+  compare the stylesheets the prerendered HTML references against the ones
+  the browser actually requested. Kill it with PowerShell:
+  `Get-NetTCPConnection -LocalPort 3000 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }`
