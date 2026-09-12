@@ -59,7 +59,7 @@ import {
   trails,
   trailsTouching,
 } from "@/lib/map/locations";
-import { routes } from "@/lib/routes";
+
 import { directionForKey, nearestInDirection } from "@/lib/map/navigation";
 import { SHEET_HEIGHT, SHEET_WIDTH } from "@/lib/map/terrain";
 import { completeEntry } from "@/lib/motion/entry";

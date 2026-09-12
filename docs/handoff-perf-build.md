@@ -78,9 +78,22 @@ Runtime measurements taken at 375px viewport:
 
 | measure | `/frontier` | `/about` |
 | --- | --- | --- |
-| HTML, raw | 102,137 B | — |
-| HTML, gzipped | 24,514 B | 22,109 B |
-| DOM nodes | 1,071 | 554 |
+| HTML, raw | 91,358 B | 74,514 B |
+| HTML, gzipped | 22,984 B | 18,734 B |
+| DOM elements in the prerendered HTML | 1,138 | 609 |
+| live DOM nodes at 375px | 1,071 | 554 |
+
+The first three rows are the **production** build, read straight out of
+`.next/server/app/*.html`. An earlier version of this brief quoted the dev
+server instead, which carries the TransitionDebug panel and the HMR client
+and so overstated `/frontier` by about 11 kB. Measure the prerendered file,
+not `next dev`.
+
+The node counts are the two that get mismeasured. 1,138 is every element in
+the prerendered markup; 1,071 is what a 375px browser actually holds, the
+difference being the map surround that is deliberately never fetched there.
+Any figure in the low hundreds means something counted children of one node
+rather than `document.querySelectorAll('*')`, and is wrong.
 
 Other figures established and expected to hold:
 
