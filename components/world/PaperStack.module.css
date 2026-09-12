@@ -1,0 +1,56 @@
+.stack {
+  position: relative;
+  display: grid;
+  /* All sheets occupy the same cell — the stack's height is its tallest. */
+  grid-template-areas: "sheet";
+  isolation: isolate;
+}
+
+.sheet {
+  grid-area: sheet;
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  /*
+    Four depth cues at once. Offset alone reads as a design flourish; offset
+    plus rotation plus scale plus a darkening wash reads as paper lying on
+    paper.
+  */
+  transform:
+    translate3d(calc(var(--depth) * 10px), calc(var(--depth) * 12px), 0)
+    rotate(var(--lean, 0deg))
+    scale(calc(1 - var(--depth) * 0.028));
+  filter: brightness(calc(1 - var(--depth) * 0.13));
+  transition:
+    transform var(--duration-slow) var(--ease-cinematic),
+    filter var(--duration-slow) var(--ease-standard);
+}
+
+.front {
+  transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  filter: none;
+}
+
+.sheet:hover:not(.front) {
+  transform:
+    translate3d(calc(var(--depth) * 10px), calc(var(--depth) * 12px - 6px), 0)
+    rotate(var(--lean, 0deg))
+    scale(calc(1 - var(--depth) * 0.024));
+  filter: brightness(calc(1 - var(--depth) * 0.09));
+}
+
+.sheet:focus-visible {
+  outline: 2px solid var(--color-paper-light);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    transition: none;
+  }
+}

@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 const BENCHES = [
   { href: "/lab/scene", label: "Scene engine" },
   { href: "/lab/titles", label: "Titles" },
+  { href: "/lab/tear", label: "Torn paper" },
   { href: "/lab/paper", label: "Paper variants" },
   { href: "/lab/canvas", label: "3D boundary" },
 ];

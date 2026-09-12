@@ -137,3 +137,73 @@ export function fringePath(seed: string, options: TornOptions): string {
     segments: Math.round((options.segments ?? 14) * 0.7),
   });
 }
+
+/* -------------------------------------------------------------------------
+   Tearing a sheet in two.
+
+   A tear is not a cut down the middle. Paper gives way along the path of
+   least resistance: it runs, catches, jumps sideways, and the two halves that
+   come apart are exact complements of each other — whatever one side loses,
+   the other gained. Generating one seam and deriving both halves from it is
+   what makes the pieces look like they were once the same sheet.
+   ------------------------------------------------------------------------- */
+
+export interface TearOptions {
+  /** Where the seam crosses, as a fraction of the height. */
+  at?: number;
+  /** How far the seam wanders. 0.04-0.1 reads as paper rather than as a wave. */
+  amplitude?: number;
+  segments?: number;
+}
+
+/** The seam itself, left edge to right edge, in objectBoundingBox units. */
+export function tearSeam(seed: string, options: TearOptions = {}): Pt[] {
+  const { at = 0.5, amplitude = 0.06, segments = 20 } = options;
+  const rng = createRng(seedFrom(`tear:${seed}`));
+  const points: Pt[] = [];
+
+  // A slow drift across the sheet, so the seam has an overall direction as
+  // well as local noise — a tear that only wobbles reads as a decoration.
+  const drift = rng.jitter(amplitude * 0.9);
+
+  for (let i = 0; i <= segments; i += 1) {
+    const t = i / segments;
+    let y = at + drift * (t - 0.5) * 2;
+
+    y += rng.jitter(amplitude * 0.55);
+    // Occasionally the tear catches and jumps.
+    if (i > 0 && i < segments && rng.chance(0.12)) {
+      y += rng.jitter(amplitude * 1.5);
+    }
+
+    points.push({ x: t, y: Math.min(0.94, Math.max(0.06, y)) });
+  }
+
+  return points;
+}
+
+export interface TearHalves {
+  /** Everything above the seam. */
+  top: string;
+  /** Everything below it. The two are exact complements. */
+  bottom: string;
+  seam: Pt[];
+}
+
+export function tearHalves(seed: string, options: TearOptions = {}): TearHalves {
+  const seam = tearSeam(seed, options);
+  const first = seam[0];
+  const last = seam[seam.length - 1];
+
+  const forward = seam.map((p) => `L ${round(p.x)} ${round(p.y)}`).join(" ");
+  const backward = [...seam]
+    .reverse()
+    .map((p) => `L ${round(p.x)} ${round(p.y)}`)
+    .join(" ");
+
+  return {
+    top: `M 0 0 L 1 0 L ${round(last.x)} ${round(last.y)} ${backward} L 0 0 Z`,
+    bottom: `M ${round(first.x)} ${round(first.y)} ${forward} L 1 1 L 0 1 Z`,
+    seam,
+  };
+}

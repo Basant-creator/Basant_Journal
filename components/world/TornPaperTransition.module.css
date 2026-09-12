@@ -1,0 +1,110 @@
+.frame {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.beneath {
+  position: relative;
+  z-index: 0;
+}
+
+.cover {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.half {
+  position: absolute;
+  inset: 0;
+  clip-path: var(--tear-clip);
+  background: var(--cover-tone, var(--color-paper));
+  will-change: transform, opacity;
+  transition:
+    transform var(--paper-reveal) var(--ease-cinematic),
+    opacity var(--paper-reveal) var(--ease-standard);
+}
+
+.half::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--texture-paper-url);
+  background-size: 420px;
+  opacity: var(--texture-paper-opacity);
+  mix-blend-mode: multiply;
+}
+
+.paper {
+  --cover-tone: var(--color-paper);
+}
+
+.light {
+  --cover-tone: var(--color-paper-light);
+}
+
+.dark {
+  --cover-tone: var(--color-paper-dark);
+}
+
+/* The pale lip of pulled fibres, drawn along the seam on both pieces. */
+.seam {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--color-paper-light);
+  stroke-width: 0.012;
+  opacity: 0.75;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Centred on the *top half*, not on the frame. Centred on the frame it sits
+   exactly where the seam runs and the tear bisects it. */
+.coverBody {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--card-pad);
+  padding-bottom: 52%;
+}
+
+/*
+  Open: the halves leave in different directions, at different rates, with a
+  little rotation. Paper does not separate symmetrically, and matching the two
+  exactly is the thing that makes a tear look like a wipe.
+*/
+.frame[data-open="true"] .top {
+  transform: translateY(-104%) rotate(-1.6deg);
+  opacity: 0;
+}
+
+.frame[data-open="true"] .bottom {
+  transform: translateY(106%) rotate(1.1deg);
+  opacity: 0;
+  transition-delay: 60ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .half {
+    transition: opacity 1ms;
+  }
+
+  /* No sliding halves: the cover is simply gone. The content beneath was
+     always there and always readable. */
+  .frame[data-open="true"] .top,
+  .frame[data-open="true"] .bottom {
+    transform: none;
+    opacity: 0;
+  }
+}
