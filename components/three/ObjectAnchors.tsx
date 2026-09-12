@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Vector3 } from "three";
 
 export interface AnchorMap {
@@ -40,6 +40,34 @@ interface ObjectAnchorsProps {
  */
 export function ObjectAnchors({ anchors, into }: ObjectAnchorsProps) {
   const { camera, size } = useThree();
+
+  /*
+    Hand the positions back when the renderer goes away.
+
+    These properties outlive the canvas that wrote them — they are set on
+    the Scene's stage, which belongs to the page, not to the scene. Without
+    this the illustrated camp comes back with its controls still standing
+    wherever the camera last projected them: hit areas floating clear of the
+    objects they name, on a drawing that never moved.
+
+    Every route into the fallback hits this — a lost context, reduced motion
+    switched on mid-visit, a window narrowed past the compact breakpoint —
+    and all three are exactly the moments when the controls need to be
+    trustworthy. Clearing them restores the var() fallbacks in SceneObject,
+    which are the illustrated boxes.
+  */
+  const ids = Object.keys(anchors).join(",");
+  useEffect(() => {
+    const host = into.current;
+    return () => {
+      if (!host) return;
+      for (const id of ids.split(",")) {
+        host.style.removeProperty(`--anchor-${id}-x`);
+        host.style.removeProperty(`--anchor-${id}-y`);
+        host.style.removeProperty(`--anchor-${id}-on`);
+      }
+    };
+  }, [ids, into]);
   const point = useRef(new Vector3());
   const last = useRef<Record<string, [number, number]>>({});
 
