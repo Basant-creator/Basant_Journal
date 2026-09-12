@@ -32,7 +32,12 @@
   color: var(--color-red-light);
 }
 
-/* On parchment or paper, red text drops to red-dark: 5.3:1 instead of 3.8:1. */
+/* On parchment or paper, red ink drops to red-dark. Measured, not assumed:
+   7.87:1 on --color-paper, 9.38:1 on --color-paper-light, and 5.28:1 on
+   --color-paper-dark — the worst of the three, and still clear of AA. The
+   figure this comment used to carry (5.3:1) was that floor quoted as if it
+   were the typical case; the 3.8:1 it compared against was simply wrong —
+   red-light on --color-ink measured 3.30:1, which is why the token moved. */
 :global(.surfacePaper) .hand,
 :global(.surfacePaper) .tag {
   color: var(--color-red-dark);
