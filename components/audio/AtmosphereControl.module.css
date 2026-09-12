@@ -1,0 +1,90 @@
+/* ==========================================================================
+   The control for the air.
+
+   Deliberately quiet. It sits at the foot of the page for the whole visit, so
+   anything louder than this would be a permanent request for attention on
+   behalf of a feature almost nobody will use — while still being immediately
+   findable by the person who wants it, and fully legible the moment it is
+   focused or the air is actually playing.
+   ========================================================================== */
+
+.control {
+  position: fixed;
+  left: var(--space-5);
+  bottom: var(--space-5);
+  z-index: var(--z-overlay);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 10px 6px 8px;
+
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+
+  background: color-mix(in srgb, var(--color-ink) 78%, transparent);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+
+  opacity: 0.42;
+  transition:
+    opacity var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard),
+    border-color var(--duration-normal) var(--ease-standard);
+}
+
+.control:hover,
+.control:focus-visible,
+.control[data-on] {
+  opacity: 1;
+  color: var(--color-paper-light);
+  border-color: color-mix(in srgb, var(--color-paper-light) 34%, transparent);
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--color-paper-light);
+  outline-offset: 3px;
+}
+
+.mark {
+  display: inline-flex;
+  flex: none;
+}
+
+/* Off is the resting state, so the bar is what is drawn and the outer gusts
+   are what arrive — the icon gains air rather than losing a slash. */
+.bar {
+  opacity: 1;
+  transition: opacity var(--duration-normal) var(--ease-standard);
+}
+
+.gust {
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-standard);
+}
+
+.control[data-on] .bar {
+  opacity: 0;
+}
+
+.control[data-on] .gust {
+  opacity: 1;
+}
+
+/* The trail end pages carry a footer the control would otherwise sit on. At
+   narrow widths it steps up out of the way rather than overlapping anything. */
+@media (max-width: 720px) {
+  .control {
+    left: var(--space-3);
+    bottom: var(--space-3);
+  }
+
+  .label {
+    display: none;
+  }
+}
