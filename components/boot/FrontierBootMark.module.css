@@ -1,0 +1,157 @@
+/* ==========================================================================
+   The boot emblem.
+
+   Near-black ground, warm parchment mark. §5: the red Hand does not appear
+   here — the boot screen is deliberately outside the site's palette, and the
+   red arrives only at the very end, on the pivot, as the mechanism settles.
+   ========================================================================== */
+
+.mark {
+  display: block;
+  width: clamp(120px, 22vw, 188px);
+  aspect-ratio: 1;
+  color: var(--boot-mark, #e7d9bc);
+}
+
+.plate {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: bootStrike 760ms var(--ease-cinematic) both;
+}
+
+.rim,
+.rimGhost,
+.rimInner,
+.sight,
+.armPivot {
+  fill: none;
+  stroke: currentColor;
+}
+
+.rim {
+  stroke-width: 2.2;
+  opacity: 0.92;
+}
+
+/* The second bite of the die, a shade out of register — the difference
+   between something struck and something printed. */
+.rimGhost {
+  stroke-width: 0.8;
+  opacity: 0.34;
+  transform: translate(1px, -0.8px);
+}
+
+.rimInner {
+  stroke-width: 1;
+  opacity: 0.4;
+}
+
+.tick,
+.tickMajor {
+  stroke: currentColor;
+}
+
+.tick {
+  stroke-width: 0.9;
+  opacity: 0.42;
+}
+
+.tickMajor {
+  stroke-width: 1.8;
+  opacity: 0.78;
+}
+
+.stations circle {
+  fill: currentColor;
+  opacity: 0.5;
+}
+
+.sight {
+  stroke-width: 1.4;
+  opacity: 0.66;
+}
+
+.cross {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.46;
+}
+
+.pupil {
+  fill: currentColor;
+  opacity: 0.9;
+}
+
+.armPivot {
+  stroke-width: 1.6;
+  opacity: 0.6;
+}
+
+/*
+  The index arm steps between the six stations rather than sweeping. A
+  theodolite's index clicks; a spinner sweeps. This is not a spinner.
+*/
+.arm {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform-origin: 100px 100px;
+  animation: bootIndex 2400ms steps(6, end) 260ms infinite;
+}
+
+.armTip {
+  stroke-width: 2.6;
+}
+
+@keyframes bootStrike {
+  from {
+    opacity: 0;
+    transform: scale(0.9) rotate(-6deg);
+  }
+  64% {
+    opacity: 1;
+    transform: scale(1.015) rotate(1deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes bootIndex {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The mechanism comes to rest before the screen leaves: the arm stops where
+   it stopped, and the one red mark on the whole boot screen appears. */
+:global([data-boot-phase="BOOT_READY"]) .arm,
+:global([data-boot-phase="BOOT_EXIT"]) .arm {
+  animation-play-state: paused;
+}
+
+:global([data-boot-phase="BOOT_READY"]) .pupil,
+:global([data-boot-phase="BOOT_EXIT"]) .pupil {
+  fill: var(--color-red-light, #c06b6b);
+  transition: fill 320ms var(--ease-standard);
+}
+
+/* §29: the mark, without the movement. It is still struck; it does not turn. */
+@media (prefers-reduced-motion: reduce) {
+  .plate {
+    animation: none;
+  }
+
+  .arm {
+    animation: none;
+  }
+}

@@ -474,3 +474,37 @@ svg {
     transition-duration: 1ms !important;
   }
 }
+
+/* ==========================================================================
+   THE BOOT LAYER
+
+   These four rules are the whole of "no flash of Home". They are in the
+   global stylesheet rather than a module because they have to apply in the
+   first painted frame, against an attribute a script in the head has already
+   set — before any component, hashed class name or hydration exists.
+
+   No attribute, no match: with scripting off the boot layer never appears and
+   the application is simply visible. That is the right failure.
+   ========================================================================== */
+
+html[data-boot="play"] [data-app-shell],
+html[data-boot="short"] [data-app-shell] {
+  /* Hidden, not unmounted: the application lays out underneath the whole
+     time, so the boot ends by uncovering Home rather than building it. */
+  visibility: hidden;
+}
+
+/* Nothing behind the curtain moves while the curtain is down. Without this
+   the landing cinematic plays out unseen and is over before anyone looks. */
+html[data-boot="play"] [data-app-shell],
+html[data-boot="play"] [data-app-shell] *,
+html[data-boot="short"] [data-app-shell],
+html[data-boot="short"] [data-app-shell] * {
+  animation-play-state: paused !important;
+}
+
+/* The layer is server-rendered on every page. It is only ever shown on a real
+   document load, which is the only time the stamp is set. */
+html:not([data-boot="play"]):not([data-boot="short"]) [data-boot-layer] {
+  display: none !important;
+}

@@ -22,10 +22,13 @@ interface FrontierLoaderProps {
  * must not be a thing that has to load.
  */
 export function FrontierLoader({ still, className }: FrontierLoaderProps) {
-  // Six stations at 60°, starting at the top.
+  // Six stations at 60°, starting at the top. Rounded, because cos and sin
+  // are not required to agree to the last bit between engines and React reads
+  // the difference as a hydration mismatch.
+  const at = (n: number) => Math.round(n * 100) / 100;
   const stations = [0, 1, 2, 3, 4, 5].map((i) => {
     const angle = (i * 60 - 90) * (Math.PI / 180);
-    return { cx: 50 + Math.cos(angle) * 30, cy: 50 + Math.sin(angle) * 30 };
+    return { cx: at(50 + Math.cos(angle) * 30), cy: at(50 + Math.sin(angle) * 30) };
   });
 
   return (

@@ -5,6 +5,8 @@ import { TextureLayer } from "@/components/shell/TextureLayer";
 import { SkipLink } from "@/components/navigation/SkipLink";
 import { person } from "@/lib/content/portfolio";
 import { ENTRY_STAMP_SCRIPT } from "@/lib/motion/entry";
+import { BOOT_STAMP_SCRIPT } from "@/lib/boot/boot";
+import { BootScreen } from "@/components/boot/BootScreen";
 import "./globals.css";
 
 /**
@@ -116,17 +118,34 @@ export default function RootLayout({
     // this, React reports it as a hydration mismatch on every load.
     <html lang="en" className={fontVars} suppressHydrationWarning>
       <head>
-        {/* Runs before first paint so the entry sequence never shows one frame
-            of the finished map before rewinding. If it does not run, no
-            element is left hidden — the document renders complete. */}
+        {/* Both run before first paint, and both have to.
+
+            The boot stamp is what makes §1 possible: the browser must never
+            paint one frame of Home behind the boot layer, and React cannot
+            promise that because React runs after the first paint. The entry
+            stamp is the same trick for the landing cinematic. If either fails
+            to run, no rule matches and the document renders complete — which
+            is the right failure for both. */}
+        <script dangerouslySetInnerHTML={{ __html: BOOT_STAMP_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: ENTRY_STAMP_SCRIPT }} />
       </head>
       <body>
-        <SkipLink />
-        {/* One owner for route-entry choreography, above the router so it
-            survives every navigation and sees the landing page too. */}
-        <TransitionProvider>{children}</TransitionProvider>
-        <TextureLayer />
+        {/* The application. Mounted and laid out from the first frame even
+            while the boot layer covers it, so Home is uncovered rather than
+            built when the boot ends. */}
+        <div data-app-shell>
+          <SkipLink />
+          {/* One owner for route-entry choreography, above the router so it
+              survives every navigation and sees the landing page too. */}
+          <TransitionProvider>{children}</TransitionProvider>
+          <TextureLayer />
+        </div>
+
+        {/* Server-rendered, so it is in the first painted frame. The boot
+            system and the route transition system are separate on purpose:
+            this happens once, before Home exists visually, and never again
+            because somebody clicked Gear. */}
+        <BootScreen />
       </body>
     </html>
   );

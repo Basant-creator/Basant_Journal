@@ -1,6 +1,17 @@
-# Phase 5.1 — route transitions: root cause and fix
+# Phase 5.1 — boot sequence and route transitions
 
-Required by the phase brief §24. Written before the fix, not after it.
+Two systems, and the brief is emphatic that they must not be conflated:
+
+- **Boot** happens once, before the Home page exists visually.
+- **Route transitions** happen when moving between major sections.
+
+The boot loader must never reappear because somebody clicked Gear, and the
+route curtain must never be mistaken for the site starting up. They share a
+drawing vocabulary — the same surveyor's instrument — and nothing else: no
+component, no state, no timer.
+
+The route-transition half was written first, as a bug fix. Its root cause
+analysis is below, written before the fix rather than after it.
 
 ---
 
@@ -188,6 +199,69 @@ longer make this decision at all.
 
 ---
 
+## BOOT ARCHITECTURE
+
+### The hard part is §1
+
+"The Home page must NOT briefly render first" cannot be satisfied from React,
+because React runs after the browser has already painted. It has to be decided
+before first paint:
+
+1. `BOOT_STAMP_SCRIPT` runs inline in `<head>`, before anything is painted. It
+   stamps `data-boot="play"` or `"short"` on the document element.
+2. Four rules in `globals.css` act on that attribute in the first frame:
+   `[data-app-shell]` becomes `visibility: hidden`, and everything inside it
+   gets `animation-play-state: paused`.
+3. `BootScreen` is server-rendered, so it is in the same first frame.
+
+None of that waits for React. By the time the component hydrates, the boot
+screen has already been on screen for a while.
+
+**If the script never runs** — scripting off, a parse error — no attribute is
+set, no rule matches, the boot layer is hidden by a global rule and the site
+is simply the site. That is the right failure.
+
+### Hidden, not unmounted
+
+The application lays out underneath the boot layer the whole time.
+`visibility: hidden` rather than `display: none` is deliberate: §9 asks that
+Home already be in its final initial state when the boot ends, so the boot
+*uncovers* Home rather than causing it to be built.
+
+The paused-animation rule is the other half of that. Without it the landing
+cinematic plays out behind the curtain and is over before anyone looks —
+measured: `h1` animation-play-state is `paused` during boot and `running`
+after, which is what makes §10's two beats two beats.
+
+### Only on the landing route
+
+A direct load of `/skills` does not boot. Booting is what happens before the
+Home experience — §1, §10 and the stack in §32 all frame it that way — and a
+boot screen over `/skills` would hide that route's own chapter reveal. The
+stamp script checks the pathname.
+
+### The state machine
+
+`BOOT_INIT → BOOT_LOADING → BOOT_READY → BOOT_EXIT → HOME_VISIBLE`
+
+Minimum 900ms (420ms for a same-session reload), maximum 2200ms. Readiness is
+the shell plus fonts, with fonts given 1200ms before being lived without. Not
+images, not the Camp scene, not 3D, not an external API.
+
+### Three guarantees that the door opens
+
+§12 says a visitor must never be left staring at a loading emblem. Three
+independent mechanisms, in increasing order of how badly things have gone:
+
+1. The component's own `BOOT_MAX` timer.
+2. The exit timer that follows it.
+3. **A timeout inside the inline script itself.** This is the one that
+   matters. Every timer inside the application is useless against the one
+   failure that would actually strand someone — the application never
+   starting. That timer does not need React to be alive.
+
+---
+
 ## TEST MATRIX
 
 Run against the dev build, driven by script and read from the DOM rather than
@@ -206,6 +280,11 @@ by eye.
 | — | → `/professional` | no curtain | pass |
 | — | `/frontier` → `/contact` | Chapter VII · Trail End | pass |
 | — | mobile, reduced motion | chapter shown, movement removed, debug hidden | pass |
+| B1 | first load of `/` | boot layer in the first painted frame, shell hidden throughout, ~1.25s | pass |
+| B2 | same-session reload of `/` | short boot, ~1.0s | pass |
+| B3 | direct load of `/skills` | no boot layer at all; short chapter reveal still plays | pass |
+| B4 | landing cinematic | paused during boot, running after — two beats, not one unseen | pass |
+| B5 | served HTML | stamp script precedes the app shell; boot layer present | pass |
 
 Test 8 is the one worth keeping: the intermediate route never rendered a
 chapter at all, rather than rendering one and having it replaced.

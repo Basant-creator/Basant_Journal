@@ -64,7 +64,7 @@ export const CHAPTERS: Record<string, ChapterMeta> = {
   [routes.contact]: {
     chapter: "VII",
     title: "Trail End",
-    subtitle: "Leave a Message",
+    subtitle: "The Last Stop",
   },
   /* The professional view is deliberately not a chapter. It is the same
      material without the world around it, and a recruiter arriving there
