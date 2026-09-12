@@ -17,3 +17,31 @@
      the canvas itself never needs to take a pointer. */
   pointer-events: none;
 }
+
+/*
+  The rendered scene arrives, it does not appear.
+
+  Deferring the mount to idle means the illustrated camp is on screen first
+  and is then replaced, which without this reads as a snap: the same place,
+  suddenly drawn by something else. A short fade turns that into the scene
+  resolving. Compositor-only, and the resting state is the visible one, so a
+  browser that never runs it shows the scene rather than nothing.
+*/
+.canvas {
+  animation: sceneArrive 420ms var(--ease-standard) both;
+}
+
+@keyframes sceneArrive {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas {
+    animation: none;
+  }
+}

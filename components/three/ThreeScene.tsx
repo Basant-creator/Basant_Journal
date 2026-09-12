@@ -83,6 +83,37 @@ export function ThreeScene({
     setCapability("unsupported");
   }, []);
 
+  /*
+    The scene mounts after the page has landed, not during.
+
+    Measured on a click into Camp: the renderer's chunk starts arriving
+    167ms in and the long tasks that parse and initialise it land at 545ms
+    and 680ms — which is exactly when the chapter card, the page entry and
+    the scene's own settle are playing. The one moment the site is asking
+    to be watched is the moment it was spending 177ms of main thread on
+    something nobody can see yet.
+
+    Waiting costs nothing, because the fallback is not a placeholder: the
+    illustrated camp is already on screen and complete. This only decides
+    when it is replaced.
+
+    requestIdleCallback with a timeout, so a busy main thread still gets
+    the scene rather than never getting it; a plain timer where the API is
+    missing.
+  */
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    if (capability !== "ready") return;
+
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(() => setSettled(true), { timeout: 1400 });
+      return () => window.cancelIdleCallback(id);
+    }
+
+    const id = window.setTimeout(() => setSettled(true), 700);
+    return () => window.clearTimeout(id);
+  }, [capability]);
+
   useEffect(() => {
     setCapability(detectSceneCapability());
 
@@ -99,7 +130,9 @@ export function ThreeScene({
     };
   }, []);
 
-  if (capability !== "ready") {
+  /* Not ready, or ready and still letting the page arrive: either way the
+     illustrated scene is what is on screen, and it is the same scene. */
+  if (capability !== "ready" || !settled) {
     return (
       <div className={className} data-scene-mode={capability}>
         {fallback}
