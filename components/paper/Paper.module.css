@@ -1,0 +1,210 @@
+/* ==========================================================================
+   Paper — one substrate, six treatments.
+   Everything structural lives on .paper. A variant is a block of custom
+   properties, never a second implementation.
+   ========================================================================== */
+
+.paper {
+  position: relative;
+  isolation: isolate;
+  color: var(--paper-ink, var(--color-text-on-paper));
+  padding: var(--paper-pad, var(--card-pad));
+  border: var(--paper-border, var(--border-paper));
+  border-radius: var(--paper-radius, var(--radius-sm));
+  box-shadow: var(--shadow-paper);
+  transform: rotate(var(--tilt, 0deg));
+}
+
+/* A torn sheet has no border and no radius — it has an edge. Depth comes from
+   a drop shadow that follows the tear instead of a box shadow that ignores it. */
+.paper[data-torn="true"] {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(var(--paper-tear-shadow));
+}
+
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.stock,
+.fringe,
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.fringe {
+  clip-path: var(--paper-fringe);
+  background: var(--color-paper-light);
+  opacity: var(--paper-fringe-opacity);
+}
+
+.stock {
+  background: var(--paper-stock, var(--color-paper));
+  box-shadow: var(--paper-handled);
+}
+
+.paper[data-torn="true"] .stock,
+.paper[data-torn="true"] .overlay {
+  clip-path: var(--paper-clip);
+}
+
+/* Fibre on its own layer so it keeps the token's opacity rather than being
+   multiplied into the stock at full strength. */
+.stock::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--texture-paper-url);
+  background-size: 420px;
+  opacity: var(--paper-fibre, var(--texture-paper-opacity));
+  mix-blend-mode: multiply;
+}
+
+/* The printed matter: rules, grids, halftone. Drawn, never an image. */
+.overlay {
+  background-image: var(--paper-print, none);
+  background-size: var(--paper-print-size, auto);
+  opacity: var(--paper-print-opacity, 1);
+  mix-blend-mode: multiply;
+}
+
+.body {
+  position: relative;
+}
+
+.body :global(p) {
+  font-family: var(--paper-voice, var(--font-editorial));
+  line-height: var(--leading-relaxed);
+  max-width: var(--measure-prose);
+}
+
+/* ==========================================================================
+   The variants
+   ========================================================================== */
+
+/* A page torn from a pocket book. Warm, ruled, handled at the edges. */
+.FIELD_NOTE {
+  --paper-stock: var(--color-paper);
+  --paper-voice: var(--font-editorial);
+  --paper-print: repeating-linear-gradient(
+    180deg,
+    transparent 0 27px,
+    rgba(141, 120, 85, 0.34) 27px 28px
+  );
+  --paper-print-opacity: 0.6;
+}
+
+/* The journal proper: heavier stock, a margin rule down the left. */
+.JOURNAL_PAGE {
+  --paper-stock: var(--color-paper-light);
+  --paper-voice: var(--font-editorial);
+  --paper-pad: clamp(28px, 3.4vw, 40px);
+  /* Copy has to start clear of the margin rule, or the rule runs through it
+     rather than beside it. */
+  padding-left: 70px;
+  --paper-print:
+    linear-gradient(90deg, transparent 0 46px, rgba(122, 46, 46, 0.42) 46px 47px, transparent 47px),
+    repeating-linear-gradient(180deg, transparent 0 29px, rgba(141, 120, 85, 0.26) 29px 30px);
+  --paper-print-opacity: 0.75;
+}
+
+/* Buff manila, a heavy rule at the head, and the tint of a file that has been
+   opened many times. */
+.CASE_FILE {
+  --paper-stock: #cdb98d;
+  --paper-ink: var(--color-earth-dark);
+  --paper-voice: var(--font-ui);
+  --paper-border: 1px solid rgba(64, 50, 37, 0.5);
+  --paper-print:
+    linear-gradient(180deg, rgba(84, 32, 32, 0.55) 0 6px, transparent 6px),
+    repeating-linear-gradient(90deg, transparent 0 8px, rgba(64, 50, 37, 0.04) 8px 9px);
+  --paper-fibre: 0.1;
+}
+
+/* Cyanotype: dark ground, light line, a real drawing grid. */
+.BLUEPRINT {
+  --paper-stock: #1f3446;
+  --paper-ink: #cfe2f0;
+  --paper-voice: var(--font-ui);
+  --paper-border: 1px solid rgba(207, 226, 240, 0.28);
+  --paper-print:
+    repeating-linear-gradient(90deg, transparent 0 23px, rgba(207, 226, 240, 0.1) 23px 24px),
+    repeating-linear-gradient(180deg, transparent 0 23px, rgba(207, 226, 240, 0.1) 23px 24px),
+    repeating-linear-gradient(90deg, transparent 0 119px, rgba(207, 226, 240, 0.2) 119px 120px),
+    repeating-linear-gradient(180deg, transparent 0 119px, rgba(207, 226, 240, 0.2) 119px 120px);
+  --paper-print-opacity: 0.5;
+  --paper-fibre: 0.05;
+}
+
+/* The blueprint inverts the layer model, so its own text tokens invert too. */
+.BLUEPRINT :global(p),
+.BLUEPRINT :global(h2),
+.BLUEPRINT :global(h3) {
+  color: #cfe2f0;
+}
+
+.BLUEPRINT .overlay {
+  mix-blend-mode: screen;
+}
+
+/* Newsprint: greyer, thinner, column rules and a halftone tint. */
+.NEWSPAPER {
+  --paper-stock: #d9d2c0;
+  --paper-ink: #241f19;
+  --paper-voice: var(--font-editorial);
+  --paper-border: 1px solid rgba(36, 31, 25, 0.28);
+  --paper-print:
+    radial-gradient(circle at 1px 1px, rgba(36, 31, 25, 0.16) 0 1px, transparent 1.4px);
+  --paper-print-size: 4px 4px;
+  --paper-print-opacity: 0.7;
+  --paper-fibre: 0.05;
+}
+
+/* A print in its mount: wide white border, image area, caption beneath. */
+.PHOTOGRAPH {
+  --paper-stock: var(--color-paper-light);
+  --paper-pad: 14px;
+  --paper-border: 1px solid rgba(64, 50, 37, 0.32);
+  --paper-print: none;
+}
+
+.PHOTOGRAPH .body {
+  /* The image area itself: sepia, vignetted, sitting inside the mount. */
+  background:
+    radial-gradient(ellipse 120% 100% at 50% 46%, transparent 44%, rgba(36, 27, 18, 0.42) 100%),
+    linear-gradient(180deg, #7d6a52, #4d4132 62%, #34291d);
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  padding: var(--space-5);
+  box-shadow: inset 0 0 0 1px rgba(36, 27, 18, 0.35);
+}
+
+.PHOTOGRAPH .body :global(p) {
+  color: var(--color-paper-light);
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+.caption {
+  font-family: var(--font-hand);
+  font-size: var(--text-lg);
+  line-height: 1.2;
+  color: var(--color-earth-dark);
+  text-align: center;
+  margin-top: var(--space-3);
+  padding-bottom: var(--space-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper {
+    transform: none;
+  }
+}
