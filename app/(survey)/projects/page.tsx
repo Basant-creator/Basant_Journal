@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { ChapterCard } from "@/components/scene/ChapterCard";
+import { JournalOpening } from "@/components/world/JournalOpening";
 import { PaperSurface } from "@/components/paper/PaperSurface";
 import { Metric } from "@/components/metrics/Metric";
 import { getLocation, projects } from "@/lib/content/portfolio";
@@ -24,13 +24,20 @@ export const metadata: Metadata = {
  *
  * Each entry is a link to its own route, never a modal: a field record has to
  * be shareable, reloadable and reachable without visiting anything first.
+ *
+ * The chapter card this page used to open with is gone, and the cover carries
+ * the beat instead. Two announcements of the same act is one too many, and an
+ * object that opens says it better than a title over a veil.
  */
 export default function JournalPage() {
   return (
-    <div className={shared.page}>
-      <ChapterCard chapter="II" title="The Journal" id="journal" />
-
-
+    <JournalOpening
+      className={shared.page}
+      chapter="II"
+      title="Field Records"
+      id="journal"
+      route={routes.projects}
+    >
       <PageHeader
         eyebrow="Journal · Projects"
         title="Journal"
@@ -79,6 +86,6 @@ export default function JournalPage() {
         previous={{ href: routes.skills, caption: "Back along the trail", label: "Gear" }}
         next={{ href: routes.bounties, caption: "Next on the trail", label: "Bounties" }}
       />
-    </div>
+    </JournalOpening>
   );
 }

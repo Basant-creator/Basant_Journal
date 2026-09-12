@@ -15,7 +15,12 @@ import { Scene } from "@/components/scene/Scene";
 import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
 import { TerrainLayer } from "@/components/terrain/TerrainLayer";
 import { VISTA_HEIGHT, VISTA_WIDTH } from "@/lib/world/vista";
-import { locations, meta, originLocationId, primaryLocationId } from "@/lib/content/portfolio";
+import {
+  locations,
+  meta,
+  originLocationId,
+  primaryLocationId,
+} from "@/lib/content/portfolio";
 import type { NavigationLocation } from "@/lib/content/types";
 import {
   type Camera,
@@ -27,7 +32,6 @@ import {
   trailsTouching,
 } from "@/lib/map/locations";
 import { routes } from "@/lib/routes";
-import { beginPassage, isPlainNavigation } from "@/lib/motion/passage";
 import { directionForKey, nearestInDirection } from "@/lib/map/navigation";
 import { SHEET_HEIGHT, SHEET_WIDTH } from "@/lib/map/terrain";
 import { completeEntry } from "@/lib/motion/entry";
@@ -39,6 +43,7 @@ import { MapLegend } from "./MapLegend";
 import { MapVista } from "./MapVista";
 import { MobileTrail } from "./MobileTrail";
 import { Trail } from "./Trail";
+import { TrailheadAction } from "./TrailheadAction";
 import styles from "./FrontierMap.module.css";
 
 /**
@@ -53,7 +58,8 @@ import styles from "./FrontierMap.module.css";
  * what they are doing there. Hover, focus, camera and selection therefore
  * create no history entries — only following a marker's link does.
  */
-type MapState = "initial" | "exploring" | "location-focused" | "location-active";
+type MapState =
+  "initial" | "exploring" | "location-focused" | "location-active";
 
 export function FrontierMap() {
   const prefersReducedMotion = useReducedMotion();
@@ -344,7 +350,11 @@ export function FrontierMap() {
 
                     <MapLayer name="trails">
                       {trails.map((trail) => (
-                        <Trail key={trail.id} trail={trail} lit={litTrails.has(trail.id)} />
+                        <Trail
+                          key={trail.id}
+                          trail={trail}
+                          lit={litTrails.has(trail.id)}
+                        />
                       ))}
                     </MapLayer>
 
@@ -463,7 +473,9 @@ export function FrontierMap() {
                           }}
                           onEnter={enter}
                           onLeave={leave}
-                          onFocus={(event) => onNodeFocus(event, index, location.id)}
+                          onFocus={(event) =>
+                            onNodeFocus(event, index, location.id)
+                          }
                           onKeyDown={(event) => onNodeKeyDown(event, index)}
                           onEngage={engage}
                         />
@@ -476,7 +488,11 @@ export function FrontierMap() {
               {/* The small paper annotation beside a location. Its content is
                   duplicated in the index below, so nothing here is hover-only. */}
               {noted && notePlacement ? (
-                <div className={styles.fieldNote} style={notePlacement} aria-hidden="true">
+                <div
+                  className={styles.fieldNote}
+                  style={notePlacement}
+                  aria-hidden="true"
+                >
                   <span className={styles.fieldNoteTag}>
                     {noted.status === "surveying" ? "Unmapped" : "Field note"}
                   </span>
@@ -528,44 +544,25 @@ export function FrontierMap() {
               engineering work.
             </p>
           </div>
-          <Link
-            href={routes.projects}
+          <TrailheadAction
             className={styles.trailheadAction}
-            /* Hover and focus preview the journey on the sheet: the route
-               lights and both of its ends come up. The card and the red line
-               are one object, and this is what says so. */
-            onPointerEnter={() => setTrailPreview(true)}
-            onPointerLeave={() => setTrailPreview(false)}
-            onFocus={() => setTrailPreview(true)}
-            onBlur={() => setTrailPreview(false)}
-            /* Pointer-down for the head start; the click covers the keyboard,
-               where there is no pointer-down to get a start from. */
-            onPointerDown={followTrail}
-            onClick={(event) => {
-              followTrail();
-              if (!isPlainNavigation(event.nativeEvent)) return;
-              beginPassage({
-                id: "camp-to-journal",
-                to: routes.projects,
-                from: "Camp · Trailhead",
-                caption: "The Journal",
-              });
-            }}
-          >
-            Follow the trail
-            <span aria-hidden="true">&nbsp;→</span>
-          </Link>
+            onRun={followTrail}
+            onPreviewChange={setTrailPreview}
+          />
         </div>
 
         <p className={styles.hint}>
-          Hover or tab a location. Arrow keys move to the nearest location in that
-          direction; Enter opens it; Escape dismisses the note.
+          Hover or tab a location. Arrow keys move to the nearest location in
+          that direction; Enter opens it; Escape dismisses the note.
         </p>
       </div>
 
       {/* ================= the non-spatial route ========================== */}
       <aside className={styles.indexColumn}>
-        <MapLegend activeId={activeId} onHover={(id) => (id ? enter(id) : leave())} />
+        <MapLegend
+          activeId={activeId}
+          onHover={(id) => (id ? enter(id) : leave())}
+        />
       </aside>
 
       {/* ================= mobile: a different composition ================ */}

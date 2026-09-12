@@ -40,6 +40,16 @@ type Listener = (passage: Passage) => void;
 
 const listeners = new Set<Listener>();
 
+/**
+ * The last passage announced, and when.
+ *
+ * A timestamp rather than a lifecycle flag on purpose: a flag has to be
+ * cleared, and every path that forgets to clear it — a wipe suppressed by
+ * reduced motion, a listener that never mounted — leaves the site believing a
+ * transition is running forever. A stale timestamp simply expires.
+ */
+let lastPassage: { to: string; at: number } | null = null;
+
 export function onPassage(listener: Listener): () => void {
   listeners.add(listener);
   return () => {
@@ -48,9 +58,24 @@ export function onPassage(listener: Listener): () => void {
 }
 
 export function beginPassage(passage: Passage): void {
+  lastPassage = { to: passage.to, at: Date.now() };
   // Copied before iterating: a listener that unsubscribes itself mid-notify
   // is legal, and should not truncate the notification.
   for (const listener of [...listeners]) listener(passage);
+}
+
+/**
+ * Whether a passage is currently delivering the visitor to this route.
+ *
+ * Asked by pages that have an arrival of their own. Two reveals stacked on one
+ * arrival is one reveal too many, and the wipe has already done the job.
+ */
+export function arrivingByPassage(pathname: string, within = 2500): boolean {
+  return (
+    lastPassage !== null &&
+    lastPassage.to === pathname &&
+    Date.now() - lastPassage.at < within
+  );
 }
 
 /**

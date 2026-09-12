@@ -2,6 +2,7 @@ import Link from "next/link";
 import { locations } from "@/lib/content/portfolio";
 import { terrain } from "@/lib/map/terrain";
 import { LocationGlyph } from "./symbols";
+import { TrailheadAction } from "./TrailheadAction";
 import styles from "./MobileTrail.module.css";
 import { routes } from "@/lib/routes";
 
@@ -43,10 +44,7 @@ export function MobileTrail() {
           Begin the survey. The primary trail runs from camp straight to the
           engineering work.
         </p>
-        <Link href={routes.projects} className={styles.trailheadAction}>
-          Follow the trail
-          <span aria-hidden="true">&nbsp;→</span>
-        </Link>
+        <TrailheadAction className={styles.trailheadAction} />
       </div>
 
       <ol className={styles.trail}>
@@ -65,26 +63,42 @@ export function MobileTrail() {
                     .filter(Boolean)
                     .join(" ")}
                 />
-                <span className={primary ? `${styles.dot} ${styles.dotPrimary}` : styles.dot} />
+                <span
+                  className={
+                    primary ? `${styles.dot} ${styles.dotPrimary}` : styles.dot
+                  }
+                />
               </span>
 
               <Link
                 href={location.route}
-                className={primary ? `${styles.card} ${styles.cardPrimary}` : styles.card}
+                className={
+                  primary ? `${styles.card} ${styles.cardPrimary}` : styles.card
+                }
               >
                 <span className={styles.cardGlyph} aria-hidden="true">
                   <svg viewBox="-20 -20 40 40" width="30" height="30">
-                    <LocationGlyph symbol={location.symbol} scale={0.9} strokeWidth={1.8} />
+                    <LocationGlyph
+                      symbol={location.symbol}
+                      scale={0.9}
+                      strokeWidth={1.8}
+                    />
                   </svg>
                 </span>
                 <span className={styles.cardBody}>
                   <span className={styles.cardHead}>
                     <span className={styles.cardName}>{location.label}</span>
-                    <span className={styles.cardSection}>{location.section}</span>
+                    <span className={styles.cardSection}>
+                      {location.section}
+                    </span>
                   </span>
-                  <span className={styles.cardDesc}>{location.description}</span>
+                  <span className={styles.cardDesc}>
+                    {location.description}
+                  </span>
                   {location.status === "surveying" ? (
-                    <span className={styles.cardStatus}>Survey in progress</span>
+                    <span className={styles.cardStatus}>
+                      Survey in progress
+                    </span>
                   ) : null}
                 </span>
               </Link>
