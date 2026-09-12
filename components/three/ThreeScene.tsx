@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { type ReactNode, useEffect, useState } from "react";
 import { type SceneCapability, detectSceneCapability } from "@/lib/three/capability";
+import type { SceneProps } from "./types";
 import styles from "./ThreeScene.module.css";
 
 /**
@@ -16,6 +17,10 @@ import styles from "./ThreeScene.module.css";
 const SCENES = {
   /** Step 03's bench: the smallest thing that proves the boundary holds. */
   bench: dynamic(() => import("./scenes/BenchScene").then((m) => m.BenchScene), {
+    ssr: false,
+  }),
+  /** Camp: the same place the illustrated scene draws, rendered. */
+  camp: dynamic(() => import("./scenes/CampScene3D").then((m) => m.CampScene3D), {
     ssr: false,
   }),
 } as const;
@@ -34,6 +39,12 @@ interface ThreeSceneProps {
   label: string;
   className?: string;
   children?: ReactNode;
+  /**
+   * What the DOM wants the scene to do — a selection, a hover, somewhere to
+   * write projected positions. Plain data, checked by SceneProps, so the
+   * door can carry the payload without a 3D type entering its signature.
+   */
+  state?: SceneProps;
 }
 
 /**
@@ -55,6 +66,7 @@ export function ThreeScene({
   label,
   className,
   children,
+  state,
 }: ThreeSceneProps) {
   const [capability, setCapability] = useState<SceneCapability>("pending");
 
@@ -87,7 +99,7 @@ export function ThreeScene({
   return (
     <div className={[styles.stage, className].filter(Boolean).join(" ")} data-scene-mode="ready">
       <div className={styles.canvas} role="img" aria-label={label}>
-        <Scene />
+        <Scene {...state} />
       </div>
       {/* The DOM layer over the canvas: labels, controls, records. The canvas
           carries atmosphere; everything readable stays here. */}

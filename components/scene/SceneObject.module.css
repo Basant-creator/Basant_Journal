@@ -116,3 +116,16 @@
     transform: none;
   }
 }
+
+/*
+  When a renderer is placing this object, --anchor-shift is 1 and the hit area
+  steps back by half its own size, because a projected anchor is the centre of
+  a thing and `left`/`top` are its corner. With no renderer the property is 0
+  and the transform is the identity, so the illustrated layout is untouched.
+*/
+.object {
+  transform: translate(
+    calc(var(--anchor-shift, 0) * -50%),
+    calc(var(--anchor-shift, 0) * -50%)
+  );
+}

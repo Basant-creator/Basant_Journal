@@ -110,10 +110,19 @@ export function CameraRig({
 
     camera.position.lerp(desired.current, k);
 
-    const aim = focus ?? target;
-    lookAt.current.x += (aim[0] - lookAt.current.x) * k;
-    lookAt.current.y += (aim[1] - lookAt.current.y) * k;
-    lookAt.current.z += (aim[2] - lookAt.current.z) * k;
+    /* The aim leans by the same fraction the position travels, rather than
+       snapping onto the focused point. Looking *straight at* an object puts
+       it dead centre and swings everything else toward the edges — measured
+       on Camp at 140% across the viewport, with a neighbouring object pushed
+       clean out of frame. Biasing the aim keeps the group in view and still
+       says which one is being attended to. */
+    const bias = focus ? pull : 0;
+    for (let i = 0; i < 3; i += 1) {
+      const base = target[i];
+      const aim = focus ? base + (focus[i] - base) * bias : base;
+      const key = i === 0 ? "x" : i === 1 ? "y" : "z";
+      lookAt.current[key] += (aim - lookAt.current[key]) * k;
+    }
     camera.lookAt(lookAt.current);
   });
 

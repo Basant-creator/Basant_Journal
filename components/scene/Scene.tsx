@@ -113,6 +113,12 @@ export function Scene({
             "--py": 0,
           } as CSSProperties
         }
+        /* A stable hook for anything that needs to write onto the stage from
+           inside it — the 3D bridge projects object positions here, because
+           custom properties set on this element inherit to both the artwork
+           and the controls over it. data-entry-scene cannot serve: it is
+           absent whenever a scene opts out of the entry animation. */
+        data-scene-stage="true"
         data-entry-scene={entry ? "true" : undefined}
         onPointerMove={onPointerMove}
         onPointerLeave={rest}

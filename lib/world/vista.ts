@@ -101,13 +101,36 @@ export interface Ridge {
  * round for a viewer standing above a valley: the far country is up near the
  * horizon and the land descends toward your boots.
  */
-export function buildRidges(): Ridge[] {
+/** How each ridge is cut. One list, so 2D and 3D cannot drift apart. */
+const RIDGE_CUTS = [
+  { base: 140, amplitude: 26, steps: 48 },
+  { base: 95, amplitude: 22, steps: 42 },
+  { base: 45, amplitude: 17, steps: 36 },
+] as const;
+
+/**
+ * The ridges as numbers, before anything decides how to draw them.
+ *
+ * The 2D map paints these as SVG silhouettes and the 3D camp builds them as
+ * geometry, and they have to be the *same country* — a visitor who walks from
+ * the survey sheet into Camp should recognise the skyline. That only holds if
+ * both read one generator rather than two that were written to look alike.
+ *
+ * The three profiles are drawn from a single seeded stream in a fixed order,
+ * so this function and the paths built from it are the same terrain by
+ * construction and not by coincidence.
+ */
+export function ridgeProfiles(): Point[][] {
   const rng = createRng(seedFrom("frontier-vista-ridges"));
-  return [
-    { path: silhouette(crest(rng, HORIZON - 140, 26, 48)), crestY: HORIZON - 140 },
-    { path: silhouette(crest(rng, HORIZON - 95, 22, 42)), crestY: HORIZON - 95 },
-    { path: silhouette(crest(rng, HORIZON - 45, 17, 36)), crestY: HORIZON - 45 },
-  ];
+  return RIDGE_CUTS.map((cut) => crest(rng, HORIZON - cut.base, cut.amplitude, cut.steps));
+}
+
+export function buildRidges(): Ridge[] {
+  const profiles = ridgeProfiles();
+  return RIDGE_CUTS.map((cut, i) => ({
+    path: silhouette(profiles[i]),
+    crestY: HORIZON - cut.base,
+  }));
 }
 
 /**

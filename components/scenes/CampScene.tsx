@@ -9,7 +9,7 @@ import { SceneObjects } from "@/components/scene/SceneObjects";
 import { FieldPhotograph } from "@/components/world/FieldPhotograph";
 import { TornPaper } from "@/components/world/TornPaper";
 import { CAMP_HEIGHT, CAMP_WIDTH, type CampObjectId, objectBox } from "@/lib/world/camp";
-import { CampArt } from "./CampArt";
+import { CampStage } from "./CampStage";
 import styles from "./CampScene.module.css";
 
 type RecordId = Exclude<CampObjectId, "map">;
@@ -109,7 +109,7 @@ export function CampScene({
           initial="notebook"
           onChange={(id) => setOpen(id as RecordId)}
         >
-          <CampArt />
+          <CampStage />
 
           {/* Smoke and firelight already move; this is the air between them. */}
           <SceneAtmosphere variant="drift" className={styles.air} />

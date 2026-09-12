@@ -47,11 +47,29 @@ export function SceneObject({
   const scene = useSceneInteraction();
   const active = scene?.activeId === id;
 
+  /*
+    The box is where this object is in the artwork. --anchor-<id>-x/y is
+    where it is on screen when a renderer is drawing it instead, projected
+    per frame by ObjectAnchors.
+    
+    The fallback in each var() is the whole bridge. Nothing writes those
+    properties unless a 3D scene is mounted and projecting, so the
+    illustrated box is what applies the rest of the time — on a phone, with
+    reduced motion, without WebGL, or in the frames before the canvas has
+    loaded. One expression covers every case and neither renderer has to
+    know the other exists.
+
+    Projected anchors are centres, so the object is pulled back by half its
+    own size; the 2D box is already a corner and needs no such correction.
+    That is what the translate is for, and it is switched off with the
+    same custom property that positions it.
+  */
   const style = {
-    left: `${box.x}%`,
-    top: `${box.y}%`,
+    left: `var(--anchor-${id}-x, ${box.x}%)`,
+    top: `var(--anchor-${id}-y, ${box.y}%)`,
     width: `${box.w}%`,
     height: `${box.h}%`,
+    "--anchor-shift": `var(--anchor-${id}-on, 0)`,
   } as CSSProperties;
 
   const body = (
