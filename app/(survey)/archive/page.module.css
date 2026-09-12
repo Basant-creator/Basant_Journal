@@ -72,3 +72,13 @@
   align-items: center;
   gap: var(--space-4);
 }
+
+/* The one annotation in the record office.
+
+   It sits at the foot of the section whose convention it explains rather than
+   beside each unresolved item: a policy stated once reads as a standard, and
+   the same policy repeated six times reads as an apology. */
+.note {
+  margin-top: var(--space-2);
+  align-self: flex-end;
+}

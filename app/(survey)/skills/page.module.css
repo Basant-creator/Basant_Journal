@@ -65,3 +65,41 @@
   color: var(--color-earth);
   opacity: 0.75;
 }
+
+/* --- the tally ------------------------------------------------------------
+
+   A kit is counted before it is carried.
+
+   The distinction the content model draws — an empty `projects` array is a
+   claim rather than evidence — is visible one row at a time and invisible in
+   aggregate, which is exactly the wrong way round. Adding it up is the reward
+   for looking: it says what most portfolios are careful not to.
+
+   Deliberately not red. THE HAND is human intervention; this is measurement,
+   and measurement belongs to the ink.
+   ------------------------------------------------------------------------ */
+
+.tally {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.count {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  letter-spacing: 0.02em;
+  color: var(--color-paper-light);
+}
+
+.sep {
+  opacity: 0.4;
+}

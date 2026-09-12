@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SurveyAnnotation } from "@/components/annotations/SurveyAnnotation";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { PaperSurface } from "@/components/paper/PaperSurface";
@@ -103,6 +104,11 @@ export default function ArchivePage() {
             </li>
           ))}
         </ul>
+
+        <SurveyAnnotation tag="Filing note" side="right" className={styles.note}>
+          Where a certificate isn&rsquo;t filed, the record says so. Nothing in
+          this office is claimed on memory alone.
+        </SurveyAnnotation>
       </section>
 
       <section className={shared.section} aria-labelledby="resume">

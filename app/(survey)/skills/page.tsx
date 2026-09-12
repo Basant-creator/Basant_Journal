@@ -10,6 +10,18 @@ import styles from "./page.module.css";
 
 const location = getLocation("gear");
 
+/**
+ * The count, taken from the data rather than asserted.
+ *
+ * The content model draws a distinction the page can otherwise only show one
+ * row at a time: `projects: []` is a claim, not evidence. Totalling it is the
+ * point — a kit is counted before it is carried, and a portfolio that states
+ * plainly what it cannot yet prove is worth more than one that lists
+ * everything at the same weight.
+ */
+const carried = skills.flatMap((group) => group.items);
+const evidenced = carried.filter((item) => item.projects.length > 0).length;
+
 export const metadata: Metadata = {
   title: "Gear — Skills",
   description:
@@ -29,6 +41,15 @@ export default function SkillsPage() {
           symbol={location?.symbol}
         />
       </div>
+
+      <p className={styles.tally}>
+        <span className={styles.count}>{carried.length}</span> carried
+        <span className={styles.sep} aria-hidden="true">·</span>
+        <span className={styles.count}>{evidenced}</span> evidenced in shipped code
+        <span className={styles.sep} aria-hidden="true">·</span>
+        <span className={styles.count}>{carried.length - evidenced}</span> handled, not yet
+        shipped
+      </p>
 
       <ul className={shared.cards}>
         {skills.map((group) => (
