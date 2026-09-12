@@ -33,9 +33,23 @@ interface ThreeSceneProps {
    * Shown when WebGL is missing, the viewport is compact, or the visitor asked
    * for reduced motion. Required, not optional — a 3D layer without a
    * fallback is a 3D layer that can take the page down with it.
+   *
+   * It is a picture and nothing else. Both branches put it inside an
+   * element with role="img", which makes it a leaf in the accessibility
+   * tree — anything interactive placed here would be announced as part of
+   * an image label and could not be reached. Controls belong in children,
+   * which is why children now render in both branches and not only when a
+   * renderer happens to be available.
    */
   fallback: ReactNode;
-  /** Described to assistive technology; the canvas itself says nothing. */
+  /**
+   * Described to assistive technology, in both renderings.
+   *
+   * It says what the picture is, not what is in it: the objects on the
+   * table are named by the controls over the scene, and a label that
+   * enumerates them too means hearing the same list twice before reaching
+   * anything usable.
+   */
   label: string;
   className?: string;
   children?: ReactNode;
@@ -134,8 +148,14 @@ export function ThreeScene({
      illustrated scene is what is on screen, and it is the same scene. */
   if (capability !== "ready" || !settled) {
     return (
-      <div className={className} data-scene-mode={capability}>
-        {fallback}
+      <div
+        className={[styles.stage, className].filter(Boolean).join(" ")}
+        data-scene-mode={capability}
+      >
+        <div className={styles.picture} role="img" aria-label={label}>
+          {fallback}
+        </div>
+        {children}
       </div>
     );
   }
@@ -144,7 +164,7 @@ export function ThreeScene({
 
   return (
     <div className={[styles.stage, className].filter(Boolean).join(" ")} data-scene-mode="ready">
-      <div className={styles.canvas} role="img" aria-label={label}>
+      <div className={`${styles.picture} ${styles.arrives}`} role="img" aria-label={label}>
         {/* The handler goes last so a caller cannot replace it. */}
         <Scene {...state} onContextLost={handleContextLost} />
       </div>

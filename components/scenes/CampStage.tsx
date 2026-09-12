@@ -44,7 +44,10 @@ export function CampStage() {
       <ThreeScene
         scene="camp"
         className={styles.layer}
-        label="Camp at dusk: a fire, a tent, and a table with a notebook, a photograph, field notes and a map on it."
+        /* The place, not its contents. "Objects on the table" follows
+           immediately and names all four interactively, so listing them here
+           means hearing them twice before reaching one. */
+        label="Camp at dusk: a low fire in front of a tent, with the ridges of the surveyed territory behind it."
         fallback={<CampArt />}
         state={{
           activeId: interaction?.activeId ?? null,

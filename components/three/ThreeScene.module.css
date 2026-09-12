@@ -3,13 +3,13 @@
   isolation: isolate;
 }
 
-.canvas {
+.picture {
   position: absolute;
   inset: 0;
   z-index: 0;
 }
 
-.canvas canvas {
+.picture canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;
@@ -27,7 +27,7 @@
   resolving. Compositor-only, and the resting state is the visible one, so a
   browser that never runs it shows the scene rather than nothing.
 */
-.canvas {
+.arrives {
   animation: sceneArrive 420ms var(--ease-standard) both;
 }
 
@@ -41,7 +41,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .canvas {
+  .arrives {
     animation: none;
   }
 }
