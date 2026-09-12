@@ -115,3 +115,59 @@ is every canonical route plus the 404.
 
 The 404 renders its heading and points at `/frontier`, as the contract says it
 should.
+
+---
+
+# Failure surfaces
+
+## What existed
+
+`app/not-found.tsx` only. A runtime error anywhere in the application fell
+through to Next's default — which on a portfolio means a recruiter meeting a
+framework's grey page instead of the survey.
+
+## What was added
+
+**`app/error.tsx`** — errors inside a route. It reuses the 404's stylesheet on
+purpose: from the reader's side these are the same event, a sheet that cannot
+be produced, and two treatments would say the difference matters to someone
+other than us. Retry is offered first because most errors here would be
+transient — a chunk that did not arrive, a renderer that could not start — and
+it is a real `<button>`, because a link that secretly re-renders the page
+breaks middle-click, Back, and everything else an anchor promises.
+
+**Verified in a production build** against a deliberately throwing route:
+eyebrow "Illegible", heading "This sheet could not be read", the site's ground
+and fonts, a working retry, and the way out to the professional view and home.
+
+**`app/global-error.tsx`** — errors in the root layout itself. Every style in
+it is inline, and that duplication is the point: `globals.css` and
+`tokens.css` are imported *by* the layout that just failed, so nothing can
+assume a token resolved. Its exit is a plain anchor rather than a router link,
+because client-side navigation is the machinery that broke.
+
+## What could not be verified
+
+`global-error` did **not** engage when the root layout was made to throw in the
+browser. The page rendered its server HTML unstyled instead — stylesheets
+present in `document.styleSheets`, none applying, default serif on white.
+
+That test is artificial: it turned `TextureLayer` into a client component that
+throws during hydration, which is not how a root layout usually fails. The
+honest reading is narrow — the file is Next's documented mechanism and costs
+nothing to keep, but **it is unproven**, and the failure mode observed is
+exactly the one it exists to prevent. Anyone touching this should treat it as
+untested rather than as a safety net.
+
+## Still blocking a deploy — all of them content, none of them code
+
+Eight `*Status: "unresolved"` markers, each correctly handled (nothing broken
+renders):
+
+- `meta.siteUrlStatus` and `SITE_ORIGIN` — the placeholder domain. One line in
+  `lib/routes.ts`; the metadata base, sitemap and robots all follow it.
+- `links.resumeStatus` — no résumé file, so `/archive` explains instead of
+  offering a download.
+- `projects.*.linksStatus` ×3 — no source or live URLs, so those buttons do
+  not render at all.
+- `training`/`certifications` certificate flags ×3 — shown as "not yet filed".
