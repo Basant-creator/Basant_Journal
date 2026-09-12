@@ -12,8 +12,10 @@ import {
 import { type ChapterMeta, chapterFor } from "@/lib/transition/chapters";
 import {
   type TransitionType,
+  type TurnDirection,
   profileFor,
   transitionFor,
+  turnDirection,
 } from "@/lib/transition/types";
 import { TransitionContext, type TransitionPhase } from "./TransitionContext";
 import { RouteCurtain } from "./RouteCurtain";
@@ -43,6 +45,17 @@ const EXIT_MS = 220;
  * Everything else here is careful not to.
  */
 const MARK_MIN = 300;
+
+/**
+ * A page turn, kept under the brief's 600ms with room to spare.
+ *
+ * Sequential browsing should feel like reading a journal, and a reader turning
+ * pages is not waiting for anything. The destination's own arrival — the
+ * sheet pulling forward, the file being drawn — continues underneath after
+ * the page has passed, which is a document settling rather than a delay.
+ */
+const TURN_OUT = 230;
+const TURN_IN = 250;
 
 function prefersReducedMotion(): boolean {
   if (typeof window === "undefined") return false;
@@ -89,6 +102,8 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
 
   /** The route the curtain went up over. Null until something is announced. */
   const [target, setTarget] = useState<string | null>(null);
+  /** Which way a page turn is going. Meaningless for every other type. */
+  const [direction, setDirection] = useState<TurnDirection>("forward");
 
   const token = useRef(0);
   const timers = useRef<number[]>([]);
@@ -127,7 +142,8 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       if (url.pathname === window.location.pathname) return;
 
       const next = transitionFor(window.location.pathname, url.pathname);
-      if (!profileFor(next).loader) return;
+      const profile = profileFor(next);
+      if (!profile.loader && !profile.turn) return;
 
       token.current += 1;
       const mine = token.current;
@@ -135,6 +151,19 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       setType(next);
       setTarget(url.pathname);
       announcedAt.current = Date.now();
+
+      if (profile.turn) {
+        // A page sweeps across while the route changes underneath it. No
+        // mark, no chapter: a document is not a destination.
+        setDirection(turnDirection(window.location.pathname, url.pathname));
+        setPhase("EXIT");
+        at(TURN_OUT + TURN_IN + 240, () => {
+          setPhase("IDLE");
+          setTarget(null);
+        }, mine);
+        return;
+      }
+
       setPhase("EXIT");
       at(EXIT_MS, () => setPhase("LOADER"), mine);
 
@@ -170,8 +199,21 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     const profile = profileFor(kind);
     const chapter = chapterFor(pathname);
 
-    // Nothing to announce here: a record, the professional view, or a route
-    // with no ceremony. Make sure any curtain in flight comes down.
+    // A page turn: the record has arrived, so the page finishes its sweep.
+    if (announced && profile.turn) {
+      token.current += 1;
+      const mine = token.current;
+      clearTimers();
+      setPhase("ENTER");
+      at(TURN_IN + 60, () => {
+        setPhase("IDLE");
+        setTarget(null);
+      }, mine);
+      return;
+    }
+
+    // Nothing to announce here: the professional view, or a route with no
+    // ceremony. Make sure any curtain in flight comes down.
     if (!chapter || !profile.chapter) {
       if (phase !== "IDLE") {
         token.current += 1;
@@ -235,6 +277,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         phase={phase}
         type={type}
         meta={meta}
+        direction={direction}
         reduced={prefersReducedMotion()}
       />
       <TransitionDebug />

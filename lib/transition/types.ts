@@ -1,3 +1,4 @@
+import { projects } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
 import { isMajorRoute } from "./chapters";
 
@@ -25,6 +26,14 @@ export interface TransitionProfile {
   chapter: boolean;
   /** How long the chapter holds, in milliseconds. */
   dwell: number;
+  /**
+   * Sweep a page across instead. Documents turn; worlds do not.
+   *
+   * A record is a page of the journal, and moving between two of them should
+   * read as turning one — not as leaving a place and arriving somewhere else,
+   * which is what the chapter curtain is for.
+   */
+  turn: boolean;
 }
 
 /**
@@ -36,16 +45,17 @@ export interface TransitionProfile {
  * already waiting, so it must not be the reason they are.
  */
 const PROFILES: Record<TransitionType, TransitionProfile> = {
-  LANDING_TO_WORLD: { loader: true, chapter: true, dwell: 780 },
-  WORLD_TO_SCENE: { loader: true, chapter: true, dwell: 620 },
-  WORLD_TO_PAPER: { loader: true, chapter: true, dwell: 620 },
+  LANDING_TO_WORLD: { loader: true, chapter: true, dwell: 780, turn: false },
+  WORLD_TO_SCENE: { loader: true, chapter: true, dwell: 620, turn: false },
+  WORLD_TO_PAPER: { loader: true, chapter: true, dwell: 620, turn: false },
   /* Opening a document inside the journal is not leaving the journal. The
-     record pulls forward; nothing covers the view. */
-  PAPER_TO_RECORD: { loader: false, chapter: false, dwell: 0 },
-  RECORD_TO_RECORD: { loader: false, chapter: false, dwell: 0 },
+     record pulls forward under its own steam; nothing covers the view. */
+  PAPER_TO_RECORD: { loader: false, chapter: false, dwell: 0, turn: false },
+  /* One record to the next is a page being turned. */
+  RECORD_TO_RECORD: { loader: false, chapter: false, dwell: 0, turn: true },
   /* The recruiter path stays quick: a fade, no ceremony, no chapter. */
-  ANY_TO_PROFESSIONAL: { loader: false, chapter: false, dwell: 0 },
-  NONE: { loader: false, chapter: false, dwell: 0 },
+  ANY_TO_PROFESSIONAL: { loader: false, chapter: false, dwell: 0, turn: false },
+  NONE: { loader: false, chapter: false, dwell: 0, turn: false },
 };
 
 const isRecord = (pathname: string) => pathname.startsWith(`${routes.projects}/`);
@@ -79,4 +89,24 @@ export function transitionFor(from: string | null, to: string): TransitionType {
 
 export function profileFor(type: TransitionType): TransitionProfile {
   return PROFILES[type];
+}
+
+export type TurnDirection = "forward" | "back";
+
+/**
+ * Which way the page turns.
+ *
+ * From the journal's own order, not from which link was clicked: TuneIt to
+ * OnSight turns forward whether the reader used the Next control, the index,
+ * or typed the URL. A transition that depends on the control used is a
+ * transition that disagrees with itself.
+ */
+export function turnDirection(from: string, to: string): TurnDirection {
+  const index = (pathname: string) =>
+    projects.findIndex((project) => project.route === pathname);
+
+  const a = index(from);
+  const b = index(to);
+  if (a < 0 || b < 0) return "forward";
+  return b >= a ? "forward" : "back";
 }

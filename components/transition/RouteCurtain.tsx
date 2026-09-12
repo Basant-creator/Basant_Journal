@@ -1,7 +1,7 @@
 "use client";
 
 import type { ChapterMeta } from "@/lib/transition/chapters";
-import type { TransitionType } from "@/lib/transition/types";
+import type { TransitionType, TurnDirection } from "@/lib/transition/types";
 import type { TransitionPhase } from "./TransitionContext";
 import { FrontierLoader } from "./FrontierLoader";
 import styles from "./RouteCurtain.module.css";
@@ -10,6 +10,8 @@ interface RouteCurtainProps {
   phase: TransitionPhase;
   type: TransitionType;
   meta: ChapterMeta | null;
+  /** Which way a page turn sweeps. Ignored by every other presentation. */
+  direction: TurnDirection;
   reduced: boolean;
 }
 
@@ -26,8 +28,32 @@ interface RouteCurtainProps {
  * content — which is also why it is `aria-hidden`: the destination's own
  * heading is what a screen reader should meet, and it is already there.
  */
-export function RouteCurtain({ phase, type, meta, reduced }: RouteCurtainProps) {
+export function RouteCurtain({
+  phase,
+  type,
+  meta,
+  direction,
+  reduced,
+}: RouteCurtainProps) {
   if (phase === "IDLE") return null;
+
+  /*
+    A page turn is a different presentation, not a lighter version of the
+    same one. Worlds are entered — dark, named, announced. Documents are
+    turned — a sheet crosses, and the reader is still in the journal.
+  */
+  if (type === "RECORD_TO_RECORD") {
+    return (
+      <div
+        className={styles.turn}
+        data-phase={phase}
+        data-direction={direction}
+        aria-hidden="true"
+      >
+        <span className={styles.leaf} />
+      </div>
+    );
+  }
 
   const showMark = phase === "EXIT" || phase === "LOADER";
 

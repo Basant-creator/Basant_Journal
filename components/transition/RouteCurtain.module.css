@@ -155,3 +155,76 @@
     transition-duration: 120ms;
   }
 }
+
+/* ==========================================================================
+   The page turn.
+
+   Between two records, and nothing else. The reader has not left the journal,
+   so nothing goes dark and nothing is named — a sheet crosses the view in the
+   direction the journal runs, and the route changes underneath it.
+
+   Under 600ms end to end. A reader turning pages is not waiting for anything.
+   ========================================================================== */
+
+.turn {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-passage);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.leaf {
+  position: absolute;
+  inset: -4% -8%;
+  background:
+    linear-gradient(105deg, rgba(0, 0, 0, 0.22) 0 3%, transparent 14%),
+    linear-gradient(258deg, var(--color-paper-light), var(--color-paper) 62%, var(--color-paper-dark));
+  box-shadow: 0 0 70px rgba(0, 0, 0, 0.55);
+  /* A turning page is not a rigid rectangle. Two degrees is enough to say so
+     and little enough that it never reads as a skewed box. */
+  transform: translateX(112%) rotate(2deg);
+  will-change: transform;
+}
+
+.leaf::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--texture-paper-url);
+  background-size: 420px;
+  opacity: var(--texture-paper-opacity);
+  mix-blend-mode: multiply;
+}
+
+/* Forward is the way the journal runs: the page comes in from the right and
+   leaves to the left, the way a hand takes the outer edge and carries it
+   across. Back is the same motion, reversed. */
+.turn[data-direction="back"] .leaf {
+  transform: translateX(-112%) rotate(-2deg);
+}
+
+.turn[data-phase="EXIT"] .leaf {
+  transform: translateX(0) rotate(0deg);
+  transition: transform 230ms cubic-bezier(0.32, 0, 0.67, 0);
+}
+
+.turn[data-phase="ENTER"] .leaf {
+  transform: translateX(-112%) rotate(-2deg);
+  transition: transform 250ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.turn[data-direction="back"][data-phase="ENTER"] .leaf {
+  transform: translateX(112%) rotate(2deg);
+}
+
+/*
+  Reduced motion gets the cut without the sweep. A page that crosses the whole
+  viewport is exactly the kind of large transform §19 asks to remove, and
+  unlike a chapter title it carries no information to preserve.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .turn {
+    display: none;
+  }
+}
