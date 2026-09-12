@@ -1,9 +1,21 @@
 .head {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
   padding-bottom: var(--space-6);
-  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+/* A drawn line rather than a border, because a border cannot be drawn. */
+.head::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: var(--color-border-subtle);
+  transform-origin: 0 50%;
+  animation: headRule var(--duration-slow) var(--ease-cinematic)
+    calc(var(--stagger) * 3) both;
 }
 
 .top {
@@ -15,6 +27,7 @@
 .glyph {
   color: var(--color-paper-dark);
   flex: none;
+  animation: headFade var(--duration-slow) var(--ease-standard) both;
 }
 
 .eyebrow {
@@ -23,6 +36,7 @@
   text-transform: uppercase;
   color: var(--color-text-muted);
   margin-bottom: var(--space-2);
+  animation: eyebrowSet var(--duration-slow) var(--ease-cinematic) both;
 }
 
 .title {
@@ -31,6 +45,7 @@
   text-transform: uppercase;
   color: var(--color-white-warm);
   line-height: var(--leading-tight);
+  animation: titleSet var(--duration-slow) var(--ease-cinematic) var(--stagger) both;
 }
 
 .lede {
@@ -39,4 +54,103 @@
   line-height: 1.6;
   color: var(--color-text-secondary);
   max-width: var(--measure-lede);
+  animation: ledeIn var(--duration-normal) var(--ease-standard)
+    calc(var(--stagger) * 4) both;
+}
+
+/* --- the head arrives ------------------------------------------------------
+
+   Type is set, not faded.
+
+   The idea is already in this codebase — ChapterCard's mark opens by closing
+   its tracking, "as though a press had just struck it" — but it lived only in
+   the overlays that announce a page, never in the page itself. Every heading
+   on the site simply existed. This is the vocabulary the project invented,
+   finally spoken by the documents rather than only by the cards in front of
+   them.
+
+   Two rules shape all of it:
+
+     1. Every animation runs *from* an offset *toward* the resting value the
+        rule already declares, and nothing here depends on JavaScript to be
+        applied. That is the distinction from RecordEntry, which hangs its
+        state off an attribute written after mount precisely because it does:
+        an unrun animation with "both" fill holds its opening frame, which
+        for a heading would mean an empty one.
+     2. Delays are multiples of --stagger, which is zeroed under reduced
+        motion. That matters more than it looks: the global reduced-motion
+        override collapses duration but not delay, so a hardcoded delay would
+        leave the lede invisible for a third of a second and then snap in —
+        the exact opposite of what the setting asks for.
+
+   No translation on the headings and no zoom. A title that slides is a title
+   arriving from somewhere; a title that sets was always on the sheet, and the
+   press has just come down.
+   ------------------------------------------------------------------------ */
+
+@keyframes eyebrowSet {
+  from {
+    opacity: 0;
+    letter-spacing: 0.26em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: var(--tracking-hero);
+  }
+}
+
+@keyframes titleSet {
+  from {
+    opacity: 0;
+    letter-spacing: 0.15em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.05em;
+  }
+}
+
+@keyframes headRule {
+  from {
+    opacity: 0;
+    transform: scaleX(0.12);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes headFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Prose is not theatrical. The lede lifts a few pixels and is done. */
+@keyframes ledeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stated rather than left to the global override, which zeroes duration and
+   stagger but would still run the letter-spacing interpolation in 1ms — a
+   reflow of every heading on the site for no reason anyone asked for. */
+@media (prefers-reduced-motion: reduce) {
+  .head::after,
+  .glyph,
+  .eyebrow,
+  .title,
+  .lede {
+    animation: none;
+  }
 }
