@@ -1,9 +1,11 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { Group, Mesh, PointLight } from "three";
+import { CameraRig } from "../CameraRig";
 import { SceneCanvas } from "../SceneCanvas";
+import styles from "./BenchScene.module.css";
 
 /**
  * Step 03's bench.
@@ -16,7 +18,11 @@ import { SceneCanvas } from "../SceneCanvas";
  * If this renders, loads as its own chunk, and disposes cleanly, the boundary
  * works and Camp can be built behind it.
  */
-function Rig() {
+/** Where the object under the light sits. Named once so the mesh and the
+ *  camera cannot drift apart. */
+const MARKER: [number, number, number] = [0, 0.1, 1.2];
+
+function Rig({ framed }: { framed: boolean }) {
   const fire = useRef<PointLight | null>(null);
   const marker = useRef<Mesh | null>(null);
   const ridges = useRef<Group | null>(null);
@@ -42,6 +48,12 @@ function Rig() {
 
   return (
     <>
+      <CameraRig
+        home={[0, 1.3, 5.4]}
+        target={[0, 0.5, 1.2]}
+        focus={framed ? MARKER : null}
+      />
+
       {/* Dusk: one low warm key, a cool ambient fill, no shadow maps. */}
       <ambientLight intensity={0.9} color="#6b7688" />
       <directionalLight position={[-6, 4, -8]} intensity={1.6} color="#d89a5e" />
@@ -69,7 +81,7 @@ function Rig() {
       </group>
 
       {/* The object under the light. */}
-      <mesh ref={marker} position={[0, 0.1, 1.2]} castShadow={false}>
+      <mesh ref={marker} position={MARKER} castShadow={false}>
         <boxGeometry args={[0.9, 0.6, 0.14]} />
         <meshStandardMaterial color="#d8c7a5" roughness={0.85} />
       </mesh>
@@ -89,14 +101,35 @@ function Rig() {
   );
 }
 
+/**
+ * The bench, now with a camera on it.
+ *
+ * The button is the point of the step rather than decoration on it. Framing
+ * has to be provable from outside the canvas: a camera that can only be
+ * tested by moving a mouse across a WebGL surface is a camera nobody can
+ * verify, here or in CI.
+ */
 export function BenchScene() {
+  const [framed, setFramed] = useState(false);
+
   return (
-    <SceneCanvas
-      background="#120e0b"
-      fog={{ color: "#120e0b", near: 12, far: 46 }}
-      camera={{ position: [0, 1.3, 5.4], fov: 44 }}
-    >
-      <Rig />
-    </SceneCanvas>
+    <div className={styles.holder}>
+      <SceneCanvas
+        background="#120e0b"
+        fog={{ color: "#120e0b", near: 12, far: 46 }}
+        camera={{ position: [0, 1.3, 5.4], fov: 44 }}
+      >
+        <Rig framed={framed} />
+      </SceneCanvas>
+
+      <button
+        type="button"
+        className={styles.frame}
+        aria-pressed={framed}
+        onClick={() => setFramed((on) => !on)}
+      >
+        {framed ? "Release" : "Frame the marker"}
+      </button>
+    </div>
   );
 }

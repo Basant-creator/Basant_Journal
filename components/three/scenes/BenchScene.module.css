@@ -1,0 +1,32 @@
+/* The bench's own chrome. Deliberately plain: this surface exists to prove a
+   camera works, not to be designed. */
+
+.holder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.frame {
+  position: absolute;
+  left: var(--space-4);
+  bottom: var(--space-4);
+  z-index: var(--z-overlay);
+
+  padding: 8px 14px;
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-paper-light);
+
+  background: color-mix(in srgb, var(--color-ink) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-paper-light) 34%, transparent);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.frame:focus-visible {
+  outline: 2px solid var(--color-paper-light);
+  outline-offset: 3px;
+}
