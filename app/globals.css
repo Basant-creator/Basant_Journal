@@ -32,9 +32,14 @@
 
   --color-red: #7a2e2e;
   --color-red-dark: #542020;
-  --color-red-light: #a65145;
-  /* Phase 1 audit: red-light as a button fill is 4.48:1 under warm white and
-     fails AA. This is the corrected hover fill at 6.21:1. */
+  /* THE HAND's ink on the dark — a text colour first. Was #a65145 (3.30:1 on
+     --color-ink, failing AA at every size it is set at). #c96a5b keeps the
+     hue and adds only 9 points of saturation: 4.83:1 on --color-ink, 4.62:1
+     on the (survey) shell gradient's #211b15 peak. Full audit lives next to
+     the same token in design/tokens.css. */
+  --color-red-light: #c96a5b;
+  /* Phase 1 audit: red-light is never a fill that carries text — warm white
+     over it is 3.06:1. This is the fill that does, at 6.20:1. */
   --color-red-hover: #8e3a35;
 
   --color-dust: #9b8565;

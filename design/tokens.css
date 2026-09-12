@@ -41,11 +41,37 @@
 
   --color-red:          #7A2E2E;
   --color-red-dark:     #542020;
-  --color-red-light:    #A65145;
 
-  /* Added in Phase 1. --color-red-light as a button fill under warm-white
-     text measures 4.48:1 — it fails WCAG AA by a hair. This is the corrected
-     hover fill: 6.21:1. See docs/design-direction.md section 10. */
+  /* THE HAND's ink on the dark. This is a *text* colour first: it carries the
+     survey annotations, the chapter labels and the small red marginalia, and
+     those are set at --text-xs..--text-lg regular — normal text under WCAG,
+     so the bar is 4.5:1, not the 3:1 large-text allowance.
+
+     Was #A65145, which measured 3.30:1 on --color-ink and failed AA at every
+     size it is used at. #C96A5B holds the same hue (H8 vs H7) and lifts
+     saturation by only 9 points, so it still reads as the same red ink rather
+     than a hotter one, while clearing the bar:
+
+       4.83:1 on --color-ink        #1B1713   (the shell ground)
+       4.62:1 on #211B15                      (peak of the (survey) shell's
+                                               radial gradient — worst-case
+                                               flat ground under an annotation)
+       5.49:1 on --scene-void       #070605
+       5.33:1 on --scene-night      #0D0B09
+
+     Known shortfall: 4.20:1 over --color-bg-secondary. That pairing exists
+     only in the /lab benches, which are noindex workshop pages. Reaching 4.5:1
+     there costs another ~4 points of lightness and the red starts to shout,
+     which is the one thing Layer 2 must not do. Do not chase it.
+
+     Red-light is also used as a fill for non-text marks — nav dots, trail
+     dots, rule ticks, the bounty pin. Those answer to WCAG 1.4.11 (3:1
+     against the adjacent ground) and the lift only improves them. */
+  --color-red-light:    #C96A5B;
+
+  /* Added in Phase 1. Red-light is never a fill that carries text: warm white
+     over it is 3.06:1. This is the fill that does — 6.20:1 under
+     --color-white-warm. See docs/design-direction.md section 10. */
   --color-red-hover:    #8E3A35;
 
   --color-dust:         #9B8565;
@@ -257,7 +283,10 @@
   --map-line-muted:  rgba(128, 109, 80, 0.55);   /* 1.95:1 — DECORATIVE ONLY.
                                                     Never the sole indicator
                                                     of an interactive trail. */
-  --map-line-active: #A65145;
+  /* The active segment is THE HAND drawing over the sheet, so it tracks the
+     hand's ink rather than restating its old hex. 4.83:1 on ink, well past
+     the 3:1 non-text bar a --map-stroke-major line answers to. */
+  --map-line-active: var(--color-red-light);
 
   --map-stroke-small:  1px;
   --map-stroke-medium: 2px;
