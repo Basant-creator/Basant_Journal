@@ -3,8 +3,15 @@ import Link from "next/link";
 import styles from "./FieldRecordHeader.module.css";
 
 interface FieldRecordHeaderProps {
-  /** Roman numeral. Which record in the journal this is. */
-  chapter: string;
+  /**
+   * The line above the title, verbatim.
+   *
+   * Not "Chapter N". The world's routes are chapters — see
+   * lib/transition/chapters.ts — and the journal's three documents are
+   * records inside one of them. Two numbering systems sharing the word
+   * Chapter is a bug that reads as a typo.
+   */
+  eyebrow: string;
   title: string;
   subtitle: string;
   /** The way back to the journal it was torn from. */
@@ -28,7 +35,7 @@ interface FieldRecordHeaderProps {
  * reach away rather than a scroll to the bottom.
  */
 export function FieldRecordHeader({
-  chapter,
+  eyebrow,
   title,
   subtitle,
   back,
@@ -44,7 +51,7 @@ export function FieldRecordHeader({
 
       <div className={styles.masthead}>
         <div className={styles.titles}>
-          <p className={styles.chapter}>Chapter {chapter}</p>
+          <p className={styles.chapter}>{eyebrow}</p>
           <h1 className={styles.title}>{title}</h1>
           <p className={styles.subtitle}>{subtitle}</p>
         </div>

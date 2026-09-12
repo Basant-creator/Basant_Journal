@@ -1,7 +1,6 @@
 "use client";
 
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import { arrivingByPassage } from "@/lib/motion/passage";
 import { hasSeen, markSeen, prefersReducedMotion } from "@/lib/scene/announce";
 import styles from "./JournalOpening.module.css";
 
@@ -13,8 +12,6 @@ interface JournalOpeningProps {
   title: string;
   /** Distinguishes this journal from any other. Once per session, each. */
   id: string;
-  /** The route the journal lives at, so it knows when a passage brought you. */
-  route: string;
   /** The page's own root class. This component *is* the page root. */
   className?: string;
 }
@@ -35,16 +32,15 @@ interface JournalOpeningProps {
  *      open page; without JavaScript there is no cover at all.
  *   3. Once per session. A one-second cover every time you step back from a
  *      record is a door you have to open to get into your own kitchen.
- *   4. Never on top of a passage. Arriving from the trail already gets a sheet
- *      of paper torn away; a cover opening behind it is a second reveal for
- *      one arrival, and they would play over each other.
+ *   4. It plays under the route curtain rather than after it. The curtain is
+ *      already over the view while the cover swings, so the two are one
+ *      arrival rather than two queued in series.
  */
 export function JournalOpening({
   children,
   chapter,
   title,
   id,
-  route,
   className,
 }: JournalOpeningProps) {
   const [state, setState] = useState<"open" | "closed" | "opening">("open");
@@ -63,10 +59,7 @@ export function JournalOpening({
 
   useEffect(() => {
     if (plays.current === null) {
-      plays.current =
-        !prefersReducedMotion() &&
-        !hasSeen(`journal.${id}`) &&
-        !arrivingByPassage(route);
+      plays.current = !prefersReducedMotion() && !hasSeen(`journal.${id}`);
       // Marked when the decision is made, not when the sequence ends: a
       // visitor who leaves halfway has still had their opening.
       if (plays.current) markSeen(`journal.${id}`);
@@ -81,7 +74,7 @@ export function JournalOpening({
       window.clearTimeout(open);
       window.clearTimeout(done);
     };
-  }, [id, route]);
+  }, [id]);
 
   /**
    * The net. Whatever happens above — a cancelled timer, a preference that

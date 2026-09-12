@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { ChapterCard } from "@/components/scene/ChapterCard";
 import { CampScene } from "@/components/scenes/CampScene";
 import { SurveyAnnotation } from "@/components/annotations/SurveyAnnotation";
 import { education, getLocation, person } from "@/lib/content/portfolio";
@@ -28,7 +27,6 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className={shared.page}>
-      <ChapterCard chapter="I" title="The Camp" id="camp" />
 
 
       <PageHeader

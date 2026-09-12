@@ -64,7 +64,7 @@ export default async function ProjectRecordPage({ params }: PageProps) {
   return (
     <article className={styles.record}>
       <FieldRecordHeader
-        chapter={project.chapter}
+        eyebrow={`Record ${project.chapter}`}
         title={project.title}
         subtitle={project.subtitle}
         back={{ href: routes.projects, label: "Journal" }}

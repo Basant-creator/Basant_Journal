@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { LocationTitle } from "@/components/scene/LocationTitle";
 import { PaperSurface } from "@/components/paper/PaperSurface";
 import { getLocation, getProject, skills } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
@@ -23,7 +22,6 @@ export default function SkillsPage() {
     <div className={shared.page}>
 
       <div className={shared.locate}>
-        <LocationTitle title="The Workshop" subtitle="Tools of the trade" />
         <PageHeader
           eyebrow="Gear · Skills"
           title="Gear"

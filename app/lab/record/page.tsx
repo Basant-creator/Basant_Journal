@@ -32,7 +32,7 @@ export default function RecordLabPage() {
   return (
     <article className={styles.record}>
       <FieldRecordHeader
-        chapter="0"
+        eyebrow="Specimen record"
         title="Specimen"
         subtitle="A neutral record, filed to prove the system"
         back={{ href: "/lab/paper", label: "Paper variants" }}

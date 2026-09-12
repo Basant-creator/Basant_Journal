@@ -1,3 +1,4 @@
+import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import type { Metadata, Viewport } from "next";
 import { Caveat, IM_Fell_English_SC, Inter, Rye, Source_Serif_4 } from "next/font/google";
 import { TextureLayer } from "@/components/shell/TextureLayer";
@@ -122,7 +123,9 @@ export default function RootLayout({
       </head>
       <body>
         <SkipLink />
-        {children}
+        {/* One owner for route-entry choreography, above the router so it
+            survives every navigation and sees the landing page too. */}
+        <TransitionProvider>{children}</TransitionProvider>
         <TextureLayer />
       </body>
     </html>

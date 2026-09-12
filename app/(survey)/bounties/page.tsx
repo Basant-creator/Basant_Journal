@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { LocationTitle } from "@/components/scene/LocationTitle";
 import { Stamp } from "@/components/world/Stamp";
 import { TornPaper } from "@/components/world/TornPaper";
 import { getLocation, getProject, metrics } from "@/lib/content/portfolio";
@@ -42,7 +41,6 @@ export default function BountiesPage() {
     <div className={shared.page}>
 
       <div className={shared.locate}>
-        <LocationTitle title="The Board" subtitle="Notable findings" />
         <PageHeader
           eyebrow="Bounties · Results"
           title="Bounties"

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { beginPassage, isPlainNavigation } from "@/lib/motion/passage";
 import { routes } from "@/lib/routes";
 
 interface TrailheadActionProps {
@@ -19,10 +18,10 @@ interface TrailheadActionProps {
  * both carry it, and it was previously written out twice — which is how the
  * phone ended up with a trailhead that navigated without the journey.
  *
- * What it owns is the passage: the paper wipe from Camp to the Journal, and
- * the decision about whether this particular click is the kind that navigates
- * here at all. What it does not own is the map's own animation, which only
- * exists where there is a map; that arrives as a callback.
+ * What it owns is the journey preview and the map's own beats, which only
+ * exist where there is a map and so arrive as callbacks. What it no longer
+ * owns is the transition: that is the route transition controller's, for
+ * every route, which is the whole point of there being one.
  *
  * Nothing here delays navigation. The link is a real link and the browser
  * follows it on its own schedule.
@@ -45,16 +44,7 @@ export function TrailheadAction({
       /* Pointer-down for the head start; the click covers the keyboard, where
          there is no pointer-down to get a start from. */
       onPointerDown={onRun}
-      onClick={(event) => {
-        onRun?.();
-        if (!isPlainNavigation(event.nativeEvent)) return;
-        beginPassage({
-          id: "camp-to-journal",
-          to: routes.projects,
-          from: "Camp · Trailhead",
-          caption: "The Journal",
-        });
-      }}
+      onClick={onRun}
     >
       Follow the trail
       <span aria-hidden="true">&nbsp;→</span>

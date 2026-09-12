@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { LocationTitle } from "@/components/scene/LocationTitle";
 import { PaperSurface } from "@/components/paper/PaperSurface";
 import { ButtonLink } from "@/components/shared/Button";
 import {
@@ -32,7 +31,6 @@ export default function ArchivePage() {
     <div className={shared.page}>
 
       <div className={shared.locate}>
-        <LocationTitle title="The Archive" subtitle="Records of file" />
         <PageHeader
           eyebrow="Archive · Records"
           title="Archive"

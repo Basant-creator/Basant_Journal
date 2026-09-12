@@ -1,0 +1,124 @@
+/* ==========================================================================
+   The Frontier mark — a surveyor's index plate.
+
+   Cheap by construction: eleven drawn elements, two composited animations,
+   nothing fetched. It is shown when the visitor is already waiting, so it is
+   not allowed to be a reason they are.
+   ========================================================================== */
+
+.mark {
+  display: block;
+  width: clamp(56px, 9vw, 92px);
+  aspect-ratio: 1;
+  color: var(--color-paper);
+}
+
+.plate {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  /* The whole plate settles as it arrives: a struck mark, not a spinner that
+     was already going before you got here. */
+  animation: plateSettle 520ms var(--ease-cinematic) both;
+}
+
+.rim,
+.rimInner {
+  fill: none;
+  stroke: currentColor;
+}
+
+.rim {
+  stroke-width: 2.4;
+  opacity: 0.9;
+}
+
+/* The second bite of the stamp, slightly out of register — the small
+   imperfection that separates a struck mark from a printed one. */
+.rimInner {
+  stroke-width: 0.9;
+  opacity: 0.42;
+  transform: translate(0.6px, -0.5px);
+}
+
+.stations circle {
+  fill: currentColor;
+  opacity: 0.62;
+}
+
+.sight {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  opacity: 0.7;
+}
+
+.pupil {
+  fill: var(--color-red-light);
+}
+
+/*
+  The index arm steps rather than sweeps. A theodolite's index clicks between
+  bearings, and stepping is also what stops this reading as a loading spinner
+  — which is the one thing it must not read as.
+*/
+.arm {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform-origin: 50px 50px;
+  animation: indexStep 1800ms steps(6, end) infinite;
+}
+
+.armTip {
+  stroke-width: 2.2;
+}
+
+@keyframes plateSettle {
+  from {
+    opacity: 0;
+    transform: scale(0.88) rotate(-7deg);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.02) rotate(1.2deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes indexStep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Stilled: the plate is struck and stays struck. Used under reduced motion
+   and wherever the mark is shown as an emblem rather than as progress. */
+.mark[data-still="true"] .arm {
+  animation: none;
+}
+
+@media (max-width: 720px) {
+  .mark {
+    width: clamp(44px, 14vw, 64px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plate {
+    animation: none;
+  }
+
+  .arm {
+    animation: none;
+  }
+}

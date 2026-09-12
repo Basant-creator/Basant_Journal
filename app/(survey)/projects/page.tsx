@@ -7,10 +7,14 @@ import { PaperSurface } from "@/components/paper/PaperSurface";
 import { Metric } from "@/components/metrics/Metric";
 import { getLocation, projects } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
+import { chapterFor } from "@/lib/transition/chapters";
 import shared from "@/components/shared/Territory.module.css";
 import styles from "./page.module.css";
 
 const location = getLocation("journal");
+/* The cover names the same chapter the route transition just announced. One
+   registry, so the board and the curtain can never disagree. */
+const chapter = chapterFor(routes.projects);
 
 export const metadata: Metadata = {
   title: "Journal — Projects",
@@ -33,10 +37,9 @@ export default function JournalPage() {
   return (
     <JournalOpening
       className={shared.page}
-      chapter="II"
-      title="Field Records"
+      chapter={chapter?.chapter ?? ""}
+      title={chapter?.subtitle ?? "Field Records"}
       id="journal"
-      route={routes.projects}
     >
       <PageHeader
         eyebrow="Journal · Projects"
@@ -49,7 +52,7 @@ export default function JournalPage() {
         {projects.map((project) => (
           <li key={project.id}>
             <PaperSurface as="article" edge="worn" className={styles.entry}>
-              <p className={styles.chapter}>Chapter {project.chapter}</p>
+              <p className={styles.chapter}>Record {project.chapter}</p>
 
               <Link href={project.route} className={styles.titleLink}>
                 <h2 className={styles.title}>{project.title}</h2>

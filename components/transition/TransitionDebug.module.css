@@ -1,0 +1,56 @@
+/* Development only — the component folds away entirely in production. */
+.panel {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: calc(var(--z-passage) + 10);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  min-width: 216px;
+  background: rgba(7, 6, 5, 0.86);
+  border: 1px solid rgba(216, 199, 165, 0.24);
+  border-left: 2px solid var(--color-red);
+  border-radius: 3px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  opacity: 0.32;
+  transition: opacity 200ms ease;
+}
+
+/* Loud while something is happening, nearly invisible when it is not. */
+.panel:not([data-phase="IDLE"]) {
+  opacity: 1;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+}
+
+.key {
+  width: 72px;
+  flex: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.value {
+  color: var(--color-paper-light);
+  word-break: break-all;
+}
+
+.phase {
+  color: var(--color-red-light);
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .panel {
+    display: none;
+  }
+}
