@@ -6,9 +6,15 @@ territory still being mapped.
 ```bash
 npm install
 npm run dev        # http://localhost:3000
-npm run build      # production build
+npm run build      # production build (stop dev and delete .next first)
+npm run start      # serve the production build
 npm run typecheck  # tsc --noEmit
+npm run check:3d   # guards the 3D import boundary — must pass before commit
 ```
+
+`CLAUDE.md` carries the invariants that are not visible in any single file,
+and `docs/` carries the contracts: routing, design direction, and the phase
+notes recording what was measured and why.
 
 ---
 
@@ -62,14 +68,26 @@ components/
   annotations/  SurveyAnnotation — THE HAND in the DOM
   navigation/   Navigation, SkipLink
   metrics/      Metric
-  shell/        TextureLayer
+  shell/        TextureLayer, Quiet (a boundary for decoration)
   shared/       Button, PageHeader, OnwardNav, Territory styles
+  scene/        the scene engine: Scene, layers, depth, objects, camera
+  scenes/       the places themselves — Camp's art, controls and stage
+  record/       the field-record document system
+  transition/   one owner for route-entry choreography
+  boot/         the landing sequence, once per session
+  audio/        the atmosphere control
+  world/        torn paper, stamps, the journal cover, the photograph
+  three/        everything that imports three — see its own README
 
 lib/
   routes.ts     the single definition of where things are
   content/      types + the single read point for portfolio.json
   map/          rng, geometry, terrain, locations, directional traversal
   motion/       entry choreography, shared Motion transitions
+  world/        seeded generators — ridges, scrub, camp objects, tear seams
+  transition/   the chapter registry and transition profiles
+  boot/         the pre-paint stamp and its timings
+  three/        the capability check, which imports no 3D at all
 
 content/
   portfolio.json          the only source of facts
@@ -118,6 +136,28 @@ where its interruptibility earns its keep.
 
 ---
 
+## The rendered layer
+
+Camp and the country behind the survey sheet are drawn twice: as
+illustrations, and — where a machine can afford it — as a rendered scene.
+The illustrated version is not a placeholder. It is the drawing the whole
+site is made of, and it is what phones, reduced motion, missing WebGL and
+the first painted frame all get.
+
+Three rules hold it in place, and `components/three/README.md` is the full
+contract:
+
+- **`three` is imported only inside `components/three`.** It is ~880 kB
+  against a 104 kB shared bundle. `npm run check:3d` enforces this.
+- **The canvas carries atmosphere; the DOM carries everything else.** The
+  map's markers, links and arrow-key navigation stay in the DOM even when
+  the country behind them is rendered. A renderer that swallowed them would
+  trade a guarantee for a picture.
+- **Both renderings are described identically.** Same role, same label, same
+  controls — a screen reader cannot tell which one it got.
+
+---
+
 ## Navigation rules
 
 - Every destination has a stable URL and works as a direct link, with no prior
@@ -150,6 +190,10 @@ where its interruptibility earns its keep.
 - Every marker state differs by ring weight, fill and label plate, not colour
   alone. Labels are legible at rest; only the supporting note is on hover, and
   that note is duplicated in the legend.
+- A scene is described the same way whether it is rendered or drawn, and its
+  controls are the same elements in the same places — projected from the
+  renderer when there is one, and falling back to the illustrated positions
+  by the same CSS expression when there is not.
 - Focus rings are surface-scoped: paper-light on the dark, ink on paper.
 - Touch targets are ≥44px, independent of the drawn marker size.
 - `prefers-reduced-motion` collapses every duration and removes the camera; the
