@@ -20,7 +20,7 @@ component does not belong to exactly one of these layers, it is wrong.
 | Layer | What it is | Where it lives |
 |---|---|---|
 | **THE DARK** | Atmosphere, shell, navigation. Ink ground, vignette, grain. | `app/globals.css`, `components/shell`, `components/navigation` |
-| **THE SCENE** | Places. Depth bands, air, camera, the world an artifact sits in. | `components/scene`, `lib/world`, the scene layers in `components/map` |
+| **THE SCENE** | Places. Depth bands, air, camera, the world an artifact sits in. | `components/scene` (the engine), `components/scenes` (the places), `lib/world` |
 | **THE TERRAIN** | The survey sheet: parchment field, ink cartography, routes, locations. | `lib/map`, `components/terrain`, `components/map` |
 | **THE PAPER** | Documents and reading surfaces. | `components/paper` |
 | **THE HAND** | Red ink. Measurement, annotation, human intervention. ~3% of any view. | `components/annotations`, the map's annotation layer |

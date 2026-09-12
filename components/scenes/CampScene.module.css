@@ -1,3 +1,11 @@
+/* ==========================================================================
+   Camp — the composition and the controls.
+
+   Everything that draws the place now lives in CampArt.module.css, and
+   everything that made the place move lives in the scene engine. What is left
+   here is the page layout, the objects' hit areas, and the record they open.
+   ========================================================================== */
+
 .camp {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.85fr);
@@ -5,343 +13,25 @@
   align-items: start;
 }
 
-/* The stage keeps a fixed ratio so the object hit areas, which are positioned
-   as percentages, land exactly on the drawing at every width. */
+/* The Scene owns the frame, the ratio and the pointer. The ratio is
+   load-bearing rather than decorative: the object hit areas below are
+   percentages of this box, so it has to keep the artwork's proportions at
+   every width or the controls drift off the things they belong to. */
 .stage {
-  position: relative;
-  aspect-ratio: 1600 / 900;
-  width: 100%;
-  overflow: hidden;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
-  background: var(--scene-night);
-  --px: 0;
-  --py: 0;
+  min-width: 0;
 }
 
-.art {
-  width: 100%;
-  height: 100%;
-  display: block;
+.air {
+  /* Behind the controls. Dust over a focus ring is dust over a focus ring. */
+  z-index: var(--z-content);
 }
 
-/* --- depth -------------------------------------------------------------- */
-
-/* Each band shifts by a different amount: the sky barely moves, the table
-   moves most. Small numbers on purpose — this is a head tilt, not a swoop. */
-.sky {
-  transform: translate3d(calc(var(--px) * var(--depth-shift-0)), calc(var(--py) * 4px), 0);
-}
-
-.ridge {
-  fill: var(--scene-depth-2);
-  transform: translate3d(calc(var(--px) * var(--depth-shift-1)), calc(var(--py) * 6px), 0);
-}
-
-.ridgeNear {
-  fill: var(--scene-depth-4);
-}
-
-.trees0,
-.trees1,
-.trees2 {
-  stroke: none;
-}
-
-.trees0 {
-  fill: var(--scene-depth-3);
-  transform: translate3d(calc(var(--px) * var(--depth-shift-2)), calc(var(--py) * 8px), 0);
-}
-
-.trees1 {
-  fill: var(--scene-depth-4);
-  transform: translate3d(calc(var(--px) * var(--depth-shift-3)), calc(var(--py) * 11px), 0);
-}
-
-.trees2 {
-  fill: var(--scene-depth-5);
-  transform: translate3d(calc(var(--px) * var(--depth-shift-4)), calc(var(--py) * 14px), 0);
-}
-
-.tent,
-.fire,
-.smoke,
-.groundGlow {
-  transform: translate3d(calc(var(--px) * var(--depth-shift-3)), calc(var(--py) * 12px), 0);
-}
-
-.table {
-  transform: translate3d(calc(var(--px) * var(--depth-shift-5)), calc(var(--py) * 16px), 0);
-}
-
-.objects {
-  transform: translate3d(calc(var(--px) * var(--depth-shift-6)), calc(var(--py) * 20px), 0);
-}
-
-.sky,
-.ridge,
-.trees0,
-.trees1,
-.trees2,
-.tent,
-.fire,
-.smoke,
-.groundGlow,
-.table,
-.objects {
-  transition: transform var(--depth-settle) var(--ease-standard);
-  will-change: transform;
-}
-
-/* --- tent ---------------------------------------------------------------- */
-
-.tent {
-  fill: var(--canvas-lit);
-}
-
-.tentDark {
-  fill: var(--canvas-shade);
-}
-
-.tentMouth {
-  fill: var(--canvas-mouth);
-}
-
-.tentLine {
-  fill: none;
-  stroke: var(--canvas-seam);
-  stroke-width: 2;
-}
-
-/* --- fire ---------------------------------------------------------------- */
-
-.embers {
-  fill: var(--fire-ember);
-  opacity: 0.75;
-}
-
-.log {
-  fill: none;
-  stroke: var(--fire-log);
-  stroke-width: 11;
-  stroke-linecap: round;
-}
-
-.flameOuter {
-  fill: var(--fire-body);
-  opacity: 0.92;
-  transform-origin: 650px 582px;
-  animation: flicker var(--fire-flicker) ease-in-out infinite alternate;
-}
-
-.flameInner {
-  fill: var(--fire-core);
-  transform-origin: 650px 580px;
-  animation: flicker calc(var(--fire-flicker) * 0.73) ease-in-out infinite alternate-reverse;
-}
-
-.groundGlow {
-  animation: breathe var(--fire-breathe) ease-in-out infinite alternate;
-}
-
-@keyframes flicker {
-  from {
-    transform: scaleY(0.94) scaleX(1.03);
-    opacity: 0.82;
-  }
-  to {
-    transform: scaleY(1.06) scaleX(0.97);
-    opacity: 1;
-  }
-}
-
-@keyframes breathe {
-  from {
-    opacity: 0.78;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* --- smoke ---------------------------------------------------------------- */
-
-.smoke {
-  fill: none;
-  stroke: var(--smoke-tint);
-  stroke-width: var(--smoke-width);
-  stroke-linecap: round;
-}
-
-.plume0 {
-  animation: rise var(--smoke-rise) linear infinite;
-}
-
-.plume1 {
-  animation: rise calc(var(--smoke-rise) * 1.27) linear infinite 3s;
-}
-
-.plume2 {
-  animation: rise calc(var(--smoke-rise) * 1.53) linear infinite 7s;
-}
-
-@keyframes rise {
-  0% {
-    opacity: 0;
-    transform: translateY(30px) scaleX(0.7);
-  }
-  22% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-170px) scaleX(1.5);
-  }
-}
-
-/* --- table ---------------------------------------------------------------- */
-
-.tableEdge {
-  fill: none;
-  stroke: var(--timber-edge);
-  stroke-width: 3;
-  opacity: 0.7;
-}
-
-.grain {
-  fill: none;
-  stroke: var(--timber-grain);
-  stroke-width: 2;
-  opacity: 0.55;
-}
-
-/* --- objects -------------------------------------------------------------- */
-
-.bookCover {
-  fill: var(--timber-light);
-  stroke: var(--timber-edge);
-  stroke-width: 1.5;
-}
-
-.bookPages {
-  fill: var(--paper-aged);
-}
-
-.bookSpine {
-  stroke: var(--timber-dark);
-  stroke-width: 7;
-}
-
-.bookRibbon {
-  fill: var(--color-red);
-}
-
-.bookMark {
-  fill: none;
-  stroke: var(--ink-map);
-  stroke-width: 2.5;
-  opacity: 0.6;
-}
-
-.photoMat {
-  fill: var(--color-paper-light);
-  stroke: var(--paper-mat);
-  stroke-width: 1.2;
-}
-
-.photoImage {
-  fill: var(--color-earth);
-}
-
-.photoScene {
-  fill: none;
-  stroke: var(--color-earth-dark);
-  stroke-width: 4;
-  stroke-linejoin: round;
-}
-
-.photoSun {
-  fill: var(--color-paper-dark);
-}
-
-.noteSheet {
-  fill: var(--paper-aged);
-  stroke: var(--paper-edge);
-  stroke-width: 1;
-}
-
-.noteTop {
-  fill: var(--paper-aged-light);
-  stroke: var(--paper-edge);
-  stroke-width: 1;
-}
-
-.noteRule {
-  fill: none;
-  stroke: var(--paper-rule);
-  stroke-width: 1.6;
-  opacity: 0.7;
-}
-
-.noteInk {
-  fill: none;
-  stroke: var(--ink-annotation-paper);
-  stroke-width: 2.6;
-  opacity: 0.8;
-}
-
-.mapSheet {
-  fill: var(--map-field-light);
-  stroke: var(--paper-rule);
-  stroke-width: 1.2;
-}
-
-.mapFold {
-  fill: none;
-  stroke: var(--paper-mat);
-  stroke-width: 1.6;
-}
-
-.mapInk {
-  fill: none;
-  stroke: var(--ink-map);
-  stroke-width: 1.8;
-  opacity: 0.75;
-}
-
-.mapTrail {
-  fill: none;
-  stroke: var(--ink-annotation);
-  stroke-width: 2.6;
-  stroke-dasharray: 7 5;
-  opacity: 0.7;
-  transition:
-    opacity var(--duration-normal) var(--ease-standard),
-    stroke-width var(--duration-normal) var(--ease-standard);
-}
-
-.mapTrailHot {
-  opacity: 1;
-  stroke-width: 4;
-}
-
-.mapPin {
-  fill: var(--color-red);
-}
-
-/* Objects lift a touch when their control is hovered or open. */
-.objNotebook,
-.objPhoto,
-.objNotes,
-.objMap {
-  transition: transform var(--duration-normal) var(--ease-standard);
-}
-
-/* --- hotspots ------------------------------------------------------------- */
+/* --- the objects' hit areas ---------------------------------------------- */
 
 .tablist {
   position: absolute;
   inset: 0;
+  z-index: var(--z-overlay);
 }
 
 .hotspot {
@@ -529,15 +219,15 @@
 }
 
 /*
-  Mobile gets a deliberate composition, not a squeezed one: the scene becomes a
-  wide letterbox banner with the hotspot labels always legible, and the record
-  sits beneath it at full width.
+  Small screens keep the artwork's ratio rather than cropping to a banner.
+  Cropping moved the drawing under hit areas that are percentages of the box,
+  which put every label a little way off its own object. Proper mobile
+  recomposition is its own step; not lying about where things are is not.
+
+  What does change is the controls: at this size a precise target is not a
+  reasonable thing to ask for, so each one becomes a legible labelled region.
 */
 @media (max-width: 720px) {
-  .stage {
-    aspect-ratio: 16 / 10;
-  }
-
   .hotspotNote {
     display: none;
   }
@@ -552,36 +242,5 @@
     align-items: center;
     text-align: center;
     border-color: rgba(216, 199, 165, 0.28);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sky,
-  .ridge,
-  .trees0,
-  .trees1,
-  .trees2,
-  .tent,
-  .fire,
-  .smoke,
-  .groundGlow,
-  .table,
-  .objects {
-    transform: none !important;
-    transition: none !important;
-  }
-
-  .flameOuter,
-  .flameInner,
-  .groundGlow,
-  .plume0,
-  .plume1,
-  .plume2 {
-    animation: none !important;
-  }
-
-  /* Smoke exists only as motion; with motion off it is just a grey smudge. */
-  .smoke {
-    display: none;
   }
 }

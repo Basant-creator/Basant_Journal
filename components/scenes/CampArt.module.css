@@ -1,0 +1,400 @@
+/* ==========================================================================
+   Camp — the environment.
+
+   Depth, parallax and settling all come from SceneLayer now; nothing in this
+   file writes a transform for the pointer. What is left is what a painting
+   file should hold: tone, line weight, and the two things in the frame that
+   move on their own.
+   ========================================================================== */
+
+.art {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* --- tone by distance ---------------------------------------------------- */
+
+.ridge {
+  fill: var(--scene-depth-2);
+}
+
+.ridgeNear {
+  fill: var(--scene-depth-4);
+}
+
+.trees0,
+.trees1,
+.trees2 {
+  stroke: none;
+}
+
+.trees0 {
+  fill: var(--scene-depth-3);
+}
+
+.trees1 {
+  fill: var(--scene-depth-4);
+}
+
+.trees2 {
+  fill: var(--scene-depth-5);
+}
+
+/* --- the ground ---------------------------------------------------------- */
+
+.stone {
+  fill: var(--scene-depth-5);
+}
+
+.tuft {
+  fill: none;
+  stroke: var(--scene-depth-5);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* --- tent ---------------------------------------------------------------- */
+
+.tent {
+  fill: var(--canvas-lit);
+}
+
+.tentDark {
+  fill: var(--canvas-shade);
+}
+
+.tentMouth {
+  fill: var(--canvas-mouth);
+}
+
+.tentLine {
+  fill: none;
+  stroke: var(--canvas-seam);
+  stroke-width: 2;
+}
+
+/* --- chair --------------------------------------------------------------- */
+
+.chair {
+  fill: none;
+}
+
+.chairLeg,
+.chairFrame {
+  stroke: var(--timber-dark);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.chairSeat {
+  fill: var(--canvas-shade);
+  stroke: var(--canvas-seam);
+  stroke-width: 1.5;
+}
+
+.chairBack {
+  fill: var(--canvas-shade);
+  stroke: var(--canvas-seam);
+  stroke-width: 1.5;
+}
+
+/* --- fire ---------------------------------------------------------------- */
+
+.embers {
+  fill: var(--fire-ember);
+  opacity: 0.75;
+}
+
+.log {
+  fill: none;
+  stroke: var(--fire-log);
+  stroke-width: 11;
+  stroke-linecap: round;
+}
+
+.flameOuter {
+  fill: var(--fire-body);
+  opacity: 0.92;
+  transform-origin: 650px 582px;
+  animation: flicker var(--fire-flicker) ease-in-out infinite alternate;
+}
+
+.flameInner {
+  fill: var(--fire-core);
+  transform-origin: 650px 580px;
+  animation: flicker calc(var(--fire-flicker) * 0.73) ease-in-out infinite alternate-reverse;
+}
+
+.groundGlow {
+  animation: breathe var(--fire-breathe) ease-in-out infinite alternate;
+}
+
+@keyframes flicker {
+  from {
+    transform: scaleY(0.94) scaleX(1.03);
+    opacity: 0.82;
+  }
+  to {
+    transform: scaleY(1.06) scaleX(0.97);
+    opacity: 1;
+  }
+}
+
+@keyframes breathe {
+  from {
+    opacity: 0.78;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- smoke ---------------------------------------------------------------- */
+
+.smoke {
+  fill: none;
+  stroke: var(--smoke-tint);
+  stroke-width: var(--smoke-width);
+  stroke-linecap: round;
+}
+
+.plume0 {
+  animation: rise var(--smoke-rise) linear infinite;
+}
+
+.plume1 {
+  animation: rise calc(var(--smoke-rise) * 1.27) linear infinite 3s;
+}
+
+.plume2 {
+  animation: rise calc(var(--smoke-rise) * 1.53) linear infinite 7s;
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scaleX(0.7);
+  }
+  22% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-170px) scaleX(1.5);
+  }
+}
+
+/* --- table ---------------------------------------------------------------- */
+
+.tableEdge {
+  fill: none;
+  stroke: var(--timber-edge);
+  stroke-width: 3;
+  opacity: 0.7;
+}
+
+.grain {
+  fill: none;
+  stroke: var(--timber-grain);
+  stroke-width: 2;
+  opacity: 0.55;
+}
+
+/* Paper that has accumulated. Quiet enough that it never competes with the
+   four objects that carry something. */
+.paperSheet {
+  fill: var(--paper-aged);
+  stroke: var(--paper-edge);
+  stroke-width: 1;
+  opacity: 0.72;
+}
+
+.paperRule {
+  fill: none;
+  stroke: var(--paper-rule);
+  stroke-width: 1.4;
+  opacity: 0.45;
+}
+
+/* --- objects -------------------------------------------------------------- */
+
+.bookCover {
+  fill: var(--timber-light);
+  stroke: var(--timber-edge);
+  stroke-width: 1.5;
+}
+
+.bookPages {
+  fill: var(--paper-aged);
+}
+
+.bookSpine {
+  stroke: var(--timber-dark);
+  stroke-width: 7;
+}
+
+.bookRibbon {
+  fill: var(--color-red);
+}
+
+.bookMark {
+  fill: none;
+  stroke: var(--ink-map);
+  stroke-width: 2.5;
+  opacity: 0.6;
+}
+
+.photoMat {
+  fill: var(--color-paper-light);
+  stroke: var(--paper-mat);
+  stroke-width: 1.2;
+}
+
+.photoImage {
+  fill: var(--color-earth);
+}
+
+.photoScene {
+  fill: none;
+  stroke: var(--color-earth-dark);
+  stroke-width: 4;
+  stroke-linejoin: round;
+}
+
+.photoSun {
+  fill: var(--color-paper-dark);
+}
+
+.noteSheet {
+  fill: var(--paper-aged);
+  stroke: var(--paper-edge);
+  stroke-width: 1;
+}
+
+.noteTop {
+  fill: var(--paper-aged-light);
+  stroke: var(--paper-edge);
+  stroke-width: 1;
+}
+
+.noteRule {
+  fill: none;
+  stroke: var(--paper-rule);
+  stroke-width: 1.6;
+  opacity: 0.7;
+}
+
+.noteInk {
+  fill: none;
+  stroke: var(--ink-annotation-paper);
+  stroke-width: 2.6;
+  opacity: 0.8;
+}
+
+.mapSheet {
+  fill: var(--map-field-light);
+  stroke: var(--paper-rule);
+  stroke-width: 1.2;
+}
+
+.mapFold {
+  fill: none;
+  stroke: var(--paper-mat);
+  stroke-width: 1.6;
+}
+
+.mapInk {
+  fill: none;
+  stroke: var(--ink-map);
+  stroke-width: 1.8;
+  opacity: 0.75;
+}
+
+.mapTrail {
+  fill: none;
+  stroke: var(--ink-annotation);
+  stroke-width: 2.6;
+  stroke-dasharray: 7 5;
+  opacity: 0.7;
+  transition:
+    opacity var(--duration-normal) var(--ease-standard),
+    stroke-width var(--duration-normal) var(--ease-standard);
+}
+
+.mapTrailHot {
+  opacity: 1;
+  stroke-width: 4;
+}
+
+.mapPin {
+  fill: var(--color-red);
+}
+
+.objNotebook,
+.objPhoto,
+.objNotes,
+.objMap {
+  transition: transform var(--duration-normal) var(--ease-standard);
+}
+
+/* --- foreground ----------------------------------------------------------- */
+
+.mug {
+  fill: var(--scene-depth-5);
+  opacity: 0.92;
+}
+
+.mugHandle,
+.mugRim {
+  fill: none;
+  stroke: var(--scene-depth-5);
+  stroke-width: 16;
+  stroke-linecap: round;
+}
+
+.mugRim {
+  stroke: var(--timber-edge);
+  stroke-width: 5;
+  opacity: 0.5;
+}
+
+.mugLight {
+  fill: none;
+  stroke: var(--fire-ember);
+  stroke-width: 7;
+  stroke-linecap: round;
+  opacity: 0.5;
+}
+
+/* The near edge of the table falling away from the fire. */
+.nearShadow {
+  fill: url(#campNearShadow);
+}
+
+/* Light falling off at the corners. Lens, not mood — the same restraint the
+   map's frame gets, for the same reason. */
+.haze {
+  fill: url(#campVignette);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flameOuter,
+  .flameInner,
+  .groundGlow,
+  .plume0,
+  .plume1,
+  .plume2 {
+    animation: none;
+  }
+
+  /* The fire still has to read as a fire with nothing moving. */
+  .flameOuter {
+    opacity: 0.95;
+  }
+
+  /* Smoke exists only as motion; with motion off it is a grey smudge. */
+  .smoke {
+    display: none;
+  }
+}

@@ -102,16 +102,118 @@ export const SMOKE_PLUMES = [
   "M 634 522 q -34 -58 -4 -116 q 26 -50 -10 -96",
 ];
 
+
 /**
- * Where each object sits on the table, as a share of the scene. The buttons
- * that make them interactive are positioned from these same numbers, so the
- * hit area and the drawing can never drift apart.
+ * Stones and tufts on the strip of ground between the treeline and the table.
+ *
+ * A narrow band — about sixty units — but it is the only thing that says the
+ * camp is pitched on ground rather than floating in front of trees.
+ */
+export interface Scatter {
+  d: string;
+  kind: "stone" | "tuft";
+}
+
+export function buildGroundScatter(): Scatter[] {
+  const rng = createRng(seedFrom("camp-ground"));
+  const out: Scatter[] = [];
+
+  for (let i = 0; i < 44; i += 1) {
+    const x = rng.range(-40, CAMP_WIDTH + 40);
+    const y = rng.range(596, 652);
+    // Nothing under the fire: it is the brightest thing in the frame and
+    // scattered pebbles across it read as dirt on the lens.
+    if (x > 560 && x < 740) continue;
+
+    if (rng.chance(0.45)) {
+      const w = rng.range(4, 13);
+      const h = w * rng.range(0.4, 0.62);
+      out.push({
+        kind: "stone",
+        d:
+          `M ${(x - w).toFixed(1)} ${y.toFixed(1)} ` +
+          `q ${(w * 0.4).toFixed(1)} ${(-h * 1.7).toFixed(1)} ${(w * 2).toFixed(1)} 0 Z`,
+      });
+    } else {
+      const h = rng.range(9, 22);
+      const lean = rng.jitter(7);
+      out.push({
+        kind: "tuft",
+        d:
+          `M ${x.toFixed(1)} ${y.toFixed(1)} q ${(lean * 0.4).toFixed(1)} ${(-h * 0.7).toFixed(1)} ${lean.toFixed(1)} ${(-h).toFixed(1)}` +
+          ` M ${x.toFixed(1)} ${y.toFixed(1)} q ${(-lean * 0.6).toFixed(1)} ${(-h * 0.6).toFixed(1)} ${(-lean * 1.3).toFixed(1)} ${(-h * 0.82).toFixed(1)}`,
+      });
+    }
+  }
+
+  return out;
+}
+
+export interface LoosePaper {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  rotate: number;
+  rules: number;
+}
+
+/**
+ * Loose sheets in the gaps between the four objects.
+ *
+ * Deliberately in the gaps and deliberately plain: a table with four things
+ * on it and nothing else reads as an arrangement, and a table where paper has
+ * accumulated reads as a table someone works at. They carry no content and
+ * take no pointer events — that is what the four objects are for.
+ */
+export function buildLoosePapers(): LoosePaper[] {
+  const rng = createRng(seedFrom("camp-papers"));
+  const gaps = [96, 214, 596, 1196, 1520];
+
+  return gaps.map((x) => ({
+    x: Math.round(x + rng.jitter(26)),
+    y: Math.round(rng.range(790, 860)),
+    w: Math.round(rng.range(130, 190)),
+    h: Math.round(rng.range(92, 126)),
+    rotate: Math.round(rng.range(-13, 13) * 10) / 10,
+    rules: Math.round(rng.range(2, 5)),
+  }));
+}
+
+/**
+ * Where each object sits on the table, in the scene's own coordinates.
+ *
+ * Centre and size, matching how the drawings are placed — every object is a
+ * `translate(cx cy)` group with its parts hung off the origin. The previous
+ * version of this stored percentages instead, and stored *centres* in fields
+ * that were then used as `left` and `top`: every hit area sat half its own
+ * width to the right of the thing it was labelling.
+ *
+ * Keeping one representation and deriving the other is what stops that
+ * happening again. objectBox is the only place the conversion exists.
  */
 export const CAMP_OBJECTS = {
-  notebook: { x: 24.5, y: 76, w: 20, h: 17 },
-  photograph: { x: 47.5, y: 79, w: 13, h: 15 },
-  notes: { x: 64.5, y: 76.5, w: 15, h: 14 },
-  map: { x: 83, y: 77.5, w: 17, h: 16 },
+  notebook: { cx: 392, cy: 786, w: 320, h: 190 },
+  photograph: { cx: 760, cy: 806, w: 196, h: 168 },
+  notes: { cx: 1032, cy: 780, w: 216, h: 168 },
+  map: { cx: 1332, cy: 790, w: 244, h: 186 },
 } as const;
 
 export type CampObjectId = keyof typeof CAMP_OBJECTS;
+
+/** An object's box as CSS percentages of the stage. */
+export function objectBox(id: CampObjectId): {
+  left: string;
+  top: string;
+  width: string;
+  height: string;
+} {
+  const o = CAMP_OBJECTS[id];
+  const pct = (n: number) => `${Math.round(n * 1000) / 1000}%`;
+  return {
+    left: pct(((o.cx - o.w / 2) / CAMP_WIDTH) * 100),
+    top: pct(((o.cy - o.h / 2) / CAMP_HEIGHT) * 100),
+    width: pct((o.w / CAMP_WIDTH) * 100),
+    height: pct((o.h / CAMP_HEIGHT) * 100),
+  };
+}
