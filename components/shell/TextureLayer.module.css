@@ -7,6 +7,9 @@
   inset: 0;
   z-index: var(--z-texture);
   pointer-events: none;
+  /* The light layer is oversized on purpose; this is what keeps its travel
+     from reaching past the viewport and provoking a scrollbar. */
+  overflow: hidden;
   background: radial-gradient(
     ellipse 120% 90% at 50% 42%,
     transparent 38%,
@@ -23,4 +26,53 @@
   background-repeat: repeat;
   opacity: var(--texture-grain-opacity);
   mix-blend-mode: overlay;
+}
+
+/* --- the light off-frame ---------------------------------------------------
+
+   Scenes have weather. Documents have light.
+
+   Everywhere outside a scene — the gear list, the archive, every record —
+   nothing on this site moved at all, which is what made those pages read as
+   photographs of a world rather than the world. This is the correction, and
+   it is deliberately the smallest one that works: a warm wash the size of a
+   window, crossing the page over nearly two minutes.
+
+   Oversized by 35% so the gradient's soft edge can never enter the frame as
+   it travels, and animated on `transform`/`opacity` only so the layer is
+   composited rather than repainted. `translate3d` promotes it; `will-change`
+   is deliberately absent, because a permanently hinted full-viewport layer
+   costs memory on exactly the phones that can least afford it.
+   ------------------------------------------------------------------------ */
+
+.light {
+  position: absolute;
+  inset: -35%;
+  background: radial-gradient(
+    ellipse 46% 38% at 34% 26%,
+    var(--light-tint),
+    transparent 68%
+  );
+  animation: lightShift var(--light-shift) ease-in-out infinite alternate;
+}
+
+@keyframes lightShift {
+  from {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+    opacity: 0.7;
+  }
+  to {
+    transform: translate3d(6%, 3%, 0) scale(1.18);
+    opacity: 1;
+  }
+}
+
+/* Handled here rather than left to the global override, which would freeze the
+   light at whichever end of the travel it happened to reach. Still light is
+   still correct; light stuck at 118% of its size is not. */
+@media (prefers-reduced-motion: reduce) {
+  .light {
+    animation: none;
+    transform: translate3d(1%, 0, 0) scale(1.09);
+  }
 }

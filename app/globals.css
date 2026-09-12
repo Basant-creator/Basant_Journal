@@ -249,6 +249,16 @@
   --dust-drift-mid: 68s;
   --dust-drift-near: 44s;
 
+  /* --- the light off-frame -------------------------------------------------
+
+     Scenes have weather; documents have light. A lamp somewhere out of frame,
+     moving the way light moves in a room over an afternoon — slower than the
+     haze, fainter than the dust, and the only thing that moves at all on a
+     page of paper. Long enough that nobody catches it moving; present enough
+     that the page is not a photograph. */
+  --light-tint: rgba(196, 158, 104, 0.05);
+  --light-shift: 112s;
+
   /* --- timber and canvas: tents, tables, notice boards -------------------- */
   --timber-light: #3a2a1c;
   --timber: #241a11;
