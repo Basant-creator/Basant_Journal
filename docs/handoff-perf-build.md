@@ -38,6 +38,11 @@ npm run typecheck
 npm run check:3d     # must pass
 ```
 
+- **Never run `npm run build` while a dev server is up, and never start dev on
+  a `.next` a build wrote.** They share the directory and corrupt each other;
+  the symptom is `__webpack_modules__[moduleId] is not a function` on several
+  routes at once, which looks like a code fault and is not. Recovery is
+  `rm -rf .next` and restart.
 - The repo has a **mixed LF/CRLF** working tree. Scripted edits must match the
   file's own line endings, not assume one.
 - `three` / `@react-three/fiber` may only be imported inside `components/three`
@@ -46,9 +51,9 @@ npm run check:3d     # must pass
 
 ---
 
-## Baseline — measured at commit `e302ca6`
+## Baseline — measured at commit `c61ae43`
 
-A clean `rm -rf .next && npm run build` produces **24/24 static pages** and:
+A clean `rm -rf .next && npm run build` produces **26/26 static pages** and:
 
 ```
 Shared JS for all routes                103 kB
@@ -57,11 +62,17 @@ Shared JS for all routes                103 kB
 
 /                       934 B  /  108 kB      /professional      699 B  /  108 kB
 /about                14.4 kB  /  126 kB      /projects         1.77 kB /  109 kB
-/archive              1.06 kB  /  108 kB      /projects/[p]     3.28 kB /  110 kB
-/bounties             1.53 kB  /  108 kB      /skills            952 B  /  108 kB
+/archive              1.06 kB  /  108 kB      /projects/[p]     3.29 kB /  110 kB
+/bounties             1.54 kB  /  108 kB      /skills            952 B  /  108 kB
 /contact              1.06 kB  /  108 kB      /lab/scene        4.72 kB /  151 kB
-/frontier             17.1 kB  /  168 kB
+/frontier             17.1 kB  /  168 kB      /robots.txt        134 B  /  104 kB
+/_not-found            377 B  /  104 kB       /sitemap.xml       134 B  /  104 kB
 ```
+
+**26, not 24.** `app/sitemap.ts` and `app/robots.ts` were added in step 30,
+after the first version of this brief was written. Two routes appearing is
+the expected state, not a regression — and `/sitemap.xml` must list exactly
+the twelve canonical routes with no `/lab` entry among them.
 
 Runtime measurements taken at 375px viewport:
 
@@ -80,6 +91,8 @@ Other figures established and expected to hold:
   judgments about the site's weight, but confirm they still build.
 - The ambient audio bed renders at **−36.2 dBFS**. It must remain inaudible
   until the control is pressed.
+- `SITE_ORIGIN` in `lib/routes.ts` is a known placeholder domain. Do not
+  change it and do not report it.
 
 Treat any route that grew more than ~2% over these numbers as a finding worth
 explaining.
