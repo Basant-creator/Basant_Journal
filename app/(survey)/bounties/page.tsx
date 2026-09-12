@@ -4,7 +4,7 @@ import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Stamp } from "@/components/world/Stamp";
 import { TornPaper } from "@/components/world/TornPaper";
-import { getLocation, getProject, metrics } from "@/lib/content/portfolio";
+import { getLocation, getProject, meta, metrics } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
 import shared from "@/components/shared/Territory.module.css";
 import styles from "./page.module.css";
@@ -20,6 +20,18 @@ export const metadata: Metadata = {
 
 /** Each notice hangs a little differently, but always within a degree or two. */
 const HANG = [-1.6, 1.1, -0.7, 1.8];
+
+/**
+ * How each notice is fixed to the board.
+ *
+ * A real board is not four identical nails. Someone had a nail for the first
+ * two and reached for the tape for the others, and that inconsistency is most
+ * of what makes a board read as a board rather than as a grid of cards.
+ */
+const FIXING = ["nail", "tape", "nail", "tape"] as const;
+
+/** Sheets are not all cut to the same length either. */
+const DROP = [0, 14, 4, 22];
 const EDGES = [
   ["bottom", "right"],
   ["bottom", "left"],
@@ -58,8 +70,16 @@ export default function BountiesPage() {
           {metrics.map((metric, i) => {
             const project = metric.project ? getProject(metric.project) : undefined;
             return (
-              <li key={metric.id} className={styles.slot}>
-                <span className={styles.nail} aria-hidden="true" />
+              <li
+                key={metric.id}
+                className={styles.slot}
+                style={{ "--drop": `${DROP[i % DROP.length]}px` } as React.CSSProperties}
+              >
+                {FIXING[i % FIXING.length] === "nail" ? (
+                  <span className={styles.nail} aria-hidden="true" />
+                ) : (
+                  <span className={styles.tape} aria-hidden="true" />
+                )}
                 <TornPaper
                   as="article"
                   seed={`bounty-${metric.id}`}
@@ -97,6 +117,24 @@ export default function BountiesPage() {
           >
             Measured
           </Stamp>
+
+          {/* The card someone tacked up beside the stamps. It says what the
+              stamps mean, in the hand of whoever struck them — which is the
+              one annotation this board actually needed. */}
+          <TornPaper
+            seed="bounty-card"
+            edges={["right", "bottom"]}
+            cornerTear="tr"
+            tone="light"
+            tilt={-2.4}
+            className={styles.card}
+          >
+            <span className={styles.pin} aria-hidden="true" />
+            <p className={styles.hand}>
+              Taken while the work was running, not written up afterwards.
+            </p>
+            <p className={styles.signature}>— B.B., {meta.surveyed}</p>
+          </TornPaper>
         </div>
       </div>
 

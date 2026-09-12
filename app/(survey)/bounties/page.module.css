@@ -55,7 +55,9 @@
 
 .slot {
   position: relative;
-  padding-top: var(--space-3);
+  /* The drop is per notice: sheets are not all cut to the same length, and
+     four hung to the same line is a grid rather than a board. */
+  padding-top: calc(var(--space-3) + var(--drop, 0px));
 }
 
 /* The nail sits above the sheet and does not rotate with it. */
@@ -70,6 +72,47 @@
   border-radius: var(--radius-pill);
   background: radial-gradient(circle at 34% 30%, var(--nail-head), var(--nail-body) 62%, var(--nail-shadow));
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.65);
+}
+
+/*
+  Tape, for the notices nobody had a nail for.
+
+  Masking tape reads by three things and no others: it is translucent enough
+  to tint what is under it, its ends are torn rather than cut, and it is never
+  put on square. Take away any one of them and it becomes a beige rectangle.
+*/
+.tape {
+  position: absolute;
+  top: calc(var(--drop, 0px) - 4px);
+  left: 50%;
+  z-index: 2;
+  width: 76px;
+  height: 26px;
+  transform: translateX(-50%) rotate(-4deg);
+  background: linear-gradient(
+    100deg,
+    rgba(226, 209, 168, 0.62),
+    rgba(214, 195, 152, 0.74) 48%,
+    rgba(226, 209, 168, 0.6)
+  );
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  /* Torn ends. A clip rather than a border, so the tear is in the shape. */
+  clip-path: polygon(
+    3% 0%, 16% 8%, 31% 2%, 48% 9%, 66% 1%, 82% 8%, 97% 2%,
+    100% 100%, 84% 93%, 68% 99%, 50% 92%, 33% 99%, 17% 92%, 0% 98%
+  );
+}
+
+/* The grain of the tape's backing, at the strength you only notice once. */
+.tape::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    92deg,
+    rgba(120, 98, 66, 0.14) 0 1px,
+    transparent 1px 4px
+  );
 }
 
 .notice {
@@ -147,6 +190,8 @@
 
 /* --- the marks along the foot -------------------------------------------- */
 
+/* Two stamps and a card, which are not the same kind of object: the stamps
+   sit on the rule, the card is tacked up beside them and pushed to the end. */
 .marks {
   display: flex;
   flex-wrap: wrap;
@@ -155,6 +200,16 @@
   margin-top: clamp(30px, 4vw, 52px);
   padding-top: var(--space-6);
   border-top: 1px solid rgba(216, 199, 165, 0.14);
+}
+
+.marks .card {
+  margin-left: auto;
+}
+
+@media (max-width: 720px) {
+  .marks .card {
+    margin-left: 0;
+  }
 }
 
 /* The stamps sit on timber, so they take the warm tones. */
@@ -174,4 +229,49 @@
   .notices {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* --- the card beside the stamps ------------------------------------------ */
+
+/*
+  Tacked up rather than hung with the notices: smaller, turned further, and
+  carrying a hand rather than a figure. It is the one annotation on the board,
+  and one is the right number — a board covered in marginal notes is a board
+  nobody has read.
+*/
+.card {
+  position: relative;
+  max-width: 300px;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+}
+
+.pin {
+  position: absolute;
+  top: 10px;
+  right: 18px;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(
+    circle at 34% 30%,
+    var(--color-red-light),
+    var(--color-red) 58%,
+    var(--color-red-dark)
+  );
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+.hand {
+  font-family: var(--font-hand);
+  font-size: var(--text-lg);
+  line-height: 1.25;
+  color: var(--ink-annotation-paper);
+}
+
+.signature {
+  font-family: var(--font-hand);
+  font-size: var(--text-md);
+  color: var(--color-earth);
+  text-align: right;
+  margin-top: var(--space-3);
 }
