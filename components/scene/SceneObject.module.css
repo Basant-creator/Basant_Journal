@@ -9,7 +9,8 @@
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
-  cursor: pointer;
+  /* On something surveyable: the ring closes and the brackets come in. */
+  cursor: var(--cursor-target);
   color: var(--color-white-warm);
   text-align: left;
   transition:

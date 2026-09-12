@@ -1,4 +1,6 @@
 .stage {
+  /* The field of view. Looking into a place, instrument in hand. */
+  cursor: var(--cursor-field);
   position: relative;
   aspect-ratio: var(--scene-ratio, 1600 / 900);
   width: 100%;

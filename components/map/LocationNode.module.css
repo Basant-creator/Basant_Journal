@@ -1,5 +1,5 @@
 .node {
-  cursor: pointer;
+  cursor: var(--cursor-target);
   outline: none;
 }
 

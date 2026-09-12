@@ -190,7 +190,7 @@
   stroke: transparent;
   stroke-width: 30;
   pointer-events: stroke;
-  cursor: pointer;
+  cursor: var(--cursor-target);
 }
 
 /* --- the trailhead ------------------------------------------------------- */

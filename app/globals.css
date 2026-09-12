@@ -154,6 +154,30 @@
   --texture-vignette-opacity: 0.22;
 
   --texture-grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)'/%3E%3C/svg%3E");
+
+  /* --- the instrument ------------------------------------------------------
+
+     A surveyor's reticle, and only where a surveyor would be holding one.
+
+     The cursor changes where the interaction changes. Scenes and the map are
+     places you look *into*, and there the pointer is an instrument; a record
+     is a document you read, and over paper a pointer stays a pointer. A
+     reticle everywhere is how a custom cursor becomes decoration.
+
+     A native cursor image rather than an element that follows the mouse. A
+     followed element is always a frame behind the hand moving it — which is
+     what makes most custom cursors feel broken — and it costs a listener and
+     a paint per frame to be late. This costs nothing and is never late.
+
+     No red. THE HAND is human marking on a ~3% budget and a cursor is on
+     screen the whole time, so the target state says what it means by closing
+     its ring and bringing in brackets instead of by changing colour.
+
+     Each token is a complete cursor value, fallback included, so the
+     forced-colors override below is a plain substitution rather than a
+     declaration engineered to be invalid. */
+  --cursor-field: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'32'%20height%3D'32'%20viewBox%3D'0%200%2032%2032'%3E%3Cg%20fill%3D'none'%20stroke%3D'%230B0907'%20stroke-width%3D'3'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%20opacity%3D'0.5'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'6.5'%2F%3E%3Cpath%20d%3D'M16%203.5v4M16%2024.5v4M3.5%2016h4M24.5%2016h4'%2F%3E%3C%2Fg%3E%3Cg%20fill%3D'none'%20stroke%3D'%23E7D9BC'%20stroke-width%3D'1.1'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'6.5'%2F%3E%3Cpath%20d%3D'M16%203.5v4M16%2024.5v4M3.5%2016h4M24.5%2016h4'%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'0.9'%20fill%3D'%23E7D9BC'%2F%3E%3C%2Fsvg%3E") 16 16, crosshair;
+  --cursor-target: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'32'%20height%3D'32'%20viewBox%3D'0%200%2032%2032'%3E%3Cg%20fill%3D'none'%20stroke%3D'%230B0907'%20stroke-width%3D'3'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%20opacity%3D'0.5'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'4.8'%2F%3E%3Cpath%20d%3D'M16%203v3.6M16%2025.4v3.6M3%2016h3.6M25.4%2016h3.6'%2F%3E%3Cpath%20d%3D'M8.5%2011.5v-3h3M20.5%208.5h3v3M23.5%2020.5v3h-3M11.5%2023.5h-3v-3'%2F%3E%3C%2Fg%3E%3Cg%20fill%3D'none'%20stroke%3D'%23E7D9BC'%20stroke-width%3D'1.2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'4.8'%2F%3E%3Cpath%20d%3D'M16%203v3.6M16%2025.4v3.6M3%2016h3.6M25.4%2016h3.6'%2F%3E%3Cpath%20d%3D'M8.5%2011.5v-3h3M20.5%208.5h3v3M23.5%2020.5v3h-3M11.5%2023.5h-3v-3'%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'1.9'%20fill%3D'%23E7D9BC'%2F%3E%3C%2Fsvg%3E") 16 16, pointer;
   --texture-paper-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23p)'/%3E%3C/svg%3E");
 
   /* ------------------------------------------------------------------------
@@ -522,4 +546,21 @@ html[data-boot="short"] [data-app-shell] * {
    document load, which is the only time the stamp is set. */
 html:not([data-boot="play"]):not([data-boot="short"]) [data-boot-layer] {
   display: none !important;
+}
+
+/* ==========================================================================
+   THE INSTRUMENT, WITHDRAWN
+
+   Forced colours means the visitor has told the operating system to decide
+   what things look like, and they have very often chosen a larger or higher
+   contrast pointer to go with it. A 32-pixel drawing of a reticle is the
+   wrong answer to that. The keywords carry the same meaning with none of the
+   picture.
+   ========================================================================== */
+
+@media (forced-colors: active) {
+  :root {
+    --cursor-field: crosshair;
+    --cursor-target: pointer;
+  }
 }
