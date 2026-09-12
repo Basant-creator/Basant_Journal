@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSceneInteraction } from "@/components/scene/SceneContext";
 import { ThreeScene } from "@/components/three/ThreeScene";
+import type { SceneProps } from "@/components/three/types";
 import { CampArt } from "./CampArt";
 import styles from "./CampStage.module.css";
 
@@ -49,11 +50,13 @@ export function CampStage() {
            means hearing them twice before reaching one. */
         label="Camp at dusk: a low fire in front of a tent, with the ridges of the surveyed territory behind it."
         fallback={<CampArt />}
-        state={{
-          activeId: interaction?.activeId ?? null,
-          hoverId: interaction?.hoverId ?? null,
-          anchorTarget: stage,
-        }}
+        state={
+          {
+            activeId: interaction?.activeId ?? null,
+            hoverId: interaction?.hoverId ?? null,
+            anchorTarget: stage,
+          } satisfies SceneProps
+        }
       />
     </div>
   );

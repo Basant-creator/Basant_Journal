@@ -53,9 +53,11 @@ predates SCENE and TERRAIN and lists only three; README is authoritative.)
   `/` only, before first paint. Route transitions are a separate system. Never
   conflate them; the boot loader must never reappear on navigation.
 - **The 3D boundary.** `three` and `@react-three/fiber` may be imported *only*
-  inside `components/three` and `lib/three`. `three` is ~700 kB against a
-  ~103 kB shared bundle. Enforced by `npm run check:3d` — run it before every
-  commit that touches imports.
+  inside `components/three` and `lib/three`. Measured: ~880 kB of renderer
+  against a 104 kB shared bundle. Enforced by `npm run check:3d` — run it
+  before every commit that touches imports. `components/three/README.md` is
+  the full contract and is kept current; read it before changing anything in
+  that folder.
 - **Content is read, never duplicated.** Both the exploration renderer and the
   professional renderer read the same JSON.
 
@@ -77,6 +79,13 @@ predates SCENE and TERRAIN and lists only three; README is authoritative.)
   and hang cleanup off state, not mount.
 - **Exact complementary clip paths leave a hairline.** Both halves anti-alias
   against the shared boundary; overlap by ~0.0025.
+- **Anything drawn on a GPU has its own trap list.** The short version:
+  damping must be frame-rate independent (`1 - exp(-lambda * dt)`, never a
+  fixed fraction); nothing is allocated per frame; releasing a renderer needs
+  `forceContextLoss()` and not just `dispose()`, deferred one task past
+  StrictMode's effect replay; and whatever a scene writes onto the page must
+  be cleared when it unmounts. The reasons are in
+  `components/three/README.md`.
 - **Derive text colour with `color-mix(in srgb, var(--paper-ink) N%, transparent)`**
   so a stock variant (e.g. cyanotype) inverts correctly instead of going
   invisible. Check contrast on `BLUEPRINT` specifically — it is dark-on-dark.
@@ -104,6 +113,16 @@ npm run check:3d     # must pass before commit
 
 ## Environment notes
 
+- **A hidden browser pane stops the render loop**, and every 3D measurement
+  taken while it is hidden reads as a dead scene: zero frames, a canvas left
+  at its default 300x150, no projected positions. That is correct behaviour
+  being mismeasured, not a bug — take a screenshot to make the pane paint
+  before believing a zero. The same applies to CSS scroll-driven animations,
+  which are never sampled while it is hidden, and to `requestAnimationFrame`,
+  which simply never fires.
+- Viewport emulation in the pane does **not** reach `matchMedia`: no `change`
+  events fire and `innerWidth` can stay stale. Breakpoint behaviour can only
+  be tested by loading fresh at the width.
 - The in-app browser pane is unreliable here: scrolled screenshots composite
   blank and CSS transitions freeze when the pane isn't painting, so
   `getComputedStyle` returns stuck intermediate values. **Verify structurally
