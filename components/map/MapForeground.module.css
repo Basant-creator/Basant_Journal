@@ -18,6 +18,26 @@
   display: block;
 }
 
+/* The near ground leans the opposite way to the country behind it while the
+   camera walks the trail. See MapVista.module.css for the reasoning. */
+.art {
+  transition: transform var(--scene-transition) var(--ease-cinematic);
+}
+
+:global([data-trail="running"]) .art {
+  transform: scale(1.07) translateY(1.4%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art {
+    transition: none;
+  }
+
+  :global([data-trail="running"]) .art {
+    transform: none;
+  }
+}
+
 /* The bank underfoot: the nearest thing in the frame, so the darkest. */
 .ground {
   fill: var(--scene-depth-5);

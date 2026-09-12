@@ -126,6 +126,11 @@ where its interruptibility earns its keep.
   the URL and never creates a history entry. `/frontier` is the only map URL.
 - Navigation is never delayed by an animation. Markers are plain links; the
   camera starts on pointer-down and plays alongside the route change.
+- Following the trail is a *passage*: the map plays Camp to Journal while a
+  sheet of paper is laid over the view, and the arriving page tears it open.
+  The wipe lives in the survey layout because that is the only thing that
+  survives the route change. It never delays, gates or traps anything — see
+  [docs/routing-contract.md](docs/routing-contract.md) §6.
 - A location whose page does not exist stays visible and focusable but goes
   nowhere: `status: "surveying"` in the content model, no fake URL.
 - The record sequence does not wrap. TuneIt → OnSight → BobAI → Journal.

@@ -123,6 +123,13 @@ Nothing on the site depends on an animation completing.
   view work with JavaScript disabled.
 - Under `prefers-reduced-motion` the camera is pinned to rest, every duration
   collapses to 1ms, and navigation behaviour is unchanged.
+- A **passage** — the paper wipe between two routes — is announced alongside
+  the click and waits for nothing. It takes no pointer events, holds no focus,
+  locks no scroll, and always opens: on arrival, or on a hard 1.5s timeout if
+  arrival never comes. It is raised only by a plain left click that is
+  actually navigating in this tab, never by a modified or middle click, and
+  never under reduced motion. The page it covers rendered from the server and
+  is live underneath the whole time.
 
 ---
 

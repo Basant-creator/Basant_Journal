@@ -185,17 +185,29 @@ export function tearSeam(seed: string, options: TearOptions = {}): Pt[] {
 export interface TearHalves {
   /** Everything above the seam. */
   top: string;
-  /** Everything below it. The two are exact complements. */
+  /** Everything below it, reaching a hair further up. */
   bottom: string;
   seam: Pt[];
 }
 
+/**
+ * How far the lower half reaches back over the upper one.
+ *
+ * Exact complements are mathematically right and visibly wrong: two shapes
+ * sharing a boundary are each anti-aliased against it, so neither covers it
+ * fully and a pale hairline runs the width of the sheet — a crease, on a
+ * sheet that is supposed to be intact. The lower half is painted second, so
+ * giving it a fraction of a percent of overlap hides the joint. Once the
+ * sheet comes apart the two edges are metres apart and nobody can tell.
+ */
+const SEAM_OVERLAP = 0.0025;
+
 export function tearHalves(seed: string, options: TearOptions = {}): TearHalves {
   const seam = tearSeam(seed, options);
-  const first = seam[0];
   const last = seam[seam.length - 1];
 
-  const forward = seam.map((p) => `L ${round(p.x)} ${round(p.y)}`).join(" ");
+  const lower = seam.map((p) => ({ x: p.x, y: p.y - SEAM_OVERLAP }));
+  const forward = lower.map((p) => `L ${round(p.x)} ${round(p.y)}`).join(" ");
   const backward = [...seam]
     .reverse()
     .map((p) => `L ${round(p.x)} ${round(p.y)}`)
@@ -203,7 +215,7 @@ export function tearHalves(seed: string, options: TearOptions = {}): TearHalves 
 
   return {
     top: `M 0 0 L 1 0 L ${round(last.x)} ${round(last.y)} ${backward} L 0 0 Z`,
-    bottom: `M ${round(first.x)} ${round(first.y)} ${forward} L 1 1 L 0 1 Z`,
+    bottom: `M ${round(lower[0].x)} ${round(lower[0].y)} ${forward} L 1 1 L 0 1 Z`,
     seam,
   };
 }

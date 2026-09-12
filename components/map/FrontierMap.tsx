@@ -27,6 +27,7 @@ import {
   trailsTouching,
 } from "@/lib/map/locations";
 import { routes } from "@/lib/routes";
+import { beginPassage, isPlainNavigation } from "@/lib/motion/passage";
 import { directionForKey, nearestInDirection } from "@/lib/map/navigation";
 import { SHEET_HEIGHT, SHEET_WIDTH } from "@/lib/map/terrain";
 import { completeEntry } from "@/lib/motion/entry";
@@ -62,8 +63,13 @@ export function FrontierMap() {
   const [activeId, setActiveId] = useState<string | null>(originLocationId);
   const [engagedId, setEngagedId] = useState<string | null>(null);
   const [focusIndex, setFocusIndex] = useState(0);
+  /** The trail control is hovered or focused: the journey, previewed. */
+  const [trailPreview, setTrailPreview] = useState(false);
+  /** The journey itself is playing. */
+  const [running, setRunning] = useState(false);
 
   const nodeRefs = useRef<Array<NodeRef>>([]);
+  const trailTimers = useRef<number[]>([]);
 
   const primary = useMemo(
     () => locations.find((l) => l.id === primaryLocationId) ?? null,
@@ -124,6 +130,47 @@ export function FrontierMap() {
     setState("location-active");
   }, []);
 
+  /* --- following the trail ------------------------------------------------ */
+
+  /**
+   * The journey, on the map: Camp takes the emphasis, the primary trail
+   * lights, the camera frames Camp and then walks it to the Journal, and the
+   * world deepens around the move.
+   *
+   * It starts on pointer-down, so the map has begun to move before the
+   * browser is asked for anything, and it does not touch navigation — the
+   * control is a real link and the route change happens on its own schedule.
+   * The paper wipe that carries the cut is announced separately, on the click
+   * itself, because only a click knows whether it is actually navigating here.
+   */
+  const followTrail = useCallback(() => {
+    if (trailTimers.current.length > 0) return;
+
+    setRunning(true);
+    setEngagedId(originLocationId);
+    setState("location-active");
+
+    trailTimers.current.push(
+      window.setTimeout(() => setEngagedId(primaryLocationId), 300),
+      // If no navigation follows — a link the browser declined, an offline
+      // route — the map does not sit forever in a state that says it is on
+      // its way somewhere.
+      window.setTimeout(() => {
+        trailTimers.current = [];
+        setRunning(false);
+        setEngagedId(null);
+        setState("exploring");
+      }, 2600),
+    );
+  }, []);
+
+  useEffect(
+    () => () => {
+      for (const id of trailTimers.current) window.clearTimeout(id);
+    },
+    [],
+  );
+
   /* --- roving tabindex, traversed by geography ---------------------------- */
 
   const focusAt = useCallback((index: number) => {
@@ -179,10 +226,16 @@ export function FrontierMap() {
   /* --- derived ------------------------------------------------------------ */
 
   const litTrails = useMemo(() => {
+    const lit = new Set<string>();
+    // Previewing the journey lights the route itself, and only that route —
+    // the other trails that happen to touch its ends are not part of it.
+    if (trailPreview && primaryTrail) lit.add(primaryTrail.id);
+
     const id = engagedId ?? activeId;
-    if (!id) return new Set<string>();
-    return new Set(trailsTouching(id));
-  }, [activeId, engagedId]);
+    if (id) for (const trail of trailsTouching(id)) lit.add(trail);
+
+    return lit;
+  }, [activeId, engagedId, trailPreview]);
 
   const camera: Camera = useMemo(() => {
     if (prefersReducedMotion) return RESTING_CAMERA;
@@ -237,6 +290,8 @@ export function FrontierMap() {
       <div
         className={styles.sheetColumn}
         data-camera={state === "location-active" ? "active" : "rest"}
+        data-trail={running ? "running" : undefined}
+        data-preview={trailPreview ? "true" : undefined}
       >
         {/*
           THE SCENE.
@@ -395,7 +450,12 @@ export function FrontierMap() {
                           key={location.id}
                           location={location}
                           index={index}
-                          hovered={activeId === location.id}
+                          hovered={
+                            activeId === location.id ||
+                            (trailPreview &&
+                              (location.id === originLocationId ||
+                                location.id === primaryLocationId))
+                          }
                           active={engagedId === location.id}
                           tabIndex={focusIndex === index ? 0 : -1}
                           anchorRef={(el) => {
@@ -468,7 +528,30 @@ export function FrontierMap() {
               engineering work.
             </p>
           </div>
-          <Link href={routes.projects} className={styles.trailheadAction}>
+          <Link
+            href={routes.projects}
+            className={styles.trailheadAction}
+            /* Hover and focus preview the journey on the sheet: the route
+               lights and both of its ends come up. The card and the red line
+               are one object, and this is what says so. */
+            onPointerEnter={() => setTrailPreview(true)}
+            onPointerLeave={() => setTrailPreview(false)}
+            onFocus={() => setTrailPreview(true)}
+            onBlur={() => setTrailPreview(false)}
+            /* Pointer-down for the head start; the click covers the keyboard,
+               where there is no pointer-down to get a start from. */
+            onPointerDown={followTrail}
+            onClick={(event) => {
+              followTrail();
+              if (!isPlainNavigation(event.nativeEvent)) return;
+              beginPassage({
+                id: "camp-to-journal",
+                to: routes.projects,
+                from: "Camp · Trailhead",
+                caption: "The Journal",
+              });
+            }}
+          >
             Follow the trail
             <span aria-hidden="true">&nbsp;→</span>
           </Link>

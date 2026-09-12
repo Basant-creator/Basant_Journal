@@ -326,6 +326,9 @@
   --z-texture: 40;
   --z-overlay: 50;
   --z-navigation: 100;
+  /* A passage covers the navigation bar — it is the whole view changing — but
+     stays under a modal, which is the one thing a visitor opened on purpose. */
+  --z-passage: 150;
   --z-modal: 200;
 }
 

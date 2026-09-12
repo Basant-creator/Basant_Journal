@@ -55,7 +55,14 @@
   --cover-tone: var(--color-paper-dark);
 }
 
-/* The pale lip of pulled fibres, drawn along the seam on both pieces. */
+/*
+  The pale lip of pulled fibres, drawn along the seam on both pieces.
+
+  Invisible until the sheet actually comes apart: an intact sheet has no torn
+  edge, and a bright line across the middle of one announces the trick before
+  it happens. It fades in fast — well inside the first quarter of the tear —
+  so the fibres are there the moment there is an edge for them to be on.
+*/
 .seam {
   position: absolute;
   inset: 0;
@@ -64,8 +71,13 @@
   fill: none;
   stroke: var(--color-paper-light);
   stroke-width: 0.012;
-  opacity: 0.75;
+  opacity: 0;
   vector-effect: non-scaling-stroke;
+  transition: opacity 180ms var(--ease-standard);
+}
+
+.frame[data-open="true"] .seam {
+  opacity: 0.75;
 }
 
 /* Centred on the *top half*, not on the frame. Centred on the frame it sits

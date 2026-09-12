@@ -132,6 +132,9 @@
   stroke-width: 2.2;
   opacity: 0.78;
   stroke-dasharray: 132 9 96 7;
+  transition:
+    opacity var(--duration-normal) var(--ease-standard),
+    stroke-width var(--duration-normal) var(--ease-standard);
 }
 
 :global([data-entry="play"]) .hand {
@@ -156,6 +159,27 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   opacity: 0.85;
+  transition:
+    opacity var(--duration-normal) var(--ease-standard),
+    stroke-width var(--duration-normal) var(--ease-standard);
+}
+
+/*
+  Previewing the journey — the trail control is hovered or focused.
+
+  The marks that already say "this way" simply say it louder: the survey
+  arrows along the route and the ring drawn round its destination. Nothing
+  new appears on the sheet, because the sheet already carries the answer;
+  hovering the control is what points at it.
+*/
+[data-preview="true"] .trailArrow {
+  opacity: 1;
+  stroke-width: 3.2;
+}
+
+[data-preview="true"] .handRing {
+  opacity: 1;
+  stroke-width: 3;
 }
 
 /* A wide invisible target over the drawn trail. Pointer only: the trailhead

@@ -113,3 +113,30 @@
 :global([data-camera="active"]) .glow {
   opacity: 0.55;
 }
+
+/*
+  The terrain shift, following the trail.
+
+  The country leans back as the camera walks into the sheet, and the ground in
+  front leans the other way — opposing directions at a couple of percent,
+  which is parallax done by the move rather than by the pointer. Small on
+  purpose: the beat lasts about a fifth of a second before the paper covers
+  it, and anything bigger would read as a lurch.
+*/
+.art {
+  transition: transform var(--scene-transition) var(--ease-cinematic);
+}
+
+:global([data-trail="running"]) .art {
+  transform: scale(1.05) translateY(-1.1%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art {
+    transition: none;
+  }
+
+  :global([data-trail="running"]) .art {
+    transform: none;
+  }
+}
