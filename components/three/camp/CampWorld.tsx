@@ -1,9 +1,17 @@
 "use client";
 
+import { CameraRig } from "../CameraRig";
 import { SceneCanvas } from "../SceneCanvas";
 import { scene } from "../palette";
 import type { SceneProps } from "../types";
-import { CAMERA_FOV, CAMERA_HOME, GROUND_Y } from "./layout";
+import {
+  CAMERA_ARRIVAL,
+  CAMERA_BOUNDS,
+  CAMERA_FOV,
+  CAMERA_HOME,
+  CAMERA_TARGET,
+  GROUND_Y,
+} from "./layout";
 
 /**
  * Camp — the production scene.
@@ -28,6 +36,24 @@ import { CAMERA_FOV, CAMERA_HOME, GROUND_Y } from "./layout";
 function World(_props: SceneProps) {
   return (
     <>
+      {/*
+        The camera, first, because every number below is chosen against
+        what it can see. It arrives once and then only leans: §9 asks for
+        someone looking around, not someone playing, and CameraRig has
+        refused to orbit since it was written.
+      */}
+      <CameraRig
+        home={CAMERA_HOME}
+        target={CAMERA_TARGET}
+        arrival={CAMERA_ARRIVAL}
+        bounds={CAMERA_BOUNDS}
+        /* Wider than the vista's, narrower than a game's: the whole
+           travel is inside the box §10 defines, so leaning can never take
+           anyone past the edge of what has been built. */
+        sway={[0.46, 0.2]}
+        lambda={2.1}
+      />
+
       {/* 01  sky and atmosphere            — step 04 */}
       {/* 02  distant mountains             — step 06 */}
       {/* 03  distant terrain               — step 05 */}

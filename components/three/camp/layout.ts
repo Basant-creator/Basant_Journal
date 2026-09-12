@@ -119,3 +119,22 @@ export const CAMERA_BOUNDS = {
   minZ: 5.1,
   maxZ: 6.15,
 } as const;
+
+/**
+ * The arrival. §8.
+ *
+ * High and well back, so the approach descends: distant country first, the
+ * camp reading as a silhouette, then the fire, then the table resolving as
+ * the camera comes down to standing height. That sequence is a consequence of
+ * where it starts rather than something choreographed beat by beat — a camera
+ * falling from 4.6m to 1.62m over sixteen metres of ground passes through all
+ * of it on the way.
+ *
+ * 1900ms, inside the brief's 1.2–2.5s with room at both ends. The upper bound
+ * is the one that matters: past it a visitor stops feeling that the site is
+ * showing them something and starts feeling that it is making them wait.
+ */
+export const CAMERA_ARRIVAL = {
+  from: [1.9, 4.7, 16.2] as Vec3,
+  ms: 1900,
+};
