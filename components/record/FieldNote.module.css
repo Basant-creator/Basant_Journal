@@ -5,7 +5,8 @@
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-2) 0 var(--space-2) var(--space-5);
-  border-left: 1px solid rgba(64, 50, 37, 0.32);
+  border-left: 1px solid
+    color-mix(in srgb, var(--paper-ink, var(--color-ink)) 30%, transparent);
   max-width: var(--measure-prose);
 }
 
@@ -14,7 +15,7 @@
   font-size: 0.58rem;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--color-earth);
+  color: color-mix(in srgb, var(--paper-ink, var(--color-ink)) 70%, transparent);
 }
 
 .body {
@@ -25,15 +26,16 @@
 
 /* Pencil: softer, greyer, and sitting slightly off square. It is a working
    note, written on the spot. */
+/* Pencil is the ink, softened — so it stays pencil on any stock. */
 .pencil .body {
-  color: #4a4239;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-ink)) 72%, transparent);
   transform: rotate(-0.5deg);
   transform-origin: left center;
 }
 
 /* Ink: written up afterwards, in the same brown as the rest of the record. */
 .ink .body {
-  color: var(--color-earth-dark);
+  color: var(--paper-ink, var(--color-earth-dark));
 }
 
 @media (prefers-reduced-motion: reduce) {

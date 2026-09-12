@@ -11,7 +11,7 @@
   font-family: var(--font-hand);
   font-size: var(--text-md);
   line-height: 1.1;
-  color: var(--color-red-light);
+  color: var(--stamp-red, var(--color-red-light));
   padding-left: var(--space-3);
   transform: rotate(-1.4deg);
 }

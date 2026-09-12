@@ -5,17 +5,28 @@
   gap: var(--space-3);
 }
 
-/* Drawing paper: a lighter stock than the sheet it sits on, ruled into a
-   grid at two scales the way a drawing sheet is. */
+/*
+  Drawing paper: a lighter stock than the sheet it sits on, ruled into a grid
+  at two scales the way a drawing sheet is.
+
+  Every value here is a token with a fallback, because a figure has to survive
+  being drawn on a cyanotype — dark ground, light line — and a frame with
+  brown rules baked into it does not. The variants in Paper.module.css set
+  these; this file only says what it needs.
+*/
 .frame {
+  --rule: var(--figure-rule, rgba(64, 50, 37, 0.45));
+  --rule-fine: var(--figure-rule-fine, rgba(64, 50, 37, 0.07));
+  --rule-major: var(--figure-rule-major, rgba(64, 50, 37, 0.13));
+
   position: relative;
   background:
-    repeating-linear-gradient(90deg, transparent 0 23px, rgba(64, 50, 37, 0.07) 23px 24px),
-    repeating-linear-gradient(180deg, transparent 0 23px, rgba(64, 50, 37, 0.07) 23px 24px),
-    repeating-linear-gradient(90deg, transparent 0 119px, rgba(64, 50, 37, 0.13) 119px 120px),
-    repeating-linear-gradient(180deg, transparent 0 119px, rgba(64, 50, 37, 0.13) 119px 120px),
-    var(--paper-mat);
-  border: 1px solid rgba(64, 50, 37, 0.45);
+    repeating-linear-gradient(90deg, transparent 0 23px, var(--rule-fine) 23px 24px),
+    repeating-linear-gradient(180deg, transparent 0 23px, var(--rule-fine) 23px 24px),
+    repeating-linear-gradient(90deg, transparent 0 119px, var(--rule-major) 119px 120px),
+    repeating-linear-gradient(180deg, transparent 0 119px, var(--rule-major) 119px 120px),
+    var(--figure-ground, var(--paper-mat));
+  border: 1px solid var(--rule);
   padding: var(--space-4);
 }
 
@@ -27,9 +38,9 @@
   bottom: -1px;
   width: 18px;
   height: 18px;
-  background: var(--color-paper);
-  border-left: 1px solid rgba(64, 50, 37, 0.45);
-  border-top: 1px solid rgba(64, 50, 37, 0.45);
+  background: var(--paper-stock, var(--color-paper));
+  border-left: 1px solid var(--figure-rule, rgba(64, 50, 37, 0.45));
+  border-top: 1px solid var(--figure-rule, rgba(64, 50, 37, 0.45));
   transform: rotate(45deg) translate(9px, 0);
   transform-origin: bottom right;
 }
@@ -52,7 +63,7 @@
   font-weight: 600;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--color-red-dark);
+  color: var(--figure-number, var(--color-red-dark));
   white-space: nowrap;
 }
 
@@ -60,13 +71,13 @@
   font-family: var(--font-editorial);
   font-size: var(--text-sm);
   line-height: 1.4;
-  color: var(--color-earth);
+  color: var(--figure-caption, var(--color-earth));
 }
 
 .description {
   font-family: var(--font-editorial);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
-  color: var(--paper-body-soft, var(--color-earth));
+  color: var(--figure-caption, var(--color-earth));
   max-width: var(--measure-prose);
 }

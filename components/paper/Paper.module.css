@@ -141,6 +141,21 @@
     repeating-linear-gradient(180deg, transparent 0 119px, rgba(207, 226, 240, 0.2) 119px 120px);
   --paper-print-opacity: 0.5;
   --paper-fibre: 0.05;
+
+  /* A figure drawn on cyanotype inverts with it: light line, dark ground. */
+  --figure-ground: rgba(207, 226, 240, 0.05);
+  --figure-rule: rgba(207, 226, 240, 0.3);
+  --figure-rule-fine: rgba(207, 226, 240, 0.08);
+  --figure-rule-major: rgba(207, 226, 240, 0.16);
+  --figure-ink: #cfe2f0;
+  --figure-caption: rgba(207, 226, 240, 0.78);
+  --figure-number: #e8b9b9;
+
+  /* Red ink on cyanotype is one part in a hundred against the ground — the
+     stamp measured 1.02:1 and was simply not there. A blueprint gets marked
+     in something light, the way a real one gets a wax pencil. */
+  --stamp-red: #e8a0a0;
+  --figure-accent: #e8a0a0;
 }
 
 /* The blueprint inverts the layer model, so its own text tokens invert too. */

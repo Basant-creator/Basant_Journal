@@ -1,0 +1,68 @@
+.head {
+  margin-bottom: clamp(20px, 3vw, 32px);
+}
+
+.title {
+  font-family: var(--font-chapter);
+  letter-spacing: 0.06em;
+  color: var(--color-white-warm);
+}
+
+.lede {
+  font-family: var(--font-editorial);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  max-width: var(--measure-prose);
+  margin-top: var(--space-4);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: clamp(20px, 2.4vw, 32px);
+  align-items: start;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  letter-spacing: 0.04em;
+  color: var(--color-paper-light);
+}
+
+.role {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.token {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: var(--color-red-light);
+  margin-top: var(--space-2);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}

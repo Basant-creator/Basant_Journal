@@ -67,11 +67,20 @@
   min-width: 0;
 }
 
+/*
+  Everything on a sheet takes its colour from the sheet.
+
+  These were typed in as browns, which is correct on three of the six stocks
+  and unreadable on the cyanotype — BobAI's record would have been dark ink on
+  a dark ground from top to bottom. Deriving from --paper-ink with color-mix
+  means a stock can invert and the document still reads, without a single
+  per-project override.
+*/
 .lede {
   font-family: var(--font-editorial);
   font-size: var(--text-lg);
   line-height: 1.55;
-  color: var(--color-ink);
+  color: var(--paper-ink, var(--color-ink));
   max-width: var(--measure-prose);
 }
 
@@ -81,10 +90,11 @@
   font-weight: 600;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--color-earth);
+  color: color-mix(in srgb, var(--paper-ink, var(--color-ink)) 76%, transparent);
   margin-top: var(--space-4);
   padding-top: var(--space-4);
-  border-top: var(--rule-ink);
+  border-top: 1px solid
+    color-mix(in srgb, var(--paper-ink, var(--color-ink)) 26%, transparent);
 }
 
 /* --- implementation ------------------------------------------------------ */
@@ -107,7 +117,7 @@
 .stepIndex {
   font-family: var(--font-display);
   font-size: var(--text-sm);
-  color: var(--color-red);
+  color: var(--figure-accent, var(--color-red));
   font-variant-numeric: tabular-nums;
   padding-top: 3px;
 }
@@ -123,9 +133,10 @@
 
 .stackItem {
   font-size: var(--text-sm);
-  color: var(--color-earth-dark);
-  background: rgba(64, 50, 37, 0.07);
-  border: 1px solid rgba(64, 50, 37, 0.3);
+  color: var(--paper-ink, var(--color-earth-dark));
+  background: color-mix(in srgb, var(--paper-ink, var(--color-ink)) 8%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--paper-ink, var(--color-ink)) 30%, transparent);
   border-radius: var(--radius-sm);
   padding: 6px 12px;
 }
@@ -144,7 +155,7 @@
   font-weight: 600;
   font-size: var(--text-md);
   line-height: 1.5;
-  color: var(--color-ink);
+  color: var(--paper-ink, var(--color-ink));
   max-width: var(--measure-prose);
 }
 
@@ -152,10 +163,11 @@
   font-family: var(--font-editorial);
   font-size: var(--text-md);
   line-height: var(--leading-relaxed);
-  color: #2c2520;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-ink)) 90%, transparent);
   margin: var(--space-2) 0 0;
   padding-left: var(--space-5);
-  border-left: 2px solid rgba(64, 50, 37, 0.3);
+  border-left: 2px solid
+    color-mix(in srgb, var(--paper-ink, var(--color-ink)) 30%, transparent);
   max-width: var(--measure-prose);
 }
 

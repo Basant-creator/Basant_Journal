@@ -8,7 +8,18 @@ import { FieldRecordHeader } from "@/components/record/FieldRecordHeader";
 import { MetricPanel } from "@/components/record/MetricPanel";
 import { ProjectNavigation } from "@/components/record/ProjectNavigation";
 import { ProjectSheet } from "@/components/record/ProjectSheet";
-import { getProject, projects, recordNeighbours } from "@/lib/content/portfolio";
+import { TechnicalDiagram } from "@/components/record/TechnicalDiagram";
+import {
+  DIAGRAM_HEIGHT,
+  DIAGRAM_WIDTH,
+  RecordDiagram,
+} from "@/components/record/diagrams/RecordDiagram";
+import {
+  getProject,
+  projects,
+  recordNeighbours,
+} from "@/lib/content/portfolio";
+import { hasFigure, identityFor } from "@/lib/record/identity";
 import { professionalAnchor, routes } from "@/lib/routes";
 import styles from "./page.module.css";
 
@@ -20,7 +31,9 @@ export function generateStaticParams() {
   return projects.map((project) => ({ project: project.id }));
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { project: id } = await params;
   const project = getProject(id);
   if (!project) return {};
@@ -45,17 +58,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
  * are. It renders entirely from the content model, so it works as a direct URL
  * with no prior navigation.
  *
- * Nothing here draws a document any more — every part of it comes from
- * components/record, which is why all three records are the same document with
- * different words in it. The one thing still to be decided per project is the
- * stock each is filed on; that is the next step's job, and until then they are
- * all on the same paper.
+ * Nothing here draws a document — every part of it comes from
+ * components/record, which is why all three records are the same document
+ * with different words in it. What makes them three different documents is
+ * the identity: the stock they are filed on, the mark struck on them, and the
+ * figure drawn on their architecture sheet. That is data, in lib/record, so
+ * a fourth project costs an entry rather than a branch.
  */
 export default async function ProjectRecordPage({ params }: PageProps) {
   const { project: id } = await params;
   const project = getProject(id);
   if (!project) notFound();
 
+  const identity = identityFor(project.id);
   const { previous, next } = recordNeighbours(project.id);
   const index = projects.findIndex((p) => p.id === project.id) + 1;
   const hasLinks =
@@ -70,8 +85,8 @@ export default async function ProjectRecordPage({ params }: PageProps) {
         back={{ href: routes.projects, label: "Journal" }}
         stamp={
           <DocumentStamp
-            mark="Filed"
-            note={`Written up in full and filed as record ${index} of ${projects.length}.`}
+            mark={identity.stamp.mark}
+            note={identity.stamp.note}
             filing={`recorded ${project.date.split("—")[1]?.trim() ?? project.date}`}
           />
         }
@@ -127,7 +142,12 @@ export default async function ProjectRecordPage({ params }: PageProps) {
         </aside>
 
         <div className={styles.sections}>
-          <ProjectSheet id="overview" heading="Overview" sheet="1 of 6">
+          <ProjectSheet
+            id="overview"
+            heading="Overview"
+            sheet="1 of 6"
+            variant={identity.stock}
+          >
             <p className={styles.lede}>{project.summary}</p>
             <h3 className={styles.subhead}>The problem</h3>
             <p>{project.problem}</p>
@@ -135,11 +155,33 @@ export default async function ProjectRecordPage({ params }: PageProps) {
             <p>{project.objective}</p>
           </ProjectSheet>
 
-          <ProjectSheet id="architecture" heading="Architecture" sheet="2 of 6">
+          <ProjectSheet
+            id="architecture"
+            heading="Architecture"
+            sheet="2 of 6"
+            variant={identity.stock}
+          >
             <p>{project.architecture}</p>
+
+            {hasFigure(project.id) ? (
+              <TechnicalDiagram
+                figure={identity.figure.label}
+                caption={identity.figure.caption}
+                description={identity.figure.description}
+                width={DIAGRAM_WIDTH}
+                height={DIAGRAM_HEIGHT}
+              >
+                <RecordDiagram project={project.id} />
+              </TechnicalDiagram>
+            ) : null}
           </ProjectSheet>
 
-          <ProjectSheet id="implementation" heading="Implementation" sheet="3 of 6">
+          <ProjectSheet
+            id="implementation"
+            heading="Implementation"
+            sheet="3 of 6"
+            variant={identity.stock}
+          >
             <ol className={styles.steps}>
               {project.implementation.map((line, i) => (
                 <li key={line}>
@@ -152,14 +194,24 @@ export default async function ProjectRecordPage({ params }: PageProps) {
             </ol>
           </ProjectSheet>
 
-          <ProjectSheet id="metrics" heading="Metrics" surface="plain" sheet="4 of 6">
+          <ProjectSheet
+            id="metrics"
+            heading="Metrics"
+            surface="plain"
+            sheet="4 of 6"
+          >
             <MetricPanel
               metrics={project.metrics}
               caption={`Measured on ${project.title} — ${project.date}`}
             />
           </ProjectSheet>
 
-          <ProjectSheet id="technology" heading="Technology" sheet="5 of 6">
+          <ProjectSheet
+            id="technology"
+            heading="Technology"
+            sheet="5 of 6"
+            variant={identity.stock}
+          >
             <ul className={styles.stack}>
               {project.technologies.map((tech) => (
                 <li key={tech} className={styles.stackItem}>
@@ -169,7 +221,12 @@ export default async function ProjectRecordPage({ params }: PageProps) {
             </ul>
           </ProjectSheet>
 
-          <ProjectSheet id="notes" heading="Field notes" sheet="6 of 6">
+          <ProjectSheet
+            id="notes"
+            heading="Field notes"
+            sheet="6 of 6"
+            variant={identity.stock}
+          >
             <h3 className={styles.subhead}>What fought back</h3>
             <dl className={styles.challenges}>
               {project.challenges.map((entry) => (

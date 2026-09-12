@@ -1,0 +1,203 @@
+/* ==========================================================================
+   One drawing hand, three figures.
+
+   Every colour is --figure-ink, which the paper variant sets. That is what
+   lets the same drawing sit on manila and on cyanotype without a single
+   per-project override: the stock decides the ink, the figure decides the
+   shape.
+   ========================================================================== */
+
+.figure {
+  --ink: var(--figure-ink, var(--color-earth-dark));
+  /* THE HAND inside a figure. A token rather than the red itself, because
+     the red is invisible on cyanotype — see Paper.module.css. */
+  --accent: var(--figure-accent, var(--color-red));
+  font-family: var(--font-ui);
+}
+
+.head {
+  fill: none;
+  stroke: var(--figure-ink, var(--color-earth-dark));
+  stroke-width: 1.6;
+}
+
+/* --- shared parts -------------------------------------------------------- */
+
+.box,
+.tier,
+.sheet {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.8;
+}
+
+.tier {
+  stroke-width: 1.4;
+  opacity: 0.86;
+}
+
+.sheet {
+  stroke-width: 1.6;
+}
+
+.flow,
+.branch {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.8;
+}
+
+.branch {
+  stroke-width: 1.4;
+  opacity: 0.82;
+}
+
+.dashed,
+.fallback {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.4;
+  stroke-dasharray: 6 5;
+  opacity: 0.72;
+}
+
+.rule {
+  stroke: var(--ink);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+
+.boxText,
+.sheetHead,
+.file,
+.tick,
+.axisLabel,
+.small,
+.bandText {
+  fill: var(--ink);
+  font-family: var(--font-ui);
+}
+
+.boxText {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+
+.sheetHead,
+.bandText {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  opacity: 0.82;
+}
+
+.file {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  opacity: 0.78;
+  white-space: pre;
+}
+
+.tick,
+.axisLabel,
+.small {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  opacity: 0.7;
+}
+
+/* --- TuneIt -------------------------------------------------------------- */
+
+.ring,
+.ringInner {
+  fill: none;
+  stroke: var(--ink);
+}
+
+.ring {
+  stroke-width: 1.8;
+}
+
+.ringInner {
+  stroke-width: 1;
+  opacity: 0.4;
+  stroke-dasharray: 3 6;
+}
+
+.node {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  opacity: 0.6;
+}
+
+/* The positions a matched run actually visits. */
+.nodeLive {
+  fill: var(--ink);
+  stroke: none;
+}
+
+.step {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.4;
+  opacity: 0.85;
+}
+
+.centre {
+  fill: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+
+.centreSub {
+  fill: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  opacity: 0.62;
+}
+
+.axis {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.2;
+  opacity: 0.55;
+}
+
+.trajectory {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sample {
+  fill: var(--ink);
+}
+
+/* --- OnSight ------------------------------------------------------------- */
+
+.band,
+.guard {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.4;
+  opacity: 0.5;
+}
+
+.guard {
+  stroke-width: 1.2;
+  stroke-dasharray: 10 6;
+}
+
+/* A tick is red because it is someone's mark on the document, not part of
+   the drawing. THE HAND, at its smallest. */
+.tickMark {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

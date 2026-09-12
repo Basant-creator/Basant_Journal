@@ -14,6 +14,7 @@ const BENCHES = [
   { href: "/lab/tear", label: "Torn paper" },
   { href: "/lab/paper", label: "Paper variants" },
   { href: "/lab/record", label: "Record system" },
+  { href: "/lab/identities", label: "Identities" },
   { href: "/lab/canvas", label: "3D boundary" },
 ];
 
