@@ -16,6 +16,16 @@
   transform: rotate(-1.4deg);
 }
 
+/*
+  The masthead is outside the sheet, so this line sits on the dark ground
+  where a paper red measures 1.36:1. It is also a date rather than an
+  annotation — meta, not THE HAND — so it takes the muted text token at
+  6.0:1 instead of a red that would have to fight for 4.5.
+*/
+:global(.surfaceDark) .filing {
+  color: var(--color-text-muted);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .filing {
     transform: none;

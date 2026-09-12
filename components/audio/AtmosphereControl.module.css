@@ -31,18 +31,26 @@
   backdrop-filter: blur(3px);
   cursor: pointer;
 
-  opacity: 0.42;
+  /*
+    Quiet by colour rather than by opacity.
+
+    This sat at opacity 0.42, which measured 2.09:1 — and a resting state is
+    the state WCAG judges, so "it brightens on hover" is not an answer. The
+    muted token at full strength is 6.0:1 and still reads as background
+    furniture, which is all the faintness was ever for. Nothing about the
+    intent changes; the label is simply legible while it is being ignored.
+  */
   transition:
-    opacity var(--duration-normal) var(--ease-standard),
     color var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard),
     border-color var(--duration-normal) var(--ease-standard);
 }
 
 .control:hover,
 .control:focus-visible,
 .control[data-on] {
-  opacity: 1;
   color: var(--color-paper-light);
+  background: color-mix(in srgb, var(--color-ink) 88%, transparent);
   border-color: color-mix(in srgb, var(--color-paper-light) 34%, transparent);
 }
 

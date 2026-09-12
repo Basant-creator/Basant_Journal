@@ -55,6 +55,20 @@
   color: var(--color-paper-dark);
 }
 
+/*
+  Full strength on a dark ground.
+
+  --stamp-opacity is ink wear: a rubber stamp does not print evenly, and at
+  0.82 on paper that reads exactly right. On the dark ground it is doing
+  something else entirely — thinning a colour that has no contrast to spare.
+  The two stamps on the board measured 2.62:1 with the wear applied and 3.30:1
+  without, and the wear was the whole difference between "marginal" and "not
+  there".
+*/
+:global(.surfaceDark) .stamp {
+  opacity: 1;
+}
+
 .note {
   font-family: var(--font-hand);
   font-size: var(--text-lg);

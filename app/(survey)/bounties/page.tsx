@@ -106,7 +106,9 @@ export default function BountiesPage() {
           })}
         </ul>
 
-        <div className={styles.marks}>
+        {/* The marks are struck on the board itself, not on a notice: the
+            dark-surface treatment is what keeps them legible there. */}
+        <div className={`${styles.marks} surfaceDark`}>
           <Stamp note="Field-tested and written up in the Journal." tilt={-5}>
             Surveyed
           </Stamp>

@@ -42,11 +42,21 @@
   color: var(--color-red-dark);
 }
 
+/*
+  The mat (--paper-mat, #a08a66) is the same tan under every stock, and muted
+  brown on it measured 2.28:1 — the readings themselves were legible and the
+  words saying what they measured were not.
+
+  Hierarchy moves to size and letter-spacing rather than colour, which is
+  where it should have been on a surface this warm: --color-earth cannot pass
+  on that mat at any text size the panel uses, and neither can
+  --color-earth-dark at 3.73:1.
+*/
 .label {
   font-family: var(--font-editorial);
   font-size: var(--text-sm);
   line-height: 1.35;
-  color: var(--color-earth);
+  color: var(--color-ink-soft);
   margin-top: var(--space-2);
 }
 
@@ -55,7 +65,7 @@
   font-size: 0.62rem;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--color-earth);
+  color: var(--color-ink-soft);
   padding: var(--space-3) var(--space-5);
   border-top: 1px solid rgba(64, 50, 37, 0.28);
 }

@@ -55,7 +55,15 @@ export function FieldRecordHeader({
           <h1 className={styles.title}>{title}</h1>
           <p className={styles.subtitle}>{subtitle}</p>
         </div>
-        {stamp ? <div className={styles.stamp}>{stamp}</div> : null}
+        {/* surfaceDark is not decoration: the masthead is outside the sheet,
+            on the dark ground, and Stamp has carried warm tones for exactly
+            that case since it was written. Nothing had ever worn the class,
+            so every record's mark was a paper red on near-black at 1.36:1 —
+            the per-stock override on the blueprint was correct and could
+            never reach up here to help. */}
+        {stamp ? (
+          <div className={`${styles.stamp} surfaceDark`}>{stamp}</div>
+        ) : null}
       </div>
 
       {meta}
