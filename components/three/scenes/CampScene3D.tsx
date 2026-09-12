@@ -162,12 +162,13 @@ function Rig({ activeId, hoverId, anchorTarget }: SceneProps) {
  * table carry the same ids the DOM tablist and the illustrated scene use. The
  * renderer changes; the world does not.
  */
-export function CampScene3D(props: SceneProps) {
+export function CampScene3D({ onContextLost, ...props }: SceneProps) {
   return (
     <SceneCanvas
       background={scene.night}
       fog={{ color: scene.night, near: 10, far: 52 }}
       camera={{ position: [0, 1.35, 5.6], fov: 44 }}
+      onContextLost={onContextLost}
     >
       <Rig {...props} />
     </SceneCanvas>

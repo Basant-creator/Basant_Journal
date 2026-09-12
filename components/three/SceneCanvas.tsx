@@ -1,8 +1,9 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import type { WebGLRenderer } from "three";
 
 interface SceneCanvasProps {
   children: ReactNode;
@@ -39,7 +40,78 @@ export function SceneCanvas({
   onContextLost,
 }: SceneCanvasProps) {
   const holder = useRef<HTMLDivElement | null>(null);
-  const [visible, setVisible] = useState(true);
+  const renderer = useRef<WebGLRenderer | null>(null);
+  const [onScreen, setOnScreen] = useState(true);
+  const [awake, setAwake] = useState(true);
+
+  /*
+    Stable, because it is added as a listener inside onCreated and has to be
+    the same function when the teardown below removes it.
+  */
+  const lost = useCallback(
+    (event: Event) => {
+      event.preventDefault();
+      onContextLost?.();
+    },
+    [onContextLost],
+  );
+
+  /*
+    The context, released on unmount.
+
+    This used to be a cleanup returned from onCreated, which reads perfectly
+    and never ran: R3F calls onCreated for its side effects and ignores what it
+    returns. The comment claimed the renderer's GPU memory was being handed
+    back and nothing was handing it back.
+
+    It showed up as eviction rather than as an error. Entering and leaving Camp
+    six times requested twelve contexts and the browser began force-losing
+    them — "THREE.WebGLRenderer: Context Lost." four times over — because a
+    browser caps how many it will keep alive and starts dropping the oldest.
+    The scene that gets dropped is somebody's, and they see a dead canvas.
+
+    forceContextLoss is the part that matters. dispose() releases three's own
+    objects; only forcing the loss gives the context itself back, and the cap
+    is on contexts.
+
+    It is deferred by a task because of StrictMode, which replays effects on
+    a tree that is still mounted: run, tear down, run again. Whether that
+    replay destroys the live context depends on whether onCreated has already
+    assigned the renderer by then — it usually has not, which is why an
+    immediate version appeared to work. That is a race, not a guarantee, and
+    the losing side of it is a canvas that renders nothing for the whole
+    visit.
+
+    The replay re-runs this effect in the same task, which cancels the
+    pending teardown. A real unmount has nothing to cancel it, so the context
+    is released a task later. Same shape of fix as the journal cover in Phase
+    4: decide on the second run, not the first.
+
+    Verified by exceeding the cap rather than by reasoning: twenty-two
+    entries and exits requested eighty-eight contexts and the last scene was
+    still rendering, with its context alive and the bridge projecting. Held
+    open, a browser refuses new ones somewhere around sixteen.
+  */
+  const teardown = useRef<number | null>(null);
+  useEffect(() => {
+    /* Cancels a teardown that a StrictMode replay scheduled a moment ago. */
+    if (teardown.current !== null) {
+      window.clearTimeout(teardown.current);
+      teardown.current = null;
+    }
+
+    return () => {
+      teardown.current = window.setTimeout(() => {
+        teardown.current = null;
+        const gl = renderer.current;
+        if (!gl) return;
+        gl.domElement.removeEventListener("webglcontextlost", lost);
+        gl.dispose();
+        gl.forceContextLoss();
+        renderer.current = null;
+      }, 0);
+    };
+  }, [lost]);
 
   // Stop drawing when the scene is off screen. A fire nobody is looking at is
   // a fire nobody needs rendered.
@@ -48,17 +120,40 @@ export function SceneCanvas({
     if (!node || typeof IntersectionObserver === "undefined") return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
+      ([entry]) => setOnScreen(entry.isIntersecting),
       { rootMargin: "120px" },
     );
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
 
+  /*
+    And start again when the tab comes back.
+    
+    Intersection alone is not a sufficient signal for "should this be
+    drawing". A hidden document reports nothing as intersecting, so the loop
+    correctly stops — but the observer does not reliably fire again when the
+    document returns, because from its point of view the element never moved.
+    The loop then stays stopped on a scene the visitor is looking straight at.
+
+    Measured: after ten navigations away and back with the tab hidden in
+    between, the canvas was still at its default 300x150 with no frame ever
+    drawn and the DOM bridge projecting nothing — scene mode "ready", context
+    alive, simply never asked to render.
+
+    Two signals, both required, each watched on its own.
+  */
+  useEffect(() => {
+    const sync = () => setAwake(document.visibilityState === "visible");
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => document.removeEventListener("visibilitychange", sync);
+  }, []);
+
   return (
     <div ref={holder} style={{ width: "100%", height: "100%" }}>
       <Canvas
-        frameloop={visible ? "always" : "never"}
+        frameloop={onScreen && awake ? "always" : "never"}
         dpr={[1, 2]}
         camera={{ position: camera.position, fov: camera.fov ?? 42, near: 0.1, far: 200 }}
         gl={{
@@ -79,18 +174,10 @@ export function SceneCanvas({
             scene.fog = new THREE.Fog(new THREE.Color(fog.color), fog.near, fog.far);
           }
 
-          const canvas = gl.domElement;
-          const onLost = (event: Event) => {
-            event.preventDefault();
-            onContextLost?.();
-          };
-          canvas.addEventListener("webglcontextlost", onLost);
+          renderer.current = gl;
 
-          // R3F disposes the tree; the renderer's own GPU memory is ours.
-          return () => {
-            canvas.removeEventListener("webglcontextlost", onLost);
-            gl.dispose();
-          };
+          const canvas = gl.domElement;
+          canvas.addEventListener("webglcontextlost", lost);
         }}
       >
         {children}

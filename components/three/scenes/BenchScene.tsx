@@ -6,6 +6,7 @@ import type { Group, Mesh, PointLight } from "three";
 import { CameraRig } from "../CameraRig";
 import { SceneCanvas } from "../SceneCanvas";
 import styles from "./BenchScene.module.css";
+import type { SceneProps } from "../types";
 
 /**
  * Step 03's bench.
@@ -109,7 +110,7 @@ function Rig({ framed }: { framed: boolean }) {
  * tested by moving a mouse across a WebGL surface is a camera nobody can
  * verify, here or in CI.
  */
-export function BenchScene() {
+export function BenchScene({ onContextLost }: SceneProps) {
   const [framed, setFramed] = useState(false);
 
   return (
@@ -118,6 +119,7 @@ export function BenchScene() {
         background="#120e0b"
         fog={{ color: "#120e0b", near: 12, far: 46 }}
         camera={{ position: [0, 1.3, 5.4], fov: 44 }}
+        onContextLost={onContextLost}
       >
         <Rig framed={framed} />
       </SceneCanvas>

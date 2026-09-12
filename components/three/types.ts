@@ -19,4 +19,10 @@ export interface SceneProps {
   hoverId?: string | null;
   /** Where projected object positions are written, as CSS custom properties. */
   anchorTarget?: RefObject<HTMLElement | null>;
+  /**
+   * Called when the renderer loses its context. Supplied by ThreeScene, never
+   * by a caller: falling back is the door's decision, and a scene that has
+   * just lost its GPU context is the last thing that should be making it.
+   */
+  onContextLost?: () => void;
 }

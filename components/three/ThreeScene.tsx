@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { type SceneCapability, detectSceneCapability } from "@/lib/three/capability";
 import type { SceneProps } from "./types";
 import styles from "./ThreeScene.module.css";
@@ -70,6 +70,19 @@ export function ThreeScene({
 }: ThreeSceneProps) {
   const [capability, setCapability] = useState<SceneCapability>("pending");
 
+  /*
+    A lost context is a fallback, immediately and for the rest of the visit.
+
+    Contexts are lost under pressure — too many alive, a driver reset, a
+    backgrounded GPU — and none of those get better by trying again a moment
+    later. Without this the canvas simply stopped updating and stayed on
+    screen: a still, wrong frame where a drawing should be, which is precisely
+    the failure this component's own fallback contract exists to prevent.
+  */
+  const handleContextLost = useCallback(() => {
+    setCapability("unsupported");
+  }, []);
+
   useEffect(() => {
     setCapability(detectSceneCapability());
 
@@ -99,7 +112,8 @@ export function ThreeScene({
   return (
     <div className={[styles.stage, className].filter(Boolean).join(" ")} data-scene-mode="ready">
       <div className={styles.canvas} role="img" aria-label={label}>
-        <Scene {...state} />
+        {/* The handler goes last so a caller cannot replace it. */}
+        <Scene {...state} onContextLost={handleContextLost} />
       </div>
       {/* The DOM layer over the canvas: labels, controls, records. The canvas
           carries atmosphere; everything readable stays here. */}
