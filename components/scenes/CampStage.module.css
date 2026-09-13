@@ -1,13 +1,41 @@
 /* Both renderings fill the stage identically, so swapping one for the other
    never moves the objects the controls are aimed at. */
 
-.render,
-.layer {
+.render {
   position: absolute;
   inset: 0;
 }
 
-.layer > * {
+/*
+  The door's own box, made to fill this one.
+
+  Written as a child selector rather than a bare class, and that is the whole
+  point of it. ThreeScene.module.css sets `.stage { position: relative }`, and
+  the same element carries both classes — so two single-class rules disagreed
+  about `position` and the winner was whichever stylesheet the bundler put
+  last. It put ThreeScene last, the box became relative with nothing to give
+  it height, and it collapsed to zero.
+
+  Nothing looked wrong while a canvas was drawing. It looked wrong the moment
+  one was not: the illustrated camp is an SVG that takes its height from its
+  parent, so the fallback rendered 699 by 0 — a black rectangle with four
+  labels on it. Which means every desktop visitor without WebGL, and every
+  visitor who had asked for reduced motion, has been getting an empty frame
+  since the route swapped to the production scene.
+
+  A child selector outranks a class, so this no longer depends on source
+  order. The explicit height is belt to that brace: inset alone is enough for
+  an absolutely positioned box, and this one has been proved able to lose its
+  position.
+*/
+.render > .layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.render > .layer > * {
   width: 100%;
   height: 100%;
 }

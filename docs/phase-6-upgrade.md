@@ -76,7 +76,7 @@ committed:
 | 24 | Map → Camp | done and measured |
 | 25 | Camp → Map | done and measured |
 | 26 | Mobile quality tier | done — phones draw at LOW, gated on the connection |
-| 27 | WebGL fallback | next |
+| 27 | WebGL fallback | done — and it was rendering at zero height |
 | 28 | Resource disposal | context release done; §33 sweep outstanding |
 | 29 | Performance profiling | outstanding, with §38's overlay |
 | 30 | Accessibility / reduced motion | done and audited |
