@@ -143,4 +143,7 @@ export const props = {
   tin: "#585c62",
   brass: "#7a6238",
   glass: "#ffca7d",
+  /** What an object warms toward when it is reached for. The fire's own
+   *  light, because nothing in this camp glows on its own. */
+  glow: "#ff9d52",
 } as const;

@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo } from "react";
 import { CanvasTexture, DoubleSide } from "three";
-import { OBJECTS } from "./layout";
+import type { SceneProps } from "../types";
+import { OBJECTS, type CampObject } from "./layout";
+import { useObjectResponse, type ObjectState } from "./useObjectResponse";
 import { props } from "./palette";
 
 /**
@@ -84,13 +86,32 @@ function useMapTexture(): CanvasTexture | null {
   return texture;
 }
 
-function Notebook() {
+/**
+ * The notebook. §14, and the first object in the camp that answers back.
+ *
+ * Its annotation in the DOM is "Notebook — who is keeping this record",
+ * which is the label the illustrated camp already uses and the one the
+ * content model supports. §14 suggests "FIELD NOTES" for it, but that is
+ * the name of a different object three sections later; two things in one
+ * scene answering to the same name is worse than a slightly plainer word.
+ */
+function Notebook({ state }: { state: ObjectState }) {
   const o = OBJECTS.notebook;
+  const { group, face } = useObjectResponse(state, o.at[1]);
   return (
-    <group position={o.at} rotation={[0, o.turn, 0]}>
+    <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
       <mesh position={[0, 0.022, 0]}>
         <boxGeometry args={[0.23, 0.044, 0.17]} />
-        <meshStandardMaterial color={props.leather} roughness={0.85} />
+        {/* The cover takes the warmth, not the pages: leather catching a
+            little more firelight is a book being noticed, and glowing
+            paper is a screen. */}
+        <meshStandardMaterial
+          ref={face}
+          color={props.leather}
+          emissive={props.glow}
+          emissiveIntensity={0}
+          roughness={0.85}
+        />
       </mesh>
       {/* Page block, inset so the cover overhangs it. The overhang is the
           whole reason it reads as bound rather than as a block. */}
@@ -167,10 +188,23 @@ function FieldNotes() {
   );
 }
 
-export function CampObjects() {
+/**
+ * Which of the four the DOM says is being reached for.
+ *
+ * The selection lives in the tablist over the canvas, not in here. R3F
+ * renders into its own reconciler root so context does not cross the
+ * Canvas, and rather than bridge it for two strings the values arrive as
+ * plain props — the same arrangement Phase 5 settled on and wrote down.
+ */
+function stateOf(id: CampObject, active?: string | null, hover?: string | null): ObjectState {
+  if (active === id) return "active";
+  return hover === id ? "hover" : "rest";
+}
+
+export function CampObjects({ activeId, hoverId }: SceneProps) {
   return (
     <group>
-      <Notebook />
+      <Notebook state={stateOf("notebook", activeId, hoverId)} />
       <SurveyMap />
       <Photograph />
       <FieldNotes />

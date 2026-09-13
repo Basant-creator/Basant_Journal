@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { ThreeScene } from "@/components/three/ThreeScene";
-import { CampArt } from "@/components/scenes/CampArt";
+import { CampBench } from "./CampBench";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -34,12 +33,7 @@ export default function CampLabPage() {
         </p>
       </header>
 
-      <ThreeScene
-        scene="campWorld"
-        className={styles.frame}
-        label="Camp at dusk: a low fire in front of a tent, with the ridges of the surveyed territory behind it."
-        fallback={<CampArt />}
-      />
+      <CampBench />
     </>
   );
 }

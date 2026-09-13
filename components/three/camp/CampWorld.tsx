@@ -44,7 +44,7 @@ import {
  * the boundary's rule and the reason the illustrated scene can stand in for
  * this one without anything being reimplemented.
  */
-function World(_props: SceneProps) {
+function World(props: SceneProps) {
   return (
     <>
       {/*
@@ -102,7 +102,7 @@ function World(_props: SceneProps) {
 
 
       {/* 11  props and papers */}
-      <CampObjects />
+      <CampObjects {...props} />
       {/* 12  foreground grass and rocks */}
       <CampScatter />
       {/* 13  atmospheric effects */}
