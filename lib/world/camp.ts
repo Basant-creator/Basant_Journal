@@ -312,6 +312,16 @@ export interface Conifer {
   height: number;
   radius: number;
   lean: number;
+  /**
+   * Which shape out of the library this one is.
+   *
+   * §11 asks for a handful of variants distributed deterministically rather
+   * than thousands of unique objects, and this is the deterministic half.
+   * The renderer owns what the shapes are; the world only decides who gets
+   * which, and it decides it from the same seeded stream as everything else,
+   * so the stand is identical in Node and in the browser.
+   */
+  variant: number;
 }
 
 /**
@@ -325,6 +335,9 @@ export interface Conifer {
  * A treeline is a band, not a fence, and the two read completely differently
  * once anything in front of them moves.
  */
+/** How many tree shapes the renderer keeps. §11 asks for three to six. */
+export const TREE_VARIANTS = 4;
+
 export function buildTreeStand(count = 64, z = -12): Conifer[] {
   const rng = createRng(seedFrom("camp-tree-stand"));
   const round = (n: number) => Math.round(n * 1000) / 1000;
@@ -341,6 +354,7 @@ export function buildTreeStand(count = 64, z = -12): Conifer[] {
       height: round(rng.range(2.6, 5.8)),
       radius: round(rng.range(0.5, 1.05)),
       lean: round(rng.jitter(0.07)),
+      variant: Math.floor(rng.range(0, TREE_VARIANTS)),
     });
   }
 
@@ -354,7 +368,13 @@ export interface Scattered {
   z: number;
   scale: number;
   turn: number;
+  /** Which shape out of the library. See Conifer.variant. */
+  variant: number;
 }
+
+/** §11 asks for three to five rock shapes and two to four shrub shapes. */
+export const ROCK_VARIANTS = 4;
+export const SHRUB_VARIANTS = 3;
 
 /**
  * Grass tufts and stones around the camp.
@@ -372,6 +392,7 @@ export function buildCampScatter(
   seed: string,
   count: number,
   spread: { x: number; near: number; far: number },
+  variants = 1,
 ): Scattered[] {
   const rng = createRng(seedFrom(seed));
   const round = (n: number) => Math.round(n * 1000) / 1000;
@@ -395,6 +416,7 @@ export function buildCampScatter(
       z: round(z),
       scale: round(rng.range(0.6, 1.45)),
       turn: round(rng.range(0, Math.PI)),
+      variant: Math.floor(rng.range(0, variants)),
     });
   }
 
