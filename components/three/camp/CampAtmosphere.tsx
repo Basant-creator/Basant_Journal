@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { CanvasTexture, type Mesh } from "three";
 import { FIRE } from "./layout";
 import { sky, smoke } from "./palette";
+import { WIND_X, breeze, gust } from "./wind";
 
 /**
  * Smoke off the fire, and the air between here and the mountains.
@@ -28,7 +29,23 @@ const PLUMES = [
   { period: 15 * 1.53, delay: 7, x: 0.01 },
 ] as const;
 
-/** A soft round blob, generated. Stretched by the mesh, one blob is a plume. */
+/**
+ * A puff, generated.
+ *
+ * It was a plain radial gradient — a perfectly round soft disc, which is
+ * exactly what smoke is not. A circle is the one shape that survives being
+ * scaled, rotated and faded without ever looking like anything else, so three
+ * of them rising in a line read as three circles rising in a line.
+ *
+ * This is still a radial falloff, because that is what keeps the edges soft
+ * and the centre dense. What is added is turbulence: the radius at which the
+ * falloff happens now varies with angle and with distance, so the outline is
+ * ragged and the interior is uneven. At this size nobody sees the detail.
+ * What they see is that the shape is not a circle.
+ *
+ * White, throughout. The colour comes from the material — one texture serves
+ * both the plumes and the haze bands, and they are not the same colour.
+ */
 function useSoftTexture(): CanvasTexture | null {
   const texture = useMemo(() => {
     if (typeof document === "undefined") return null;
@@ -39,13 +56,43 @@ function useSoftTexture(): CanvasTexture | null {
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
 
-    const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-    g.addColorStop(0, "rgba(255,255,255,0.85)");
-    g.addColorStop(0.45, "rgba(255,255,255,0.26)");
-    g.addColorStop(1, "rgba(255,255,255,0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, size, size);
+    const frame = ctx.createImageData(size, size);
+    const px = frame.data;
+    const mid = size / 2;
 
+    for (let y = 0; y < size; y += 1) {
+      for (let x = 0; x < size; x += 1) {
+        const dx = (x - mid) / mid;
+        const dy = (y - mid) / mid;
+        const r = Math.hypot(dx, dy);
+        const angle = Math.atan2(dy, dx);
+
+        /* The edge wanders. Three harmonics so it is irregular rather than
+           merely lobed — two would read as a peanut. */
+        const wobble =
+          0.12 * Math.sin(angle * 3 + 0.7) +
+          0.07 * Math.sin(angle * 5 - 1.4) +
+          0.05 * Math.sin(angle * 8 + 2.9);
+
+        /* And the inside is uneven, in a way that has nothing to do with the
+           edge — smoke is thicker in some places than others. */
+        const grain =
+          0.1 * Math.sin(dx * 7.3 + 1.1) * Math.sin(dy * 6.1 - 0.4) +
+          0.06 * Math.sin(dx * 12.7 - 2.2) * Math.sin(dy * 11.3 + 1.8);
+
+        const edge = 1 + wobble;
+        const falloff = Math.max(0, 1 - r / edge);
+        const a = Math.max(0, Math.min(1, Math.pow(falloff, 1.6) * 0.9 + grain * falloff));
+
+        const i = (y * size + x) * 4;
+        px[i] = 255;
+        px[i + 1] = 255;
+        px[i + 2] = 255;
+        px[i + 3] = a * 255;
+      }
+    }
+
+    ctx.putImageData(frame, 0, 0);
     return new CanvasTexture(canvas);
   }, []);
 
@@ -68,10 +115,29 @@ export function CampAtmosphere() {
       const p = ((t + plume.delay) % plume.period) / plume.period;
 
       mesh.position.y = 0.4 + p * 3.4;
-      mesh.position.x = plume.x + Math.sin(t * 0.26 + i) * 0.16 * p;
+
+      /*
+        Downwind, and further downwind the higher it gets.
+
+        The lean goes with p squared rather than p, which is wind shear: air
+        near the ground is slowed by everything it is dragging over, and air
+        three metres up is not. It also happens to be what makes a plume read
+        as a plume — leaning from the base looks like the fire is tilted.
+
+        The gust is on top and signed, so the column wanders across the line
+        it is travelling rather than following it exactly.
+      */
+      const lean = WIND_X * breeze(t) * p * p * 1.15;
+      mesh.position.x = plume.x + lean + gust(t, i * 2.1) * 0.14 * p;
+
       /* Widening as it climbs, which is the whole of what smoke does at this
          distance — a plume that stays the same width reads as a rope. */
       mesh.scale.set(0.32 + p * 0.85, 1.1 + p * 1.7, 1);
+
+      /* Turning, slowly and each at its own rate. Three identical puffs
+         rising in a line is the giveaway that they are one sprite; three
+         turning at different rates is not. */
+      mesh.rotation.z = (i * 1.1 + t * (0.06 + i * 0.017)) % (Math.PI * 2);
 
       const material = mesh.material as { opacity: number };
       material.opacity = 0.34 * Math.min(1, p / 0.2) * (1 - p) ** 1.5;

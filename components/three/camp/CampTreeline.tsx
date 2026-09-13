@@ -5,6 +5,7 @@ import { useLayoutEffect, useMemo, useRef } from "react";
 import { ConeGeometry, Object3D, type Group, type InstancedMesh } from "three";
 import { TREE_VARIANTS, buildTreeStand } from "@/lib/world/camp";
 import { land } from "./palette";
+import { WIND_X, breeze, gust } from "./wind";
 
 /**
  * The stand of trees behind the camp.
@@ -133,14 +134,26 @@ export function CampTreeline({ count }: { count: number }) {
     sixty trees moving independently and sixty trees moving together is not
     visible — the same trick the Phase 5 dust uses, and for the same reason.
 
-    Two slow waves, well under a degree. Trees at forty metres in still air
-    at dusk should be almost, but not quite, still.
+    Well under a degree. Trees at forty metres in still air at dusk should be
+    almost, but not quite, still.
+
+    And they lean the way the smoke goes. The stand used to oscillate about
+    zero, which is a tree in no wind being shaken by something — a scene
+    where the smoke drifts one way and the trees sway symmetrically has two
+    different weathers in it. The bias comes off the same breeze the plumes
+    read, so when it freshens both respond, and neither of them is ever
+    leaning into the other.
+
+    Positive rotation about z tips the stand toward negative x, so the sign
+    is inverted against the wind direction: the trees lean downwind, not into
+    it. Getting that backwards is invisible on its own and obvious the moment
+    anything else in the frame is moving.
   */
   useFrame((state) => {
     const node = stand.current;
     if (!node) return;
     const t = state.clock.elapsedTime;
-    node.rotation.z = Math.sin(t * 0.17) * 0.004 + Math.sin(t * 0.41) * 0.0018;
+    node.rotation.z = -WIND_X * breeze(t) * 0.005 + gust(t, 0.6) * 0.0016;
   });
 
   return (
