@@ -35,6 +35,12 @@ export const sky = {
    *  afterglow, not a sunset, and a saturated band here would put a second
    *  warm light in a frame that is supposed to have one. */
   afterglow: "#6a5138",
+  /** How much light is left at a distance from where the sun set. These are
+   *  multipliers, not colours — white leaves a texel alone and anything
+   *  darker takes light out of it, cooling slightly as it goes, which is what
+   *  distance does to an afterglow. */
+  falloffNear: "#e4e2e6",
+  falloffFar: "#b9bfcc",
   /** Below the band, cooling again into the haze the ridges sit in. */
   haze: "#243040",
 } as const;
