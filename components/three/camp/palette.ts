@@ -97,6 +97,9 @@ export const camp = {
   timber: "#4a3a2b",
   timberDark: "#2a2119",
   rock: "#3c4149",
+  /** Guy line. Pale, because a rope catching the last of the sky is the one
+   *  thing on a tent that is neither canvas nor timber. */
+  rope: "#7d7462",
   grass: "#2f3a32",
 } as const;
 
