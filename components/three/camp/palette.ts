@@ -124,3 +124,23 @@ export const fire = {
  * up, and this sits at the average rather than animating the difference.
  */
 export const smoke = "#6f7684";
+
+/**
+ * What is on the table.
+ *
+ * Paper is the lightest thing in the camp after the flame itself, which is
+ * deliberate: these are the objects a visitor is meant to notice, and at blue
+ * hour the fire reaching a pale surface is the strongest signal the scene has
+ * for "look here". Everything structural around them — timber, tin, leather —
+ * stays dark so the paper is what the light finds.
+ */
+export const props = {
+  paper: "#c9bda4",
+  paperEdge: "#9d9078",
+  parchment: "#bfae8c",
+  ink: "#2b2a30",
+  leather: "#3a2b22",
+  tin: "#585c62",
+  brass: "#7a6238",
+  glass: "#ffca7d",
+} as const;

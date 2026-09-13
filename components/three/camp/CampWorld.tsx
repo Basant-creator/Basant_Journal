@@ -6,8 +6,10 @@ import { CampFire } from "./CampFire";
 import { CampLighting } from "./CampLighting";
 import { CampSky } from "./CampSky";
 import { CampMountains } from "./CampMountains";
+import { CampObjects } from "./CampObjects";
 import { CampScatter } from "./CampScatter";
 import { CampSite } from "./CampSite";
+import { CampTable } from "./CampTable";
 import { CampTerrain } from "./CampTerrain";
 import { CampTreeline } from "./CampTreeline";
 import { SceneCanvas } from "../SceneCanvas";
@@ -94,10 +96,13 @@ function World(_props: SceneProps) {
       {/* 07  tent · 09  chair */}
       <CampSite />
 
-      {/* 08  table                         — step 10 */}
+      {/* 08  table · 10  lantern */}
+      <CampTable />
 
-      {/* 10  lantern                       — step 10 */}
-      {/* 11  props and papers              — steps 11-14 */}
+
+
+      {/* 11  props and papers */}
+      <CampObjects />
       {/* 12  foreground grass and rocks */}
       <CampScatter />
       {/* 13  atmospheric effects */}
