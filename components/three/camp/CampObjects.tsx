@@ -6,6 +6,7 @@ import { CAMP_PRINT } from "@/lib/world/camp";
 import type { SceneProps } from "../types";
 import { OBJECTS, type CampObject } from "./layout";
 import { useObjectResponse, type ObjectState } from "./useObjectResponse";
+import { useLeatherTexture, usePageEdgeTexture } from "./CampLeather";
 import { camp, props, tint } from "./palette";
 
 /**
@@ -129,30 +130,96 @@ function useMapTexture(): CanvasTexture | null {
 function Notebook({ state }: { state: ObjectState }) {
   const o = OBJECTS.notebook;
   const { group, face } = useObjectResponse(state, o.at[1]);
+  const leather = useLeatherTexture();
+  const edges = usePageEdgeTexture();
+
   return (
     <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
-      <mesh position={[0, 0.022, 0]}>
-        <boxGeometry args={[0.23, 0.044, 0.17]} />
-        {/* The cover takes the warmth, not the pages: leather catching a
-            little more firelight is a book being noticed, and glowing
-            paper is a screen. */}
+      {/* The back board. */}
+      <mesh position={[0, 0.00275, 0]}>
+        <boxGeometry args={[0.23, 0.0055, 0.17]} />
+        <meshStandardMaterial
+          map={leather ?? undefined}
+          color={leather ? undefined : props.leather}
+          roughness={0.85}
+          metalness={0}
+        />
+      </mesh>
+
+      {/*
+        The pages, and they can be seen now.
+
+        This block was already here and was entirely inside the cover: the
+        cover was one solid box from the back board to the front, 0.23 by
+        0.044 by 0.17, and the page block sat within all three spans. It has
+        been drawn every frame since it was written and never once been
+        visible. Its own comment claimed the cover overhangs it — which is
+        true of the numbers and irrelevant when the thing overhanging is
+        solid.
+
+        The covers are boards now, one above and one below, and the block is
+        inset eight millimetres so the boards stand proud of it. That inset is
+        what makes an object read as bound rather than as a brick.
+      */}
+      <mesh position={[0, 0.02, 0]}>
+        <boxGeometry args={[0.214, 0.029, 0.156]} />
+        <meshStandardMaterial
+          map={edges ?? undefined}
+          color={edges ? undefined : props.paper}
+          roughness={1}
+          metalness={0}
+        />
+      </mesh>
+
+      {/*
+        Two leaves that do not lie flat. §15 asks for uneven edges and small
+        bends, and this is the whole of it: a notebook that has been written
+        in does not close square, and two leaves at a fraction of a degree
+        say that more clearly than any amount of texture.
+      */}
+      {[
+        { y: 0.0344, turn: 0.012, x: 0.0015 },
+        { y: 0.0352, turn: -0.008, x: -0.001 },
+      ].map((leaf, i) => (
+        <mesh key={`leaf-${i}`} position={[leaf.x, leaf.y, 0]} rotation={[0, leaf.turn, 0]}>
+          <boxGeometry args={[0.219, 0.0008, 0.159]} />
+          <meshStandardMaterial color={props.paper} roughness={1} metalness={0} />
+        </mesh>
+      ))}
+
+      {/* The front board, which takes the warmth. Leather catching a little
+          more firelight is a book being noticed; glowing paper is a screen,
+          which is why the emissive lives here and not on the block. */}
+      <mesh position={[0, 0.0385, 0]}>
+        <boxGeometry args={[0.23, 0.006, 0.17]} />
         <meshStandardMaterial
           ref={face}
-          color={props.leather}
+          map={leather ?? undefined}
+          color={leather ? undefined : props.leather}
           emissive={props.glow}
           emissiveIntensity={0}
           roughness={0.85}
+          metalness={0}
         />
       </mesh>
-      {/* Page block, inset so the cover overhangs it. The overhang is the
-          whole reason it reads as bound rather than as a block. */}
-      <mesh position={[0.004, 0.021, 0]}>
-        <boxGeometry args={[0.215, 0.03, 0.158]} />
-        <meshStandardMaterial color={props.paper} roughness={1} />
+
+      {/* The spine, rounded over the fold. A bound book has no sharp edge on
+          the hinge side, and that curve is most of what separates one from a
+          stack of card. */}
+      <mesh position={[-0.113, 0.0205, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.019, 0.019, 0.17, 8, 1, false, Math.PI / 2, Math.PI]} />
+        <meshStandardMaterial
+          map={leather ?? undefined}
+          color={leather ? undefined : props.leather}
+          roughness={0.85}
+          metalness={0}
+        />
       </mesh>
-      <mesh position={[0.02, 0.045, 0]}>
-        <boxGeometry args={[0.018, 0.003, 0.175]} />
-        <meshStandardMaterial color={props.ink} roughness={1} />
+
+      {/* The marker, out of the top and down the front. */}
+      <mesh position={[0.02, 0.0418, 0]}>
+        <boxGeometry args={[0.018, 0.0012, 0.184]} />
+        <meshStandardMaterial color={props.ink} roughness={1} metalness={0} />
       </mesh>
     </group>
   );
