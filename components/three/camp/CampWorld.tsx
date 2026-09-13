@@ -4,6 +4,8 @@ import { CameraRig } from "../CameraRig";
 import { CampLighting } from "./CampLighting";
 import { CampSky } from "./CampSky";
 import { CampMountains } from "./CampMountains";
+import { CampScatter } from "./CampScatter";
+import { CampSite } from "./CampSite";
 import { CampTerrain } from "./CampTerrain";
 import { CampTreeline } from "./CampTreeline";
 import { SceneCanvas } from "../SceneCanvas";
@@ -85,12 +87,15 @@ function World(_props: SceneProps) {
       </mesh>
 
       {/* 06  campfire                      — step 08 */}
-      {/* 07  tent                          — step 07 */}
+      {/* 07  tent · 09  chair */}
+      <CampSite />
+
       {/* 08  table                         — step 10 */}
-      {/* 09  chair                         — step 07 */}
+
       {/* 10  lantern                       — step 10 */}
       {/* 11  props and papers              — steps 11-14 */}
-      {/* 12  foreground grass and rocks    — step 07 */}
+      {/* 12  foreground grass and rocks */}
+      <CampScatter />
       {/* 13  atmospheric effects           — step 09 */}
     </>
   );

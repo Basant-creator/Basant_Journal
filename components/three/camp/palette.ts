@@ -62,3 +62,25 @@ export const light = {
   sky: "#3f5570",
   bounce: "#1a1c1f",
 } as const;
+
+/**
+ * The camp itself.
+ *
+ * Everything here is a surface the fire will reach, which is why these are the
+ * only values in this file chosen to be *lit* rather than to be a silhouette.
+ * They read as near-black at blue hour and warm up as the fire finds them —
+ * that swing is the whole reason the camp reads as a place with something
+ * burning in it rather than as shapes on a gradient.
+ *
+ * Canvas is the lightest thing in the camp on purpose: it is what the fire
+ * will paint most obviously, and a tent that stays dark is a tent nobody looks
+ * at.
+ */
+export const camp = {
+  canvas: "#6d6355",
+  canvasShade: "#3a352e",
+  timber: "#4a3a2b",
+  timberDark: "#2a2119",
+  rock: "#3c4149",
+  grass: "#2f3a32",
+} as const;

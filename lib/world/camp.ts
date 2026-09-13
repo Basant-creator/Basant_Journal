@@ -346,3 +346,57 @@ export function buildTreeStand(count = 64, z = -12): Conifer[] {
 
   return out;
 }
+
+/* --- what is scattered on the ground around the camp ---------------------- */
+
+export interface Scattered {
+  x: number;
+  z: number;
+  scale: number;
+  turn: number;
+}
+
+/**
+ * Grass tufts and stones around the camp.
+ *
+ * Denser toward the camera, because the foreground is what a frame is built
+ * out of: something near and dark along the bottom edge is what stops a scene
+ * looking like a painting held at arm's length. §4 asks for exactly that layer
+ * and puts it last for the same reason.
+ *
+ * A clearing is kept around the fire and the table. Grass growing through the
+ * middle of a campsite says nobody has been standing there, which is the one
+ * thing this scene is trying not to say.
+ */
+export function buildCampScatter(
+  seed: string,
+  count: number,
+  spread: { x: number; near: number; far: number },
+): Scattered[] {
+  const rng = createRng(seedFrom(seed));
+  const round = (n: number) => Math.round(n * 1000) / 1000;
+  const out: Scattered[] = [];
+
+  for (let i = 0; i < count; i += 1) {
+    const x = rng.range(-spread.x, spread.x);
+    /* Biased toward the camera: two samples, nearer wins. */
+    const a = rng.range(spread.far, spread.near);
+    const b = rng.range(spread.far, spread.near);
+    const z = Math.max(a, b);
+
+    /* The trodden ground: the fire at (-1.15, -0.35) and the table at
+       (0.75, 1.85), each with room to stand. */
+    const nearFire = Math.hypot(x + 1.15, z + 0.35) < 1.5;
+    const nearTable = Math.hypot(x - 0.75, z - 1.85) < 1.4;
+    if (nearFire || nearTable) continue;
+
+    out.push({
+      x: round(x),
+      z: round(z),
+      scale: round(rng.range(0.6, 1.45)),
+      turn: round(rng.range(0, Math.PI)),
+    });
+  }
+
+  return out;
+}
