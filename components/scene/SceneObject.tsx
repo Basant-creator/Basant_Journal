@@ -59,9 +59,11 @@ export function SceneObject({
     loaded. One expression covers every case and neither renderer has to
     know the other exists.
 
-    Height goes through a custom property rather than being written straight
-    in, because an inline style beats a stylesheet and the anchored
-    presentation needs to shorten it. Same reason, same shape as the width.
+    Width and height go through custom properties rather than being written
+    straight in, because an inline style beats a stylesheet and two other
+    presentations need to change them: the anchored one shortens the box, and
+    the compact one stops positioning it at all. A stylesheet cannot win
+    against style="..." — it can only be asked for by it.
 
     Projected anchors are centres, so the object is pulled back by half its
     own size; the 2D box is already a corner and needs no such correction.
@@ -71,7 +73,7 @@ export function SceneObject({
   const style = {
     left: `var(--anchor-${id}-x, ${box.x}%)`,
     top: `var(--anchor-${id}-y, ${box.y}%)`,
-    width: `var(--anchor-${id}-w, ${box.w}%)`,
+    width: `var(--object-w, var(--anchor-${id}-w, ${box.w}%))`,
     height: `var(--object-h, ${box.h}%)`,
     "--anchor-shift": `var(--anchor-${id}-on, 0)`,
   } as CSSProperties;

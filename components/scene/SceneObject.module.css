@@ -95,6 +95,18 @@
    that only appears on hover is worth nothing to a thumb. */
 @media (max-width: 720px) {
   .object {
+    /* Placed by the row, not by the artwork. left/top are inline and cannot
+       be overridden from here — but a static box ignores them, and the two
+       sizes arrive as the properties those inline declarations read. */
+    position: static;
+    --object-w: auto;
+    --object-h: auto;
+    flex: 1 1 0;
+    /* A thumb, not a cursor. Measured before this: 41x35 and 45x35. */
+    min-height: 44px;
+    /* Nothing to step back from — the row places these — so the
+       projected-centre correction is off even if a property is still set. */
+    transform: none;
     justify-content: center;
     align-items: center;
     text-align: center;
@@ -103,7 +115,9 @@
 
   .label {
     opacity: 0.9;
-    font-size: 0.62rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    line-height: 1.15;
   }
 
   .note {

@@ -25,3 +25,37 @@
 .objects > .list {
   pointer-events: none;
 }
+
+/* ==========================================================================
+   On a phone the objects stop being placed and become a row.
+
+   The illustrated camp puts its four objects at 24.5%, 47.5%, 64.5% and
+   83.25% across the frame — 57 to 77 pixels apart once the stage is 335 wide.
+   The word PHOTOGRAPH alone is about 78 pixels at the size these labels are
+   set. Measured before this: NOTEBOOK ran into PHOTOGRAPH, PHOTOGRAPH ran into
+   FIELD NOTES, and FIELD NOTES wrapped and clipped. No font size fixes that,
+   because the constraint is the gap and not the type.
+
+   So the overlay keeps the bottom strip — which is the table, which is where
+   these things are — and lays the four out evenly across it. The artwork above
+   stays a picture, and each control becomes something a thumb can hit.
+   ========================================================================== */
+
+@media (max-width: 720px) {
+  .objects {
+    inset: auto 0 0 0;
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    padding: 0 6px 6px;
+  }
+
+  /* Still a tablist. Now also three quarters of a row, because it holds
+     three of the four. */
+  .list {
+    position: static;
+    display: flex;
+    flex: 3 1 0;
+    gap: 4px;
+  }
+}
