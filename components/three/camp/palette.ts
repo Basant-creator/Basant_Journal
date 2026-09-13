@@ -84,3 +84,22 @@ export const camp = {
   rock: "#3c4149",
   grass: "#2f3a32",
 } as const;
+
+/**
+ * The only warm thing in the scene.
+ *
+ * Every other value in this file is cool by design so that these four have
+ * somewhere to land. §5 puts the whole art direction on that contrast, and it
+ * only works if the fire is genuinely the sole warm source — a second warm
+ * light anywhere in the frame and the eye stops knowing where to go.
+ *
+ * `glow` is the light, not the flame: lights read hotter than the geometry
+ * that emits them, so the point light is paler than the fire it comes out of.
+ */
+export const fire = {
+  core: "#ffd79a",
+  body: "#e8883c",
+  ember: "#c2532a",
+  log: "#241a13",
+  glow: "#ff9d52",
+} as const;

@@ -1,6 +1,7 @@
 "use client";
 
 import { CameraRig } from "../CameraRig";
+import { CampFire } from "./CampFire";
 import { CampLighting } from "./CampLighting";
 import { CampSky } from "./CampSky";
 import { CampMountains } from "./CampMountains";
@@ -86,7 +87,9 @@ function World(_props: SceneProps) {
         <meshStandardMaterial color={land.ground} roughness={1} metalness={0} />
       </mesh>
 
-      {/* 06  campfire                      — step 08 */}
+      {/* 06  campfire */}
+      <CampFire />
+
       {/* 07  tent · 09  chair */}
       <CampSite />
 
