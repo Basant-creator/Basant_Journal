@@ -6,7 +6,7 @@ import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
 import { SceneInteraction } from "@/components/scene/SceneInteraction";
 import { SceneObject } from "@/components/scene/SceneObject";
 import { SceneObjects } from "@/components/scene/SceneObjects";
-import { CAMP_HEIGHT, CAMP_WIDTH, type CampObjectId, objectBox } from "@/lib/world/camp";
+import { CAMP_HEIGHT, CAMP_WIDTH, objectBox } from "@/lib/world/camp";
 import {
   CampRecord,
   type CampRecordId,

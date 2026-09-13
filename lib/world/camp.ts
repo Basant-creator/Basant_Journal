@@ -483,3 +483,53 @@ export function printImageBox(): { x: number; y: number; w: number; h: number } 
     h,
   };
 }
+
+/* --- the ground itself ---------------------------------------------------- */
+
+/**
+ * How high the ground is at a point, in metres.
+ *
+ * §10 asks for layered terrain rather than one large detailed mesh, and the
+ * layer that was missing was the one underfoot: the camp stood on a single
+ * flat plane, which is why it read as a floor with scenery behind it rather
+ * than as ground. Four sine waves at unrelated frequencies is enough — this
+ * is not a landscape, it is the difference between flat and not flat, and at
+ * blue hour with one low light raking across it that difference is most of
+ * what says "outdoors".
+ *
+ * Deterministic and rounded, like everything else generated here, because the
+ * server and the browser both compute it and a difference in the fifteenth
+ * decimal is a hydration mismatch.
+ *
+ * The camp stands on a flat patch. That is not a shortcut — it is what a camp
+ * is, somewhere level enough to pitch on — and it means the tent, the table,
+ * the chair and the fire can all sit at y = 0 without anyone sampling a
+ * height to place them. The flat zone is centred between them and wide enough
+ * to clear the furthest, which is the tent at 2.95m from centre.
+ */
+const GROUND_AMP = 0.075;
+const CAMP_CENTRE = { x: -0.5, z: 0.4 };
+const FLAT_RADIUS = 3.2;
+const FULL_RADIUS = 8;
+
+function smoothstep(edge0: number, edge1: number, x: number): number {
+  const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
+
+export function groundHeight(x: number, z: number): number {
+  const h =
+    Math.sin(x * 0.42 + 1.7) * 0.55 +
+    Math.sin(z * 0.37 - 0.8) * 0.5 +
+    Math.sin((x + z) * 0.23 + 2.9) * 0.38 +
+    Math.sin((x - z * 0.7) * 0.61 - 1.4) * 0.22;
+
+  const d = Math.hypot(x - CAMP_CENTRE.x, z - CAMP_CENTRE.z);
+  const mask = smoothstep(FLAT_RADIUS, FULL_RADIUS, d);
+
+  return Math.round(h * GROUND_AMP * mask * 1000) / 1000;
+}
+
+/** How far down the displaced ground can reach, so anything underneath it
+ *  can be placed low enough never to poke through. */
+export const GROUND_MIN = -Math.round(1.65 * GROUND_AMP * 1000) / 1000;

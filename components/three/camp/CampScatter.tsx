@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { Object3D, type InstancedMesh } from "three";
-import { buildCampScatter } from "@/lib/world/camp";
+import { buildCampScatter, groundHeight } from "@/lib/world/camp";
 import { camp } from "./palette";
 
 /**
@@ -36,7 +36,11 @@ function Instances({
 
     const scratch = new Object3D();
     items.forEach((item, i) => {
-      scratch.position.set(item.x, 0, item.z);
+      /* On the ground, not at the height the ground used to be. Everything
+         out here is past the flat patch the camp is pitched on, so a tuft
+         placed at zero would hang above a trough or sink into a crest —
+         which at this size means half of them would look wrong. */
+      scratch.position.set(item.x, groundHeight(item.x, item.z), item.z);
       scratch.rotation.set(0, item.turn, 0);
       scratch.scale.setScalar(item.scale);
       scratch.updateMatrix();

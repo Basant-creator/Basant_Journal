@@ -4,6 +4,7 @@ import { CameraRig } from "../CameraRig";
 import { ObjectAnchors } from "../ObjectAnchors";
 import { CampAtmosphere } from "./CampAtmosphere";
 import { CampFire } from "./CampFire";
+import { CampGround } from "./CampGround";
 import { CampLighting } from "./CampLighting";
 import { CampSky } from "./CampSky";
 import { CampMountains } from "./CampMountains";
@@ -14,7 +15,7 @@ import { CampTable } from "./CampTable";
 import { CampTerrain } from "./CampTerrain";
 import { CampTreeline } from "./CampTreeline";
 import { SceneCanvas } from "../SceneCanvas";
-import { land, sky } from "./palette";
+import { sky } from "./palette";
 import { useLayoutEffect, useRef } from "react";
 import type { Group, Mesh } from "three";
 import { settingsFor } from "@/lib/three/quality";
@@ -25,7 +26,6 @@ import {
   CAMERA_FOV,
   CAMERA_HOME,
   CAMERA_TARGET,
-  GROUND_Y,
   ANCHORS,
   ANCHOR_WIDTHS,
 } from "./layout";
@@ -133,15 +133,10 @@ function World(props: SceneProps) {
 
 
       {/*
-        The floor, which exists from the start because everything else is
-        placed against it. Unlit and dark: at blue hour the ground is read
-        from what stands on it and what the fire reaches, and a lit plane here
-        spends a lighting pass to arrive at nearly the same black.
+        The ground. Two layers rather than one, and the near one is displaced
+        — see CampGround, and §10, which asks for exactly this split.
       */}
-      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, GROUND_Y, 0]}>
-        <planeGeometry args={[220, 220]} />
-        <meshStandardMaterial color={land.ground} roughness={1} metalness={0} />
-      </mesh>
+      <CampGround />
 
       {/* The near field — everything §28 spends shadows on. */}
       <group ref={near}>
