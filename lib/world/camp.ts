@@ -225,3 +225,81 @@ export function objectTransform(id: CampObjectId, rotate: number): string {
   const o = CAMP_OBJECTS[id];
   return `translate(${o.cx} ${o.cy}) rotate(${rotate})`;
 }
+
+/* --- the land between the camp and the mountains -------------------------- */
+
+export interface LandBand {
+  /** Height above the ground at evenly spaced samples, left to right. */
+  profile: number[];
+  /** How far back it stands, in world metres. Negative is away. */
+  z: number;
+  /** How high the band rises at its tallest, in metres. */
+  rise: number;
+}
+
+/**
+ * Four bands of open country, receding.
+ *
+ * The gap this fills is the one the sky exposed: below the horizon the ground
+ * was a flat dark expanse and between the camp and the mountains there was
+ * nothing at all — which reads as a stage with a backdrop rather than as a
+ * place with distance in it.
+ *
+ * Low and wide on purpose. These are not hills; they are the ground failing to
+ * be flat, which is what open country actually looks like at dusk. The tallest
+ * rises 1.6 metres against mountains that will crest at nine — if a band ever
+ * competes with a ridge, the depth reads as two mountain ranges rather than as
+ * land going away.
+ *
+ * Seeded, so the country is the same country on every visit and on every
+ * machine, and rounded, because unrounded generated coordinates differ between
+ * Node and the browser in the fifteenth decimal and React calls that a
+ * hydration mismatch. That has bitten this codebase three times.
+ */
+export function buildLandBands(): LandBand[] {
+  const rng = createRng(seedFrom("camp-land-bands"));
+  const round = (n: number) => Math.round(n * 1000) / 1000;
+
+  /*
+    Rise grows with distance, and it has to.
+
+    The first pass used 0.42 to 1.6 metres and rendered as four flat
+    horizontal stripes — correct tones, no land. A band's relief is only
+    visible as the angle it subtends, and 1.6 metres at fifty is about one
+    degree of swing: a straight line with a colour change at it.
+
+    These are sized so each band swings roughly three degrees from the
+    camera, which is the point where an edge stops reading as a rule and
+    starts reading as ground. They still top out at 4.6 against mountains
+    that crest at 9.2 — a band that competes with a ridge turns depth into
+    two mountain ranges.
+
+    Nearer bands are sampled more finely: they are read, not glimpsed.
+  */
+  const bands = [
+    { z: -7.5, rise: 1.1, steps: 40, roll: 2.1 },
+    { z: -16, rise: 1.9, steps: 32, roll: 1.6 },
+    { z: -27, rise: 2.8, steps: 26, roll: 1.25 },
+    { z: -44, rise: 4.3, steps: 20, roll: 0.95 },
+  ];
+
+  return bands.map((band) => {
+    /* Three waves at unrelated frequencies, so no band repeats itself across
+       its own width and no two bands share a silhouette. */
+    const a = rng.range(0, Math.PI * 2);
+    const b = rng.range(0, Math.PI * 2);
+    const c = rng.range(0, Math.PI * 2);
+
+    const profile: number[] = [];
+    for (let i = 0; i <= band.steps; i += 1) {
+      const t = i / band.steps;
+      const shape =
+        Math.sin(t * Math.PI * band.roll + a) * 0.54 +
+        Math.sin(t * Math.PI * band.roll * 2.7 + b) * 0.29 +
+        Math.sin(t * Math.PI * band.roll * 6.3 + c) * 0.17;
+      profile.push(round(Math.max(0, 0.45 + shape * 0.55) * band.rise));
+    }
+
+    return { profile, z: band.z, rise: band.rise };
+  });
+}

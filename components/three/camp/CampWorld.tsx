@@ -3,6 +3,7 @@
 import { CameraRig } from "../CameraRig";
 import { CampLighting } from "./CampLighting";
 import { CampSky } from "./CampSky";
+import { CampTerrain } from "./CampTerrain";
 import { SceneCanvas } from "../SceneCanvas";
 import { land, sky } from "./palette";
 import type { SceneProps } from "../types";
@@ -61,9 +62,10 @@ function World(_props: SceneProps) {
       <CampLighting />
 
       {/* 02  distant mountains             — step 06 */}
-      {/* 03  distant terrain               — step 05 */}
+      {/* 03  distant terrain · 05  mid-ground terrain */}
+      <CampTerrain />
       {/* 04  tree line                     — step 06 */}
-      {/* 05  mid-ground terrain            — step 05 */}
+
 
       {/*
         The floor, which exists from the start because everything else is
