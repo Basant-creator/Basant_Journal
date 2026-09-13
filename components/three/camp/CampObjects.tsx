@@ -10,6 +10,7 @@ import type { SceneProps } from "../types";
 import { OBJECTS, type CampObject } from "./layout";
 import { useObjectResponse, type ObjectState } from "./useObjectResponse";
 import { useLeatherTexture, usePageEdgeTexture } from "./CampLeather";
+import { usePaperStock } from "./CampPaper";
 import { camp, land, props, tint } from "./palette";
 
 /**
@@ -497,6 +498,7 @@ const WINDOW_Z = -0.006;
 function Photograph({ state }: { state: ObjectState }) {
   const o = OBJECTS.photograph;
   const print = usePrintTexture();
+  const stock = usePaperStock();
   const { group, face } = useObjectResponse(state, o.at[1]);
 
   return (
@@ -513,10 +515,12 @@ function Photograph({ state }: { state: ObjectState }) {
             between its cover and its pages. */}
         <meshStandardMaterial
           ref={face}
-          color={props.paper}
+          map={stock ?? undefined}
+          color={stock ? undefined : props.paper}
           emissive={props.glow}
           emissiveIntensity={0}
           roughness={1}
+          metalness={0}
         />
       </mesh>
 
@@ -524,18 +528,54 @@ function Photograph({ state }: { state: ObjectState }) {
           what stays there if it never does. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0038, WINDOW_Z]}>
         <planeGeometry args={WINDOW} />
-        <meshStandardMaterial color={props.ink} roughness={1} />
+        <meshStandardMaterial color={props.ink} roughness={1} metalness={0} />
       </mesh>
 
-      {/* The print, on its own mesh rather than as a map on the window. A map
-          multiplies against the material colour, and the window is nearly
-          black — the photograph would arrive and disappear. */}
+      {/*
+        The print, on its own mesh rather than as a map on the window. A map
+        multiplies against the material colour, and the window is nearly
+        black — the photograph would arrive and disappear.
+
+        Roughness 0.55 against the mount's 1.0, and that difference is the
+        whole of §14 in one object: emulsion is not card. A print has a
+        surface that returns a little of what falls on it, so when the
+        lantern is on the far corner the photograph catches a sheen the mount
+        around it does not. Two materials that differ only in colour read as
+        one material in two colours.
+      */}
       {print ? (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0042, WINDOW_Z]}>
           <planeGeometry args={WINDOW} />
-          <meshStandardMaterial map={print} roughness={1} />
+          <meshStandardMaterial map={print} roughness={0.55} metalness={0} />
         </mesh>
       ) : null}
+
+      {/*
+        A corner off the table.
+
+        §15 asks for small bends and the map already has its curl; a print
+        that has been carried and set down is the other object in the scene
+        with an obvious reason to have one. It lifts at the near-left corner,
+        away from the lantern, so the underside falls into shadow and the
+        lift reads as a lift rather than as a crease drawn on.
+
+        DoubleSide because the underside of a curled corner is exactly what a
+        curl is for — a single-sided plane here would vanish at the angle it
+        most needs to be seen from.
+      */}
+      <mesh
+        rotation={[-Math.PI / 2 + 0.34, 0, 0.12]}
+        position={[-MOUNT[0] / 2 + 0.021, 0.0058, MOUNT[1] / 2 - 0.014]}
+      >
+        <planeGeometry args={[0.044, 0.03]} />
+        <meshStandardMaterial
+          map={stock ?? undefined}
+          color={stock ? undefined : props.paperEdge}
+          roughness={1}
+          metalness={0}
+          side={DoubleSide}
+        />
+      </mesh>
     </group>
   );
 }
