@@ -113,3 +113,25 @@
   border-radius: 50%;
   background: var(--color-accent);
 }
+
+/* The way out. §18: the map is a link, not a tab — it goes to the survey. */
+
+.away {
+  margin-top: var(--space-5);
+}
+
+.awayLink {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-bottom: 2px;
+}
+
+.awayLink:hover,
+.awayLink:focus-visible {
+  color: var(--color-paper-light);
+  border-bottom-color: var(--color-paper-light);
+}

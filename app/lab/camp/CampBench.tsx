@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { CampArt } from "@/components/scenes/CampArt";
 import {
@@ -9,6 +10,7 @@ import {
 } from "@/components/scenes/CampRecord";
 import { ThreeScene } from "@/components/three/ThreeScene";
 import type { SceneProps } from "@/components/three/types";
+import { routes } from "@/lib/routes";
 import styles from "./page.module.css";
 
 const OBJECTS = ["notebook", "map", "photograph", "notes"] as const;
@@ -54,14 +56,16 @@ export function CampBench({ record }: { record: CampRecordContent }) {
             >
               hover
             </button>
-            <button
-              type="button"
-              className={styles.controlButton}
-              aria-pressed={activeId === id}
-              onClick={() => setActiveId(activeId === id ? null : id)}
-            >
-              select
-            </button>
+            {id === "map" ? null : (
+              <button
+                type="button"
+                className={styles.controlButton}
+                aria-pressed={activeId === id}
+                onClick={() => setActiveId(activeId === id ? null : id)}
+              >
+                select
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -110,6 +114,38 @@ export function CampBench({ record }: { record: CampRecordContent }) {
       {activeId && activeId !== "map" ? (
         <CampRecord open={activeId as CampRecordId} {...record} />
       ) : null}
+      {/*
+        The map, as the route will have it. §18.
+
+        Every other object on this bench is driven by a pair of plain
+        buttons, because hover and selection are states to be poked at. The
+        map is not in that family: it is a link, it goes to the survey, and
+        it is never "selected" — so a select button for it would be testing
+        something the route does not do.
+
+        What it does test is the path §18 actually asks for. Pointing at this
+        reports a hover, the hover crosses into the renderer as a plain prop,
+        and the route drawn on the 3D map comes up. Following it leaves Camp,
+        which is the other half: the scene has to let go of its context on
+        the way out, not keep drawing a camp nobody is standing in.
+
+        Hover is reported on focus and blur as well as mouse, which is the
+        same contract SceneObject keeps — the geometry answers a keyboard
+        exactly as it answers a pointer.
+      */}
+      <p className={styles.away}>
+        <Link
+          href={routes.frontier}
+          className={styles.awayLink}
+          onMouseOver={() => setHoverId("map")}
+          onMouseOut={() => setHoverId(null)}
+          onFocus={() => setHoverId("map")}
+          onBlur={() => setHoverId(null)}
+        >
+          Map — back to the survey
+        </Link>
+      </p>
+
     </>
   );
 }

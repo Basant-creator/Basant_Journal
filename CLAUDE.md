@@ -120,6 +120,12 @@ npm run check:3d     # must pass before commit
   before believing a zero. The same applies to CSS scroll-driven animations,
   which are never sampled while it is hidden, and to `requestAnimationFrame`,
   which simply never fires.
+- **The pane does not hold OS focus**, so `element.focus()` moves
+  `document.activeElement` and fires no focus event at all — React’s
+  `onFocus` never runs and focus-driven behaviour reads as dead code.
+  `document.hasFocus()` returns false and is the tell. Test focus by
+  dispatching a bubbling `focusin`, and treat a silent `.focus()` as
+  unmeasured rather than as broken.
 - Viewport emulation in the pane does **not** reach `matchMedia`: no `change`
   events fire and `innerWidth` can stay stale. Breakpoint behaviour can only
   be tested by loading fresh at the width.
