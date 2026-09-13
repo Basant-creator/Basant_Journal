@@ -2,12 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CanvasTexture, DoubleSide, SRGBColorSpace } from "three";
+import { locations } from "@/lib/content/portfolio";
+import { primaryTrail, trails } from "@/lib/map/locations";
+import { SHEET_HEIGHT, SHEET_WIDTH, silhouettePoints, terrain } from "@/lib/map/terrain";
 import { CAMP_PRINT } from "@/lib/world/camp";
 import type { SceneProps } from "../types";
 import { OBJECTS, type CampObject } from "./layout";
 import { useObjectResponse, type ObjectState } from "./useObjectResponse";
 import { useLeatherTexture, usePageEdgeTexture } from "./CampLeather";
-import { camp, props, tint } from "./palette";
+import { camp, land, props, tint } from "./palette";
 
 /**
  * The four things on the table that mean something.
@@ -28,14 +31,48 @@ import { camp, props, tint } from "./palette";
  */
 
 /**
- * The map's face, drawn rather than loaded.
+ * The map on the table is the Frontier map.
  *
- * §18 wants this to resemble the survey map so a visitor understands it is the
- * map they arrived from. Rasterising the real SVG at runtime would be the
- * faithful route; what actually carries the resemblance at this size is much
- * cheaper — parchment, a few contours, a neatline, and the red route, which is
- * the one mark on the frontier map nobody forgets.
+ * §16 asks for a miniature of the real survey sheet rather than something
+ * that resembles one, and the difference matters: a visitor arrives at Camp
+ * *from* that map, and the whole point of the object is the relationship
+ * between the place and the drawing of the place. A plausible-looking
+ * substitute breaks it quietly — nobody can say what is wrong, but the map on
+ * the table is not the map they were just looking at.
+ *
+ * So this reads `terrain`, `trails` and `locations` — the same modules
+ * `/frontier` draws from. The ridges are its ridges, the contours are its
+ * contours, the route bows the way its route bows, and Camp and the Journal
+ * sit where they sit on the sheet. Nothing here is redrawn to match, because
+ * anything redrawn to match eventually stops matching.
+ *
+ * The whole sheet is fitted into the texture at one scale on both axes, so
+ * the drawing keeps its proportions and the parchment takes up the slack as
+ * margins — which is what a sheet has anyway.
  */
+const MAP_W = 384;
+const MAP_H = 260;
+
+/** Puts the canvas into the survey sheet's own 1600x1000 coordinates. */
+function inSheet(ctx: CanvasRenderingContext2D, draw: () => void) {
+  const scale = Math.min(MAP_W / SHEET_WIDTH, MAP_H / SHEET_HEIGHT);
+  ctx.save();
+  ctx.translate(
+    (MAP_W - SHEET_WIDTH * scale) / 2,
+    (MAP_H - SHEET_HEIGHT * scale) / 2,
+  );
+  ctx.scale(scale, scale);
+  draw();
+  ctx.restore();
+}
+
+/** Strokes a set of SVG path strings. Path2D takes them as they are, which is
+ *  why none of this geometry needed reimplementing. */
+function strokePaths(ctx: CanvasRenderingContext2D, paths: readonly string[], width: number) {
+  ctx.lineWidth = width;
+  for (const d of paths) ctx.stroke(new Path2D(d));
+}
+
 /**
  * The red route, drawn once and used twice.
  *
@@ -44,24 +81,35 @@ import { camp, props, tint } from "./palette";
  * what comes up when the map is reached for. Two draws of the same path
  * from one function, because a highlight that does not trace the mark
  * underneath it is two routes rather than one being noticed.
+ *
+ * The path is `primaryTrail` — the Camp-to-Journal line the survey draws in
+ * red. Not a curve that looks like it: the curve.
  */
 function drawRoute(ctx: CanvasRenderingContext2D, lit: boolean) {
-  ctx.strokeStyle = lit ? props.markLit : props.mark;
-  ctx.lineWidth = lit ? 3.4 : 2.6;
-  ctx.setLineDash([9, 6]);
-  ctx.beginPath();
-  ctx.moveTo(38, 132);
-  ctx.bezierCurveTo(92, 116, 118, 74, 168, 64);
-  ctx.lineTo(214, 46);
-  ctx.stroke();
-  ctx.setLineDash([]);
+  /* Captured before the closure: narrowing does not survive into a callback,
+     because TypeScript cannot know the callback runs immediately. */
+  const route = primaryTrail;
+  if (!route) return;
 
-  ctx.fillStyle = lit ? props.markLit : props.mark;
-  for (const [x, y] of [[38, 132], [214, 46]]) {
-    ctx.beginPath();
-    ctx.arc(x, y, lit ? 5 : 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  inSheet(ctx, () => {
+    ctx.strokeStyle = lit ? props.markLit : props.mark;
+    ctx.lineWidth = lit ? 11 : 8;
+    ctx.setLineDash([26, 18]);
+    ctx.lineCap = "round";
+    ctx.stroke(new Path2D(route.path));
+    ctx.setLineDash([]);
+
+    /* The two ends, because a dashed line with nothing at either end is a
+       decoration rather than a journey. */
+    ctx.fillStyle = lit ? props.markLit : props.mark;
+    for (const id of [route.from, route.to]) {
+      const at = locations.find((l) => l.id === id);
+      if (!at) continue;
+      ctx.beginPath();
+      ctx.arc(at.coord[0], at.coord[1], lit ? 15 : 12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
 }
 
 /** The mark on its own, over nothing, so it can be faded in over the sheet. */
@@ -69,8 +117,8 @@ function useRouteTexture(): CanvasTexture | null {
   const texture = useMemo(() => {
     if (typeof document === "undefined") return null;
     const canvas = document.createElement("canvas");
-    canvas.width = 256;
-    canvas.height = 176;
+    canvas.width = MAP_W;
+    canvas.height = MAP_H;
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
     drawRoute(ctx, true);
@@ -85,29 +133,79 @@ function useMapTexture(): CanvasTexture | null {
   const texture = useMemo(() => {
     if (typeof document === "undefined") return null;
     const canvas = document.createElement("canvas");
-    canvas.width = 256;
-    canvas.height = 176;
+    canvas.width = MAP_W;
+    canvas.height = MAP_H;
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
 
     ctx.fillStyle = props.parchment;
-    ctx.fillRect(0, 0, 256, 176);
+    ctx.fillRect(0, 0, MAP_W, MAP_H);
 
-    ctx.strokeStyle = tint(camp.timber, 0.45);
-    ctx.lineWidth = 1.4;
-    for (let r = 0; r < 3; r += 1) {
-      ctx.beginPath();
-      for (let x = 20; x <= 236; x += 8) {
-        const y = 58 + r * 16 + Math.sin((x + r * 40) / 26) * (9 - r * 2);
-        if (x === 20) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+    inSheet(ctx, () => {
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+
+      /* Ridges first, furthest back. Filled rather than stroked: on the sheet
+         these are silhouettes, and at this size a stroked outline would read
+         as a scribble. */
+      ctx.fillStyle = tint(camp.timber, 0.13);
+      for (const ridge of silhouettePoints()) {
+        const path = new Path2D();
+        path.moveTo(ridge[0].x, SHEET_HEIGHT);
+        for (const point of ridge) path.lineTo(point.x, point.y);
+        path.lineTo(ridge[ridge.length - 1].x, SHEET_HEIGHT);
+        path.closePath();
+        ctx.fill(path);
       }
-      ctx.stroke();
-    }
 
-    ctx.strokeStyle = tint(camp.timber, 0.6);
-    ctx.lineWidth = 2;
-    ctx.strokeRect(10, 10, 236, 156);
+      /* Contours, thinned. Every third line: the sheet carries enough of them
+         to read as a survey at full size, and all of them at a third of the
+         scale is a grey wash. §2 asks for detail where it can be seen. */
+      ctx.strokeStyle = tint(camp.timber, 0.3);
+      strokePaths(ctx, terrain.contours.filter((_, i) => i % 3 === 0), 3);
+
+      ctx.strokeStyle = tint(camp.timber, 0.42);
+      strokePaths(ctx, terrain.mountains.ridges.slice(0, 12), 3.4);
+
+      /* Water, and the one thing on the sheet that is not brown. */
+      ctx.strokeStyle = tint(land.far, 0.55);
+      strokePaths(ctx, [terrain.river.channel, terrain.river.tributary], 6);
+
+      ctx.strokeStyle = tint(camp.timber, 0.5);
+      strokePaths(ctx, terrain.road.lanes, 3);
+
+      /* The neatline. */
+      ctx.strokeStyle = tint(props.ink, 0.5);
+      strokePaths(ctx, [terrain.frame.inner], 4);
+      ctx.strokeStyle = tint(props.ink, 0.32);
+      strokePaths(ctx, terrain.frame.ticks.filter((_, i) => i % 2 === 0), 2.4);
+
+      /* The trails between stations, in ink. The red one is drawn after, by
+         drawRoute, so it sits on top the way it does on the sheet. */
+      ctx.strokeStyle = tint(props.ink, 0.42);
+      ctx.setLineDash([14, 12]);
+      strokePaths(
+        ctx,
+        trails.filter((t) => t.kind === "route").map((t) => t.path),
+        4.5,
+      );
+      ctx.setLineDash([]);
+
+      /* Every station on the survey, not only the two the route joins. A map
+         with two marks on it is a diagram of a journey; a map with six is a
+         territory that a journey crosses. */
+      for (const at of locations) {
+        ctx.strokeStyle = tint(props.ink, 0.62);
+        ctx.lineWidth = 3.4;
+        ctx.beginPath();
+        ctx.arc(at.coord[0], at.coord[1], 13, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = tint(props.ink, 0.5);
+        ctx.beginPath();
+        ctx.arc(at.coord[0], at.coord[1], 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
 
     drawRoute(ctx, false);
 
