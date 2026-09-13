@@ -15,6 +15,7 @@ import { CampTerrain } from "./CampTerrain";
 import { CampTreeline } from "./CampTreeline";
 import { SceneCanvas } from "../SceneCanvas";
 import { land, sky } from "./palette";
+import { settingsFor } from "@/lib/three/quality";
 import type { SceneProps } from "../types";
 import {
   CAMERA_ARRIVAL,
@@ -48,6 +49,17 @@ import {
  * this one without anything being reimplemented.
  */
 function World(props: SceneProps) {
+  /*
+    How much of this to draw.
+
+    §31 asks for tiers that change density and cost and never composition —
+    so the settings reach the things that can be counted (embers, grass,
+    stones, trees) and nothing that decides where anything is. A visitor on a
+    weaker machine is looking at the same camp from the same place; there is
+    simply less of the gravel.
+  */
+  const q = settingsFor(props.tier ?? "medium");
+
   return (
     <>
       {/*
@@ -78,7 +90,7 @@ function World(props: SceneProps) {
       {/* 03  distant terrain · 05  mid-ground terrain */}
       <CampTerrain />
       {/* 04  tree line */}
-      <CampTreeline />
+      <CampTreeline count={q.trees} />
 
 
 
@@ -94,7 +106,7 @@ function World(props: SceneProps) {
       </mesh>
 
       {/* 06  campfire */}
-      <CampFire />
+      <CampFire embers={q.embers} />
 
       {/* 07  tent · 09  chair */}
       <CampSite />
@@ -107,7 +119,7 @@ function World(props: SceneProps) {
       {/* 11  props and papers */}
       <CampObjects {...props} />
       {/* 12  foreground grass and rocks */}
-      <CampScatter />
+      <CampScatter grass={q.grass} stones={q.stones} />
       {/* 13  atmospheric effects */}
       <CampAtmosphere />
 
@@ -135,8 +147,10 @@ function World(props: SceneProps) {
 }
 
 export function CampWorld(props: SceneProps) {
+  const q = settingsFor(props.tier ?? "medium");
   return (
     <SceneCanvas
+      dpr={q.dpr}
       background={sky.zenith}
       /* Blue hour: the far bands should already be losing themselves before
          the near ones do. Tuned properly once the terrain exists. */

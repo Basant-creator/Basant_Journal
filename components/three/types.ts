@@ -1,4 +1,5 @@
 import type { RefObject } from "react";
+import type { QualityTier } from "@/lib/three/quality";
 
 /**
  * What the DOM tells a scene.
@@ -17,6 +18,15 @@ export interface SceneProps {
   activeId?: string | null;
   /** The object under the pointer or keyboard focus. */
   hoverId?: string | null;
+  /**
+   * How much scene this machine should be asked to draw.
+   *
+   * Decided outside the boundary, like everything else here — a plain string,
+   * resolved by ThreeScene before any renderer exists. §31 is specific that
+   * the composition does not change between tiers: what changes is density
+   * and cost, never where the camp is or what is on the table.
+   */
+  tier?: QualityTier;
   /** Where projected object positions are written, as CSS custom properties. */
   anchorTarget?: RefObject<HTMLElement | null>;
   /**

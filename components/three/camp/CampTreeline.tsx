@@ -22,8 +22,8 @@ import { land } from "./palette";
  * Unlit, like everything else out here. A cone that catches light at blue hour
  * reads as plastic; a dark cone against a lighter band reads as a tree.
  */
-export function CampTreeline() {
-  const trees = useMemo(() => buildTreeStand(), []);
+export function CampTreeline({ count }: { count: number }) {
+  const trees = useMemo(() => buildTreeStand(count), [count]);
   const mesh = useRef<InstancedMesh | null>(null);
   const stand = useRef<Group | null>(null);
 

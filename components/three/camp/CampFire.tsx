@@ -28,7 +28,7 @@ import { fire } from "./palette";
 
 /** Where each ember starts and how fast it climbs. Fixed, so a rise is a
  *  calculation rather than a simulation. */
-const EMBERS = Array.from({ length: 9 }, (_, i) => ({
+const EMBER_POOL = Array.from({ length: 14 }, (_, i) => ({
   phase: (i * 0.618) % 1,
   speed: 0.38 + (i % 4) * 0.07,
   drift: Math.sin(i * 2.3) * 0.22,
@@ -36,7 +36,11 @@ const EMBERS = Array.from({ length: 9 }, (_, i) => ({
   size: 0.012 + (i % 3) * 0.004,
 }));
 
-export function CampFire() {
+export function CampFire({ embers: emberCount }: { embers: number }) {
+  /* Taken off the front of a fixed pool rather than regenerated per tier, so
+     a weaker machine sees the same embers as a strong one, just fewer of
+     them — not a different fire. */
+  const EMBERS = EMBER_POOL.slice(0, emberCount);
   const glow = useRef<PointLight | null>(null);
   const flames = useRef<Array<Mesh | null>>([]);
   const embers = useRef<Group | null>(null);

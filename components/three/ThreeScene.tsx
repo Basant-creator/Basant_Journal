@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { useTransition } from "@/components/transition/TransitionContext";
 import { type SceneCapability, detectSceneCapability } from "@/lib/three/capability";
+import { type QualityTier, detectQualityTier } from "@/lib/three/quality";
 import type { SceneProps } from "./types";
 import styles from "./ThreeScene.module.css";
 
@@ -99,6 +100,11 @@ export function ThreeScene({
   state,
 }: ThreeSceneProps) {
   const [capability, setCapability] = useState<SceneCapability>("pending");
+  /* Probed once, next to the capability check, and for the same reason: it
+     costs a throwaway context and it decides how much the expensive side is
+     allowed to do. Null until the client has answered — the server has no
+     GPU to ask. */
+  const [tier, setTier] = useState<QualityTier | null>(null);
 
   /*
     A lost context is a fallback, immediately and for the rest of the visit.
@@ -169,6 +175,7 @@ export function ThreeScene({
 
   useEffect(() => {
     setCapability(detectSceneCapability());
+    setTier(detectQualityTier());
 
     // A visitor who turns reduced motion on mid-visit gets taken at their word.
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -205,7 +212,7 @@ export function ThreeScene({
     <div className={[styles.stage, className].filter(Boolean).join(" ")} data-scene-mode="ready">
       <div className={`${styles.picture} ${styles.arrives}`} {...pictureRole}>
         {/* The handler goes last so a caller cannot replace it. */}
-        <Scene {...state} onContextLost={handleContextLost} />
+        <Scene {...state} tier={tier ?? "medium"} onContextLost={handleContextLost} />
       </div>
       {/* The DOM layer over the canvas: labels, controls, records. The canvas
           carries atmosphere; everything readable stays here. */}

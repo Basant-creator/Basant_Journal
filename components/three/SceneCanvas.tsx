@@ -12,6 +12,15 @@ interface SceneCanvasProps {
   /** Linear fog keeps distant geometry from reading as cut-out silhouettes. */
   fog?: { color: string; near: number; far: number };
   camera?: { position: [number, number, number]; fov?: number };
+  /**
+   * The renderer's pixel budget, from the quality tier.
+   *
+   * Uncapped, a 3x phone or a 4K display renders four to nine times the
+   * pixels for a scene that is deliberately soft — all cost, no visible
+   * gain. The cap used to be a flat [1, 2] for every machine; it is now the
+   * one number that most reliably buys back a frame rate.
+   */
+  dpr?: [number, number];
   onContextLost?: () => void;
 }
 
@@ -37,6 +46,7 @@ export function SceneCanvas({
   background = "#1a1410",
   fog,
   camera = { position: [0, 1.6, 6], fov: 42 },
+  dpr = [1, 2],
   onContextLost,
 }: SceneCanvasProps) {
   const holder = useRef<HTMLDivElement | null>(null);
@@ -154,7 +164,7 @@ export function SceneCanvas({
     <div ref={holder} style={{ width: "100%", height: "100%" }}>
       <Canvas
         frameloop={onScreen && awake ? "always" : "never"}
-        dpr={[1, 2]}
+        dpr={dpr}
         camera={{ position: camera.position, fov: camera.fov ?? 42, near: 0.1, far: 200 }}
         gl={{
           antialias: true,

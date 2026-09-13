@@ -53,17 +53,23 @@ function Instances({
   );
 }
 
-export function CampScatter() {
+export function CampScatter({
+  grass: grassCount,
+  stones: stoneCount,
+}: {
+  grass: number;
+  stones: number;
+}) {
   /* Two passes rather than one: grass wants to reach the camera, stones want
      to stay out among the cleared ground where they read as ground rather
      than as litter. */
   const grass = useMemo(
-    () => buildCampScatter("camp-grass", 150, { x: 7.5, near: 4.6, far: -5.5 }),
-    [],
+    () => buildCampScatter("camp-grass", grassCount, { x: 7.5, near: 4.6, far: -5.5 }),
+    [grassCount],
   );
   const stones = useMemo(
-    () => buildCampScatter("camp-stones", 26, { x: 6.5, near: 3.4, far: -6.5 }),
-    [],
+    () => buildCampScatter("camp-stones", stoneCount, { x: 6.5, near: 3.4, far: -6.5 }),
+    [stoneCount],
   );
 
   return (
