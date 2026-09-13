@@ -236,6 +236,35 @@
   --scene-dusk: #33241a; /* the warm band at the horizon */
   --scene-ember: #4a3220; /* ground nearest the fire */
 
+  /* --- Camp at blue hour --------------------------------------------------
+
+     Camp is the one place in the territory rendered at blue hour rather than
+     at the warm dusk the rest of the world uses. §5 of the Phase 6 brief
+     rules out an environment that is orange and brown everywhere, and §6
+     says why it matters: a cool environment is what lets the fire be the
+     only warm thing in frame, and therefore the thing an eye goes to.
+
+     These are the source of truth for both renderings. The illustrated camp
+     reads them directly; components/three/camp/palette.ts restates them,
+     because a material cannot read a custom property — by the time a colour
+     reaches the GPU it is a number and there is no cascade out there. If a
+     value changes here it has to change there, and that file says so.
+
+     Scoped to the camp rather than replacing --scene-*, which MapVista and
+     the landing page also read: moving those would move /frontier and / to
+     blue hour as a side effect of a decision about one location. */
+  --camp-sky-zenith:    #0c1018;
+  --camp-sky-high:      #131c2b;
+  --camp-sky-mid:       #1e2c3e;
+  --camp-sky-afterglow: #6a5138; /* the last of the sun, and the only warmth
+                                    in the sky */
+  --camp-sky-haze:      #243040;
+
+  --camp-land-far:      #2b3949;
+  --camp-land-mid:      #1f2a36;
+  --camp-land-near:     #151d26;
+  --camp-land-treeline: #101820;
+
   /* --- depth: tone darkens as a layer comes forward ---------------------- */
   --scene-depth-0: #241e18; /* furthest ridge */
   --scene-depth-1: #1a1511;

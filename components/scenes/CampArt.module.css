@@ -13,6 +13,24 @@
   display: block;
 }
 
+/* --- Camp's own hour ------------------------------------------------------
+
+   The rendered camp is at blue hour and the drawn one was still at the warm
+   dusk the rest of the territory uses — two hours, one place, which is the
+   sort of divergence that stops being cheap to fix the longer it stands.
+
+   The depth bands are redefined here rather than replaced globally, so only
+   this scene moves. Every rule below keeps reading --scene-depth-N and keeps
+   working; what changes is what those resolve to inside the camp.
+   ------------------------------------------------------------------------ */
+
+.art {
+  --scene-depth-2: var(--camp-land-far);
+  --scene-depth-3: var(--camp-land-mid);
+  --scene-depth-4: var(--camp-land-near);
+  --scene-depth-5: var(--camp-land-treeline);
+}
+
 /* --- tone by distance ---------------------------------------------------- */
 
 .ridge {

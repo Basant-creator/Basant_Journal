@@ -77,10 +77,15 @@ export function CampArt() {
     >
       <defs>
         <linearGradient id="campSky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--scene-night)" />
-          <stop offset="52%" stopColor="var(--scene-dark)" />
-          <stop offset="84%" stopColor="var(--scene-dusk)" />
-          <stop offset="100%" stopColor="var(--scene-ember)" />
+          {/* Blue hour. The afterglow sits low, just above where the ridges
+              cut it, and the band below cools again into haze — the same
+              order the rendered camp's sky is built in, from the same
+              values in globals.css. */}
+          <stop offset="0%" stopColor="var(--camp-sky-zenith)" />
+          <stop offset="46%" stopColor="var(--camp-sky-high)" />
+          <stop offset="74%" stopColor="var(--camp-sky-mid)" />
+          <stop offset="88%" stopColor="var(--camp-sky-afterglow)" />
+          <stop offset="100%" stopColor="var(--camp-sky-haze)" />
         </linearGradient>
 
         <radialGradient id="fireGlow" cx="50%" cy="50%" r="50%">

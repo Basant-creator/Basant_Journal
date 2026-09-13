@@ -9,9 +9,15 @@
  * the fire be the only warm thing in the frame, and therefore the thing an eye
  * goes to.
  *
- * The consequence is that the rendered Camp and the illustrated one are
- * currently at different hours. That is a real divergence, not a detail: the
- * two are meant to be the same place. The drawn sky follows at step 22.
+ * The illustrated camp now reads the same hour. `--camp-sky-*` and
+ * `--camp-land-*` in `app/globals.css` are the source of truth for both
+ * renderings; the values below are that block restated, because a material
+ * cannot read a custom property — by the time a colour reaches the GPU it is
+ * a number, and there is no cascade out there.
+ *
+ * So this is a duplication with a rule attached: change a value here and
+ * change it in globals.css, or the two camps quietly become two places
+ * again. It is deliberately short for that reason.
  *
  * Blue hour is not black. The commonest failure here is a sky so dark it reads
  * as night, which throws away the atmospheric depth the whole composition
