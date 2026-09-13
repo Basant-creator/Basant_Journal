@@ -400,3 +400,86 @@ export function buildCampScatter(
 
   return out;
 }
+
+/**
+ * The photograph on the table, and how it is printed.
+ *
+ * §19 asks the photograph to be a real photograph. It is: the file is a
+ * portrait of the person whose camp this is, and nothing here modifies it on
+ * disk. What lives here is the *treatment*, because a modern colour snapshot
+ * dropped into a blue-hour frontier reads as a screenshot of a different
+ * website — and because the illustrated camp and the rendered camp both have
+ * to apply the same one.
+ *
+ * That is the whole reason this is a constant rather than two nice-looking
+ * filters. The two renderings are supposed to be the same place; the last
+ * time a value like this lived in two files the illustrated camp sat at warm
+ * dusk for two hours while the rendered one had already moved to blue hour.
+ * A colour matrix is exactly the kind of number nobody re-checks by eye.
+ *
+ * The matrix is the sRGB form an SVG `feColorMatrix` takes: four rows of
+ * `[r, g, b, a, offset]`. A plain sepia is the obvious move and the wrong
+ * one — it gives a uniform brown belonging to no particular palette. These
+ * rows pull the greens up under the reds and drop the blues hard, which
+ * lands the print in this world's earth range, and the offsets raise the
+ * black point because an aged print has no true black anywhere in it.
+ */
+export const CAMP_PRINT = {
+  src: "/portrait/basant-small.jpg",
+  /** The file, as it is on disk. */
+  source: { w: 320, h: 400 },
+  /** The window in the mount, in scene units. Landscape, off a portrait
+      source, so something has to be cropped away. */
+  window: { x: -70, y: -50, w: 140, h: 92 },
+  /**
+   * How far down the source the window sits: 0 is its top edge, 1 its bottom.
+   *
+   * This was an SVG "xMidYMin slice" — top-anchored — which is the obvious
+   * reading of "keep the face" and takes the top 210 rows of a 400-row
+   * portrait. The face does not fit in 210 rows. Both photographs in this
+   * project have been showing a man with his chin cut off at the window edge.
+   *
+   * 0.45 puts the eyes on the upper third and leaves the jaw inside the
+   * frame, which is where a portrait is normally cropped. It is one number
+   * in one place precisely so that the answer cannot be right in the
+   * rendered camp and wrong in the illustrated one.
+   */
+  anchor: 0.45,
+  matrix: [
+    [0.44, 0.42, 0.12, 0, 0.06],
+    [0.36, 0.44, 0.1, 0, 0.03],
+    [0.26, 0.32, 0.14, 0, 0.01],
+    [0, 0, 0, 1, 0],
+  ],
+} as const;
+
+/** The matrix as an SVG feColorMatrix values attribute. */
+export function printMatrixValues(): string {
+  return CAMP_PRINT.matrix.map((row) => row.join(" ")).join("\n");
+}
+
+/**
+ * Where to hang the SVG image element so the window lands on the anchored crop.
+ *
+ * preserveAspectRatio only offers top, middle and bottom, and the answer is
+ * none of those. So the element is given the whole scaled image as its box —
+ * same aspect as the file, so nothing is squashed and nothing is sliced — and
+ * moved up until the anchored rows sit inside the window. The clip path stays
+ * where it is, and that is what turns the shift into a crop.
+ *
+ * Shifting only the `y` and leaving a window-sized box does not work: an
+ * `image` element establishes a viewport of its own with `overflow: hidden`,
+ * so the box takes its clip with it and the two clips intersect to a sliver.
+ */
+export function printImageBox(): { x: number; y: number; w: number; h: number } {
+  const { source, window: win, anchor } = CAMP_PRINT;
+  const scale = Math.max(win.w / source.w, win.h / source.h);
+  const h = Math.round(source.h * scale * 10) / 10;
+  const shift = anchor * (h - win.h);
+  return {
+    x: win.x,
+    y: Math.round((win.y - shift) * 10) / 10,
+    w: Math.round(source.w * scale * 10) / 10,
+    h,
+  };
+}

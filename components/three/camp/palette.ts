@@ -143,6 +143,10 @@ export const props = {
   tin: "#585c62",
   brass: "#7a6238",
   glass: "#ffca7d",
+  /** The corner darkening every small print on a table has. Matches the
+   *  vignette the record's own photograph carries, so a visitor who opens
+   *  the record is looking at the same object treated the same way. */
+  printEdge: "#241b12",
   /** What an object warms toward when it is reached for. The fire's own
    *  light, because nothing in this camp glows on its own. */
   glow: "#ff9d52",

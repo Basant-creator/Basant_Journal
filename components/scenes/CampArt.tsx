@@ -5,6 +5,7 @@ import { SceneLayer } from "@/components/scene/SceneLayer";
 import { terrain } from "@/lib/map/terrain";
 import {
   CAMP_HEIGHT,
+  CAMP_PRINT,
   CAMP_WIDTH,
   type CampObjectId,
   SMOKE_PLUMES,
@@ -13,6 +14,8 @@ import {
   buildStars,
   buildTreeline,
   objectTransform,
+  printImageBox,
+  printMatrixValues,
 } from "@/lib/world/camp";
 import styles from "./CampArt.module.css";
 
@@ -20,6 +23,7 @@ const TREES = buildTreeline();
 const STARS = buildStars();
 const SCATTER = buildGroundScatter();
 const PAPERS = buildLoosePapers();
+const PRINT_BOX = printImageBox();
 
 /**
  * One object on the table, and how it is lying.
@@ -112,17 +116,18 @@ export function CampArt() {
             way an aged print's is. Done in SVG rather than CSS because the
             photograph lives inside the scene's coordinate space. */}
         <filter id="campPrint" colorInterpolationFilters="sRGB">
-          <feColorMatrix
-            type="matrix"
-            values="0.44 0.42 0.12 0 0.06
-                    0.36 0.44 0.10 0 0.03
-                    0.26 0.32 0.14 0 0.01
-                    0    0    0    1 0"
-          />
+          {/* The print treatment, shared with the rendered camp. Both
+              photographs are the same photograph; see CAMP_PRINT. */}
+          <feColorMatrix type="matrix" values={printMatrixValues()} />
         </filter>
 
         <clipPath id="campPhotoWindow">
-          <rect x="-70" y="-50" width="140" height="92" />
+          <rect
+            x={CAMP_PRINT.window.x}
+            y={CAMP_PRINT.window.y}
+            width={CAMP_PRINT.window.w}
+            height={CAMP_PRINT.window.h}
+          />
         </clipPath>
 
         <linearGradient id="campSheen" x1="0" y1="0" x2="1" y2="1">
@@ -299,17 +304,22 @@ export function CampArt() {
               aria-hidden because the scene is decorative throughout — the
               same photograph carries a real alt in the record it opens. */}
           <image
-            href="/portrait/basant-small.jpg"
-            x="-70"
-            y="-50"
-            width="140"
-            height="92"
-            preserveAspectRatio="xMidYMin slice"
+            href={CAMP_PRINT.src}
+            x={PRINT_BOX.x}
+            y={PRINT_BOX.y}
+            width={PRINT_BOX.w}
+            height={PRINT_BOX.h}
             clipPath="url(#campPhotoWindow)"
             filter="url(#campPrint)"
             aria-hidden="true"
           />
-          <rect className={styles.photoSheen} x="-70" y="-50" width="140" height="92" />
+          <rect
+            className={styles.photoSheen}
+            x={CAMP_PRINT.window.x}
+            y={CAMP_PRINT.window.y}
+            width={CAMP_PRINT.window.w}
+            height={CAMP_PRINT.window.h}
+          />
         </CampObject>
 
         {/* Field notes */}
