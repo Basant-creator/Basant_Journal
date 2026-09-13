@@ -7,6 +7,8 @@
  * its answer decides whether the expensive side loads at all.
  */
 
+import { detectQualityTier } from "./quality";
+
 export type SceneCapability = "ready" | "unsupported" | "reduced" | "pending";
 
 /**
@@ -70,11 +72,29 @@ export function prefersReducedMotion(): boolean {
 }
 
 /**
- * Phones do not get the interactive scene.
+ * Small screens are no longer disqualifying on their own.
  *
- * Not a capability judgement — a modern phone renders this fine — but a
- * budget one: the download, the sustained GPU draw and the battery are all
- * worse trades on a device where the composed 2D scene reads just as well.
+ * They were, and the argument written here was a budget one rather than a
+ * capability one: the download, the sustained draw and the battery are worse
+ * trades on a device where the composed 2D scene reads just as well. That
+ * argument is still true and it is no longer the whole picture. §31 of the
+ * upgrade brief names LOW as a rendering tier — "mobile / weaker GPU" — and
+ * reserves FALLBACK for WebGL being unavailable, which is a deliberate
+ * distinction between a phone that should draw less and a phone that should
+ * not draw at all.
+ *
+ * So the width test stays, and what it decides has changed: it no longer
+ * turns the renderer off, it hands the question to the quality tier, which
+ * asks about the actual machine rather than the actual window. A phone that
+ * earns LOW gets the scene at one device pixel, without shadows, with a third
+ * of the grass and two plumes instead of three.
+ *
+ * What still turns it off is `quality.ts` returning "fallback" — no WebGL at
+ * all, a software rasteriser, a context that cannot hold a 4096 texture, or a
+ * connection that says not to. That last one is the §39 guard: "do not
+ * destroy initial page performance" and "do not sacrifice the entire
+ * portfolio for one scene" are not satisfied by shipping 880kB of renderer
+ * down a 3G connection to draw a campfire.
  */
 export function isCompactViewport(): boolean {
   if (typeof window === "undefined") return false;
@@ -88,7 +108,9 @@ export function isCompactViewport(): boolean {
 /** The single decision every caller needs. */
 export function detectSceneCapability(): Exclude<SceneCapability, "pending"> {
   if (!hasWebGL()) return "unsupported";
-  if (isCompactViewport()) return "reduced";
   if (prefersReducedMotion()) return "reduced";
+  /* The tier decides whether this machine should draw at all. A phone that
+     earns "low" draws; one the probe puts at "fallback" does not. */
+  if (detectQualityTier() === "fallback") return "reduced";
   return "ready";
 }

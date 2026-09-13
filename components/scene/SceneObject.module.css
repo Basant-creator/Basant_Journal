@@ -93,7 +93,23 @@
 
 /* Phones get the labels permanently legible and the notes dropped: a note
    that only appears on hover is worth nothing to a thumb. */
+/*
+  The row wins on a phone, whatever is drawing behind it.
+
+  Every selector here carries the [data-anchored] variant as well, and that is
+  not belt-and-braces — it is required. §26 lets phones reach the LOW tier and
+  draw the scene, which means the projector now sets data-anchored on a 335px
+  stage, and those rules are more specific than a bare class inside a media
+  query. Without this they would win, and the anchored presentation on a phone
+  is precisely the collision §22 measured and removed: PHOTOGRAPH alone needs
+  about 78 pixels against 57 between object centres.
+
+  So the composition stays consistent across tiers, which is what §31 asks
+  for, and consistent across renderers, which is what the bridge was built
+  for. The scene behind may be drawn or illustrated. The controls are a row.
+*/
 @media (max-width: 720px) {
+  [data-anchored] .object,
   .object {
     /* Placed by the row, not by the artwork. left/top are inline and cannot
        be overridden from here — but a static box ignores them, and the two
@@ -113,13 +129,24 @@
     border-color: var(--color-border-subtle);
   }
 
+  /* The mark belongs on an object, and on a phone the control is not on one.
+     A five-pixel dot in the middle of a chip is a smudge. */
+  [data-anchored] .object::before {
+    display: none;
+  }
+
+  [data-anchored] .label,
   .label {
+    position: static;
+    transform: none;
+    white-space: normal;
     opacity: 0.9;
     font-size: 0.58rem;
     letter-spacing: 0.08em;
     line-height: 1.15;
   }
 
+  [data-anchored] .note,
   .note {
     display: none;
   }

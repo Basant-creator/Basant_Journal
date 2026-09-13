@@ -36,6 +36,19 @@ export interface QualityProbe {
   cores: number | null;
   /** Set when the context admits to being a software rasteriser. */
   software: boolean;
+  /**
+   * What the connection says about itself.
+   *
+   * §39 asks that the Camp not destroy initial page performance and that the
+   * portfolio not be sacrificed for one scene. Neither is satisfied by
+   * sending 880kB of renderer down a 2G connection to draw a campfire, and
+   * neither is a GPU question — which is why this is here and not in the
+   * WebGL probe.
+   *
+   * saveData is a direct instruction from the visitor and is treated as one.
+   */
+  saveData: boolean;
+  slowLink: boolean;
 }
 
 const SOFTWARE = /swiftshader|llvmpipe|software|basic render|microsoft basic/i;
@@ -81,7 +94,12 @@ export function probeQuality(): QualityProbe | null {
     }
   };
 
-  const nav = navigator as Navigator & { deviceMemory?: number };
+  const nav = navigator as Navigator & {
+    deviceMemory?: number;
+    connection?: { effectiveType?: string; saveData?: boolean };
+  };
+  const link = nav.connection;
+  const effective = link?.effectiveType ?? "";
 
   return {
     webgl2,
@@ -92,13 +110,27 @@ export function probeQuality(): QualityProbe | null {
     memoryGb: typeof nav.deviceMemory === "number" ? nav.deviceMemory : null,
     cores: typeof navigator.hardwareConcurrency === "number" ? navigator.hardwareConcurrency : null,
     software,
+    saveData: link?.saveData === true,
+    /* Absent is not slow. Most browsers do not implement this at all, and
+       guessing badly here costs a visitor the whole scene. */
+    slowLink: effective === "slow-2g" || effective === "2g" || effective === "3g",
   };
 }
 
 /** The tier a probe earns. Pure, so it can be reasoned about and tested. */
 export function tierFor(probe: QualityProbe | null): QualityTier {
   if (!probe || probe.maxTextureSize === 0) return "fallback";
-  if (probe.software) return "low";
+
+  /* Asked not to, or on a link where the renderer would arrive late enough to
+     be an interruption rather than a scene. Either way the illustrated camp
+     is already on screen and complete, so there is nothing to wait for. */
+  if (probe.saveData || probe.slowLink) return "fallback";
+
+  /* A software rasteriser reports WebGL and is not a GPU. It can draw this
+     scene and it would draw it at a handful of frames a second, which is
+     worse than the illustrated camp in every way that matters. hasWebGL()
+     cannot tell the difference; this can, when the browser admits it. */
+  if (probe.software) return "fallback";
 
   /* A context that cannot hold a 4096 texture is either very old or very
      constrained; either way it is not going to enjoy this scene. */

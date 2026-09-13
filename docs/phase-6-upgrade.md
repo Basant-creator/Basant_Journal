@@ -75,26 +75,49 @@ committed:
 | 23 | Notebook → Paper | record wired; §37's cinematic open not built |
 | 24 | Map → Camp | done and measured |
 | 25 | Camp → Map | done and measured |
-| 26 | Mobile quality tier | illustrated row shipped; 3D-on-mobile is open |
+| 26 | Mobile quality tier | done — phones draw at LOW, gated on the connection |
 | 27 | WebGL fallback | next |
 | 28 | Resource disposal | context release done; §33 sweep outstanding |
 | 29 | Performance profiling | outstanding, with §38's overlay |
 | 30 | Accessibility / reduced motion | done and audited |
 | 31 | Production verification | outstanding |
 
-## The one open decision
+## The decision that was open, and how it went
 
-§31 lists **LOW — mobile / weaker GPU** as a rendering tier, which reads as
-phones getting a cheap 3D camp. The shipped behaviour is the opposite: the
-860px cut in `capability.ts` sends phones to the illustrated camp, on a budget
-argument written down there — the download, the sustained draw and the battery
-are all worse trades on a device where the composed 2D scene reads just as
-well. §21 and §41 can be read either way ("falls back gracefully", "does not
-receive desktop-level rendering unnecessarily").
+§31 named **LOW — mobile / weaker GPU** as a rendering tier and reserved
+FALLBACK for WebGL being unavailable, which is a deliberate distinction
+between a phone that should draw less and a phone that should not draw at
+all. The shipped behaviour was the second one for every phone: an 860px
+width test sent them all to the illustrated camp.
 
-The tier machinery is built so that either answer is a one-line policy change
-in `detectSceneCapability`. The current answer is the shipped one, and it is
-flagged rather than silently reversed.
+Resolved in favour of the brief at upgrade 26. The width test still exists
+and no longer decides anything on its own — it hands the question to the
+quality tier, which asks about the machine rather than the window.
+
+The budget argument that justified the old behaviour has not been discarded,
+it has been made specific. §39 asks that the Camp not destroy initial page
+performance and that the portfolio not be sacrificed for one scene, and
+neither is satisfied by sending 880kB of renderer down a 2G connection to
+draw a campfire. So the probe now reads `saveData` and `effectiveType`, and
+either a visitor asking for less data or a link at 3G or below returns
+fallback. Absent is not slow: most browsers do not implement the API, and
+guessing badly there costs someone the whole scene.
+
+| case | tier |
+| --- | --- |
+| desktop, capable | high |
+| laptop, 4 cores | medium |
+| phone on 4G | **low** |
+| tablet, 2GB | low |
+| old GPU, 2048 max texture | low |
+| phone with Save-Data on | fallback |
+| phone on 3G or worse | fallback |
+| software rasteriser | fallback |
+| no WebGL | fallback |
+
+A software rasteriser reports WebGL and is not a GPU. It would draw this
+scene at a handful of frames a second, which is worse than the illustrated
+camp in every way that matters.
 
 ## What steps 20 and 21 turned out to be
 
