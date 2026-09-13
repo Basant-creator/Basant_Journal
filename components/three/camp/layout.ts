@@ -168,7 +168,48 @@ export const CAMERA_HOME: Vec3 = [0.35, 1.62, 5.6];
  * bottom edge.
  */
 export const CAMERA_TARGET: Vec3 = [-0.15, 1.15, 0.15];
-export const CAMERA_FOV = 41;
+/**
+ * The lens. §18 asks for a focal length to be chosen rather than inherited.
+ *
+ * 36 degrees vertical is about a 37mm equivalent on full frame — a normal
+ * lens, slightly long. It was 41, which is 32mm and wide enough to be doing
+ * something: a wide lens on a small set makes the set look small, because it
+ * pushes everything away from the centre and shrinks whatever is nearest.
+ *
+ * The five degrees buy the one thing this scene has been short of since the
+ * objects were placed. Measured across the four:
+ *
+ *            fov 41    fov 36
+ *   notebook   8.4%      9.7%
+ *   map       10.9%     12.6%
+ *   min gap    2.5%      2.8%
+ *   span      40.5%     46.6%
+ *
+ * Fifteen percent more object, and the gaps between their controls get
+ * wider rather than narrower — which is not obvious, and is the reason to
+ * measure rather than assume: a longer lens spreads the table across more of
+ * the frame at the same time as it enlarges what is on it.
+ *
+ * Nothing is lost at the edges. The tent apex moves from 25% to 21% across
+ * and stays well inside; the near edge of the table moves from 75% to 79%
+ * down, leaving a fifth of the frame as the foreground §4 asks for; the sky
+ * keeps 37% against 39%. And the afterglow band still clears the far ridge —
+ * by 3.1% of frame height rather than 2.7%, so the failure SKY_BAND_Y exists
+ * to prevent gets further away rather than closer.
+ *
+ * Stopping here rather than at 34 or 32, both of which also fit. Past this
+ * the foreground below the table starts to go, and the foreground is what
+ * stops the scene reading as a picture held at arm's length.
+ *
+ * **No depth of field.** §18 asks for it to be considered and then says not
+ * to overuse it, and §29 says the raw scene should already look good. Real
+ * bokeh means a post-processing pipeline — a dependency, a second render
+ * target, and a blur over the exact objects §18 also requires to stay
+ * readable. The distance is already softened by fog, measured at §11: 0% on
+ * the table, 2% at the tree stand, 60% at the far ridge. That is the effect
+ * depth of field would be bought for, and it is already paid for.
+ */
+export const CAMERA_FOV = 36;
 
 /**
  * How far the visitor may move it. §10.
