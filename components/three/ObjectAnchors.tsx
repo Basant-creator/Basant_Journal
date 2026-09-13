@@ -8,8 +8,31 @@ export interface AnchorMap {
   [id: string]: [number, number, number];
 }
 
+/**
+ * How wide, in metres, the control over each object should be.
+ *
+ * Position alone is not enough once a renderer is placing these. The
+ * illustrated camp draws its objects across the full width of a 1600-unit
+ * frame and sizes the hit areas to match — twelve to twenty percent each.
+ * The rendered camp sees the same table from four metres away, where the
+ * objects project to three to seven percent. Moving a twenty-percent box
+ * onto a four-percent object puts most of the control over the objects
+ * either side of it, and the three neighbours then overlap by enough that
+ * whichever is drawn last takes the clicks.
+ *
+ * So the size travels with the position, and by the same mechanism: written
+ * as a custom property, read back with the illustrated box as the fallback.
+ * These are the object plus a margin, not the object — a control the exact
+ * size of a notebook is a control nobody can hit.
+ */
+export interface AnchorSizes {
+  [id: string]: number;
+}
+
 interface ObjectAnchorsProps {
   anchors: AnchorMap;
+  /** Optional. Without it the DOM keeps whatever width it already had. */
+  sizes?: AnchorSizes;
   /** The DOM element the projected positions are written onto. */
   into: { current: HTMLElement | null };
 }
@@ -38,7 +61,7 @@ interface ObjectAnchorsProps {
  *   **Nothing is allocated.** One Vector3, reused for every anchor, every
  *   frame.
  */
-export function ObjectAnchors({ anchors, into }: ObjectAnchorsProps) {
+export function ObjectAnchors({ anchors, sizes, into }: ObjectAnchorsProps) {
   const { camera, size } = useThree();
 
   /*
@@ -65,10 +88,13 @@ export function ObjectAnchors({ anchors, into }: ObjectAnchorsProps) {
         host.style.removeProperty(`--anchor-${id}-x`);
         host.style.removeProperty(`--anchor-${id}-y`);
         host.style.removeProperty(`--anchor-${id}-on`);
+        host.style.removeProperty(`--anchor-${id}-w`);
       }
     };
   }, [ids, into]);
   const point = useRef(new Vector3());
+  /* The second projection, for width. Allocated once, like the first. */
+  const edge = useRef(new Vector3());
   const last = useRef<Record<string, [number, number]>>({});
 
   useFrame(() => {
@@ -98,6 +124,23 @@ export function ObjectAnchors({ anchors, into }: ObjectAnchorsProps) {
         `--anchor-${id}-on`,
         point.current.z < 1 && px > -5 && px < 105 ? "1" : "0",
       );
+
+      /* Width, measured rather than assumed: the same point offset along
+         world x, projected too, so the control shrinks with distance
+         exactly as the object does. Cheaper than it looks — one extra
+         project per object per frame, and only for objects given a size. */
+      const width = sizes?.[id];
+      if (width !== undefined) {
+        edge.current.set(x + width / 2, y, z);
+        edge.current.project(camera);
+        /* Clip space is two units wide and the page is a hundred percent, so
+           a delta here is worth fifty — and the offset above is half the
+           control, so the full width is that delta times a hundred. Getting
+           this wrong is not visible as a wrong number; it is visible as four
+           controls that overlap by four percent each. */
+        const pw = Math.round(Math.abs(edge.current.x - point.current.x) * 1000) / 10;
+        host.style.setProperty(`--anchor-${id}-w`, `${pw}%`);
+      }
     }
 
     void size;

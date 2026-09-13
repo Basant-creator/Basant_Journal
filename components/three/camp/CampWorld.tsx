@@ -24,6 +24,7 @@ import {
   CAMERA_TARGET,
   GROUND_Y,
   ANCHORS,
+  ANCHOR_WIDTHS,
 } from "./layout";
 
 /**
@@ -123,7 +124,11 @@ function World(props: SceneProps) {
         layer should not be projecting four points every frame.
       */}
       {props.anchorTarget ? (
-        <ObjectAnchors anchors={ANCHORS} into={props.anchorTarget} />
+        <ObjectAnchors
+          anchors={ANCHORS}
+          sizes={ANCHOR_WIDTHS}
+          into={props.anchorTarget}
+        />
       ) : null}
     </>
   );

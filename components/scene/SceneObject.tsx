@@ -67,7 +67,7 @@ export function SceneObject({
   const style = {
     left: `var(--anchor-${id}-x, ${box.x}%)`,
     top: `var(--anchor-${id}-y, ${box.y}%)`,
-    width: `${box.w}%`,
+    width: `var(--anchor-${id}-w, ${box.w}%)`,
     height: `${box.h}%`,
     "--anchor-shift": `var(--anchor-${id}-on, 0)`,
   } as CSSProperties;

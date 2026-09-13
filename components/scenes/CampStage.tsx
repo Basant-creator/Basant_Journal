@@ -27,6 +27,23 @@ import styles from "./CampStage.module.css";
  * The illustrated camp is the fallback and not a lesser version of this. It is
  * the drawing the whole site is made of; the renderer is what a machine with
  * the spare capacity gets shown instead.
+ *
+ * Still the prototype, and deliberately, as of §17.
+ *
+ * The swap to campWorld is one word — the boundary was built to make it one
+ * word — and it was made, measured and taken back out. The hit areas land
+ * correctly now that the bridge projects a width as well as a position: four
+ * controls at 45-52, 55-60, 62-68 and 70-80 percent, with gaps of two percent
+ * and no overlap anywhere. What does not land is the label layer. SceneObject
+ * is built for the illustrated camp, where an object is a fifth of the frame
+ * wide and its box has room for a name and a note underneath it. The rendered
+ * camp sees the same table from four metres, the box is six percent wide, and
+ * the label ends up pushed out of the top of it — three names floating in the
+ * treeline above the objects they belong to, with "Field notes" wrapped.
+ *
+ * That is a presentation problem and §20 is where presentation is decided.
+ * Shipping it first would put a worse Camp on the route than the one already
+ * there, for three steps, to save changing one word later.
  */
 export function CampStage() {
   const host = useRef<HTMLDivElement | null>(null);

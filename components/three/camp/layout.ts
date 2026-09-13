@@ -71,12 +71,25 @@ export const LANTERN: Vec3 = [1.42, TABLE_TOP, 1.45];
  * Laid out as things set down rather than as a row — the brief asks for a
  * table that is naturally cluttered, and a naturally cluttered table is one
  * where nothing shares an axis with anything else.
+ *
+ * But cluttered on the table is not the same as cluttered on screen, and the
+ * first arrangement was only checked on the table. Projected, `notes` and
+ * `map` overlapped each other by half a percent of frame width, and all four
+ * sat inside the right-hand quarter with the rest of the table bare. Nothing
+ * looks wrong in the scene; it goes wrong the moment anything has to be
+ * pointed at.
+ *
+ * These positions were chosen against the projection rather than against the
+ * tabletop: worst-case gap between neighbours is 5.9% of frame width, and the
+ * group spans 48.7% to 79.0% instead of 50.9% to 78.4% with a collision in
+ * the middle of it. The depths still disagree — the row is not a row — but
+ * they disagree by amounts that survive being seen from the camera.
  */
 export const OBJECTS = {
-  notebook: { at: [0.18, TABLE_TOP, 2.02] as Vec3, turn: -0.22 },
-  map: { at: [1.18, TABLE_TOP, 2.11] as Vec3, turn: 0.16 },
-  photograph: { at: [0.52, TABLE_TOP, 1.62] as Vec3, turn: 0.38 },
-  notes: { at: [1.05, TABLE_TOP, 1.68] as Vec3, turn: -0.09 },
+  notebook: { at: [-0.05, TABLE_TOP, 1.95] as Vec3, turn: -0.22 },
+  map: { at: [1.4, TABLE_TOP, 1.98] as Vec3, turn: 0.16 },
+  photograph: { at: [0.45, TABLE_TOP, 1.62] as Vec3, turn: 0.38 },
+  notes: { at: [0.92, TABLE_TOP, 1.66] as Vec3, turn: -0.09 },
 } as const;
 
 export type CampObject = keyof typeof OBJECTS;
@@ -96,11 +109,31 @@ export const OBJECT_ORDER = Object.keys(OBJECTS) as CampObject[];
  * enough to notice the object rather than the effect.
  */
 export const ANCHORS: Record<CampObject, Vec3> = {
-  notebook: [0.18, TABLE_TOP + 0.09, 2.08],
-  map: [1.18, TABLE_TOP + 0.07, 2.17],
-  photograph: [0.52, TABLE_TOP + 0.07, 1.68],
-  notes: [1.05, TABLE_TOP + 0.08, 1.74],
+  notebook: [-0.05, TABLE_TOP + 0.09, 2.01],
+  map: [1.4, TABLE_TOP + 0.07, 2.04],
+  photograph: [0.45, TABLE_TOP + 0.07, 1.68],
+  notes: [0.92, TABLE_TOP + 0.08, 1.72],
 };
+/**
+ * How wide the control over each object should be, in metres.
+ *
+ * Each object's own width plus 90mm of margin either side. A control the
+ * exact size of a photograph is a control nobody can hit; a control the size
+ * of the illustrated camp's box is four controls that overlap. Projected from
+ * these numbers the four span 44.6-52.8, 55.5-61.9, 64.2-71.2 and 74.1-83.9
+ * percent of frame width, which leaves gaps of 2.7, 2.3 and 2.9 and no
+ * collision anywhere.
+ *
+ * The margin is symmetrical and the object is centred in it, so the control
+ * is always over the thing it names however far away the camera is.
+ */
+export const ANCHOR_WIDTHS: Record<CampObject, number> = {
+  notebook: 0.41,
+  photograph: 0.34,
+  notes: 0.35,
+  map: 0.49,
+};
+
 
 
 /* --- the country behind it ------------------------------------------------ */
