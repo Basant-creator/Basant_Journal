@@ -99,6 +99,13 @@ predates SCENE and TERRAIN and lists only three; README is authoritative.)
   animation shows finished content, not empty content.
 - **Honour `prefers-reduced-motion` at the source**, not with a blanket
   override. Reduced motion means a still composition, not a broken one.
+  There *is* a blanket in `app/globals.css` — durations to 1ms, animations to
+  a single iteration — and it is a backstop, not the mechanism. It only lands
+  correctly because of the rule above it: an animation that runs from an
+  offset toward normal with `fill-mode: both` jumps to its finished state.
+  Anything whose finished state is wrong needs its own guard, which is why
+  `CampArt` sets the flame's resting opacity by hand — one 1ms iteration of an
+  alternating flicker lands on whichever keyframe happens to be last.
 - **Replay per subject, not once per session.** Keying arrival on a session flag
   means walking between sibling records shows nothing.
 

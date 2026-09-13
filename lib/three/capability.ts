@@ -41,6 +41,25 @@ export function hasWebGL(): boolean {
   }
 }
 
+/**
+ * Reduced motion gives up the renderer, rather than freezing it.
+ *
+ * The other reading is tempting and wrong: keep the canvas, stop the camera,
+ * stop the fire, and show a still 3D camp. It costs 880kB of renderer and a
+ * live GPU context to arrive at a picture — and the project already has that
+ * picture, drawn, in the layer the whole site is made of. The illustrated
+ * camp is not a degraded version of the scene; it is the same place, still,
+ * which is exactly what the setting asks for.
+ *
+ * It also keeps the promise honest. A frozen canvas is one animation anybody
+ * forgets to guard away from being motion again — a flicker, a drifting
+ * ember, a sway that answers the pointer. A scene that was never mounted
+ * cannot move.
+ *
+ * Measured on /about with reduced motion asked for: scene mode "reduced",
+ * zero canvases, no data-anchored on the stage, no anchor properties left
+ * behind, and the object controls back at their illustrated 19.9% x 21%.
+ */
 export function prefersReducedMotion(): boolean {
   if (typeof window === "undefined") return false;
   try {
