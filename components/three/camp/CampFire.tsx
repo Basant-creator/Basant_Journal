@@ -1,7 +1,8 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useEmberBedTexture, useFlameTexture } from "./CampFlame";
+import { useEffect, useMemo, useRef } from "react";
 import { AdditiveBlending, type Group, type Mesh, type PointLight } from "three";
 import { FIRE, FIRE_RADIUS } from "./layout";
 import { fire } from "./palette";
@@ -52,7 +53,24 @@ export function CampFire({
      not one: the first frame can land before every mesh has been added. */
   const settle = useRef(0);
   const flames = useRef<Array<Mesh | null>>([]);
+
+  /*
+    One flame texture, cloned per layer.
+    
+    A clone shares the image — there is one canvas and one GPU upload — but
+    carries its own offset, which is the whole point: three layers scrolling
+    at one speed is a single sheet with extra steps, and the layers reading
+    as separate is what gives the flame depth.
+  */
+  const flameMap = useFlameTexture();
+  const emberBed = useEmberBedTexture();
+  const maps = useMemo(
+    () => (flameMap ? [0, 1, 2].map(() => flameMap.clone()) : null),
+    [flameMap],
+  );
+  useEffect(() => () => maps?.forEach((m) => m.dispose()), [maps]);
   const embers = useRef<Group | null>(null);
+  const bed = useRef<Mesh | null>(null);
 
   useFrame((state) => {
     if (shadows.enabled && glow.current && settle.current <= 6) {
@@ -68,6 +86,15 @@ export function CampFire({
     const flare = 5.4 + Math.sin(t * 2.7) * 0.72 + Math.sin(t * 6.1) * 0.34;
     if (glow.current) glow.current.intensity = flare;
 
+    /* Up through the cone, each layer at its own rate. Negative, because
+       texture v runs down and fire does not. Modulo 1 so the offset never
+       grows large enough to lose precision in a long-lived tab. */
+    if (maps) {
+      maps.forEach((map, i) => {
+        map.offset.y = -(t * (0.34 + i * 0.13)) % 1;
+      });
+    }
+
     flames.current.forEach((flame, i) => {
       if (!flame) return;
       const wobble = Math.sin(t * (3.1 + i * 0.9) + i * 1.7);
@@ -79,6 +106,14 @@ export function CampFire({
       );
       flame.position.x = wobble * 0.024;
     });
+
+    if (bed.current) {
+      /* Coals lag the flame. They brighten and dim with it, but at a third
+         of the swing and with no sharp edge — a bed that flickered as hard
+         as the flame would read as a second flame lying down. */
+      const m = bed.current.material as { opacity: number };
+      m.opacity = 0.62 + Math.sin(t * 2.7) * 0.07 + Math.sin(t * 1.1) * 0.04;
+    }
 
     if (embers.current) {
       embers.current.children.forEach((ember, i) => {
@@ -129,6 +164,7 @@ export function CampFire({
         >
           <coneGeometry args={[flame.r, flame.h, 7]} />
           <meshBasicMaterial
+            map={maps ? maps[i] : undefined}
             color={flame.c}
             transparent
             opacity={flame.o}
@@ -138,6 +174,33 @@ export function CampFire({
           />
         </mesh>
       ))}
+
+      {/*
+        The bed of coals the logs are lying on. §7 asks for ground
+        illumination and the point light supplies that, but a light with
+        nothing visible at its origin is a fire with no heat in it — the
+        flames were floating a centimetre above bare ground.
+
+        Flat on the ground, additive, and slightly larger than the log pile,
+        so the hot ring reaches past the wood the way it does in a real fire
+        ring. depthWrite off: it is light, and light does not occlude.
+      */}
+      <mesh
+        ref={bed}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0.012, 0]}
+        renderOrder={1}
+      >
+        <circleGeometry args={[0.62, 20]} />
+        <meshBasicMaterial
+          map={emberBed ?? undefined}
+          transparent
+          opacity={0.62}
+          depthWrite={false}
+          blending={AdditiveBlending}
+          fog={false}
+        />
+      </mesh>
 
       {/*
         The light. Distance is set so the pool stops before the treeline —
