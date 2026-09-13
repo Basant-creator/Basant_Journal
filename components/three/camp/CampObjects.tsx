@@ -34,6 +34,51 @@ import { props } from "./palette";
  * cheaper — parchment, a few contours, a neatline, and the red route, which is
  * the one mark on the frontier map nobody forgets.
  */
+/**
+ * The red route, drawn once and used twice.
+ *
+ * It appears on the sheet itself, dim, the way a line of ink sits on
+ * parchment — and again on its own transparent layer, brighter, which is
+ * what comes up when the map is reached for. Two draws of the same path
+ * from one function, because a highlight that does not trace the mark
+ * underneath it is two routes rather than one being noticed.
+ */
+function drawRoute(ctx: CanvasRenderingContext2D, lit: boolean) {
+  ctx.strokeStyle = lit ? "#d4584a" : "#8c2f2a";
+  ctx.lineWidth = lit ? 3.4 : 2.6;
+  ctx.setLineDash([9, 6]);
+  ctx.beginPath();
+  ctx.moveTo(38, 132);
+  ctx.bezierCurveTo(92, 116, 118, 74, 168, 64);
+  ctx.lineTo(214, 46);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = lit ? "#d4584a" : "#8c2f2a";
+  for (const [x, y] of [[38, 132], [214, 46]]) {
+    ctx.beginPath();
+    ctx.arc(x, y, lit ? 5 : 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+/** The mark on its own, over nothing, so it can be faded in over the sheet. */
+function useRouteTexture(): CanvasTexture | null {
+  const texture = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 176;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    drawRoute(ctx, true);
+    return new CanvasTexture(canvas);
+  }, []);
+
+  useEffect(() => () => texture?.dispose(), [texture]);
+  return texture;
+}
+
 function useMapTexture(): CanvasTexture | null {
   const texture = useMemo(() => {
     if (typeof document === "undefined") return null;
@@ -62,22 +107,7 @@ function useMapTexture(): CanvasTexture | null {
     ctx.lineWidth = 2;
     ctx.strokeRect(10, 10, 236, 156);
 
-    ctx.strokeStyle = "#8c2f2a";
-    ctx.lineWidth = 2.6;
-    ctx.setLineDash([9, 6]);
-    ctx.beginPath();
-    ctx.moveTo(38, 132);
-    ctx.bezierCurveTo(92, 116, 118, 74, 168, 64);
-    ctx.lineTo(214, 46);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    ctx.fillStyle = "#8c2f2a";
-    for (const [x, y] of [[38, 132], [214, 46]]) {
-      ctx.beginPath();
-      ctx.arc(x, y, 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    drawRoute(ctx, false);
 
     return new CanvasTexture(canvas);
   }, []);
@@ -127,14 +157,45 @@ function Notebook({ state }: { state: ObjectState }) {
   );
 }
 
-function SurveyMap() {
+/**
+ * The survey map. §18.
+ *
+ * The one object here whose job is to be recognised rather than opened.
+ * It goes back to /frontier, and the whole point of it sitting on the table
+ * is the relationship between the place and the drawing of the place — so
+ * what answers when it is reached for is the route, not the paper.
+ */
+function SurveyMap({ state }: { state: ObjectState }) {
   const o = OBJECTS.map;
   const texture = useMapTexture();
+  const route = useRouteTexture();
+  const { group, face, accent } = useObjectResponse(state, o.at[1]);
   return (
-    <group position={o.at} rotation={[0, o.turn, 0]}>
+    <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.004, 0]}>
         <planeGeometry args={[0.31, 0.21]} />
-        <meshStandardMaterial map={texture ?? undefined} color={props.parchment} roughness={1} />
+        <meshStandardMaterial
+          ref={face}
+          map={texture ?? undefined}
+          color={props.parchment}
+          emissive={props.glow}
+          emissiveIntensity={0}
+          roughness={1}
+        />
+      </mesh>
+
+      {/* The mark coming up. A hair above the sheet so it cannot z-fight,
+          and unlit so the route reads as ink rather than as something
+          switched on. */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0055, 0]}>
+        <planeGeometry args={[0.31, 0.21]} />
+        <meshBasicMaterial
+          ref={accent}
+          map={route ?? undefined}
+          transparent
+          opacity={0}
+          depthWrite={false}
+        />
       </mesh>
       {/* A curled corner. A sheet that has been folded never lies flat, and a
           perfectly flat rectangle reads as a screen. */}
@@ -205,7 +266,7 @@ export function CampObjects({ activeId, hoverId }: SceneProps) {
   return (
     <group>
       <Notebook state={stateOf("notebook", activeId, hoverId)} />
-      <SurveyMap />
+      <SurveyMap state={stateOf("map", activeId, hoverId)} />
       <Photograph />
       <FieldNotes />
     </group>

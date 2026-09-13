@@ -2,7 +2,7 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
-import type { Group, MeshStandardMaterial } from "three";
+import type { Group, MeshBasicMaterial, MeshStandardMaterial } from "three";
 
 export type ObjectState = "rest" | "hover" | "active";
 
@@ -31,6 +31,17 @@ export type ObjectState = "rest" | "hover" | "active";
 export function useObjectResponse(state: ObjectState, base: number) {
   const group = useRef<Group | null>(null);
   const face = useRef<MeshStandardMaterial | null>(null);
+  /**
+   * An optional second thing an object can do when reached for.
+   *
+   * Most objects only lift and warm. The map also has a mark on it that
+   * means something — §18 wants its route to come up, because that route is
+   * how a visitor recognises this as the map they arrived from rather than
+   * as a map. Carrying it here keeps one frame loop and one set of timings;
+   * a second useFrame for one opacity would be a second place for the
+   * damping rules to drift.
+   */
+  const accent = useRef<MeshBasicMaterial | null>(null);
 
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.1);
@@ -47,7 +58,14 @@ export function useObjectResponse(state: ObjectState, base: number) {
       face.current.emissiveIntensity +=
         (warmth - face.current.emissiveIntensity) * k;
     }
+    if (accent.current) {
+      /* Further than the warmth goes, because a line has to clear the
+         parchment under it to read at all, and subtler than it sounds:
+         0.9 of a two-pixel dashed rule at four metres is a hint. */
+      const mark = state === "active" ? 0.9 : state === "hover" ? 0.62 : 0;
+      accent.current.opacity += (mark - accent.current.opacity) * k;
+    }
   });
 
-  return { group, face };
+  return { group, face, accent };
 }
