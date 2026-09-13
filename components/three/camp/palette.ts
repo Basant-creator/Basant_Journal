@@ -143,6 +143,10 @@ export const props = {
   tin: "#585c62",
   brass: "#7a6238",
   glass: "#ffca7d",
+  /** Red ink on paper: THE HAND, at rest and when it has been noticed.
+   *  The only red in this scene, and a few dozen pixels of it. */
+  mark: "#8c2f2a",
+  markLit: "#d4584a",
   /** The corner darkening every small print on a table has. Matches the
    *  vignette the record's own photograph carries, so a visitor who opens
    *  the record is looking at the same object treated the same way. */
@@ -151,3 +155,17 @@ export const props = {
    *  light, because nothing in this camp glows on its own. */
   glow: "#ff9d52",
 } as const;
+
+/**
+ * A palette colour at partial strength.
+ *
+ * Canvas textures need `rgba()` strings, and the moment that is written by
+ * hand the colour has left the palette — which is the one thing this folder is
+ * not allowed to do. Three raw `rgba(74, 58, 43, ...)` had already accumulated
+ * in the object textures before anyone noticed they were `camp.timber` spelled
+ * out.
+ */
+export function tint(hex: string, alpha: number): string {
+  const n = Number.parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}

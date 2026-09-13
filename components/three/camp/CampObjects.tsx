@@ -6,7 +6,7 @@ import { CAMP_PRINT } from "@/lib/world/camp";
 import type { SceneProps } from "../types";
 import { OBJECTS, type CampObject } from "./layout";
 import { useObjectResponse, type ObjectState } from "./useObjectResponse";
-import { props } from "./palette";
+import { camp, props, tint } from "./palette";
 
 /**
  * The four things on the table that mean something.
@@ -45,7 +45,7 @@ import { props } from "./palette";
  * underneath it is two routes rather than one being noticed.
  */
 function drawRoute(ctx: CanvasRenderingContext2D, lit: boolean) {
-  ctx.strokeStyle = lit ? "#d4584a" : "#8c2f2a";
+  ctx.strokeStyle = lit ? props.markLit : props.mark;
   ctx.lineWidth = lit ? 3.4 : 2.6;
   ctx.setLineDash([9, 6]);
   ctx.beginPath();
@@ -55,7 +55,7 @@ function drawRoute(ctx: CanvasRenderingContext2D, lit: boolean) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  ctx.fillStyle = lit ? "#d4584a" : "#8c2f2a";
+  ctx.fillStyle = lit ? props.markLit : props.mark;
   for (const [x, y] of [[38, 132], [214, 46]]) {
     ctx.beginPath();
     ctx.arc(x, y, lit ? 5 : 4, 0, Math.PI * 2);
@@ -92,7 +92,7 @@ function useMapTexture(): CanvasTexture | null {
     ctx.fillStyle = props.parchment;
     ctx.fillRect(0, 0, 256, 176);
 
-    ctx.strokeStyle = "rgba(74, 58, 43, 0.45)";
+    ctx.strokeStyle = tint(camp.timber, 0.45);
     ctx.lineWidth = 1.4;
     for (let r = 0; r < 3; r += 1) {
       ctx.beginPath();
@@ -104,7 +104,7 @@ function useMapTexture(): CanvasTexture | null {
       ctx.stroke();
     }
 
-    ctx.strokeStyle = "rgba(74, 58, 43, 0.6)";
+    ctx.strokeStyle = tint(camp.timber, 0.6);
     ctx.lineWidth = 2;
     ctx.strokeRect(10, 10, 236, 156);
 
@@ -375,26 +375,110 @@ function Photograph({ state }: { state: ObjectState }) {
   );
 }
 
-function FieldNotes() {
+/**
+ * The face of a working sheet.
+ *
+ * Ruled lines and a red tick in the margin — marks, not words. §20 is explicit
+ * that this object must not carry invented diary entries, and drawn letterforms
+ * would be exactly that with deniability: something that reads as writing at a
+ * glance is writing, whatever the pixels technically are. What is actually
+ * written on these sheets is the interests list, and it appears when the notes
+ * are opened, in text, from the content model.
+ *
+ * The tick is THE HAND — annotation, in red, on paper. It is also the only
+ * thing that tells this stack from the map's parchment at four metres, which
+ * is the same job the route does for the map.
+ */
+function useNotesTexture(): CanvasTexture | null {
+  const texture = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 192;
+    canvas.height = 146;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    ctx.fillStyle = props.paper;
+    ctx.fillRect(0, 0, 192, 146);
+
+    /* Ruled, not written on. */
+    ctx.strokeStyle = tint(camp.timber, 0.28);
+    ctx.lineWidth = 1.2;
+    for (let i = 0; i < 7; i += 1) {
+      const y = 30 + i * 15;
+      ctx.beginPath();
+      ctx.moveTo(26, y);
+      ctx.lineTo(168, y);
+      ctx.stroke();
+    }
+
+    /* The margin rule, and the tick against one line of it. */
+    ctx.strokeStyle = tint(props.mark, 0.5);
+    ctx.beginPath();
+    ctx.moveTo(20, 12);
+    ctx.lineTo(20, 134);
+    ctx.stroke();
+
+    ctx.strokeStyle = props.mark;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(8, 74);
+    ctx.lineTo(13, 80);
+    ctx.lineTo(17, 66);
+    ctx.stroke();
+
+    return new CanvasTexture(canvas);
+  }, []);
+
+  useEffect(() => () => texture?.dispose(), [texture]);
+  return texture;
+}
+
+/**
+ * The field notes. §20.
+ *
+ * A stack, and a stack is only a stack if the sheets disagree with each other.
+ * Four of them at four angles, the top one ruled and the ones beneath it plain,
+ * because that is all that is visible of them and a texture nobody can see is
+ * a texture that costs memory for nothing.
+ *
+ * Lift and warmth, and no third thing. The map earns its accent because §18
+ * asks for the route specifically; §21's warning about every object becoming a
+ * button applies just as well to every object acquiring a trick.
+ */
+function FieldNotes({ state }: { state: ObjectState }) {
   const o = OBJECTS.notes;
-  /* A stack is only a stack if the sheets disagree with each other. */
+  const ruled = useNotesTexture();
+  const { group, face } = useObjectResponse(state, o.at[1]);
+
   const sheets = [
     { y: 0.004, turn: 0, x: 0, z: 0 },
     { y: 0.009, turn: 0.14, x: 0.008, z: -0.006 },
     { y: 0.014, turn: -0.09, x: -0.006, z: 0.005 },
-    { y: 0.019, turn: 0.05, x: 0.003, z: 0.009 },
   ];
+
   return (
-    <group position={o.at} rotation={[0, o.turn, 0]}>
+    <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
       {sheets.map((s, i) => (
         <mesh key={i} rotation={[-Math.PI / 2, 0, s.turn]} position={[s.x, s.y, s.z]}>
           <planeGeometry args={[0.17, 0.13]} />
-          <meshStandardMaterial
-            color={i === sheets.length - 1 ? props.paper : props.paperEdge}
-            roughness={1}
-          />
+          <meshStandardMaterial color={props.paperEdge} roughness={1} />
         </mesh>
       ))}
+
+      {/* The top sheet, which is the only one anybody reads. It takes the
+          warmth for the whole stack — the sheets under it are edges. */}
+      <mesh rotation={[-Math.PI / 2, 0, 0.05]} position={[0.003, 0.019, 0.009]}>
+        <planeGeometry args={[0.17, 0.13]} />
+        <meshStandardMaterial
+          ref={face}
+          map={ruled ?? undefined}
+          color={props.paper}
+          emissive={props.glow}
+          emissiveIntensity={0}
+          roughness={1}
+        />
+      </mesh>
     </group>
   );
 }
@@ -418,7 +502,7 @@ export function CampObjects({ activeId, hoverId }: SceneProps) {
       <Notebook state={stateOf("notebook", activeId, hoverId)} />
       <SurveyMap state={stateOf("map", activeId, hoverId)} />
       <Photograph state={stateOf("photograph", activeId, hoverId)} />
-      <FieldNotes />
+      <FieldNotes state={stateOf("notes", activeId, hoverId)} />
     </group>
   );
 }
