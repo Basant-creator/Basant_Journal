@@ -1,7 +1,8 @@
 "use client";
 
 import { useLayoutEffect, useMemo, useRef } from "react";
-import { Object3D, type InstancedMesh } from "three";
+import { useFrame } from "@react-three/fiber";
+import { Object3D, type Group, type InstancedMesh } from "three";
 import { buildTreeStand } from "@/lib/world/camp";
 import { land } from "./palette";
 
@@ -24,6 +25,7 @@ import { land } from "./palette";
 export function CampTreeline() {
   const trees = useMemo(() => buildTreeStand(), []);
   const mesh = useRef<InstancedMesh | null>(null);
+  const stand = useRef<Group | null>(null);
 
   useLayoutEffect(() => {
     const node = mesh.current;
@@ -44,12 +46,35 @@ export function CampTreeline() {
     node.instanceMatrix.needsUpdate = true;
   }, [trees]);
 
+  /*
+    §12 asks for very subtle tree movement, and the matrices above are
+    written once on purpose — animating them would mean re-uploading the
+    whole instance buffer every frame to move sixty trees a few
+    centimetres, which is the precise cost the instancing was for.
+
+    So the stand leans as one thing instead. A single group transform per
+    frame, no buffer touched, and at this distance the difference between
+    sixty trees moving independently and sixty trees moving together is not
+    visible — the same trick the Phase 5 dust uses, and for the same reason.
+
+    Two slow waves, well under a degree. Trees at forty metres in still air
+    at dusk should be almost, but not quite, still.
+  */
+  useFrame((state) => {
+    const node = stand.current;
+    if (!node) return;
+    const t = state.clock.elapsedTime;
+    node.rotation.z = Math.sin(t * 0.17) * 0.004 + Math.sin(t * 0.41) * 0.0018;
+  });
+
   return (
-    <instancedMesh ref={mesh} args={[undefined, undefined, trees.length]} frustumCulled={false}>
+    <group ref={stand}>
+      <instancedMesh ref={mesh} args={[undefined, undefined, trees.length]} frustumCulled={false}>
       {/* Unit cone, scaled per instance. Four radial segments: at this size
           and this light a rounder tree is more triangles for no picture. */}
-      <coneGeometry args={[1, 1, 5]} />
-      <meshBasicMaterial color={land.treeline} fog />
-    </instancedMesh>
+        <coneGeometry args={[1, 1, 5]} />
+        <meshBasicMaterial color={land.treeline} fog />
+      </instancedMesh>
+    </group>
   );
 }

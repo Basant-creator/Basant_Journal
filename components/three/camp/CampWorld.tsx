@@ -1,6 +1,7 @@
 "use client";
 
 import { CameraRig } from "../CameraRig";
+import { CampAtmosphere } from "./CampAtmosphere";
 import { CampFire } from "./CampFire";
 import { CampLighting } from "./CampLighting";
 import { CampSky } from "./CampSky";
@@ -99,7 +100,8 @@ function World(_props: SceneProps) {
       {/* 11  props and papers              — steps 11-14 */}
       {/* 12  foreground grass and rocks */}
       <CampScatter />
-      {/* 13  atmospheric effects           — step 09 */}
+      {/* 13  atmospheric effects */}
+      <CampAtmosphere />
     </>
   );
 }

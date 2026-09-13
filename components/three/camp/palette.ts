@@ -109,3 +109,18 @@ export const fire = {
   log: "#241a13",
   glow: "#ff9d52",
 } as const;
+
+/**
+ * Smoke.
+ *
+ * Its own value rather than a sky tone, because the first pass reused
+ * sky.mid and rendered as nothing: a dark blue at a tenth of an opacity,
+ * over near-black ground, is a plume that exists in the scene graph and
+ * nowhere else.
+ *
+ * Smoke is visible because it is *lighter* than what it crosses, and what
+ * it crosses here is the darkest part of the picture. Pale and barely warm
+ * — a fire's smoke picks up the fire at its base and loses it on the way
+ * up, and this sits at the average rather than animating the difference.
+ */
+export const smoke = "#6f7684";
