@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
+import { useTransition } from "@/components/transition/TransitionContext";
 import { type SceneCapability, detectSceneCapability } from "@/lib/three/capability";
 import type { SceneProps } from "./types";
 import styles from "./ThreeScene.module.css";
@@ -122,6 +123,20 @@ export function ThreeScene({
     to be watched is the moment it was spending 177ms of main thread on
     something nobody can see yet.
 
+    requestIdleCallback alone did not achieve that, and §19 is where it
+    showed. Measured again with a chapter in the way: the route changes at
+    180ms, the chapter card comes up at 536ms, idle fires at 536ms too, the
+    canvas paints its first frame at 643ms — and the card does not clear
+    until 1568ms. A camera arrival of 1900ms is therefore 96% finished
+    before anybody can see the scene it is arriving into. The arrival was
+    not too slow or too fast; it was playing behind a curtain.
+
+    So the wait is on the curtain, not on a guess about the main thread.
+    IDLE is the only phase in which nothing is covering the page, and every
+    path through the transition ends there — including the 2600ms guard, so
+    a transition that somehow stalls cannot strand the scene. A route with
+    no chapter at all is IDLE from the start and mounts as it always did.
+
     Waiting costs nothing, because the fallback is not a placeholder: the
     illustrated camp is already on screen and complete. This only decides
     when it is replaced.
@@ -130,9 +145,12 @@ export function ThreeScene({
     the scene rather than never getting it; a plain timer where the API is
     missing.
   */
+  const transition = useTransition();
+  const covered = transition !== null && transition.phase !== "IDLE";
+
   const [settled, setSettled] = useState(false);
   useEffect(() => {
-    if (capability !== "ready") return;
+    if (capability !== "ready" || covered) return;
 
     if (typeof window.requestIdleCallback === "function") {
       const id = window.requestIdleCallback(() => setSettled(true), { timeout: 1400 });
@@ -141,7 +159,7 @@ export function ThreeScene({
 
     const id = window.setTimeout(() => setSettled(true), 700);
     return () => window.clearTimeout(id);
-  }, [capability]);
+  }, [capability, covered]);
 
   /* Described or hidden — the two honest options for a box with a picture
      in it. Shared by both branches so they cannot drift apart. */

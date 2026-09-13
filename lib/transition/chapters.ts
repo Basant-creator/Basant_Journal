@@ -36,10 +36,21 @@ export const CHAPTERS: Record<string, ChapterMeta> = {
     title: "The Frontier",
     subtitle: "The Survey",
   },
+  /*
+     §28 asks for this one by name, and it earns the exception. Camp is the
+     only chapter that is about a person rather than about a body of work —
+     the others are a survey, a set of records, a toolkit, a board, an
+     archive, a last stop. "Where the journey is kept" describes what is on
+     the table; this says whose table it is.
+
+     It also fits where the old one did not. The subtitle renders uppercase at
+     0.3em of tracking, and twenty-five characters at that spacing is a line
+     that has to shrink to fit a phone. Eighteen does not.
+  */
   [routes.about]: {
     chapter: "II",
     title: "The Camp",
-    subtitle: "Where the journey is kept",
+    subtitle: "Basant's Territory",
   },
   [routes.projects]: {
     chapter: "III",
