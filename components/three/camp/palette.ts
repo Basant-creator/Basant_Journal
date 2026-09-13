@@ -65,6 +65,9 @@ export const land = {
  */
 export const light = {
   key: "#5d7392",
+  /** Separation. Colder than the key and far weaker: an edge it catches
+   *  should read as the sky finding it, not as a second sun. */
+  rim: "#7f9ec4",
   sky: "#3f5570",
   bounce: "#1a1c1f",
 } as const;

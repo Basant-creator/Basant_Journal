@@ -15,6 +15,8 @@ import { CampTerrain } from "./CampTerrain";
 import { CampTreeline } from "./CampTreeline";
 import { SceneCanvas } from "../SceneCanvas";
 import { land, sky } from "./palette";
+import { useLayoutEffect, useRef } from "react";
+import type { Group, Mesh } from "three";
 import { settingsFor } from "@/lib/three/quality";
 import type { SceneProps } from "../types";
 import {
@@ -59,6 +61,42 @@ function World(props: SceneProps) {
     simply less of the gravel.
   */
   const q = settingsFor(props.tier ?? "medium");
+  const shadows = { enabled: q.shadows, mapSize: q.shadowMapSize };
+
+  /*
+    Which things are allowed to cast and catch shadows.
+
+    §28 is a list rather than a switch: the campfire area, the table, the
+    tent, the hero props, the foreground. Everything past that — ridges,
+    terrain bands, the tree stand, the haze — is lit and never shadowed,
+    because at this distance a shadow map has nothing to add and a great deal
+    to cost.
+
+    So the near field is a group, and the group is the list. Walking it once
+    on layout is cheaper and far harder to get wrong than three dozen
+    castShadow props spread across six files, and it keeps the policy in one
+    readable place.
+
+    Basic materials are skipped. Flames, embers and the map's route overlay
+    are light rather than matter; a flame that casts a shadow is a solid
+    orange cone, which is the exact failure §7 warns about.
+  */
+  const near = useRef<Group | null>(null);
+  useLayoutEffect(() => {
+    const root = near.current;
+    if (!root) return;
+    root.traverse((node) => {
+      const mesh = node as Mesh;
+      if (!mesh.isMesh) return;
+      const material = mesh.material;
+      const basic = Array.isArray(material)
+        ? material.some((m) => m.type === "MeshBasicMaterial")
+        : material?.type === "MeshBasicMaterial";
+      if (basic) return;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+    });
+  }, [q.shadows]);
 
   return (
     <>
@@ -100,19 +138,22 @@ function World(props: SceneProps) {
         from what stands on it and what the fire reaches, and a lit plane here
         spends a lighting pass to arrive at nearly the same black.
       */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, GROUND_Y, 0]}>
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, GROUND_Y, 0]}>
         <planeGeometry args={[220, 220]} />
         <meshStandardMaterial color={land.ground} roughness={1} metalness={0} />
       </mesh>
 
-      {/* 06  campfire */}
-      <CampFire embers={q.embers} />
+      {/* The near field — everything §28 spends shadows on. */}
+      <group ref={near}>
+        {/* 06  campfire */}
+        <CampFire embers={q.embers} shadows={shadows} />
 
-      {/* 07  tent · 09  chair */}
-      <CampSite />
+        {/* 07  tent · 09  chair */}
+        <CampSite />
 
-      {/* 08  table · 10  lantern */}
-      <CampTable />
+        {/* 08  table · 10  lantern */}
+        <CampTable />
+      </group>
 
 
 
@@ -151,6 +192,7 @@ export function CampWorld(props: SceneProps) {
   return (
     <SceneCanvas
       dpr={q.dpr}
+      shadows={{ enabled: q.shadows, mapSize: q.shadowMapSize }}
       background={sky.zenith}
       /* Blue hour: the far bands should already be losing themselves before
          the near ones do. Tuned properly once the terrain exists. */

@@ -3,31 +3,37 @@
 import { light } from "./palette";
 
 /**
- * Blue hour, lit.
+ * Blue hour, lit for a camera.
  *
- * Three sources and no shadow maps. The omission is deliberate and it is not a
- * budget: at this hour there is no sun left to cast a hard edge, and a shadow
- * map would spend a second full render pass every frame to darken ground that
- * the sky is already failing to light. What reads as "long shadows" in §6 is
- * the absence of fill on the far side of things, which a low key and a
- * directional hemisphere give for free.
+ * §6 asks for five roles and the scene had three. The two that were missing
+ * are the two that make a frame read as photographed rather than as lit:
+ * something to separate a foreground silhouette from the country behind it,
+ * and shadows where the eye is actually looking.
  *
- * The hemisphere does most of the work, because at blue hour it should: an
- * open sky is an enormous soft source, and the ground under it is a dark one.
- * That difference — light from above, nothing from below — is most of what
- * makes an outdoor scene read as outdoors.
+ * The arrangement is still the one §5 hangs the art direction on — a cool
+ * world and a warm camp — and the discipline that protects it is that every
+ * source here is cold. The fire and the lantern are the only warm light in
+ * the scene, and they are the only warm light because everything else
+ * deliberately refuses to be. A warm key would spend the contrast before the
+ * fire is lit.
  *
- * The key is what is left of the sun: low, behind the ridges, and cool. Not
- * golden. §5 hangs the whole art direction on the contrast between a cool
- * environment and a warm fire, and a warm key would spend that contrast before
- * the fire is even lit. The fire's own light arrives at step 08 and will be
- * the only warm source in the scene.
+ *   base        a cool hemisphere: enormous soft sky above, dark ground below
+ *   key         what is left of the sun, low and raking from behind the ridges
+ *   rim         a colder, lower, lateral source that finds the near edges
+ *   ambient     barely anything, so that nothing is a hole in the picture
+ *
+ * The key and the rim are both behind the subject, and that is not a
+ * duplication — they are at different heights, from different sides, at
+ * different temperatures. The key models the land. The rim exists for one
+ * job: to put a cold line along the top of the table, the chair and the
+ * tent so they do not merge into the treeline. §6 calls it separation and
+ * that is exactly what it is; it lights edges, not faces.
  */
 export function CampLighting() {
   return (
     <>
       {/* Sky above, ground below. The ratio is the scene's real light. */}
-      <hemisphereLight args={[light.sky, light.bounce, 1.15]} />
+      <hemisphereLight args={[light.sky, light.bounce, 1.05]} />
 
       {/*
         The last of the sun, raking from behind the ridges rather than down
@@ -35,11 +41,19 @@ export function CampLighting() {
         lit plane — the exact thing the illustrated scene spends three haze
         washes avoiding.
       */}
-      <directionalLight position={[-14, 4.5, -26]} intensity={0.62} color={light.key} />
+      <directionalLight position={[-14, 4.5, -26]} intensity={0.55} color={light.key} />
+
+      {/*
+        Separation. Low, lateral, and the coldest thing in the scene, so an
+        edge it catches reads as sky rather than as a second sun. Weak on
+        purpose: at this strength it is invisible as a light and only visible
+        as the fact that the foreground is no longer stuck to the background.
+      */}
+      <directionalLight position={[9.5, 1.8, -11]} intensity={0.26} color={light.rim} />
 
       {/* Barely anything. Enough that nothing is pure black, which at blue
           hour is the difference between shadow and a hole in the picture. */}
-      <ambientLight intensity={0.22} color={light.sky} />
+      <ambientLight intensity={0.2} color={light.sky} />
     </>
   );
 }

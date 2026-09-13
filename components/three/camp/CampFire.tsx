@@ -36,16 +36,30 @@ const EMBER_POOL = Array.from({ length: 14 }, (_, i) => ({
   size: 0.012 + (i % 3) * 0.004,
 }));
 
-export function CampFire({ embers: emberCount }: { embers: number }) {
+export function CampFire({
+  embers: emberCount,
+  shadows,
+}: {
+  embers: number;
+  shadows: { enabled: boolean; mapSize: number };
+}) {
   /* Taken off the front of a fixed pool rather than regenerated per tier, so
      a weaker machine sees the same embers as a strong one, just fewer of
      them — not a different fire. */
   const EMBERS = EMBER_POOL.slice(0, emberCount);
   const glow = useRef<PointLight | null>(null);
+  /* Counts the frames the shadow map is allowed before it is frozen. A few,
+     not one: the first frame can land before every mesh has been added. */
+  const settle = useRef(0);
   const flames = useRef<Array<Mesh | null>>([]);
   const embers = useRef<Group | null>(null);
 
   useFrame((state) => {
+    if (shadows.enabled && glow.current && settle.current <= 6) {
+      settle.current += 1;
+      if (settle.current === 6) glow.current.shadow.autoUpdate = false;
+    }
+
     const t = state.clock.elapsedTime;
 
     /* Two waves, unrelated. Base 5.4 so the camp is legible; the swing is
@@ -130,8 +144,28 @@ export function CampFire({ embers: emberCount }: { embers: number }) {
         a fire that reaches the mountains is a floodlight, and the falloff is
         most of what says how big the flame is.
       */}
+      {/*
+        Shadows from the fire, rendered once and then frozen.
+
+        A point light shadow is six faces of render, and a fire that flickers
+        sixty times a second would pay for all six every frame. But the flicker
+        is intensity, not position — the light never moves, and neither does
+        the tent, the table, or the ground under them. So the map is drawn on
+        the first frames and then switched off, and what is left is the thing
+        that actually sells a campfire at dusk: long shadows reaching away
+        from it, in the right direction, for no ongoing cost.
+
+        The objects lift a few centimetres when they are reached for and their
+        shadows do not follow. At four metres that is a fraction of a pixel.
+      */}
       <pointLight
         ref={glow}
+        castShadow={shadows.enabled}
+        shadow-mapSize-width={shadows.mapSize}
+        shadow-mapSize-height={shadows.mapSize}
+        shadow-camera-near={0.12}
+        shadow-camera-far={9}
+        shadow-bias={-0.0045}
         position={[0, 0.42, 0]}
         intensity={5.4}
         distance={11}

@@ -3,6 +3,7 @@
 import { Canvas } from "@react-three/fiber";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { PCFSoftShadowMap } from "three";
 import type { WebGLRenderer } from "three";
 
 interface SceneCanvasProps {
@@ -21,6 +22,15 @@ interface SceneCanvasProps {
    * one number that most reliably buys back a frame rate.
    */
   dpr?: [number, number];
+  /**
+   * Whether this machine draws shadows at all, and how finely.
+   *
+   * Off is a real answer, not a degraded one: at blue hour with the sun gone
+   * there is very little to cast, and the scene was built to read without
+   * them. Where they earn their cost is the camp itself — §28 wants them
+   * spent on the fire, the table, the tent and the props, and nowhere else.
+   */
+  shadows?: { enabled: boolean; mapSize: number };
   onContextLost?: () => void;
 }
 
@@ -47,6 +57,7 @@ export function SceneCanvas({
   fog,
   camera = { position: [0, 1.6, 6], fov: 42 },
   dpr = [1, 2],
+  shadows = { enabled: false, mapSize: 512 },
   onContextLost,
 }: SceneCanvasProps) {
   const holder = useRef<HTMLDivElement | null>(null);
@@ -166,6 +177,7 @@ export function SceneCanvas({
         frameloop={onScreen && awake ? "always" : "never"}
         dpr={dpr}
         camera={{ position: camera.position, fov: camera.fov ?? 42, near: 0.1, far: 200 }}
+        shadows={shadows.enabled ? { type: PCFSoftShadowMap } : false}
         gl={{
           antialias: true,
           powerPreference: "high-performance",
