@@ -82,8 +82,26 @@ export function ObjectAnchors({ anchors, sizes, into }: ObjectAnchorsProps) {
   const ids = Object.keys(anchors).join(",");
   useEffect(() => {
     const host = into.current;
+    /*
+      And one flag saying that any of this is happening.
+
+      The controls over the scene need two presentations, not two positions.
+      The illustrated camp draws an object across a fifth of the frame and has
+      room to write a name and a note inside it; the rendered camp sees the
+      same object from four metres and has room for neither. That is a layout
+      switch, and a layout switch is not something a number in a calc() can
+      make cleanly.
+
+      So the projector says once, in the DOM, that it is placing these — and
+      the stylesheet does the rest. One write on mount, one removal on
+      unmount, nothing per frame. It is the same contract as the properties
+      themselves: nothing sets it unless a renderer is actually drawing, so
+      every other case keeps the illustrated layout untouched.
+    */
+    if (host) host.dataset.anchored = "true";
     return () => {
       if (!host) return;
+      delete host.dataset.anchored;
       for (const id of ids.split(",")) {
         host.style.removeProperty(`--anchor-${id}-x`);
         host.style.removeProperty(`--anchor-${id}-y`);

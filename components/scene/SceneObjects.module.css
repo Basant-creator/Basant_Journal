@@ -8,6 +8,20 @@
   pointer-events: none;
 }
 
-.objects > * {
+/* The tablist is a frame too — it holds the tabs where they are and reaches
+   nothing else. */
+.list {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.objects > *,
+.list > * {
   pointer-events: auto;
+}
+
+/* ...except the tablist itself, which is only a wrapper. */
+.objects > .list {
+  pointer-events: none;
 }

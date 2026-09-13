@@ -28,22 +28,15 @@ import styles from "./CampStage.module.css";
  * the drawing the whole site is made of; the renderer is what a machine with
  * the spare capacity gets shown instead.
  *
- * Still the prototype, and deliberately, as of §17.
+ * The production Camp, as of §20.
  *
- * The swap to campWorld is one word — the boundary was built to make it one
- * word — and it was made, measured and taken back out. The hit areas land
- * correctly now that the bridge projects a width as well as a position: four
- * controls at 45-52, 55-60, 62-68 and 70-80 percent, with gaps of two percent
- * and no overlap anywhere. What does not land is the label layer. SceneObject
- * is built for the illustrated camp, where an object is a fifth of the frame
- * wide and its box has room for a name and a note underneath it. The rendered
- * camp sees the same table from four metres, the box is six percent wide, and
- * the label ends up pushed out of the top of it — three names floating in the
- * treeline above the objects they belong to, with "Field notes" wrapped.
- *
- * That is a presentation problem and §20 is where presentation is decided.
- * Shipping it first would put a worse Camp on the route than the one already
- * there, for three steps, to save changing one word later.
+ * The swap itself is one word — the boundary was built to make it one word —
+ * and it was made at §17, measured, and taken back out again, because the
+ * hit areas landed and the label layer did not. Four controls sized for an
+ * illustrated camp, hung on objects six percent wide, put three names in the
+ * treeline above the things they belonged to. The presentation that fixes it
+ * is in SceneObject.module.css under [data-anchored], and §20 is where
+ * presentation was always going to be decided.
  */
 export function CampStage() {
   const host = useRef<HTMLDivElement | null>(null);
@@ -60,7 +53,7 @@ export function CampStage() {
   return (
     <div ref={host} className={styles.render}>
       <ThreeScene
-        scene="camp"
+        scene="campWorld"
         className={styles.layer}
         /* The place, not its contents. "Objects on the table" follows
            immediately and names all four interactively, so listing them here

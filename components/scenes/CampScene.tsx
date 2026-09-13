@@ -107,7 +107,21 @@ export function CampScene({
           {/* Smoke and firelight already move; this is the air between them. */}
           <SceneAtmosphere variant="drift" className={styles.air} />
 
-          <SceneObjects label="Objects on the table">
+          <SceneObjects
+            label="Objects on the table"
+            aside={
+              <>
+                {/* The map is a link: it goes somewhere, so it is not a tab. */}
+                <SceneObject
+                  id="map"
+                  box={objectBox("map")}
+                  label="Map"
+                  note="Back to the survey"
+                  href={mapHref}
+                />
+              </>
+            }
+          >
             {ORDER.map((id) => (
               <SceneObject
                 key={id}
@@ -118,14 +132,6 @@ export function CampScene({
               />
             ))}
 
-            {/* The map is a link: it goes somewhere, so it is not a tab. */}
-            <SceneObject
-              id="map"
-              box={objectBox("map")}
-              label="Map"
-              note="Back to the survey"
-              href={mapHref}
-            />
           </SceneObjects>
         </SceneInteraction>
       </Scene>

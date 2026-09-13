@@ -59,6 +59,10 @@ export function SceneObject({
     loaded. One expression covers every case and neither renderer has to
     know the other exists.
 
+    Height goes through a custom property rather than being written straight
+    in, because an inline style beats a stylesheet and the anchored
+    presentation needs to shorten it. Same reason, same shape as the width.
+
     Projected anchors are centres, so the object is pulled back by half its
     own size; the 2D box is already a corner and needs no such correction.
     That is what the translate is for, and it is switched off with the
@@ -68,7 +72,7 @@ export function SceneObject({
     left: `var(--anchor-${id}-x, ${box.x}%)`,
     top: `var(--anchor-${id}-y, ${box.y}%)`,
     width: `var(--anchor-${id}-w, ${box.w}%)`,
-    height: `${box.h}%`,
+    height: `var(--object-h, ${box.h}%)`,
     "--anchor-shift": `var(--anchor-${id}-on, 0)`,
   } as CSSProperties;
 

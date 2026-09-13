@@ -129,3 +129,101 @@
     calc(var(--anchor-shift, 0) * -50%)
   );
 }
+
+/* ==========================================================================
+   The same four controls, seen from four metres.
+
+   Everything above is written for the illustrated camp, where an object is a
+   fifth of the frame wide and its box has room to hold a name and a note
+   inside it. When a renderer is placing these instead, the object is six to
+   nine percent wide and the box has room for neither: measured at step 17,
+   the names ended up pushed out of the top of their boxes and floating in the
+   treeline above the objects they belong to, with "Field notes" wrapped.
+
+   So the box stops being a panel and becomes what it always was underneath —
+   a hit area. A mark sits on the object, the name is written under it, and
+   neither is constrained by how wide the object happens to be.
+
+   [data-anchored] is set by ObjectAnchors on the stage it projects onto, and
+   only while it is actually projecting. Nothing here applies otherwise.
+   ========================================================================== */
+
+[data-anchored] .object {
+  /* The panel goes. What is left is somewhere to point. */
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
+  /* Tall enough to hit, short enough that it never reaches the sky behind
+     the table. The width comes from the projection; this cannot be written
+     as "height" because SceneObject sets that inline and an inline style
+     wins — it has to arrive as the property that declaration reads. */
+  --object-h: 11%;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-anchored] .object:hover,
+[data-anchored] .object:focus-visible,
+[data-anchored] .active {
+  border-color: transparent;
+  background: transparent;
+}
+
+/* The mark. At rest this is the only thing saying an object can be picked up,
+   which is the trade §21 asks for — four names written permanently across a
+   camp is a hotspot map, and this is meant to be a place. */
+[data-anchored] .object::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: var(--color-paper-light);
+  opacity: 0.34;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.9);
+  transition: opacity var(--duration-normal) var(--ease-standard);
+}
+
+[data-anchored] .object:hover::before,
+[data-anchored] .object:focus-visible::before {
+  opacity: 0.95;
+}
+
+/* THE HAND marks the one being read, the way it underlines it elsewhere. */
+[data-anchored] .active::before {
+  opacity: 1;
+  background: var(--color-red);
+}
+
+/* The name, written under the object rather than inside it. Out of the flex
+   flow entirely, so the width of the hit area cannot wrap it or clip it. */
+[data-anchored] .label {
+  position: absolute;
+  top: calc(50% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: clamp(0.58rem, 0.85vw, 0.7rem);
+  letter-spacing: 0.16em;
+  opacity: 0;
+}
+
+[data-anchored] .object:hover .label,
+[data-anchored] .object:focus-visible .label,
+[data-anchored] .active .label {
+  opacity: 1;
+}
+
+/* The note is the reward for reaching in a scene with room for it. Here there
+   is not: §23 asks for a small field label and explicitly not a tooltip box,
+   and the note has never been the only copy of a fact — the record below
+   carries all of it, in text. */
+[data-anchored] .note {
+  display: none;
+}
+
+/* Phones never reach this: ThreeScene refuses to mount a renderer below
+   860px, so [data-anchored] is never set there and the block above stands. */
