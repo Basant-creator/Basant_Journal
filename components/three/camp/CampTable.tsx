@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import type { PointLight } from "three";
 import { LANTERN, TABLE, TABLE_SIZE, TABLE_TOP } from "./layout";
+import { useTimberTexture } from "./CampTimber";
 import { camp, fire, props } from "./palette";
 
 /**
@@ -106,6 +107,17 @@ function Pencil() {
 
 export function CampTable() {
   const [w, d] = TABLE_SIZE;
+  /* One tile across the whole top. The texture is square and the table is
+     nearly twice as wide as it is deep, so the grain stretches along the
+     boards — which is where grain goes. */
+  const timber = useTimberTexture(1, 1);
+  const leg = useTimberTexture(1, 3);
+
+  /* The legs, as two trestles rather than four posts. A trestle is what a
+     table like this is: two A-frames and something spanning them. Four
+     separate splayed sticks read as a stool that grew. */
+  const trestleX = [-(w / 2 - 0.26), w / 2 - 0.26];
+  const legH = TABLE_TOP - 0.05;
 
   return (
     <group>
@@ -113,25 +125,48 @@ export function CampTable() {
           to catch the lantern, and the edge is what gives it weight. */}
       <mesh position={[TABLE[0], TABLE_TOP - 0.025, TABLE[2]]}>
         <boxGeometry args={[w, 0.05, d]} />
-        <meshStandardMaterial color={camp.timber} roughness={0.92} />
+        <meshStandardMaterial
+          map={timber ?? undefined}
+          color={timber ? undefined : camp.timber}
+          roughness={0.92}
+          metalness={0}
+        />
       </mesh>
 
-      {/* Four legs, splayed a touch. Trestle rather than furniture. */}
-      {[
-        [-1, -1],
-        [1, -1],
-        [-1, 1],
-        [1, 1],
-      ].map(([sx, sz], i) => (
-        <mesh
-          key={`leg-${i}`}
-          position={[TABLE[0] + sx * (w / 2 - 0.12), (TABLE_TOP - 0.05) / 2, TABLE[2] + sz * (d / 2 - 0.1)]}
-          rotation={[sz * 0.06, 0, -sx * 0.06]}
-        >
-          <boxGeometry args={[0.055, TABLE_TOP - 0.05, 0.055]} />
-          <meshStandardMaterial color={camp.timberDark} roughness={1} />
-        </mesh>
+      {trestleX.map((tx, i) => (
+        <group key={`trestle-${i}`} position={[TABLE[0] + tx, 0, TABLE[2]]}>
+          {/* Two splayed legs meeting under the top. */}
+          {[-1, 1].map((sz) => (
+            <mesh
+              key={sz}
+              position={[0, legH / 2, sz * (d / 2 - 0.16)]}
+              rotation={[-sz * 0.15, 0, 0]}
+            >
+              <boxGeometry args={[0.058, legH, 0.05]} />
+              <meshStandardMaterial
+                map={leg ?? undefined}
+                color={leg ? undefined : camp.timberDark}
+                roughness={1}
+                metalness={0}
+              />
+            </mesh>
+          ))}
+
+          {/* The crossbar that makes the pair a trestle. */}
+          <mesh position={[0, legH * 0.42, 0]}>
+            <boxGeometry args={[0.04, 0.04, d - 0.22]} />
+            <meshStandardMaterial color={camp.timberDark} roughness={1} metalness={0} />
+          </mesh>
+        </group>
       ))}
+
+      {/* And the stretcher spanning the two trestles, low down, which is the
+          piece that stops the whole thing reading as two separate objects
+          standing near each other. */}
+      <mesh position={[TABLE[0], legH * 0.3, TABLE[2]]}>
+        <boxGeometry args={[w - 0.56, 0.038, 0.038]} />
+        <meshStandardMaterial color={camp.timberDark} roughness={1} metalness={0} />
+      </mesh>
 
       <Lantern />
       <Mug />
