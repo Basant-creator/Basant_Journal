@@ -73,3 +73,43 @@
   background: var(--color-paper-light);
   border-color: var(--color-paper-light);
 }
+
+/* The bridge, made visible.
+
+   Step 15 writes each object's projected position onto this element as custom
+   properties; these markers read them back. They exist so the seam can be seen
+   working before anything depends on it — the real controls in step 20 stand
+   on exactly the same two numbers. */
+
+.anchors {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.anchor {
+  position: absolute;
+  /* The illustrated camp's own box is the fallback, so a marker with no
+     projection behind it still stands somewhere truthful rather than in the
+     top-left corner. */
+  left: var(--anchor-x, 50%);
+  top: var(--anchor-y, 50%);
+  opacity: var(--anchor-on, 0);
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.anchorDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}

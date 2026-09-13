@@ -6,20 +6,16 @@ import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
 import { SceneInteraction } from "@/components/scene/SceneInteraction";
 import { SceneObject } from "@/components/scene/SceneObject";
 import { SceneObjects } from "@/components/scene/SceneObjects";
-import { FieldPhotograph } from "@/components/world/FieldPhotograph";
-import { TornPaper } from "@/components/world/TornPaper";
 import { CAMP_HEIGHT, CAMP_WIDTH, type CampObjectId, objectBox } from "@/lib/world/camp";
+import {
+  CampRecord,
+  type CampRecordId,
+  type EducationEntry,
+} from "./CampRecord";
 import { CampStage } from "./CampStage";
 import styles from "./CampScene.module.css";
 
-type RecordId = Exclude<CampObjectId, "map">;
-
-interface EducationEntry {
-  qualification: string;
-  institution: string;
-  period: string;
-  place: string;
-}
+type RecordId = CampRecordId;
 
 interface CampSceneProps {
   name: string;
@@ -32,20 +28,17 @@ interface CampSceneProps {
 
 const ORDER: RecordId[] = ["notebook", "photograph", "notes"];
 
-const LABELS: Record<RecordId, { object: string; title: string; note: string }> = {
+const LABELS: Record<RecordId, { object: string; note: string }> = {
   notebook: {
     object: "Notebook",
-    title: "The notebook",
     note: "Who is keeping this record",
   },
   photograph: {
     object: "Photograph",
-    title: "The photograph",
     note: "Where the training happened",
   },
   notes: {
     object: "Field notes",
-    title: "Field notes",
     note: "What is being worked on",
   },
 };
@@ -137,76 +130,20 @@ export function CampScene({
         </SceneInteraction>
       </Scene>
 
-      {/* ---- the record the open object carries ---------------------- */}
-      <div
-        className={styles.record}
-        role="tabpanel"
-        id={`${baseId}-panel`}
-        aria-labelledby={`${baseId}-tab-${open}`}
-        tabIndex={0}
-      >
-        <TornPaper
-          seed={`camp-${open}`}
-          edges={["top", "right"]}
-          cornerTear="br"
-          tone="light"
-          tilt={-0.4}
-          className={styles.sheet}
-        >
-          <p className={styles.recordTag}>{LABELS[open].title}</p>
+      {/* ---- the record the open object carries ----------------------
 
-          {open === "notebook" ? (
-            <>
-              <p className={styles.recordName}>{name}</p>
-              <p className={styles.recordRole}>{role}</p>
-              <p className={styles.recordBody}>{summary}</p>
-            </>
-          ) : null}
-
-          {open === "photograph" ? (
-            <>
-              {/* The photograph the object actually is. It carries the record
-                  rather than illustrating it: a picture of the surveyor,
-                  captioned with the posting, which is what a photograph in a
-                  field journal is for. */}
-              <FieldPhotograph
-                src="/portrait/basant.jpg"
-                alt={`${name} — ${role}`}
-                width={900}
-                height={1125}
-                caption={`${name}, Punjab`}
-                className={styles.portrait}
-              />
-
-              <p className={styles.recordHead}>Education</p>
-              <ul className={styles.recordList}>
-                {education.map((entry) => (
-                  <li key={entry.institution}>
-                    <span className={styles.recordStrong}>{entry.qualification}</span>
-                    <span className={styles.recordMeta}>
-                      {entry.institution} · {entry.place}
-                    </span>
-                    <span className={styles.recordMeta}>{entry.period}</span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : null}
-
-          {open === "notes" ? (
-            <>
-              <p className={styles.recordHead}>Working on</p>
-              <ul className={styles.recordList}>
-                {interests.map((interest) => (
-                  <li key={interest}>
-                    <span className={styles.recordStrong}>{interest}</span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : null}
-        </TornPaper>
-      </div>
+           Its markup lives in CampRecord now, because the production scene
+           needs the same one. Same sheet, same seed, same content model. */}
+      <CampRecord
+        open={open}
+        name={name}
+        role={role}
+        summary={summary}
+        interests={interests}
+        education={education}
+        panelId={`${baseId}-panel`}
+        labelledBy={`${baseId}-tab-${open}`}
+      />
     </div>
   );
 }

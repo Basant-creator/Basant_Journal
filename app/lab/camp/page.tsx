@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { education, person } from "@/lib/content/portfolio";
 import { CampBench } from "./CampBench";
 import styles from "./page.module.css";
 
@@ -33,7 +34,23 @@ export default function CampLabPage() {
         </p>
       </header>
 
-      <CampBench />
+      {/* The content comes off the same model /about reads. The bench is a
+          bench, but a record with invented text in it would prove nothing
+          about the record that ships. */}
+      <CampBench
+        record={{
+          name: person.name,
+          role: person.role,
+          summary: person.summary,
+          interests: person.interests,
+          education: education.map((entry) => ({
+            qualification: entry.qualification,
+            institution: entry.institution,
+            period: entry.period,
+            place: entry.place,
+          })),
+        }}
+      />
     </>
   );
 }

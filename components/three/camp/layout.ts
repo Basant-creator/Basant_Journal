@@ -81,6 +81,27 @@ export const OBJECTS = {
 
 export type CampObject = keyof typeof OBJECTS;
 export const OBJECT_ORDER = Object.keys(OBJECTS) as CampObject[];
+/**
+ * Where a label over the canvas should stand, per object.
+ *
+ * Not the object's own position. An anchor at the object's origin projects to
+ * the table surface it is lying on, and a control centred there covers the
+ * thing it names — which is the version that feels like a hotspot map rather
+ * than like a place. These sit a little above and a little toward the camera,
+ * so the label reads as belonging to the object without sitting on it.
+ *
+ * The lift is fixed rather than following the object up when it is picked up.
+ * A control that moves while being pointed at is a control that can slide out
+ * from under the pointer, and §23's whole point is that the response is small
+ * enough to notice the object rather than the effect.
+ */
+export const ANCHORS: Record<CampObject, Vec3> = {
+  notebook: [0.18, TABLE_TOP + 0.09, 2.08],
+  map: [1.18, TABLE_TOP + 0.07, 2.17],
+  photograph: [0.52, TABLE_TOP + 0.07, 1.68],
+  notes: [1.05, TABLE_TOP + 0.08, 1.74],
+};
+
 
 /* --- the country behind it ------------------------------------------------ */
 

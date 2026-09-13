@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CampArt } from "@/components/scenes/CampArt";
+import {
+  CampRecord,
+  type CampRecordContent,
+  type CampRecordId,
+} from "@/components/scenes/CampRecord";
 import { ThreeScene } from "@/components/three/ThreeScene";
 import type { SceneProps } from "@/components/three/types";
 import styles from "./page.module.css";
@@ -21,12 +26,19 @@ type Id = (typeof OBJECTS)[number];
  * Hover and selection are separate controls on purpose. They are separate
  * states in the scene, they look different, and the commonest way to ship a
  * broken one is to only ever test them together.
+ *
+ * The markers over the canvas are the other half of the same idea. The scene
+ * writes where each object landed on screen; these read it back. Seeing them
+ * sit on the objects is the only way to know the projection is right before
+ * anything is built on top of it — and a marker that has drifted is visible
+ * instantly, where a wrong number in a custom property is not.
  */
-export function CampBench() {
+export function CampBench({ record }: { record: CampRecordContent }) {
   const [hoverId, setHoverId] = useState<Id | null>(null);
   const [activeId, setActiveId] = useState<Id | null>(null);
+  const anchors = useRef<HTMLDivElement | null>(null);
 
-  const state: SceneProps = { hoverId, activeId };
+  const state: SceneProps = { hoverId, activeId, anchorTarget: anchors };
 
   return (
     <>
@@ -60,7 +72,44 @@ export function CampBench() {
         label="Camp at dusk: a low fire in front of a tent, with the ridges of the surveyed territory behind it."
         fallback={<CampArt />}
         state={state}
-      />
+      >
+        {/* aria-hidden: these are the bench's own instrumentation, not the
+            scene's controls. The real ones arrive in step 20 and are buttons. */}
+        <div className={styles.anchors} ref={anchors} aria-hidden="true">
+          {OBJECTS.map((id) => (
+            <span
+              key={id}
+              className={styles.anchor}
+              style={
+                {
+                  "--anchor-x": `var(--anchor-${id}-x)`,
+                  "--anchor-y": `var(--anchor-${id}-y)`,
+                  "--anchor-on": `var(--anchor-${id}-on)`,
+                } as React.CSSProperties
+              }
+            >
+              <i className={styles.anchorDot} />
+              {id}
+            </span>
+          ))}
+        </div>
+      </ThreeScene>
+
+      {/*
+        And what the open object says.
+
+        §17: an object is picked up and a sheet of paper carries what it
+        holds. The scene renders no text at all — what is on the table is an
+        object, what is readable is here, in the layer THE PAPER owns. That
+        split is why the illustrated camp and the rendered camp can swap
+        underneath this without a word of it moving.
+
+        The map is missing from this on purpose. It is not a record; it goes
+        somewhere, and §18 gives it a route rather than a sheet.
+      */}
+      {activeId && activeId !== "map" ? (
+        <CampRecord open={activeId as CampRecordId} {...record} />
+      ) : null}
     </>
   );
 }

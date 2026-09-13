@@ -1,6 +1,7 @@
 "use client";
 
 import { CameraRig } from "../CameraRig";
+import { ObjectAnchors } from "../ObjectAnchors";
 import { CampAtmosphere } from "./CampAtmosphere";
 import { CampFire } from "./CampFire";
 import { CampLighting } from "./CampLighting";
@@ -22,6 +23,7 @@ import {
   CAMERA_HOME,
   CAMERA_TARGET,
   GROUND_Y,
+  ANCHORS,
 } from "./layout";
 
 /**
@@ -107,6 +109,22 @@ function World(props: SceneProps) {
       <CampScatter />
       {/* 13  atmospheric effects */}
       <CampAtmosphere />
+
+      {/*
+        And the one thing the scene tells the page back.
+
+        Everything above reads the DOM; this writes to it — where each object
+        ended up on screen, as custom properties, so the controls over the
+        canvas can stand on the objects they name. It is the same seam the
+        illustrated camp uses, and it is why the two can swap without the
+        controls being reimplemented for either.
+
+        Absent when nobody asked for it: a scene on a bench with no label
+        layer should not be projecting four points every frame.
+      */}
+      {props.anchorTarget ? (
+        <ObjectAnchors anchors={ANCHORS} into={props.anchorTarget} />
+      ) : null}
     </>
   );
 }
