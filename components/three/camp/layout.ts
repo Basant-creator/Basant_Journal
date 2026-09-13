@@ -232,19 +232,46 @@ export const CAMERA_BOUNDS = {
 /**
  * The arrival. §8.
  *
- * High and well back, so the approach descends: distant country first, the
- * camp reading as a silhouette, then the fire, then the table resolving as
- * the camera comes down to standing height. That sequence is a consequence of
+ * Well back, so the approach descends: distant country first, the camp
+ * reading as a silhouette, then the fire, then the table resolving as the
+ * camera comes down to standing height. That sequence is a consequence of
  * where it starts rather than something choreographed beat by beat — a camera
- * falling from 4.6m to 1.62m over sixteen metres of ground passes through all
- * of it on the way.
+ * falling toward 1.62m over sixteen metres of ground passes through all of it
+ * on the way. Measured across the move, as a share of the frame:
+ *
+ *            t=0    t=0.4   t=0.8    t=1
+ *   fire     7.8%    9.8%   20.1%   22.3%
+ *   tent    12.8%   15.9%   30.0%   32.7%
+ *   table   11.1%   14.6%   38.6%   45.4%
+ *
+ * Everything grows and nothing overtakes anything, which is §19's order
+ * happening by itself.
+ *
+ * **It used to start too high.** At 4.7m the camera was pitched 12.4 degrees
+ * down, which put the horizon at 16% and the afterglow band at 0.7% — off the
+ * top of the frame for all practical purposes. So the opening shot of a scene
+ * whose second named beat is "mountain silhouette" had almost no sky in it
+ * and the ridges crushed into the top six percent. The beat had nowhere to
+ * happen.
+ *
+ * 3.6m pitches 8.6 degrees instead: horizon at 27%, ridges at 15%, and the
+ * band at 10% where it can be seen. The distance is unchanged, so the camp is
+ * still small — the table opens at 11% of frame width and ends at 45% — and
+ * the sky opens from 27% to 36% as the camera comes down, which is the right
+ * direction for a shot that is arriving somewhere.
  *
  * 1900ms, inside the brief's 1.2–2.5s with room at both ends. The upper bound
  * is the one that matters: past it a visitor stops feeling that the site is
  * showing them something and starts feeling that it is making them wait.
+ *
+ * The curve stays smootherstep. It spends the first fifth of the move
+ * covering about a fiftieth of the distance, which sounds like a fault and is
+ * §19's second beat — "slow camera movement" — written down. Nothing is
+ * waiting on it either way: the controls over the canvas are live from the
+ * first frame, so what is easing is the camera and not the visitor.
  */
 export const CAMERA_ARRIVAL = {
-  from: [1.9, 4.7, 16.2] as Vec3,
+  from: [1.9, 3.6, 16.2] as Vec3,
   ms: 1900,
 };
 

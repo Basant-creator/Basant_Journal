@@ -2,7 +2,7 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
-import type { Group, MeshBasicMaterial, MeshStandardMaterial } from "three";
+import type { Group, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 
 export type ObjectState = "rest" | "hover" | "active";
 
@@ -42,6 +42,22 @@ export function useObjectResponse(state: ObjectState, base: number) {
    * damping rules to drift.
    */
   const accent = useRef<MeshBasicMaterial | null>(null);
+  /**
+   * The dark under the object, which does not rise with it.
+   *
+   * §36 lists a shadow change among the things a hero object should do when
+   * it is reached for, and nothing in the scene could deliver one: the fire
+   * casts real shadows and its map is frozen after six frames, so a lift has
+   * no shadow consequence at all. An object rising with its shadow unchanged
+   * does not read as rising — it reads as getting bigger, which is the one
+   * response §36 explicitly rules out.
+   *
+   * This is a mesh rather than a material because both its scale and its
+   * opacity move. It lives outside the lifting group, on the table, and is
+   * driven from here so the whole response stays in one frame loop and one
+   * set of damping constants.
+   */
+  const shade = useRef<Mesh | null>(null);
 
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.1);
@@ -58,6 +74,18 @@ export function useObjectResponse(state: ObjectState, base: number) {
       face.current.emissiveIntensity +=
         (warmth - face.current.emissiveIntensity) * k;
     }
+    if (shade.current) {
+      /* Wider and fainter as the object leaves the surface, which is what a
+         shadow from a broad dim source actually does with separation — the
+         cheap trick and the physics agree here. */
+      const spread = 1 + (lift / 0.055) * 0.34;
+      const dark = state === "rest" ? 1 : state === "hover" ? 0.78 : 0.6;
+      const s = shade.current.scale;
+      s.setScalar(s.x + (spread - s.x) * k);
+      const material = shade.current.material as MeshBasicMaterial;
+      material.opacity += (dark * 0.55 - material.opacity) * k;
+    }
+
     if (accent.current) {
       /* Further than the warmth goes, because a line has to clear the
          parchment under it to read at all, and subtler than it sounds:
@@ -67,5 +95,5 @@ export function useObjectResponse(state: ObjectState, base: number) {
     }
   });
 
-  return { group, face, accent };
+  return { group, face, accent, shade };
 }

@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { CanvasTexture, DoubleSide, SRGBColorSpace } from "three";
+import { forwardRef, useEffect, useMemo, useState } from "react";
+import { CanvasTexture, DoubleSide, SRGBColorSpace, type Mesh } from "three";
 import { locations } from "@/lib/content/portfolio";
 import { primaryTrail, trails } from "@/lib/map/locations";
 import { SHEET_HEIGHT, SHEET_WIDTH, silhouettePoints, terrain } from "@/lib/map/terrain";
 import { CAMP_PRINT } from "@/lib/world/camp";
 import type { SceneProps } from "../types";
-import { OBJECTS, type CampObject } from "./layout";
+import { OBJECTS, type CampObject, type Vec3 } from "./layout";
 import { useObjectResponse, type ObjectState } from "./useObjectResponse";
 import { useLeatherTexture, usePageEdgeTexture } from "./CampLeather";
 import { usePaperStock } from "./CampPaper";
+import { useShadeTexture } from "./CampShade";
 import { camp, land, props, tint } from "./palette";
 
 /**
@@ -218,6 +219,40 @@ function useMapTexture(): CanvasTexture | null {
 }
 
 /**
+ * The dark under one object.
+ *
+ * Rendered outside the lifting group and positioned on the table, so it stays
+ * put while the thing above it rises. renderOrder 2 and no depth writing: it
+ * sits a millimetre over a wooden surface and must not fight it.
+ *
+ * Sized from the object rather than from a constant, because a notebook and a
+ * photograph do not cast the same shadow and four identical ovals under four
+ * different objects is the kind of thing nobody names and everybody feels.
+ */
+const ContactShade = forwardRef<Mesh, { at: Vec3; turn: number; size: [number, number] }>(
+  function ContactShade({ at, turn, size }, ref) {
+    const map = useShadeTexture();
+    return (
+      <mesh
+        ref={ref}
+        rotation={[-Math.PI / 2, 0, turn]}
+        position={[at[0], at[1] + 0.0012, at[2]]}
+        renderOrder={2}
+      >
+        <planeGeometry args={[size[0] * 1.55, size[1] * 1.65]} />
+        <meshBasicMaterial
+          map={map ?? undefined}
+          transparent
+          opacity={0.55}
+          depthWrite={false}
+          fog={false}
+        />
+      </mesh>
+    );
+  },
+);
+
+/**
  * The notebook. §14, and the first object in the camp that answers back.
  *
  * Its annotation in the DOM is "Notebook — who is keeping this record",
@@ -228,12 +263,14 @@ function useMapTexture(): CanvasTexture | null {
  */
 function Notebook({ state }: { state: ObjectState }) {
   const o = OBJECTS.notebook;
-  const { group, face } = useObjectResponse(state, o.at[1]);
+  const { group, face , shade } = useObjectResponse(state, o.at[1]);
   const leather = useLeatherTexture();
   const edges = usePageEdgeTexture();
 
   return (
-    <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
+    <>
+      <ContactShade ref={shade} at={o.at} turn={o.turn} size={[0.23, 0.17]} />
+      <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
       {/* The back board. */}
       <mesh position={[0, 0.00275, 0]}>
         <boxGeometry args={[0.23, 0.0055, 0.17]} />
@@ -321,6 +358,7 @@ function Notebook({ state }: { state: ObjectState }) {
         <meshStandardMaterial color={props.ink} roughness={1} metalness={0} />
       </mesh>
     </group>
+    </>
   );
 }
 
@@ -336,9 +374,11 @@ function SurveyMap({ state }: { state: ObjectState }) {
   const o = OBJECTS.map;
   const texture = useMapTexture();
   const route = useRouteTexture();
-  const { group, face, accent } = useObjectResponse(state, o.at[1]);
+  const { group, face, accent , shade } = useObjectResponse(state, o.at[1]);
   return (
-    <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
+    <>
+      <ContactShade ref={shade} at={o.at} turn={o.turn} size={[0.31, 0.21]} />
+      <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.004, 0]}>
         <planeGeometry args={[0.31, 0.21]} />
         <meshStandardMaterial
@@ -371,6 +411,7 @@ function SurveyMap({ state }: { state: ObjectState }) {
         <meshStandardMaterial color={props.paperEdge} roughness={1} side={DoubleSide} />
       </mesh>
     </group>
+    </>
   );
 }
 
@@ -499,10 +540,12 @@ function Photograph({ state }: { state: ObjectState }) {
   const o = OBJECTS.photograph;
   const print = usePrintTexture();
   const stock = usePaperStock();
-  const { group, face } = useObjectResponse(state, o.at[1]);
+  const { group, face , shade } = useObjectResponse(state, o.at[1]);
 
   return (
-    <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
+    <>
+      <ContactShade ref={shade} at={o.at} turn={o.turn} size={[0.16, 0.126]} />
+      <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
       {/* The mount, with a real thickness. The border is the silhouette cue —
           a bordered rectangle is a print, an unbordered one is a card — and
           the card only reads as card from across the table if it has an edge
@@ -577,6 +620,7 @@ function Photograph({ state }: { state: ObjectState }) {
         />
       </mesh>
     </group>
+    </>
   );
 }
 
@@ -654,7 +698,7 @@ function useNotesTexture(): CanvasTexture | null {
 function FieldNotes({ state }: { state: ObjectState }) {
   const o = OBJECTS.notes;
   const ruled = useNotesTexture();
-  const { group, face } = useObjectResponse(state, o.at[1]);
+  const { group, face , shade } = useObjectResponse(state, o.at[1]);
 
   const sheets = [
     { y: 0.004, turn: 0, x: 0, z: 0 },
@@ -663,7 +707,9 @@ function FieldNotes({ state }: { state: ObjectState }) {
   ];
 
   return (
-    <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
+    <>
+      <ContactShade ref={shade} at={o.at} turn={o.turn} size={[0.17, 0.13]} />
+      <group ref={group} position={o.at} rotation={[0, o.turn, 0]}>
       {sheets.map((s, i) => (
         <mesh key={i} rotation={[-Math.PI / 2, 0, s.turn]} position={[s.x, s.y, s.z]}>
           <planeGeometry args={[0.17, 0.13]} />
@@ -685,6 +731,7 @@ function FieldNotes({ state }: { state: ObjectState }) {
         />
       </mesh>
     </group>
+    </>
   );
 }
 
