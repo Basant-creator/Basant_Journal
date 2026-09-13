@@ -303,3 +303,46 @@ export function buildLandBands(): LandBand[] {
     return { profile, z: band.z, rise: band.rise };
   });
 }
+
+/* --- the tree line -------------------------------------------------------- */
+
+export interface Conifer {
+  x: number;
+  z: number;
+  height: number;
+  radius: number;
+  lean: number;
+}
+
+/**
+ * A stand of conifers along the edge of the near country.
+ *
+ * Thinned through the middle, exactly as the illustrated treeline is, so the
+ * tent and the fire are not crowded from behind — a solid wall of trees turns
+ * the camp into a diorama in a box.
+ *
+ * Positions carry a little depth of their own rather than sitting on one line.
+ * A treeline is a band, not a fence, and the two read completely differently
+ * once anything in front of them moves.
+ */
+export function buildTreeStand(count = 64, z = -12): Conifer[] {
+  const rng = createRng(seedFrom("camp-tree-stand"));
+  const round = (n: number) => Math.round(n * 1000) / 1000;
+  const out: Conifer[] = [];
+
+  for (let i = 0; i < count; i += 1) {
+    const x = rng.range(-46, 46);
+    /* The gap the camp sits in. */
+    if (x > -9 && x < 7 && rng.chance(0.72)) continue;
+
+    out.push({
+      x: round(x),
+      z: round(z + rng.range(-3.4, 2.2)),
+      height: round(rng.range(2.6, 5.8)),
+      radius: round(rng.range(0.5, 1.05)),
+      lean: round(rng.jitter(0.07)),
+    });
+  }
+
+  return out;
+}

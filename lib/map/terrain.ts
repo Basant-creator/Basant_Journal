@@ -158,16 +158,34 @@ function silhouette(points: Point[]): string {
   return `${polylinePath(points)} L ${last.x} ${SHEET_HEIGHT} L ${first.x} ${SHEET_HEIGHT} Z`;
 }
 
+/**
+ * The three ridge silhouettes as points, before anything decides how to draw
+ * them.
+ *
+ * Widened so a filled silhouette reaches past the frame on the landing scene,
+ * where the ridge is scenery rather than cartography — and for the same
+ * reason they are what Camp stands in front of. The illustrated camp already
+ * borrows these; the rendered one has to borrow the same ones or the two are
+ * different places wearing the same name.
+ *
+ * Safe to call more than once: ridgePoints seeds its own generator from the
+ * name, so each silhouette is the same silhouette regardless of when or in
+ * what order it is asked for.
+ */
+export function silhouettePoints(): Point[][] {
+  return [
+    ridgePoints("sil-far", -120, 1760, 300, 8, 132),
+    ridgePoints("sil-mid", -160, 1740, 380, 6, 96),
+    ridgePoints("sil-near", -140, 1780, 470, 5, 64),
+  ];
+}
+
 function buildMountains(): TerrainModel["mountains"] {
   const far = ridgePoints("ridge-far", 330, 1540, 262, 7, 118);
   const mid = ridgePoints("ridge-mid", 380, 1500, 292, 5, 86);
   const near = ridgePoints("ridge-near", 300, 1120, 316, 4, 58);
 
-  // Widened so a filled silhouette reaches past the frame on the landing
-  // scene, where the ridge is scenery rather than cartography.
-  const wideFar = ridgePoints("sil-far", -120, 1760, 300, 8, 132);
-  const wideMid = ridgePoints("sil-mid", -160, 1740, 380, 6, 96);
-  const wideNear = ridgePoints("sil-near", -140, 1780, 470, 5, 64);
+  const [wideFar, wideMid, wideNear] = silhouettePoints();
 
   const rngA = createRng(seedFrom("ridge-jitter-a"));
   const rngB = createRng(seedFrom("ridge-jitter-b"));

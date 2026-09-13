@@ -3,7 +3,9 @@
 import { CameraRig } from "../CameraRig";
 import { CampLighting } from "./CampLighting";
 import { CampSky } from "./CampSky";
+import { CampMountains } from "./CampMountains";
 import { CampTerrain } from "./CampTerrain";
+import { CampTreeline } from "./CampTreeline";
 import { SceneCanvas } from "../SceneCanvas";
 import { land, sky } from "./palette";
 import type { SceneProps } from "../types";
@@ -61,10 +63,14 @@ function World(_props: SceneProps) {
       <CampSky />
       <CampLighting />
 
-      {/* 02  distant mountains             — step 06 */}
+      {/* 02  distant mountains */}
+      <CampMountains />
+
       {/* 03  distant terrain · 05  mid-ground terrain */}
       <CampTerrain />
-      {/* 04  tree line                     — step 06 */}
+      {/* 04  tree line */}
+      <CampTreeline />
+
 
 
       {/*

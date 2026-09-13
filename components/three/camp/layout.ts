@@ -180,3 +180,30 @@ export const RIDGE_CREST = 9.2;
  * Above it is the only light in the picture.
  */
 export const SKY_BAND_Y = 14.3;
+
+/* --- the mountains -------------------------------------------------------- */
+
+/**
+ * How the survey sheet's ridge silhouettes become mountains.
+ *
+ * The illustrated camp already stands in front of these — "the country,
+ * borrowed from the survey's own mountains" — so the rendered one uses the
+ * same three, read from `silhouettePoints()`. Anything else makes two places
+ * that share a name.
+ *
+ * `crest` is how high each ridge rises in metres; the scale that gets it there
+ * is derived from the silhouette's own amplitude, so a change to the map's
+ * mountains moves Camp's mountains with it.
+ *
+ * Each crest clears the land band in front of it by enough to still be read as
+ * a ridge rather than as more ground: 9.2 over a 4.3 band, 6.5 over 2.8, 4.2
+ * over 1.9.
+ */
+export const MOUNTAINS = [
+  { z: RIDGE_Z[0], crest: RIDGE_CREST },
+  { z: RIDGE_Z[1], crest: 6.5 },
+  { z: RIDGE_Z[2], crest: 4.2 },
+] as const;
+
+/** The sheet is 1600 wide; its middle is what the camp faces. */
+export const SHEET_MIDDLE = 800;
