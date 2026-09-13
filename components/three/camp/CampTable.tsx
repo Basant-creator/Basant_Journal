@@ -2,7 +2,7 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
-import type { PointLight } from "three";
+import { DoubleSide, type Mesh, type MeshStandardMaterial, type PointLight } from "three";
 import { LANTERN, TABLE, TABLE_SIZE, TABLE_TOP } from "./layout";
 import { useTimberTexture } from "./CampTimber";
 import { camp, fire, props } from "./palette";
@@ -34,48 +34,107 @@ import { camp, fire, props } from "./palette";
  */
 function Lantern() {
   const glow = useRef<PointLight | null>(null);
+  const wick = useRef<Mesh | null>(null);
+  const glass = useRef<MeshStandardMaterial | null>(null);
 
   useFrame((state) => {
-    if (!glow.current) return;
     const t = state.clock.elapsedTime;
-    glow.current.intensity = 1.35 + Math.sin(t * 1.6) * 0.1 + Math.sin(t * 3.7) * 0.05;
+    /* One flicker, read by three things. The light, the flame and the glass
+       all move together because they are the same event — a lantern whose
+       light brightens while its flame does not is two objects. */
+    const flare = 1 + Math.sin(t * 1.6) * 0.074 + Math.sin(t * 3.7) * 0.037;
+
+    if (glow.current) glow.current.intensity = 1.35 * flare;
+    if (wick.current) wick.current.scale.set(1, 0.9 + flare * 0.14, 1);
+    if (glass.current) glass.current.emissiveIntensity = 0.5 * flare;
   });
 
   return (
     <group position={LANTERN}>
-      {/* Base and cap, dark: the frame is not the light. */}
+      {/* Base and cap. Brass that has been carried: rough enough not to
+          mirror, metallic enough to go warm where the fire reaches it and
+          dark where it does not. */}
       <mesh position={[0, 0.02, 0]}>
-        <cylinderGeometry args={[0.075, 0.085, 0.04, 8]} />
-        <meshStandardMaterial color={props.brass} roughness={0.7} metalness={0.3} />
+        <cylinderGeometry args={[0.075, 0.085, 0.04, 10]} />
+        <meshStandardMaterial color={props.brass} roughness={0.52} metalness={0.55} />
       </mesh>
       <mesh position={[0, 0.235, 0]}>
-        <cylinderGeometry args={[0.085, 0.06, 0.05, 8]} />
-        <meshStandardMaterial color={props.brass} roughness={0.7} metalness={0.3} />
+        <cylinderGeometry args={[0.085, 0.06, 0.05, 10]} />
+        <meshStandardMaterial color={props.brass} roughness={0.52} metalness={0.55} />
       </mesh>
 
-      {/* The glass. Emissive rather than lit — it is the source, and a source
-          that waits to be lit is a lamp that is off. */}
+      {/*
+        The uprights.
+
+        This is the difference between a lantern and a jar, and it costs three
+        thin boxes. A glass cylinder between two brass discs is a preserve;
+        the same thing with bars running up the outside of the glass is a
+        lamp somebody carries. The silhouette does all of the work — at four
+        metres the bars are two pixels and they are still the reason the
+        object has a name.
+      */}
+      {[0, 1, 2].map((i) => {
+        const a = (i / 3) * Math.PI * 2 + 0.4;
+        return (
+          <mesh
+            key={i}
+            position={[Math.cos(a) * 0.062, 0.13, Math.sin(a) * 0.062]}
+            rotation={[0, -a, 0]}
+          >
+            <boxGeometry args={[0.008, 0.17, 0.006]} />
+            <meshStandardMaterial color={props.brass} roughness={0.56} metalness={0.55} />
+          </mesh>
+        );
+      })}
+
+      {/*
+        The flame, and then the glass in front of it.
+
+        The glass used to be a solid emissive cylinder — the whole chimney
+        lit from within at a constant value, which is a tube of light rather
+        than a lamp. A lantern is a small bright thing inside a dull
+        transparent thing, and the reason that reads is that the two are
+        different sizes: the flame is a fraction of the chimney, so most of
+        the glass is dark and the eye finds the bright part on its own.
+      */}
+      <mesh ref={wick} position={[0, 0.105, 0]}>
+        <coneGeometry args={[0.014, 0.05, 6]} />
+        <meshBasicMaterial color={fire.core} fog={false} />
+      </mesh>
+
       <mesh position={[0, 0.13, 0]}>
-        <cylinderGeometry args={[0.06, 0.06, 0.17, 8]} />
+        <cylinderGeometry args={[0.058, 0.058, 0.17, 12, 1, true]} />
+        {/*
+          Transparent, double-sided, and not writing depth: a chimney has a
+          near wall and a far wall, and both of them have to be in front of
+          the flame from somewhere. Faintly emissive on its own because glass
+          beside a flame carries some of it — but a fraction of what the
+          flame has, or the chimney goes back to being a tube of light.
+        */}
         <meshStandardMaterial
+          ref={glass}
           color={props.glass}
           emissive={props.glass}
-          emissiveIntensity={1.5}
-          roughness={0.4}
+          emissiveIntensity={0.5}
+          roughness={0.18}
+          metalness={0}
+          transparent
+          opacity={0.34}
+          depthWrite={false}
+          side={DoubleSide}
         />
       </mesh>
 
       {/* The handle, which is most of what says "lantern" rather than "jar". */}
       <mesh position={[0, 0.3, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.05, 0.006, 4, 10, Math.PI]} />
-        <meshStandardMaterial color={props.brass} roughness={0.8} metalness={0.3} />
+        <meshStandardMaterial color={props.brass} roughness={0.62} metalness={0.5} />
       </mesh>
 
-      <pointLight ref={glow} position={[0, 0.14, 0]} intensity={1.35} distance={3.4} decay={2} color={fire.core} />
+      <pointLight ref={glow} position={[0, 0.12, 0]} intensity={1.35} distance={3.4} decay={2} color={fire.core} />
     </group>
   );
 }
-
 /** A tin mug, set down and forgotten. Nothing happens if you look at it. */
 function Mug() {
   return (
