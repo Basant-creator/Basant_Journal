@@ -58,6 +58,18 @@ export function useObjectResponse(state: ObjectState, base: number) {
    * set of damping constants.
    */
   const shade = useRef<Mesh | null>(null);
+  /**
+   * A cover, on its hinge.
+   *
+   * The third thing an object can optionally do, alongside the map's accent.
+   * Only the notebook uses it, and §37 is why: opening it is named as one of
+   * the signature moments of the phase, and an object that becomes a document
+   * without ever appearing to open is a link with a picture on it.
+   *
+   * Slower than the lift. A cover has mass and a lift does not — the same
+   * damping on both would make the board snap up like a lid on a spring.
+   */
+  const cover = useRef<Group | null>(null);
 
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.1);
@@ -74,6 +86,16 @@ export function useObjectResponse(state: ObjectState, base: number) {
       face.current.emissiveIntensity +=
         (warmth - face.current.emissiveIntensity) * k;
     }
+    if (cover.current) {
+      /* 85 degrees. Ninety would stand it dead vertical and edge-on; past
+         ninety it leans off the table, which was measured at 100 degrees
+         reaching x -0.203 against a table edge at -0.200. At 85 the inner
+         face turns toward the camera, which is the face §37 wants seen. */
+      const angle = state === "active" ? 1.48 : 0;
+      const slow = 1 - Math.exp(-5.5 * dt);
+      cover.current.rotation.z += (angle - cover.current.rotation.z) * slow;
+    }
+
     if (shade.current) {
       /* Wider and fainter as the object leaves the surface, which is what a
          shadow from a broad dim source actually does with separation — the
@@ -95,5 +117,5 @@ export function useObjectResponse(state: ObjectState, base: number) {
     }
   });
 
-  return { group, face, accent, shade };
+  return { group, face, accent, shade, cover };
 }

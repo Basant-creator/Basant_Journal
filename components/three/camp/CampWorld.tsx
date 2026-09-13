@@ -28,6 +28,7 @@ import {
   CAMERA_TARGET,
   ANCHORS,
   ANCHOR_WIDTHS,
+  type CampObject,
 } from "./layout";
 
 /**
@@ -62,6 +63,13 @@ function World(props: SceneProps) {
   */
   const q = settingsFor(props.tier ?? "medium");
   const shadows = { enabled: q.shadows, mapSize: q.shadowMapSize };
+
+  /* What the camera leans toward, if anything is open. Null when nothing is,
+     which is the resting composition §5 was framed for. */
+  const activeFocus =
+    props.activeId && props.activeId in ANCHORS
+      ? ANCHORS[props.activeId as CampObject]
+      : null;
 
   /*
     Which things are allowed to cast and catch shadows.

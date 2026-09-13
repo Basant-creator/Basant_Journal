@@ -263,7 +263,7 @@ const ContactShade = forwardRef<Mesh, { at: Vec3; turn: number; size: [number, n
  */
 function Notebook({ state }: { state: ObjectState }) {
   const o = OBJECTS.notebook;
-  const { group, face , shade } = useObjectResponse(state, o.at[1]);
+  const { group, face, shade, cover } = useObjectResponse(state, o.at[1]);
   const leather = useLeatherTexture();
   const edges = usePageEdgeTexture();
 
@@ -323,21 +323,33 @@ function Notebook({ state }: { state: ObjectState }) {
         </mesh>
       ))}
 
-      {/* The front board, which takes the warmth. Leather catching a little
-          more firelight is a book being noticed; glowing paper is a screen,
-          which is why the emissive lives here and not on the block. */}
-      <mesh position={[0, 0.0385, 0]}>
-        <boxGeometry args={[0.23, 0.006, 0.17]} />
-        <meshStandardMaterial
-          ref={face}
-          map={leather ?? undefined}
-          color={leather ? undefined : props.leather}
-          emissive={props.glow}
-          emissiveIntensity={0}
-          roughness={0.85}
-          metalness={0}
-        />
-      </mesh>
+      {/*
+        The front board, on its hinge. §37.
+
+        The group sits on the spine and the board hangs off it, so rotating
+        the group swings the cover about the fold rather than about its own
+        middle — which is the difference between a book opening and a lid
+        being lifted off.
+
+        It takes the warmth, too. Leather catching a little more firelight is
+        a book being noticed; glowing paper is a screen, which is why the
+        emissive lives here and not on the block.
+      */}
+      <group ref={cover} position={[-0.113, 0.0385, 0]}>
+        <mesh position={[0.113, 0, 0]}>
+          <boxGeometry args={[0.23, 0.006, 0.17]} />
+          <meshStandardMaterial
+            ref={face}
+            map={leather ?? undefined}
+            color={leather ? undefined : props.leather}
+            emissive={props.glow}
+            emissiveIntensity={0}
+            roughness={0.85}
+            metalness={0}
+            side={DoubleSide}
+          />
+        </mesh>
+      </group>
 
       {/* The spine, rounded over the fold. A bound book has no sharp edge on
           the hinge side, and that curve is most of what separates one from a
@@ -374,7 +386,7 @@ function SurveyMap({ state }: { state: ObjectState }) {
   const o = OBJECTS.map;
   const texture = useMapTexture();
   const route = useRouteTexture();
-  const { group, face, accent , shade } = useObjectResponse(state, o.at[1]);
+  const { group, face, accent, shade } = useObjectResponse(state, o.at[1]);
   return (
     <>
       <ContactShade ref={shade} at={o.at} turn={o.turn} size={[0.31, 0.21]} />
@@ -540,7 +552,7 @@ function Photograph({ state }: { state: ObjectState }) {
   const o = OBJECTS.photograph;
   const print = usePrintTexture();
   const stock = usePaperStock();
-  const { group, face , shade } = useObjectResponse(state, o.at[1]);
+  const { group, face, shade } = useObjectResponse(state, o.at[1]);
 
   return (
     <>
@@ -698,7 +710,7 @@ function useNotesTexture(): CanvasTexture | null {
 function FieldNotes({ state }: { state: ObjectState }) {
   const o = OBJECTS.notes;
   const ruled = useNotesTexture();
-  const { group, face , shade } = useObjectResponse(state, o.at[1]);
+  const { group, face, shade } = useObjectResponse(state, o.at[1]);
 
   const sheets = [
     { y: 0.004, turn: 0, x: 0, z: 0 },
