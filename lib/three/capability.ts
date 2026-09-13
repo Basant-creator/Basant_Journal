@@ -7,7 +7,7 @@
  * its answer decides whether the expensive side loads at all.
  */
 
-import { detectQualityTier } from "./quality";
+import { detectQualityTier, probeGpu } from "./quality";
 
 export type SceneCapability = "ready" | "unsupported" | "reduced" | "pending";
 
@@ -18,29 +18,16 @@ export type SceneCapability = "ready" | "unsupported" | "reduced" | "pending";
  * enough: plenty of machines expose the constructor and then fail to give you
  * a context — blocklisted drivers, a software renderer that has been disabled,
  * too many live contexts already. The only honest test is to ask for one.
+ *
+ * It asks through `probeGpu`, which asks once and remembers, rather than
+ * creating a second context to establish something the quality probe has
+ * already established. Three contexts were being created and discarded on
+ * every mount of a scene, at 4.4ms each; this is the same answer for nothing.
  */
 export function hasWebGL(): boolean {
   if (typeof window === "undefined") return false;
-
-  try {
-    const canvas = document.createElement("canvas");
-    const context =
-      canvas.getContext("webgl2") ??
-      canvas.getContext("webgl") ??
-      canvas.getContext("experimental-webgl");
-
-    if (!context) return false;
-
-    // Hand the context back rather than waiting for GC. Browsers cap the
-    // number of live contexts, and a probe that leaks one is a probe that
-    // eventually causes the failure it was testing for.
-    const lose = (context as WebGLRenderingContext).getExtension("WEBGL_lose_context");
-    lose?.loseContext();
-
-    return true;
-  } catch {
-    return false;
-  }
+  const gpu = probeGpu();
+  return gpu !== null && gpu.maxTextureSize > 0;
 }
 
 /**
@@ -91,10 +78,12 @@ export function prefersReducedMotion(): boolean {
  *
  * What still turns it off is `quality.ts` returning "fallback" — no WebGL at
  * all, a software rasteriser, a context that cannot hold a 4096 texture, or a
- * connection that says not to. That last one is the §39 guard: "do not
- * destroy initial page performance" and "do not sacrifice the entire
- * portfolio for one scene" are not satisfied by shipping 880kB of renderer
- * down a 3G connection to draw a campfire.
+ * connection the visitor has asked us to respect. That last one is the §39
+ * guard: "do not destroy initial page performance" and "do not sacrifice the
+ * entire portfolio for one scene" are not satisfied by shipping 880kB of
+ * renderer down a 2G connection to draw a campfire. A 3G *estimate* is a
+ * different thing and now buys a cheaper scene rather than none; the reason
+ * is written out in `tierFor`.
  */
 export function isCompactViewport(): boolean {
   if (typeof window === "undefined") return false;

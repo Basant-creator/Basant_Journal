@@ -46,19 +46,44 @@ export interface QualityProbe {
    * WebGL probe.
    *
    * saveData is a direct instruction from the visitor and is treated as one.
+   *
+   * The other two are an estimate, and they are graded rather than pooled
+   * because they are not the same claim — see tierFor.
    */
   saveData: boolean;
+  /** slow-2g or 2g: a link the renderer should not be sent down at all. */
   slowLink: boolean;
+  /** 3g: slow enough to spend less on, not slow enough to refuse. */
+  modestLink: boolean;
 }
 
 const SOFTWARE = /swiftshader|llvmpipe|software|basic render|microsoft basic/i;
 
-export function probeQuality(): QualityProbe | null {
-  if (typeof window === "undefined") return null;
+/** What the GPU itself said, which cannot change while the page is open. */
+interface GpuFacts {
+  webgl2: boolean;
+  maxTextureSize: number;
+  software: boolean;
+}
 
-  let webgl2 = false;
-  let maxTextureSize = 0;
-  let software = false;
+/**
+ * Asked once.
+ *
+ * Creating a context to throw it away costs 4.4ms median on a Radeon 780M
+ * (nine runs, 3.5–6.7), and it was being paid three times on every mount of
+ * a scene — `hasWebGL` asking, then `probeQuality` asking again, then
+ * `detectQualityTier` asking a third time — and again on every media-query
+ * recheck. 15.8ms of synchronous main thread to answer a question about a
+ * graphics card that is not going to be swapped mid-visit.
+ *
+ * `undefined` means not yet asked; `null` means asked and the browser could
+ * not give a context, which is an answer and is cached as one.
+ */
+let gpuFacts: GpuFacts | null | undefined;
+
+export function probeGpu(): GpuFacts | null {
+  if (gpuFacts !== undefined) return gpuFacts;
+  if (typeof window === "undefined") return null;
 
   try {
     const canvas = document.createElement("canvas");
@@ -66,25 +91,45 @@ export function probeQuality(): QualityProbe | null {
       (canvas.getContext("webgl2") as WebGL2RenderingContext | null) ??
       (canvas.getContext("webgl") as WebGLRenderingContext | null);
 
-    if (gl) {
-      webgl2 = typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext;
-      maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
-
-      /* Only as a check for "this is not a GPU at all". The extension is
-         absent or masked in most browsers now, which is fine — absence
-         means no evidence, not bad evidence. */
-      const info = gl.getExtension("WEBGL_debug_renderer_info");
-      if (info) {
-        const name = String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL) ?? "");
-        software = SOFTWARE.test(name);
-      }
-
-      // Hand the context back; browsers cap how many stay alive.
-      gl.getExtension("WEBGL_lose_context")?.loseContext();
+    if (!gl) {
+      gpuFacts = null;
+      return null;
     }
+
+    /* Only as a check for "this is not a GPU at all". The extension is
+       absent or masked in most browsers now, which is fine — absence
+       means no evidence, not bad evidence. */
+    const info = gl.getExtension("WEBGL_debug_renderer_info");
+    const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL) ?? "") : "";
+
+    gpuFacts = {
+      webgl2: typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext,
+      maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE) as number,
+      software: SOFTWARE.test(name),
+    };
+
+    // Hand the context back; browsers cap how many stay alive.
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
   } catch {
-    return null;
+    gpuFacts = null;
   }
+
+  return gpuFacts;
+}
+
+/**
+ * The whole probe: the cached GPU answer, plus the things that genuinely can
+ * change while the page is open — a window dragged to a different display,
+ * a phone rotated, a connection that improves. Those are read fresh every
+ * time, which is the point of not caching the whole thing.
+ */
+export function probeQuality(): QualityProbe | null {
+  if (typeof window === "undefined") return null;
+
+  const gpu = probeGpu();
+  const webgl2 = gpu?.webgl2 ?? false;
+  const maxTextureSize = gpu?.maxTextureSize ?? 0;
+  const software = gpu?.software ?? false;
 
   const mq = (q: string) => {
     try {
@@ -113,7 +158,8 @@ export function probeQuality(): QualityProbe | null {
     saveData: link?.saveData === true,
     /* Absent is not slow. Most browsers do not implement this at all, and
        guessing badly here costs a visitor the whole scene. */
-    slowLink: effective === "slow-2g" || effective === "2g" || effective === "3g",
+    slowLink: effective === "slow-2g" || effective === "2g",
+    modestLink: effective === "3g",
   };
 }
 
@@ -123,7 +169,8 @@ export function tierFor(probe: QualityProbe | null): QualityTier {
 
   /* Asked not to, or on a link where the renderer would arrive late enough to
      be an interruption rather than a scene. Either way the illustrated camp
-     is already on screen and complete, so there is nothing to wait for. */
+     is already on screen and complete, so there is nothing to wait for.
+     saveData is the visitor speaking; 2G is the network being unarguable. */
   if (probe.saveData || probe.slowLink) return "fallback";
 
   /* A software rasteriser reports WebGL and is not a GPU. It can draw this
@@ -141,7 +188,31 @@ export function tierFor(probe: QualityProbe | null): QualityTier {
   const fewCores = probe.cores !== null && probe.cores <= 4;
   const heavyPixels = probe.dpr >= 3;
 
-  if (small || (probe.coarsePointer && (thinMemory || fewCores))) return "low";
+  /*
+    A modest link buys less scene, not no scene.
+
+    "3g" used to sit with 2G in the refusal above, and it cost a machine that
+    should never have been asked the question: a sixteen-core desktop with
+    16GB and a Radeon 780M, on localhost, was handed the illustrated camp
+    because navigator.connection said 3g. effectiveType is a rolling estimate
+    of recent round trips, and with little traffic to go on it reports
+    whatever it last believed — which on a fast machine doing nothing is
+    frequently not 4g.
+
+    That is the §32 mistake wearing different clothes. A user-agent string is
+    a claim about the device; effectiveType is a guess about the network; and
+    neither is evidence about whether this GPU can draw a campfire. Both are
+    fine as one input among several and wrong as a veto.
+
+    So the estimate now does what an estimate should: it moves the tier down
+    a step. Grass, stones and embers thin out, shadows go, the renderer draws
+    at one device pixel. If the link really is 3G the scene costs less to
+    deliver and less to run; if the link was never 3G at all, the visitor
+    loses some density on a page they can still see properly. Refusing
+    outright is the only outcome that is unrecoverable, and saveData — the
+    one signal a visitor actually sets on purpose — still does exactly that.
+  */
+  if (small || probe.modestLink || (probe.coarsePointer && (thinMemory || fewCores))) return "low";
 
   /* WebGL1, or a machine filling three times the pixels with modest memory,
      gets the middle setting rather than the top one. */

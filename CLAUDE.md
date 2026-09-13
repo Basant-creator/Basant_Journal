@@ -83,8 +83,10 @@ predates SCENE and TERRAIN and lists only three; README is authoritative.)
   damping must be frame-rate independent (`1 - exp(-lambda * dt)`, never a
   fixed fraction); nothing is allocated per frame; releasing a renderer needs
   `forceContextLoss()` and not just `dispose()`, deferred one task past
-  StrictMode's effect replay; and whatever a scene writes onto the page must
-  be cleared when it unmounts. The reasons are in
+  StrictMode's effect replay — and that deferral lands *ahead* of R3F's own
+  unmount, so the scene has to be released by hand first or every
+  `texture.dispose()` frees nothing; and whatever a scene writes onto the page
+  must be cleared when it unmounts. The reasons are in
   `components/three/README.md`.
 - **Derive text colour with `color-mix(in srgb, var(--paper-ink) N%, transparent)`**
   so a stock variant (e.g. cyanotype) inverts correctly instead of going
@@ -140,6 +142,12 @@ npm run check:3d     # must pass before commit
   blank and CSS transitions freeze when the pane isn't painting, so
   `getComputedStyle` returns stuck intermediate values. **Verify structurally
   via the DOM**, and say plainly when a visual could not be confirmed by eye.
+- **`navigator.connection.effectiveType` lies here.** On this machine, on
+  localhost, it reports `3g` one minute and `4g` the next. If the Camp
+  suddenly renders as the illustrated fallback with `data-scene-mode="reduced"`
+  on a machine that drew it fine a moment ago, check that before suspecting the
+  code. `localStorage["frontier:quality"] = "high"` overrides the tier for a
+  measurement; clear it afterwards.
 - `next dev` and `next build` share `.next` and corrupt each other. Stop the dev
   server and remove `.next` before building.
 - **`pkill -f "next start"` does not kill it in Git Bash here.** A stale server

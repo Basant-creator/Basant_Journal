@@ -99,6 +99,22 @@ scene still rendered. Defer the teardown one task: StrictMode replays effects
 on a still-mounted tree, and an immediate cleanup can destroy the live
 renderer.
 
+**Release the scene before the renderer, and do it yourself.** Deferring the
+teardown one task puts it *ahead* of R3F, which unmounts its reconciler root
+asynchronously — so the renderer is disposed at +11ms and the components
+holding the textures unmount at +15ms. `renderer.dispose()` clears the
+properties map on its way out and `deallocateTexture` returns early for
+anything it can no longer find, so every per-object `texture.dispose()` runs
+against a renderer with no record of it and frees nothing. Measured: 466 of
+466 vertex buffers released, 0 of 25 textures. `forceContextLoss()` hides it
+on unmount and will not hide it anywhere else — a tier change or a remount
+that replaces a texture while the scene is alive leaks for real. `SceneCanvas`
+walks the still-intact scene at teardown for this reason; see `releaseScene`.
+
+**Find textures by scanning, not by naming slots.** `map`, `alphaMap`,
+`emissiveMap` — an enumerated list means the next map somebody adds is a
+texture nobody releases, and the omission is silent.
+
 **A lost context must fall back.** That decision belongs to `ThreeScene`, not
 to the scene that just lost its GPU.
 

@@ -4,7 +4,107 @@ import { Canvas } from "@react-three/fiber";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { PCFSoftShadowMap } from "three";
-import type { WebGLRenderer } from "three";
+import type { BufferGeometry, LightShadow, Material, Object3D, Scene, Texture, WebGLRenderer } from "three";
+
+/**
+ * Everything the scene is holding, handed back in an order that works.
+ *
+ * The per-object cleanups were all in place — every generated texture and
+ * every hand-built geometry has a `dispose()` hanging off its own effect —
+ * and measuring found that not one of them reached the GPU. Leaving /about
+ * deleted 466 of 466 vertex buffers and 157 of 157 vertex arrays, and 0 of
+ * 25 textures, 0 of 16 programs, 0 of 9 framebuffers.
+ *
+ * The cause is an ordering nobody chose. React tears the page down, the
+ * cleanup below schedules the context release a task later, and R3F unmounts
+ * its own reconciler root asynchronously — so the renderer was disposed at
+ * +11ms and the tree that owns the textures unmounted at +15ms.
+ * `renderer.dispose()` clears the properties map on its way out, so by the
+ * time the twenty-two `texture.dispose()` calls arrived, three no longer had
+ * a record of any of them and `deallocateTexture` returned without doing
+ * anything. The disposal code ran. It had nothing left to talk to.
+ *
+ * Nothing leaked, because `forceContextLoss()` follows immediately and the
+ * driver reclaims the lot — which is luck rather than design. The same
+ * inversion leaks for real wherever a texture is released while the scene is
+ * still alive: a tier change regenerating every canvas, a prop remounting, a
+ * photograph arriving late and replacing the one already uploaded.
+ *
+ * So take the order rather than race it. At this point the scene is still
+ * intact, because R3F has not reached it yet: walk it, hand back the
+ * geometries, the materials, every texture a material is holding and every
+ * shadow map, and *then* dispose the renderer. R3F's own pass follows and
+ * finds the work already done, which costs nothing — dispose() is idempotent,
+ * and a second call on a released object finds no properties to free.
+ *
+ * After: 19 of 25 textures, 15 of 16 programs, 6 of 9 framebuffers, and the
+ * 466 buffers and 157 vertex arrays that were already coming back. On the LOW
+ * tier, where there is no shadow pass, it is 18 of 23 textures and every one
+ * of the five left is three's own — its 1x1 placeholder, its placeholder
+ * cube, its 2D-array, its 3D, and a 16-wide RG16F lookup, all five created
+ * before the first shader is compiled and all five the renderer's to keep.
+ * The sixth on HIGH is the fire's shadow cube. Nothing the scene owns is left
+ * on either tier.
+ */
+function releaseScene(scene: Scene | null): number {
+  if (!scene) return 0;
+
+  const done = new Set<object>();
+  let released = 0;
+
+  const release = (value: unknown) => {
+    if (typeof value !== "object" || value === null) return;
+    if (done.has(value)) return;
+    const target = value as { dispose?: () => void };
+    if (typeof target.dispose !== "function") return;
+    done.add(value);
+    target.dispose();
+    released += 1;
+  };
+
+  const releaseMaterial = (material: Material) => {
+    /*
+      Every texture the material is holding, whatever the slot happens to be
+      called. Naming them one by one — map, alphaMap, emissiveMap — means the
+      next map somebody adds is a texture nobody releases, and the omission is
+      invisible until something measures it.
+    */
+    for (const value of Object.values(material as unknown as Record<string, unknown>)) {
+      if ((value as Texture | null)?.isTexture) release(value);
+    }
+    release(material);
+  };
+
+  scene.traverse((object: Object3D) => {
+    const node = object as Object3D & {
+      geometry?: BufferGeometry;
+      material?: Material | Material[];
+      shadow?: LightShadow;
+    };
+
+    if (node.geometry) release(node.geometry);
+
+    if (Array.isArray(node.material)) node.material.forEach(releaseMaterial);
+    else if (node.material) releaseMaterial(node.material);
+
+    /*
+      A point light's shadow is six faces of render target and belongs to no
+      material, so nothing above would ever reach it. This releases the six
+      framebuffers; the cube texture behind them survives, because three
+      deletes a render target's framebuffers and leaves its texture handle to
+      the context. Naming `shadow.map.texture` as well does not help —
+      `deallocateTexture` wants a `__webglInit` that only ordinary uploads
+      set — so it is not named, and the 4MB map goes with forceContextLoss a
+      line later.
+    */
+    if (node.shadow) {
+      release(node.shadow.map);
+      release(node.shadow);
+    }
+  });
+
+  return released;
+}
 
 interface SceneCanvasProps {
   children: ReactNode;
@@ -62,6 +162,8 @@ export function SceneCanvas({
 }: SceneCanvasProps) {
   const holder = useRef<HTMLDivElement | null>(null);
   const renderer = useRef<WebGLRenderer | null>(null);
+  /* Held for the teardown, which needs the scene while it is still populated. */
+  const world = useRef<Scene | null>(null);
   const [onScreen, setOnScreen] = useState(true);
   const [awake, setAwake] = useState(true);
 
@@ -112,6 +214,9 @@ export function SceneCanvas({
     entries and exits requested eighty-eight contexts and the last scene was
     still rendering, with its context alive and the bridge projecting. Held
     open, a browser refuses new ones somewhere around sixteen.
+
+    The scene is released first — see releaseScene above for why the order is
+    taken here rather than left to React and R3F to interleave.
   */
   const teardown = useRef<number | null>(null);
   useEffect(() => {
@@ -127,6 +232,8 @@ export function SceneCanvas({
         const gl = renderer.current;
         if (!gl) return;
         gl.domElement.removeEventListener("webglcontextlost", lost);
+        releaseScene(world.current);
+        world.current = null;
         gl.dispose();
         gl.forceContextLoss();
         renderer.current = null;
@@ -197,6 +304,7 @@ export function SceneCanvas({
           }
 
           renderer.current = gl;
+          world.current = scene;
 
           const canvas = gl.domElement;
           canvas.addEventListener("webglcontextlost", lost);

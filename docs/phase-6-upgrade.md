@@ -75,9 +75,9 @@ committed:
 | 23 | Notebook → Paper | record wired; §37's cinematic open not built |
 | 24 | Map → Camp | done and measured |
 | 25 | Camp → Map | done and measured |
-| 26 | Mobile quality tier | done — phones draw at LOW, gated on the connection |
+| 26 | Mobile quality tier | done — phones draw at LOW; the connection gate later proved too sharp, see 28 |
 | 27 | WebGL fallback | done — and it was rendering at zero height |
-| 28 | Resource disposal | context release done; §33 sweep outstanding |
+| 28 | Resource disposal | done — the disposal code ran and reached nothing |
 | 29 | Performance profiling | outstanding, with §38's overlay |
 | 30 | Accessibility / reduced motion | done and audited |
 | 31 | Production verification | outstanding |
@@ -159,3 +159,136 @@ A `next/font` error appeared once during a build immediately after clearing
 present. It is the Google Fonts fetch `next/font` performs at build time
 failing on a cold cache. Harmless locally, and worth knowing before it
 happens in CI on a bad network.
+
+## Step 28: the disposal code ran, and reached nothing
+
+Every generated texture and every hand-built geometry in the Camp already had
+a `dispose()` hanging off its own effect. The audit found no gaps: fifteen
+texture hooks, four geometry hooks, all with cleanups, all correct on the page.
+
+Then it was measured, by counting the WebGL calls themselves — patch
+`getContext` before the scene mounts, wrap `createTexture`/`deleteTexture`
+and their siblings on the context three is handed, walk into `/about`, walk
+out, and read the tally. Leaving released:
+
+| | created | released before | released after |
+| --- | --- | --- | --- |
+| vertex buffers | 466 | 466 | 466 |
+| vertex arrays | 157 | 157 | 157 |
+| textures | 25 | **0** | 19 |
+| programs | 16 | **0** | 15 |
+| framebuffers | 9 | **0** | 6 |
+
+Geometry came back and nothing else did.
+
+### Why
+
+Tracing `Texture.prototype.dispose` against the GL calls put the two apart by
+four milliseconds. React tears the page down; `SceneCanvas` schedules the
+context release a task later; R3F unmounts its own reconciler root
+asynchronously. So `renderer.dispose()` ran at +11ms and the tree that owns
+the textures unmounted at +15ms. `renderer.dispose()` clears the properties
+map on its way out, and `deallocateTexture` returns early for any texture
+whose `__webglInit` it can no longer find — so the twenty-two
+`texture.dispose()` calls that did arrive, at +20ms, all ran to completion
+against a renderer with no record of them.
+
+The renderer was being disposed before the scene it owns. Nothing in either
+file is wrong on its own; the order was the bug, and the order was nobody's.
+
+Nothing leaked, because `forceContextLoss()` follows a line later and the
+driver reclaims everything. That is luck rather than design, and it only
+holds for unmount: the same inversion leaks for real wherever a texture is
+released while the scene is alive — a tier change regenerating every canvas,
+a prop remounting, the photograph arriving late and replacing the one already
+uploaded.
+
+### The fix
+
+Take the order rather than race it. At the moment the teardown runs the scene
+is still intact, because R3F has not reached it: walk it, release the
+geometries, the materials, every texture each material is holding and the
+shadow map, and *then* dispose the renderer. R3F's pass follows and finds the
+work done, which costs nothing — `dispose()` is idempotent.
+
+Textures are found by scanning each material's own properties for `isTexture`
+rather than by naming slots. Naming `map`, `alphaMap`, `emissiveMap` one by
+one means the next map somebody adds is a texture nobody releases, and the
+omission is invisible until something measures it again.
+
+### What is left, and whose it is
+
+Six of twenty-five textures survive on HIGH. They were identified by their
+bind targets rather than assumed:
+
+| | | |
+| --- | --- | --- |
+| 1 | `TEXTURE_2D`, 1x1 | three's placeholder |
+| 2 | `TEXTURE_CUBE_MAP` | three's placeholder |
+| 3 | `TEXTURE_2D_ARRAY` | three's placeholder |
+| 4 | `TEXTURE_3D` | three's placeholder |
+| 9 | `TEXTURE_2D`, 16-wide RG16F | three's internal lookup |
+| 6 | `TEXTURE_CUBE_MAP`, 1024x1024 | the fire's shadow map |
+
+The first five are created before the first shader is compiled — they belong
+to the renderer, not to the scene, and they are correct to leave. Running the
+LOW tier, which has no shadow pass, removes the sixth: 18 of 23 released, and
+every one of the five remaining is on that list. **Nothing the scene owns is
+left on either tier.**
+
+The shadow cube is the renderer's too, allocated by the shadow pass rather
+than by any scene code. Disposing `light.shadow.map` releases its six
+framebuffers and leaves the texture handle, because `deallocateTexture` wants
+a `__webglInit` that only ordinary uploads set. Naming
+`shadow.map.texture` as well was tried and changed nothing, so it is not in
+the code. Four megabytes, for the microsecond before the context dies.
+
+### Two things found while measuring
+
+**A capable desktop was being sent to the illustrated camp.** Halfway through,
+`/about` stopped drawing: scene mode `reduced` on a sixteen-core machine with
+16GB and a Radeon 780M reporting a 16384 maximum texture. The cause was
+`navigator.connection.effectiveType` returning `"3g"` — on localhost, on that
+machine — which `tierFor` was treating as a refusal alongside 2G.
+
+`effectiveType` is a rolling estimate of recent round trips, and with little
+traffic to go on it reports whatever it last believed. It said `3g` one
+minute and `4g` the next, on the same page, on the same machine.
+
+That is the §32 mistake wearing different clothes. A user-agent string is a
+claim about the device; `effectiveType` is a guess about the network; neither
+is evidence about whether a GPU can draw a campfire. Both are fine as one
+input among several and wrong as a veto.
+
+So 3G now moves the tier down a step instead of refusing: the scene arrives
+at one device pixel, without shadows, with a third of the grass. 2G and
+`slow-2g` still fall back — a link that slow is unarguable — and so does
+`saveData`, which is the one signal a visitor sets on purpose. Verified by
+forcing `effectiveType` to `"3g"` and walking in: mode `ready`, canvas
+618x346 against a 618 CSS box, which is the LOW tier's `dpr: [1, 1]` exactly.
+
+**Three WebGL contexts were being created per mount and thrown away.**
+`hasWebGL` asked for one, `probeQuality` asked again, `detectQualityTier`
+asked a third time — and all three again on every media-query recheck. A
+context costs 4.4ms median here (nine runs, 3.5–6.7): 15.8ms of synchronous
+main thread, during the mount of the one page that is supposed to feel
+effortless, to answer a question about a graphics card nobody is going to
+swap mid-visit.
+
+The GPU half of the probe is now asked once and remembered. The half that can
+genuinely change — device pixel ratio, screen size, pointer, connection — is
+still read fresh every call, which is the point of not caching the whole
+thing. Measured after: **two contexts for a whole visit**, one probe and one
+renderer, down from four.
+
+### Verified after
+
+| | |
+| --- | --- |
+| textures released | 19/25 HIGH, 18/23 LOW — scene textures, all |
+| buffers / vertex arrays | 466/466, 157/157 |
+| contexts per visit | 2, both lost on leaving |
+| canvases after leaving | 0, `--anchor-notebook-x` cleared |
+| 3G desktop | draws, at LOW, dpr 1 |
+| no WebGL at all | illustrated camp, 618x347, three tabs, panel populated |
+| tier table | 15 cases re-checked against an independent expectation |
