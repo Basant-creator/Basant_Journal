@@ -22,7 +22,10 @@ rules that are not discoverable by reading any single file.
 3. **Route strings are never inline.** Everything resolves through `lib/routes.ts`
    or the content model's own `route` field.
 4. **Colour is never raw.** No hex, no ad-hoc `rgba()` in a component. Everything
-   comes from `design/tokens.css` (254 tokens).
+   comes from `design/tokens.css` — 193 distinct custom properties, and the
+   same rule covers motion, spacing and type. (It said 254 for a long time and
+   the file has never held that many; a count in prose drifts, the rule does
+   not.)
 
 ## The five layers
 

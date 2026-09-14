@@ -328,6 +328,19 @@
   --ease-standard:  cubic-bezier(0.2, 0.7, 0.2, 1);
   --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
 
+  /* Weight.
+
+     Both curves above answer "get there and settle", which is right for a
+     control and wrong for an object. Measured on §37's page turn at 900ms with
+     --ease-cinematic: 26 degrees of fold at the start, 8 at 150ms, 2 at 300 —
+     the whole turn spent in the first third and six hundred milliseconds of
+     tail where nothing moves. It read as a flick, not a page.
+
+     This starts slowly, because a thing with mass does, and decelerates into
+     place. Use it for something that is supposed to have been picked up and
+     put down, and keep --ease-standard for anything a pointer is waiting on. */
+  --ease-weighted:  cubic-bezier(0.45, 0.05, 0.2, 1);
+
   /* Stagger unit for sequenced reveals (map nodes, journal entries) */
   --stagger: 70ms;
 

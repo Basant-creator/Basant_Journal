@@ -119,8 +119,110 @@
   outline-offset: 6px;
 }
 
+/*
+  The sheet, and §37's signature moment.
+
+  The notebook's cover opens in the scene and a page comes out of it. That is
+  the whole idea, and the two halves of it had been running in separate rooms
+  since the day they were written: the cover swung open, and a rectangle
+  somewhere else on the page changed its text.
+
+  Three things make the page read as having come off the object.
+
+  **Direction**, measured. `--arrive-x` and `--arrive-y` are written by
+  useSheetArrival from the real gap between the object's control and the
+  sheet, scaled down to a fraction of it. The sheet moves toward the reader
+  from wherever the object actually is — which on a phone is a chip below the
+  scene, and during the camera's arrival is somewhere that has not settled yet.
+
+  **A turn.** A page lifted out of a book does not arrive square. Small, and
+  in the direction of the travel, so the two read as one gesture.
+
+  **A fold.** Only the notebook gets the rotateY: it is the object with a
+  spine, it is the one §37 names, and it is the one whose cover the scene is
+  opening at the same moment. The photograph and the field notes are loose
+  sheets — they slide, they do not turn a page.
+
+  The perspective lives inside the transform rather than on an ancestor, so
+  nothing about `.record` being sticky has to change to accommodate it.
+
+  Resting state is the visible one: every keyframe runs from an offset toward
+  normal with fill-mode: both, so a browser that never runs the animation — or
+  the 1ms single iteration the reduced-motion blanket collapses it to — shows
+  the finished sheet rather than a blank one.
+*/
 .sheet {
   min-height: 260px;
+
+  --arrive-x: 0px;
+  --arrive-y: 10px;
+
+  animation: sheetArrives var(--duration-slow) var(--ease-weighted) both;
+  /* The spine edge, so the turn happens where a page is actually bound. */
+  transform-origin: 12% 50%;
+}
+
+@keyframes sheetArrives {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--arrive-x), var(--arrive-y), 0) rotate(-1.1deg) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+}
+
+/*
+  Held at its first frame while a chapter card is over the page.
+
+  `animation-play-state` and not a delayed mount: the record is real content
+  and belongs in the DOM, the accessibility tree and the crawled markup from
+  the first paint. Only its entrance waits. Paused at time zero with
+  fill-mode: both, the sheet sits at the opening keyframe — which is invisible,
+  which is correct, because so is everything else behind the card.
+
+  Only the play state, never the `animation` shorthand, so this cannot
+  resurrect an animation the reduced-motion block below has switched off.
+*/
+.sheet[data-waiting] {
+  animation-play-state: paused;
+}
+
+/* The one with a spine. Its cover is opening in the scene as this runs. */
+.sheet[data-subject="notebook"] {
+  animation-name: pageTurns;
+  animation-duration: var(--duration-cinematic);
+  animation-timing-function: var(--ease-weighted);
+}
+
+@keyframes pageTurns {
+  from {
+    opacity: 0;
+    transform: perspective(1100px) translate3d(var(--arrive-x), var(--arrive-y), 0)
+      rotateY(-26deg) rotate(-1.4deg);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1100px) translate3d(0, 0, 0) rotateY(0deg) rotate(0deg);
+  }
+}
+
+/*
+  The backstop is already in globals.css and it lands correctly here — one 1ms
+  iteration of an animation that runs toward normal ends on normal. This is the
+  belt to that brace, and it is also documentation: the sheet is not supposed
+  to move for someone who asked it not to, and nobody should have to reason
+  about iteration counts to be sure of it.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .sheet[data-subject="notebook"] {
+    animation: none;
+  }
 }
 
 .recordTag {

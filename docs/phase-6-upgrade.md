@@ -72,7 +72,7 @@ committed:
 | 20 | Photograph interaction | done — verified rather than extended; see below |
 | 21 | Field Notes interaction | done — verified rather than extended; see below |
 | 22 | 3D → DOM bridge | done — gaps 3.1 / 2.8 / 3.0; the hit areas were another matter, see 31 |
-| 23 | Notebook → Paper | record wired; §37's cinematic open not built |
+| 23 | Notebook → Paper | done — the page comes off the object, once the curtain is up |
 | 24 | Map → Camp | done and measured |
 | 25 | Camp → Map | done and measured |
 | 26 | Mobile quality tier | done — phones draw at LOW; the connection gate later proved too sharp, see 28 |
@@ -492,9 +492,8 @@ where both of the bugs above were found.
 
 The phase is not finished, and this is the list.
 
-**§37, the notebook opening into the Paper.** The record is wired and updates
-in place; the brief calls the transition "one of the signature moments of
-Phase 6" and it is not built. Step 23 in the table above says so.
+~~**§37, the notebook opening into the Paper.**~~ Built after this list
+was written; see the section below it.
 
 **Assets.** §12, §24, §25 and §26 are scaffolded, not populated. I cannot
 author or source GLB models or PBR texture sets; every surface in this scene
@@ -524,3 +523,94 @@ harmless locally, and worth knowing before it happens in CI on a bad network.
 **Next preloads CSS it does not use** — eight or nine warnings a load. A
 framework behaviour with this many CSS modules, not a regression, and not
 investigated.
+
+## §37: the page comes off the object
+
+Both halves of this had been built and never introduced. The notebook's cover
+swings open in the scene when it is reached for — upgrade 18 put it there. A
+sheet of paper beside the scene carries what the notebook holds — it has
+carried it since the route was written. The cover opened, and somewhere else
+on the page a different rectangle changed its text.
+
+Three things now make the page read as having come out of the object.
+
+**Direction, measured.** `useSheetArrival` reads the real gap between the
+object's own control and the sheet at the instant the sheet mounts, and writes
+it as `--arrive-x` / `--arrive-y` scaled to 18% of itself and capped at 130px.
+The sheet travels a fraction of the distance in the whole of the direction:
+far enough that the eye follows it from where it was already looking, short
+enough that it is a gesture and not a journey. It has to be measured rather
+than guessed because the object moves — the camera arrives over 1900ms, every
+viewport puts the table somewhere else, and on a phone the control is a chip
+under the scene rather than a point on a table.
+
+**A turn.** A page lifted out of a book does not arrive square.
+
+**A fold**, for the notebook alone. It is the object with a spine, it is the
+one §37 names, and its cover is opening in the scene at the same moment. The
+photograph and the field notes are loose sheets: they slide, they do not turn
+a page. `transform-origin` sits at 12% — the bound edge.
+
+### It was playing behind the curtain
+
+Measured on a click into /about, before any of this was gated: the page turn
+started at 209ms and ran 900, so it finished at 1109. The chapter card does
+not clear until 1568.
+
+The whole of the signature moment was over before there was anybody in the
+room. Not too fast and not too slow — §19 cost this phase the same lesson with
+the camera arrival, and it turns out one fix does not inoculate the next
+thing built beside it.
+
+Held at its first keyframe with `animation-play-state: paused` while the
+transition is in any phase but IDLE. Not by delaying the mount: the record is
+real content and belongs in the DOM, the accessibility tree and the crawled
+markup from the first paint. Only its entrance waits. Verified in production:
+
+| at | |
+| --- | --- |
+| 33 ms | paused, held, currentTime 0 |
+| **1569 ms** | released, running, still at currentTime 0 |
+| 4163 ms | finished |
+
+1569 is the card clearing. The turn now starts on the frame the page becomes
+visible and runs all 900ms of itself in view.
+
+There is a three-second limit on the waiting, past the transition's own 2600ms
+guard. Holding the arrival means holding the record at opacity 0, and "the
+resting state is the visible one" is the one motion rule that should never
+depend on another system staying alive. If the phase ever stalls, what is lost
+is an animation nobody sees. Not hypothetical: with the browser pane
+unpainted, the transition's own choreography stops advancing and the record
+sat invisible for seven seconds.
+
+### Two things the build taught
+
+**The wrapper is not the sheet.** TornPaper rests at an angle and does it with
+`transform: rotate(var(--tilt))`. Animating transform on that same element
+would have replaced the rest angle — the tilt surviving every frame of the
+arrival and vanishing on the last one. Two owners, one property. So a wrapper
+moves and the sheet keeps its angle. Verified with the animation forced off:
+wrapper `transform: none`, sheet still at −0.4°.
+
+**Both easing tokens are the wrong shape for an object.** `--ease-cinematic`
+put 26 degrees of fold at the start, 8 at 150ms and 2 at 300 — the entire turn
+in the first third of a 900ms animation and six hundred milliseconds of tail
+where nothing moves. It read as a flick. `--ease-weighted` is new for this:
+slow to start, because a thing with mass is, and decelerating into place.
+
+| t | before | after |
+| --- | --- | --- |
+| 150 ms | −8.2° | **−20.3°** |
+| 300 ms | −2.5° | −11.0° |
+| 450 ms | −0.7° | −5.1° |
+| 750 ms | −0.0° | −0.4° |
+
+### Checked
+
+| | |
+| --- | --- |
+| replay per subject | keyed on the open object, so walking notebook → photograph → notebook plays each time |
+| reduced motion | animation off, opacity 1, wrapper square, sheet still tilted, text present |
+| the bench | no control to come from, so no direction: it settles rather than travels |
+| production | /about 3.83 kB / 131 kB, shared bundle 104 kB, no console errors |
