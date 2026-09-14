@@ -51,6 +51,7 @@
   width: 100%;
   border-radius: var(--radius-sm);
   overflow: hidden;
+  cursor: var(--cursor-map);
   /* Two shadows: the sheet's own, and the one it throws onto the ground it is
      lying against. The second is what stops it floating. */
   box-shadow:

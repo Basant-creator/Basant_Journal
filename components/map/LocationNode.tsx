@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties, FocusEvent, KeyboardEvent, ReactNode } from "react";
 import type { NavigationLocation } from "@/lib/content/types";
+import { triggerSurveyTick } from "@/lib/audio/atmosphere";
 import { LocationGlyph } from "./symbols";
 import styles from "./LocationNode.module.css";
 
@@ -143,7 +144,10 @@ export function LocationNode({
           // Engage on pointer down so the active treatment and the camera are
           // already moving as the route change starts. Navigation is never
           // delayed waiting for either.
-          onPointerDown={() => onEngage(location.id)}
+          onPointerDown={() => {
+            triggerSurveyTick();
+            onEngage(location.id);
+          }}
         >
           {marker}
         </Link>

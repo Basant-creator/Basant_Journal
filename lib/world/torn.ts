@@ -37,13 +37,13 @@ const round = (n: number) => Math.round(n * 10000) / 10000;
 /**
  * One torn run from `from` to `to`.
  *
- * `outward` is the unit direction the tear bites toward — always out of the
- * sheet, so the clip removes material rather than adding it.
+ * `inward` is the unit vector pointing into the sheet body so the tear cuts
+ * material away from the edges rather than extending outside the bounding box.
  */
 function tornRun(
   from: Pt,
   to: Pt,
-  outward: Pt,
+  inward: Pt,
   rng: ReturnType<typeof createRng>,
   amplitude: number,
   segments: number,
@@ -60,7 +60,9 @@ function tornRun(
     depth += rng.jitter(amplitude * 0.22);
     if (rng.chance(0.09)) depth += amplitude * rng.range(0.8, 1.6);
 
-    points.push({ x: x + outward.x * depth, y: y + outward.y * depth });
+    const px = Math.min(1, Math.max(0, x + inward.x * depth));
+    const py = Math.min(1, Math.max(0, y + inward.y * depth));
+    points.push({ x: round(px), y: round(py) });
   }
 
   return points;
@@ -86,18 +88,18 @@ export function tornPath(seed: string, options: TornOptions): string {
   const br = { x: 1, y: 1 };
   const bl = { x: 0, y: 1 };
 
-  const run = (from: Pt, to: Pt, outward: Pt, edge: TornEdge): Pt[] =>
-    torn.has(edge) ? tornRun(from, to, outward, rng, amplitude, segments) : [];
+  const run = (from: Pt, to: Pt, inward: Pt, edge: TornEdge): Pt[] =>
+    torn.has(edge) ? tornRun(from, to, inward, rng, amplitude, segments) : [];
 
   const points: Pt[] = [
     tl,
-    ...run(tl, tr, { x: 0, y: -1 }, "top"),
+    ...run(tl, tr, { x: 0, y: 1 }, "top"),
     tr,
-    ...run(tr, br, { x: 1, y: 0 }, "right"),
+    ...run(tr, br, { x: -1, y: 0 }, "right"),
     br,
-    ...run(br, bl, { x: 0, y: 1 }, "bottom"),
+    ...run(br, bl, { x: 0, y: -1 }, "bottom"),
     bl,
-    ...run(bl, tl, { x: -1, y: 0 }, "left"),
+    ...run(bl, tl, { x: 1, y: 0 }, "left"),
   ];
 
   if (cornerTear !== "none") {
@@ -111,9 +113,9 @@ export function tornPath(seed: string, options: TornOptions): string {
       points.splice(
         index,
         1,
-        { x: corner.x + inwardX, y: corner.y },
-        { x: corner.x + inwardX * 0.45, y: corner.y + inwardY * 0.55 },
-        { x: corner.x, y: corner.y + inwardY },
+        { x: round(corner.x + inwardX), y: round(corner.y) },
+        { x: round(corner.x + inwardX * 0.45), y: round(corner.y + inwardY * 0.55) },
+        { x: round(corner.x), y: round(corner.y + inwardY) },
       );
     }
   }
@@ -126,15 +128,15 @@ export function tornPath(seed: string, options: TornOptions): string {
 }
 
 /**
- * A slightly deeper copy of the same edge, drawn behind the sheet in a lighter
- * tone. This is the fibre fringe: the pale, soft lip you see where paper has
- * pulled apart rather than been cut.
+ * A shallower cut copy of the edge drawn behind the sheet in a lighter tone.
+ * Because the stock tears away deeper than this layer, the pale fibrous lip
+ * is exposed along the edge — authentic physical paper tearing.
  */
 export function fringePath(seed: string, options: TornOptions): string {
   return tornPath(`${seed}:fringe`, {
     ...options,
-    amplitude: (options.amplitude ?? 0.022) * 1.55,
-    segments: Math.round((options.segments ?? 14) * 0.7),
+    amplitude: (options.amplitude ?? 0.022) * 0.55,
+    segments: Math.round((options.segments ?? 14) * 0.75),
   });
 }
 

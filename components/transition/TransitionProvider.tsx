@@ -17,6 +17,7 @@ import {
   transitionFor,
   turnDirection,
 } from "@/lib/transition/types";
+import { triggerPaperRustle } from "@/lib/audio/atmosphere";
 import { TransitionContext, type TransitionPhase } from "./TransitionContext";
 import { RouteCurtain } from "./RouteCurtain";
 import { TransitionDebug } from "./TransitionDebug";
@@ -155,6 +156,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       if (profile.turn) {
         // A page sweeps across while the route changes underneath it. No
         // mark, no chapter: a document is not a destination.
+        triggerPaperRustle();
         setDirection(turnDirection(window.location.pathname, url.pathname));
         setPhase("EXIT");
         at(TURN_OUT + TURN_IN + 240, () => {

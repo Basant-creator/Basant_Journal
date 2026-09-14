@@ -29,6 +29,13 @@
   justify-content: space-between;
   gap: var(--space-3);
   flex-wrap: wrap;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.item:hover {
+  background: rgba(64, 50, 37, 0.05);
 }
 
 .itemName {
@@ -51,10 +58,18 @@
   color: var(--color-red-dark);
   border-bottom: 1px solid rgba(84, 32, 32, 0.45);
   padding: 2px 0;
+  transition: color var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard);
 }
 
 .proofLink:hover {
+  color: var(--color-red);
   border-bottom-color: var(--color-red);
+}
+
+.proofLink::after {
+  content: " →";
+  opacity: 0.7;
 }
 
 .unproven {

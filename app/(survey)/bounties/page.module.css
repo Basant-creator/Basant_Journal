@@ -136,6 +136,16 @@
   transform: rotate(var(--tilt, 0deg)) translateY(-4px);
 }
 
+.findingTag {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-earth);
+  opacity: 0.85;
+  margin-bottom: var(--space-1);
+}
+
 .value {
   font-family: var(--font-chapter);
   font-size: clamp(2.1rem, 4.6vw, 3.2rem);

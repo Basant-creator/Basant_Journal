@@ -5,12 +5,25 @@
   gap: var(--space-6);
 }
 
+.stationMark {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-red-dark);
+  align-self: flex-start;
+  padding: 3px 8px;
+  border: 1px solid rgba(122, 46, 46, 0.45);
+  border-radius: var(--radius-sm);
+  background: rgba(122, 46, 46, 0.05);
+}
+
 .availability {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--color-red-dark);
+  color: var(--color-earth-dark);
 }
 
 .details {

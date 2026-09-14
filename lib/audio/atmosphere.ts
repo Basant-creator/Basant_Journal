@@ -164,6 +164,8 @@ export function start(): boolean {
       depth: 420,
       offset: 1.3,
     }),
+    /* Campfire crackle: sporadic subtle pops */
+    ...campCrackle(context, master),
   ];
 
   master.gain.setValueAtTime(0, context.currentTime);
@@ -175,6 +177,31 @@ export function start(): boolean {
 
   rig = { context, master, running };
   return true;
+}
+
+/** Sporadic, gentle ember pops off the campfire bed. */
+function campCrackle(context: AudioContext, master: GainNode): AudioScheduledSourceNode[] {
+  const duration = 3;
+  const buffer = context.createBuffer(1, Math.floor(context.sampleRate * duration), context.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i += 1) {
+    const isPop = Math.random() < 0.00045;
+    data[i] = isPop ? (Math.random() * 2 - 1) * 0.75 : (Math.random() * 2 - 1) * 0.008;
+  }
+  const source = context.createBufferSource();
+  source.buffer = buffer;
+  source.loop = true;
+
+  const filter = context.createBiquadFilter();
+  filter.type = "highpass";
+  filter.frequency.value = 1400;
+
+  const gain = context.createGain();
+  gain.gain.value = 0.035;
+
+  source.connect(filter).connect(gain).connect(master);
+  source.start();
+  return [source];
 }
 
 /** Fades out, then tears the whole rig down. */
@@ -207,4 +234,62 @@ export function stop(): void {
     },
     FADE * 1000 + 60,
   );
+}
+
+/**
+ * Synthesises a brief, quiet paper rustle when a document turns or an artifact opens.
+ * No-op if atmosphere is not actively running.
+ */
+export function triggerPaperRustle(): void {
+  if (!rig) return;
+  const { context, master } = rig;
+  try {
+    const duration = 0.16;
+    const buffer = context.createBuffer(1, Math.floor(context.sampleRate * duration), context.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i += 1) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (context.sampleRate * 0.04));
+    }
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+
+    const filter = context.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 1800;
+    filter.Q.value = 1.2;
+
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.04, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
+
+    source.connect(filter).connect(gain).connect(master);
+    source.start();
+  } catch {
+    // Silent fallback
+  }
+}
+
+/**
+ * Restrained mechanical tick for surveyor instruments and markers.
+ * No-op if atmosphere is not actively running.
+ */
+export function triggerSurveyTick(): void {
+  if (!rig) return;
+  const { context, master } = rig;
+  try {
+    const osc = context.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(1200, context.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(320, context.currentTime + 0.022);
+
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.025, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.022);
+
+    osc.connect(gain).connect(master);
+    osc.start();
+    osc.stop(context.currentTime + 0.025);
+  } catch {
+    // Silent fallback
+  }
 }

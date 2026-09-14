@@ -6,6 +6,7 @@ import { JournalOpening } from "@/components/world/JournalOpening";
 import { PaperSurface } from "@/components/paper/PaperSurface";
 import { Metric } from "@/components/metrics/Metric";
 import { getLocation, projects } from "@/lib/content/portfolio";
+import { identityFor } from "@/lib/record/identity";
 import { routes } from "@/lib/routes";
 import { chapterFor } from "@/lib/transition/chapters";
 import shared from "@/components/shared/Territory.module.css";
@@ -49,10 +50,15 @@ export default function JournalPage() {
       />
 
       <ol className={styles.entries}>
-        {projects.map((project) => (
-          <li key={project.id}>
-            <PaperSurface as="article" edge="worn" className={styles.entry}>
-              <p className={styles.chapter}>Record {project.chapter}</p>
+        {projects.map((project) => {
+          const identity = identityFor(project.id);
+          return (
+            <li key={project.id}>
+              <PaperSurface as="article" edge="worn" className={styles.entry}>
+                <div className={styles.entryHeader}>
+                  <p className={styles.chapter}>Record {project.chapter}</p>
+                  <span className={styles.stamp}>{identity.stamp.mark}</span>
+                </div>
 
               <Link href={project.route} className={styles.titleLink}>
                 <h2 className={styles.title}>{project.title}</h2>
@@ -82,7 +88,8 @@ export default function JournalPage() {
               </Link>
             </PaperSurface>
           </li>
-        ))}
+        );
+      })}
       </ol>
 
       <OnwardNav

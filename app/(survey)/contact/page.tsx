@@ -28,6 +28,7 @@ export default function ContactPage() {
       />
 
       <PaperSurface edge="worn" className={styles.card}>
+        <div className={styles.stationMark}>Station VII · Dispatch Desk · Survey Limit</div>
         <p className={styles.availability}>{person.availability}</p>
 
         <dl className={styles.details}>

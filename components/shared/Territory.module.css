@@ -9,6 +9,25 @@
   max-width: var(--content-max);
   margin: 0 auto;
   width: 100%;
+  animation: territoryArrive 480ms var(--ease-cinematic) both;
+}
+
+@keyframes territoryArrive {
+  from {
+    opacity: 0.88;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page {
+    animation: none;
+    transform: none;
+  }
 }
 
 .section {

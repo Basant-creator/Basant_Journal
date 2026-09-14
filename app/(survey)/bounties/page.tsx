@@ -90,6 +90,7 @@ export default function BountiesPage() {
                   className={styles.notice}
                 >
                   <div className={styles.noticeBody}>
+                    <span className={styles.findingTag}>Verified outcome · {metric.id}</span>
                     <span className={styles.value}>{metric.value}</span>
                     <span className={styles.unit}>{metric.unit}</span>
                     <p className={styles.context}>{metric.context}</p>
