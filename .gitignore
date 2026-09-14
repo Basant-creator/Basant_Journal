@@ -9,3 +9,9 @@ npm-debug.log*
 !.env.example
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Supplied asset packs. Source material for scripts/bake-camp-props.mjs, not
+# a deliverable: 5.1MB of which about a tenth is used, and the licence is
+# unresolved (see docs/camp-assets.md). The baked output is committed; the
+# packs are not redistributed from here.
+assets/camp-source/

@@ -9,6 +9,7 @@ import { CampLighting } from "./CampLighting";
 import { CampSky } from "./CampSky";
 import { CampMountains } from "./CampMountains";
 import { CampObjects } from "./CampObjects";
+import { CampProps } from "./CampProps";
 import { CampScatter } from "./CampScatter";
 import { CampSite } from "./CampSite";
 import { CampTable } from "./CampTable";
@@ -16,7 +17,7 @@ import { CampTerrain } from "./CampTerrain";
 import { CampTreeline } from "./CampTreeline";
 import { SceneCanvas } from "../SceneCanvas";
 import { sky } from "./palette";
-import { useLayoutEffect, useRef } from "react";
+import { Suspense, useLayoutEffect, useRef } from "react";
 import type { Group, Mesh } from "three";
 import { settingsFor } from "@/lib/three/quality";
 import type { SceneProps } from "../types";
@@ -156,9 +157,26 @@ function World(props: SceneProps) {
 
         {/* 08  table · 10  lantern */}
         <CampTable />
+
+        {/*
+          The supplied props, dressed in the Camp's own materials.
+
+          Inside the near-field group deliberately: §15 spends shadows on the
+          fire, the structure and the working end, and these are the objects
+          that stand in that light. The ones that do not — the rails and the
+          pole against the afterglow — are placed far enough out that the
+          frozen shadow map never reaches them.
+
+          Suspended rather than awaited: the scene is whole without them and
+          they arrive into it. §37 asks that loading feel intentional and that
+          nothing freeze waiting for a background asset, and a camp that
+          appears and then fills with supplies is a better answer to that than
+          a camp that will not appear until its barrels have downloaded.
+        */}
+        <Suspense fallback={null}>
+          <CampProps tier={props.tier ?? "medium"} />
+        </Suspense>
       </group>
-
-
 
       {/* 11  props and papers */}
       <CampObjects {...props} />
