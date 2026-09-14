@@ -239,8 +239,29 @@
   background: var(--color-red);
 }
 
-/* The name, written under the object rather than inside it. Out of the flex
-   flow entirely, so the width of the hit area cannot wrap it or clip it. */
+/*
+  The name, written under the object rather than inside it. Out of the flex
+  flow entirely, so the width of the hit area cannot wrap it or clip it.
+
+  `pointer-events: none` is what makes that sentence true, and it was missing.
+
+  An anchored object's box is the object's own projected footprint — 15 to 23
+  pixels across, because a notebook on a table sixteen metres away is small.
+  The name beside it is eighty to a hundred pixels of nowrap text, absolutely
+  positioned, and an absolutely positioned child is still a descendant: it
+  keeps its parent's hit area whatever it overhangs. `opacity: 0` hides a
+  thing from the eye and from nothing else.
+
+  So three invisible names lay across each other and across their objects, and
+  the browser gave each click to whichever came last in the DOM. Measured on a
+  6x6 grid over each object's own box: pointing at the **notebook** — the
+  object the page asks you to pick up — landed on Field notes 8 times and the
+  Photograph 4 times out of 36. The photograph lost 6 of 36 the same way.
+  Nothing looked wrong, because the thief was invisible.
+
+  Step 22 measured that the visible boxes did not collide, which was true and
+  was not the question.
+*/
 [data-anchored] .label {
   position: absolute;
   top: calc(50% + 10px);
@@ -250,6 +271,7 @@
   font-size: clamp(0.58rem, 0.85vw, 0.7rem);
   letter-spacing: 0.16em;
   opacity: 0;
+  pointer-events: none;
 }
 
 [data-anchored] .object:hover .label,
@@ -266,5 +288,11 @@
   display: none;
 }
 
-/* Phones never reach this: ThreeScene refuses to mount a renderer below
-   860px, so [data-anchored] is never set there and the block above stands. */
+/* Phones do reach this, and used not to. The claim that stood here — that
+   ThreeScene refuses a renderer below 860px, so [data-anchored] is never set
+   on a phone — was true until upgrade 26 handed that decision to the quality
+   tier. A phone that earns LOW now draws the scene and the projector sets the
+   attribute on a 335px stage. Which is why every rule in the block below
+   carries the [data-anchored] variant as well: without it the anchored
+   presentation wins on a phone, and that is the collision §22 measured and
+   removed. */

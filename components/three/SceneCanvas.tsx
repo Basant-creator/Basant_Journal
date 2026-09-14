@@ -4,7 +4,21 @@ import { Canvas } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { PCFSoftShadowMap } from "three";
+/*
+  PCFShadowMap and not PCFSoftShadowMap, which is what this asked for until
+  production verification read the console: "THREE.WebGLShadowMap:
+  PCFSoftShadowMap has been removed. Using PCFShadowMap instead." Deprecated in
+  three r186 and gone — the constant still exports, so it compiles, and the
+  renderer quietly substitutes the hard one. The code claimed a soft shadow and
+  the GPU had been drawing this one all along.
+
+  Named rather than restored. VSM is the remaining soft option and three does
+  not support it for point lights, which is the only shadow-casting light in
+  the scene; and the fire's shadow is rendered six times and then frozen (§04)
+  at a size where the difference is a pixel of penumbra. Better to say what is
+  actually happening.
+*/
+import { PCFShadowMap } from "three";
 import type { BufferGeometry, LightShadow, Material, Object3D, Scene, Texture, WebGLRenderer } from "three";
 import { markScene } from "@/lib/three/profile";
 
@@ -309,7 +323,7 @@ export function SceneCanvas({
         frameloop={onScreen && awake ? "always" : "never"}
         dpr={dpr}
         camera={{ position: camera.position, fov: camera.fov ?? 42, near: 0.1, far: 200 }}
-        shadows={shadows.enabled ? { type: PCFSoftShadowMap } : false}
+        shadows={shadows.enabled ? { type: PCFShadowMap } : false}
         gl={{
           antialias: true,
           powerPreference: "high-performance",

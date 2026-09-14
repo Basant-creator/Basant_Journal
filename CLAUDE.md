@@ -74,6 +74,12 @@ predates SCENE and TERRAIN and lists only three; README is authoritative.)
 - **`role="img"` makes an element a leaf** in the accessibility tree — children
   become invisible to assistive tech. Don't put a `label` on a container whose
   children are interactive.
+- **`opacity: 0` hides a thing from the eye and from nothing else.** An
+  absolutely positioned child keeps its parent's hit area whatever it
+  overhangs, so an invisible label beside a small control silently steals its
+  neighbours' clicks — measured at 12 of 36 for the Camp's notebook. Test hit
+  areas with `elementFromPoint` on a grid, never by looking; `getBoundingClientRect`
+  on the control alone does not include the overhang.
 - **StrictMode double-invokes effects.** An effect that reads state it wrote
   itself (a "seen" flag) will bail on the second run. Use a ref for the decision
   and hang cleanup off state, not mount.

@@ -195,6 +195,18 @@ export function SceneStatsPanel() {
   const [sample, setSample] = useState<SceneSample>(EMPTY);
   const [stale, setStale] = useState(false);
   const [open, setOpen] = useState(true);
+  /*
+    The portal target, taken after mount rather than during render.
+
+    Reading `document.body` inline threw "Target container is not a DOM
+    element" into the console — caught by the route's error boundary, so the
+    panel recovered and rendered, and the only evidence was three red lines
+    nobody had reason to read. A development tool that cries wolf on every
+    load trains you to ignore the console, which is where the last two bugs in
+    this phase were found.
+  */
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  useEffect(() => setHost(document.body), []);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -210,14 +222,14 @@ export function SceneStatsPanel() {
   const timings = sceneTimings();
   const tier = detectQualityTier();
 
-  if (typeof document === "undefined") return null;
+  if (!host) return null;
 
   if (!open) {
     return createPortal(
       <button type="button" className={styles.reopen} onClick={() => setOpen(true)}>
         stats
       </button>,
-      document.body,
+      host,
     );
   }
 
@@ -262,6 +274,6 @@ export function SceneStatsPanel() {
         <dd>{count(sample.frame)}</dd>
       </dl>
     </div>,
-    document.body,
+    host,
   );
 }

@@ -71,7 +71,7 @@ committed:
 | 19 | Map interaction | done — contact shadow; route accent already carried §18 |
 | 20 | Photograph interaction | done — verified rather than extended; see below |
 | 21 | Field Notes interaction | done — verified rather than extended; see below |
-| 22 | 3D → DOM bridge | done — re-measured after the lens change: gaps 3.1 / 2.8 / 3.0 |
+| 22 | 3D → DOM bridge | done — gaps 3.1 / 2.8 / 3.0; the hit areas were another matter, see 31 |
 | 23 | Notebook → Paper | record wired; §37's cinematic open not built |
 | 24 | Map → Camp | done and measured |
 | 25 | Camp → Map | done and measured |
@@ -80,7 +80,7 @@ committed:
 | 28 | Resource disposal | done — the disposal code ran and reached nothing |
 | 29 | Performance profiling | done — a dev overlay that ships nothing, and the numbers |
 | 30 | Accessibility / reduced motion | done and audited |
-| 31 | Production verification | outstanding |
+| 31 | Production verification | done — and the notebook had been handing its clicks away |
 
 ## The decision that was open, and how it went
 
@@ -406,3 +406,121 @@ foregrounded the counter caught 2,068 frames and a steady 120 fps. The
 limitation is that it stops, not that it lies. `CLAUDE.md` already says to
 take a screenshot before believing a zero; the same applies to believing a
 frame rate.
+
+## Step 31: production verification
+
+Against a clean build, in `next start`, at 1280x860 and again at 400x300.
+
+### Checked, and what it showed
+
+| | | |
+| --- | --- | --- |
+| §23 | the homepage must not load the Camp | **0** WebGL contexts asked for, 0 canvases, no scene element, 190 kB of script across 16 files. Checked statically too: no chunk the homepage document references contains `WebGLRenderer` |
+| §31 | tiers draw what they should | HIGH: dpr 2, shadows, 1398x784. LOW: dpr 1. Both `ready`, both anchored |
+| §26 | a small viewport still draws | 400x300: mode `ready`, canvas present, controls as a row of 44px chips, no anchors — the mobile presentation, on a drawn scene |
+| §36 | objects answer the pointer | hovering the photograph with a real pointer: `:hover` true, its label at 0.99, its neighbours at 0 |
+| §30 | keyboard, roving tabindex | click selects, ArrowRight moves to Field notes, tabindex goes -1/-1/0, the panel follows, `aria-labelledby` resolves |
+| §17 | no fabricated portrait | `/portrait/basant-small.jpg`, a supplied file. Nothing generated |
+| §33 | nothing left behind | 19/25 textures, 466/466 buffers, 157/157 vertex arrays, both contexts lost, anchors cleared (upgrade 28) |
+| §38 | the overlay ships nothing | no `SceneStats`, `markScene` or `sceneTimings` anywhere under `.next/static` |
+| §39 | the portfolio is not sacrificed | `/about` 3.83 kB / 131 kB, shared bundle 104 kB, unchanged across all of this |
+| | console, clean tab | **no errors**; the remaining warnings are R3F's `THREE.Clock` deprecation and Next's CSS preload notices |
+| | `/frontier` | unaffected: survey renders, scene `ready`, no errors |
+
+### Pointing at the notebook activated the wrong thing, a third of the time
+
+The controls over an anchored scene are the objects' own projected footprints
+— 15 to 23 pixels across, because a notebook on a table sixteen metres away is
+small. Each carries its name as an absolutely positioned child, `opacity: 0`
+until the object is hovered or selected, `white-space: nowrap`, eighty to a
+hundred pixels wide.
+
+An absolutely positioned child is still a descendant. It keeps its parent's
+hit area whatever it overhangs, and `opacity: 0` hides a thing from the eye
+and from nothing else. So three invisible names lay across each other and
+across their objects, and the browser handed each click to whichever came last
+in the DOM.
+
+Measured on a 6x6 grid over each object's own box:
+
+| aiming at | landed on itself | stolen by |
+| --- | --- | --- |
+| Notebook | 24 / 36 | Field notes 8, Photograph 4 |
+| Photograph | 30 / 36 | Field notes 6 |
+| Field notes | 36 / 36 | — |
+| Map | 36 / 36 | — |
+
+The notebook is the object the page asks you to pick up, and a third of it
+belonged to something else. Nothing looked wrong, because the thief was
+invisible; the labels themselves never overlap on screen, since only one is
+ever shown.
+
+`pointer-events: none` on the anchored label — which is what the comment above
+that rule already claimed, having been written as "out of the flex flow
+entirely, so the width of the hit area cannot wrap it or clip it". After:
+**36/36 on all four**, nothing stolen.
+
+Step 22 measured that the visible boxes did not collide. That was true, and it
+was not the question.
+
+### The shadows were never soft
+
+The console said so: `THREE.WebGLShadowMap: PCFSoftShadowMap has been removed.
+Using PCFShadowMap instead.` Deprecated in three r186 and gone. The constant
+still exports, so `shadows={{ type: PCFSoftShadowMap }}` compiled and typed
+and ran, and the renderer quietly substituted the hard one. Every shadow in
+every screenshot in this document was already PCF.
+
+Named rather than restored. VSM is the remaining soft option and three does
+not support it for point lights, which is the only shadow-casting light here;
+and the fire's shadow is rendered six times and then frozen at a size where
+the difference is a pixel of penumbra. The code now says what the GPU does.
+
+### And the profiler was throwing
+
+`Target container is not a DOM element` from `<SceneStatsPanel>`, three times
+per load, caught by the route's error boundary — so the panel recovered,
+rendered, and worked, and the only evidence was red text nobody had reason to
+read. `createPortal` was being handed `document.body` during render. It now
+takes the host from an effect.
+
+Worth the fix for a development-only component, because a tool that cries wolf
+on every load trains you to stop reading the console — and the console is
+where both of the bugs above were found.
+
+## What is not done
+
+The phase is not finished, and this is the list.
+
+**§37, the notebook opening into the Paper.** The record is wired and updates
+in place; the brief calls the transition "one of the signature moments of
+Phase 6" and it is not built. Step 23 in the table above says so.
+
+**Assets.** §12, §24, §25 and §26 are scaffolded, not populated. I cannot
+author or source GLB models or PBR texture sets; every surface in this scene
+is a canvas it drew for itself. A licensed CC0 source (Poly Haven,
+Quaternius) or supplied assets would change what §01's "illusion of AAA" can
+reach.
+
+**`SITE_ORIGIN`** in `lib/routes.ts` is still `https://basantbhushan.dev`, a
+placeholder. It is the only thing actually blocking a deploy.
+
+**The fire's shadow map**, 24 MB of the scene's 32. Halving it returns about
+19 MB; it changes how the scene looks, so it is a decision.
+
+**MetricPanel's unit red** measures 3.94:1 on the tan mat and needs a darker
+red. A palette decision, not a code one.
+
+**The lantern** is named among §36's hero interactive objects and is
+decorative, because §22 caps interaction at four objects that exclude it.
+
+**Brass metalness is capped at 0.55** because a metal in three without an
+`envMap` goes black, and an envMap is a scene-wide lighting pass.
+
+**A `next/font` build error** appeared once on a cold `.next` and has not
+reproduced across every build since. It is the Google Fonts fetch failing;
+harmless locally, and worth knowing before it happens in CI on a bad network.
+
+**Next preloads CSS it does not use** — eight or nine warnings a load. A
+framework behaviour with this many CSS modules, not a regression, and not
+investigated.
