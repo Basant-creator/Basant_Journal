@@ -115,6 +115,14 @@ walks the still-intact scene at teardown for this reason; see `releaseScene`.
 `emissiveMap` — an enumerated list means the next map somebody adds is a
 texture nobody releases, and the omission is silent.
 
+**There is a profiler, in development only.** `SceneStats` reports tier, frame
+rate, draw calls, triangles, geometries, textures and their bytes, programs,
+pixel ratio, and the two load times from `lib/three/profile.ts`. It is behind
+a folded `NODE_ENV` constant so production emits no chunk for it — verified
+against the build output, not assumed. Measured numbers for the Camp are in
+`docs/phase-6-upgrade.md`; the one worth knowing before changing anything is
+that the fire's 1024² cube shadow is 24 MB of the scene's 32 MB of texture.
+
 **A lost context must fall back.** That decision belongs to `ThreeScene`, not
 to the scene that just lost its GPU.
 

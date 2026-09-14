@@ -1,0 +1,133 @@
+/*
+  A development instrument, dressed as one.
+
+  It deliberately does not look like the site. The Camp is the one page that
+  has to read as a photograph, and a panel styled to belong there is a panel
+  somebody eventually mistakes for part of the composition — in a screenshot,
+  in a review, in a memory of what the page looked like. Small monospaced
+  numbers on a flat slab say "tooling" at a glance, which is the whole job.
+
+  It follows the house convention for a development readout, set by
+  TransitionDebug: fixed to a bottom corner, above the passage layer, dim
+  until you look at it. Bottom *right*, because the transition readout already
+  has the left and two overlays stacked on each other tell you nothing.
+
+  Fixed and not absolute. Absolute would need a containing block, and the only
+  candidate is the canvas holder — a production element carrying a position
+  rule that exists solely to place a panel production does not have. That is
+  the shape of the bug found at upgrade 27: two rules disagreeing about
+  position on one element, settled by whichever stylesheet the bundler put
+  last.
+
+  The colours come from the tokens. There is no file that is allowed raw hex.
+*/
+
+.panel,
+.reopen {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: calc(var(--z-passage) + 10);
+
+  background: color-mix(in srgb, var(--color-ink) 88%, transparent);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+
+  font-family: var(--font-ui);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+
+  /* Present, not insistent — and readable the moment it is looked at. */
+  opacity: 0.42;
+  transition: opacity 200ms ease;
+}
+
+.panel:hover,
+.panel:focus-within,
+.reopen:hover,
+.reopen:focus-visible {
+  opacity: 1;
+}
+
+.panel {
+  min-width: 216px;
+  padding: 8px 12px 10px;
+}
+
+/* Nothing is being drawn, so nothing below it is current. */
+.panel[data-stale] {
+  border-color: color-mix(in srgb, var(--color-border-subtle) 50%, transparent);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.tier {
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+}
+
+.fps {
+  margin-left: auto;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.close,
+.reopen {
+  appearance: none;
+  font: inherit;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.close {
+  position: static;
+  background: none;
+  border: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.close:hover,
+.close:focus-visible {
+  color: var(--color-text-primary);
+}
+
+.reopen {
+  padding: 6px 10px;
+  text-transform: uppercase;
+}
+
+.rows {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 12px;
+  margin: 0;
+}
+
+.rows dt {
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.rows dd {
+  margin: 0;
+  text-align: right;
+  /* Tabular figures, so a number that changes four times a second does not
+     make the column jump. */
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.aside {
+  color: var(--color-text-muted);
+}

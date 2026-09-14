@@ -78,7 +78,7 @@ committed:
 | 26 | Mobile quality tier | done — phones draw at LOW; the connection gate later proved too sharp, see 28 |
 | 27 | WebGL fallback | done — and it was rendering at zero height |
 | 28 | Resource disposal | done — the disposal code ran and reached nothing |
-| 29 | Performance profiling | outstanding, with §38's overlay |
+| 29 | Performance profiling | done — a dev overlay that ships nothing, and the numbers |
 | 30 | Accessibility / reduced motion | done and audited |
 | 31 | Production verification | outstanding |
 
@@ -98,10 +98,10 @@ The budget argument that justified the old behaviour has not been discarded,
 it has been made specific. §39 asks that the Camp not destroy initial page
 performance and that the portfolio not be sacrificed for one scene, and
 neither is satisfied by sending 880kB of renderer down a 2G connection to
-draw a campfire. So the probe now reads `saveData` and `effectiveType`, and
-either a visitor asking for less data or a link at 3G or below returns
-fallback. Absent is not slow: most browsers do not implement the API, and
-guessing badly there costs someone the whole scene.
+draw a campfire. So the probe reads `saveData` and `effectiveType`. Absent is
+not slow: most browsers do not implement the API, and guessing badly there
+costs someone the whole scene — which is exactly what 3G did until upgrade 28
+softened it from a refusal to a tier below. The table already reflects that.
 
 | case | tier |
 | --- | --- |
@@ -111,7 +111,8 @@ guessing badly there costs someone the whole scene.
 | tablet, 2GB | low |
 | old GPU, 2048 max texture | low |
 | phone with Save-Data on | fallback |
-| phone on 3G or worse | fallback |
+| phone on 3G | **low** — see 28 |
+| phone on 2G or slow-2g | fallback |
 | software rasteriser | fallback |
 | no WebGL | fallback |
 
@@ -292,3 +293,116 @@ renderer, down from four.
 | 3G desktop | draws, at LOW, dpr 1 |
 | no WebGL at all | illustrated camp, 618x347, three tabs, panel populated |
 | tier table | 15 cases re-checked against an independent expectation |
+
+## Step 29: the overlay, and what it found
+
+§38 asks for a development readout of what the scene costs. It is in two
+pieces because the numbers sit on two sides of a wall: everything about a
+frame can only be read from inside a `useFrame`, and everything about a panel
+is DOM and cannot be inside a Canvas. The sampler writes into a ref four times
+a second and the panel reads it on a timer — a profiler that re-renders React
+sixty times a second is measuring itself.
+
+It reports tier, frame rate, draw calls, triangles, geometries, textures and
+their estimated bytes, programs, pixel ratio, and §38's two load times. Frame
+rate reads "paused" rather than a stale number when the loop has stopped,
+which it does whenever the canvas scrolls out of view or the tab is hidden.
+
+**It ships nothing.** `process.env.NODE_ENV` is a literal at build time, so
+the dynamic import behind it is unreachable code and webpack never emits the
+chunk. Verified rather than assumed: no file under `.next/static` contains
+`SceneStats`, `pixel ratio`, `asset load`, `markScene` or `sceneTimings`, and
+`/about` is unchanged at 3.83 kB / 131 kB against a 104 kB shared bundle.
+
+### The panel could not be seen, and the reason is worth keeping
+
+Fixed to the bottom-right at `z-index: 160`, it rendered *underneath* the
+record paper — which sets no z-index at all.
+
+`ThreeScene`'s picture layer carries `z-index: 0` with `position: absolute`,
+and that makes it a stacking context. A `position: fixed` element does not
+escape one: the panel's 160 was being resolved inside a layer that itself
+sits at 0, so anything painted later in the document covered it. Measured
+with `elementFromPoint` at the panel's own centre, which returned the
+record's body text.
+
+Same family as upgrade 27. There a position rule collapsed a box to zero
+height; here a z-index rule quietly redefines what "on top" means, three
+ancestors away from the element that looks wrong. The transition readout
+never hits it because it is mounted in the root layout, outside every scene
+layer — so the panel is portalled to the body, where that one already lives.
+
+### What the scene costs
+
+Measured in production at 1100x820 with a device pixel ratio of 2, so the
+renderer is filling 2200x1640.
+
+| | |
+| --- | --- |
+| draw calls | 114 at rest, 204 while the shadow pass runs |
+| triangles | 21,991 |
+| geometries | 114 |
+| textures | 20, about 32.0 MB |
+| programs | 16 |
+| frame rate | 120 fps sustained, at the pane's refresh ceiling |
+
+The draw-call pair is the frozen shadow earning its keep twice over. §04
+renders the fire's shadow for six frames and then sets `autoUpdate = false`;
+before it freezes, the six faces of the point light's cube cost 90 extra draw
+calls per frame — 78% on top of the whole rest of the scene, for a shadow
+that never moves again.
+
+**24 of those 32 megabytes are that one shadow map.** 1024 x 1024, four bytes
+a texel, six faces. Every canvas this scene draws for itself — the timber,
+the leather, the paper, the flame, the map, the photograph, the ground, the
+sky — comes to about 8 MB between them. Halving the shadow to 512 would
+return roughly 19 MB, and it is rendered six times and then frozen on a scene
+that is deliberately soft. Not changed here: it is a tier decision and it
+changes how the scene looks, so it wants a pair of eyes on it rather than an
+arithmetic argument.
+
+### Arrival
+
+| | high, warm | low, cold shaders | low, warm |
+| --- | --- | --- | --- |
+| canvas mounts | 2973 ms | 2973 ms | 2973 ms |
+| first frame drawn | 3293 ms | 4180 ms | 3265 ms |
+| main thread blocked | 54 + 204 = **258 ms** | 52 + 529 = **581 ms** | 86 + 59 + 148 = **293 ms** |
+
+The mount time is identical to the millisecond across every run because
+nothing about it is a guess: the chapter card, the 2600ms transition guard
+and the settle are fixed durations, and the scene waits for all of them by
+design. §19's reason for that still holds — an arrival that plays behind a
+curtain is an arrival nobody sees.
+
+The first frame costs about a quarter of a second of main thread, in two
+tasks, and it lands after the page is already interactive. It is a hitch, not
+a block.
+
+**Cold shaders are most of it.** The low tier's first ever frame blocked for
+581 ms; the same tier's second visit blocked for 293 ms, with nothing else
+changed. Compiling sixteen programs against a driver that has not seen them
+before is roughly 290 ms of that number, paid once per shader set per
+machine. Which also means the tiers cannot be compared against each other
+within one session — whichever runs first pays for the compiler, and reading
+that as "LOW is more expensive than HIGH" would be exactly backwards.
+
+### Delivery
+
+| | |
+| --- | --- |
+| renderer chunks | 3, 231 kB encoded (99 + 87 + 45) |
+| fetched | after the transition reaches IDLE, never before |
+| /about | 3.83 kB, 131 kB first load |
+| shared bundle | 104 kB, unchanged |
+
+### One correction
+
+Earlier in this phase I recorded that sustained frame rate cannot be measured
+in this browser pane, because `requestAnimationFrame` only fires while it
+paints — a scene drew 3 frames across ten seconds of waiting. That is true of
+a pane that is hidden and not true of one that is not: with the pane
+foregrounded the counter caught 2,068 frames and a steady 120 fps. The
+limitation is that it stops, not that it lies. `CLAUDE.md` already says to
+take a screenshot before believing a zero; the same applies to believing a
+frame rate.

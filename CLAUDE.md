@@ -79,6 +79,12 @@ predates SCENE and TERRAIN and lists only three; README is authoritative.)
   and hang cleanup off state, not mount.
 - **Exact complementary clip paths leave a hairline.** Both halves anti-alias
   against the shared boundary; overlap by ~0.0025.
+- **`position: fixed` does not escape a stacking context.** `ThreeScene`'s
+  picture layer sets `z-index: 0`, which makes one — so a fixed overlay
+  rendered anywhere inside a scene is trapped at that layer's depth however
+  large its own z-index is, and loses to content painted later at no z-index
+  at all. Portal it to `document.body`, the way `TransitionDebug` avoids the
+  problem by being mounted in the root layout.
 - **Anything drawn on a GPU has its own trap list.** The short version:
   damping must be frame-rate independent (`1 - exp(-lambda * dt)`, never a
   fixed fraction); nothing is allocated per frame; releasing a renderer needs
@@ -128,7 +134,9 @@ npm run check:3d     # must pass before commit
   being mismeasured, not a bug — take a screenshot to make the pane paint
   before believing a zero. The same applies to CSS scroll-driven animations,
   which are never sampled while it is hidden, and to `requestAnimationFrame`,
-  which simply never fires.
+  which simply never fires. Frame rate *is* measurable once it is painting —
+  120 fps, sustained, over 2,068 frames — so a low number means the pane, not
+  the scene. Interleave small screenshots through anything being timed.
 - **The pane does not hold OS focus**, so `element.focus()` moves
   `document.activeElement` and fires no focus event at all — React’s
   `onFocus` never runs and focus-driven behaviour reads as dead code.

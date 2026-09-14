@@ -1,10 +1,35 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
+import dynamic from "next/dynamic";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { PCFSoftShadowMap } from "three";
 import type { BufferGeometry, LightShadow, Material, Object3D, Scene, Texture, WebGLRenderer } from "three";
+import { markScene } from "@/lib/three/profile";
+
+/**
+ * §38's overlay, and the reason it cannot simply be hidden in production.
+ *
+ * `process.env.NODE_ENV` is replaced by a literal at build time, so in a
+ * production build this is `true ? () => null : dynamic(...)` — the branch
+ * holding the `import()` is unreachable, webpack drops it, and no chunk for
+ * the profiler is emitted at all. Rendering it behind a runtime flag instead
+ * would ship every byte of it to every visitor to keep a panel nobody can
+ * open.
+ *
+ * The empty component rather than `null` is so the call sites stay ordinary
+ * JSX and do not each grow their own conditional.
+ */
+const StatsProbe =
+  process.env.NODE_ENV === "production"
+    ? () => null
+    : dynamic(() => import("./SceneStats").then((m) => m.SceneStatsProbe), { ssr: false });
+
+const StatsPanel =
+  process.env.NODE_ENV === "production"
+    ? () => null
+    : dynamic(() => import("./SceneStats").then((m) => m.SceneStatsPanel), { ssr: false });
 
 /**
  * Everything the scene is holding, handed back in an order that works.
@@ -305,13 +330,17 @@ export function SceneCanvas({
 
           renderer.current = gl;
           world.current = scene;
+          /* The renderer exists: the chunk has arrived and evaluated. */
+          markScene("created");
 
           const canvas = gl.domElement;
           canvas.addEventListener("webglcontextlost", lost);
         }}
       >
         {children}
+        <StatsProbe />
       </Canvas>
+      <StatsPanel />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { useTransition } from "@/components/transition/TransitionContext";
 import { type SceneCapability, detectSceneCapability } from "@/lib/three/capability";
+import { markScene } from "@/lib/three/profile";
 import { type QualityTier, detectQualityTier } from "@/lib/three/quality";
 import type { SceneProps } from "./types";
 import styles from "./ThreeScene.module.css";
@@ -166,6 +167,25 @@ export function ThreeScene({
     const id = window.setTimeout(() => setSettled(true), 700);
     return () => window.clearTimeout(id);
   }, [capability, covered]);
+
+  /*
+    The starting gun for §38's two timings.
+
+    In an effect and not in the render body: marking "request" clears the two
+    marks after it, and ThreeScene re-renders for reasons that have nothing to
+    do with mounting a scene — a transition phase changing, a tier arriving.
+    Done during render, every one of those would wipe the numbers a moment
+    after they were taken and the overlay would show blanks that look like a
+    scene that never loaded.
+
+    It runs one commit after `next/dynamic` is first asked for the chunk,
+    which is close enough to the fetch to be the fetch, and is the earliest
+    moment that is *reliably* once per visit. Development only.
+  */
+  const mounting = capability === "ready" && settled;
+  useEffect(() => {
+    if (mounting) markScene("request");
+  }, [mounting]);
 
   /* Described or hidden — the two honest options for a box with a picture
      in it. Shared by both branches so they cannot drift apart. */
