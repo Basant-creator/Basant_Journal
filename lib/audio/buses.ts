@@ -57,12 +57,73 @@ const LEVELS: Record<BusName, number> = {
   paper: 0.75,
 };
 
+/**
+ * How much of each bus is sent to the room.
+ *
+ * A send, not an insert: the dry signal still goes straight to the master, and
+ * this is a second copy arriving late. That is the difference between a banjo
+ * in a valley and a banjo underwater.
+ *
+ * Only two buses go. Animals go the furthest, because a bird that answers from
+ * somewhere is the whole point of a bird. Wind is already diffuse and reverb
+ * only smears it; interface ticks must be immediate or they feel laggy; and
+ * paper stays dry because inside the book the page is *here* — putting a room
+ * around it moves the reader out of their own chair.
+ */
+const SENDS: Partial<Record<BusName, number>> = {
+  music: 0.34,
+  animals: 0.55,
+};
+
 export interface Desk {
   context: AudioContext;
   master: GainNode;
   bus: Record<BusName, GainNode>;
   /** The safety limiter. The last node before the speakers. */
   limiter: DynamicsCompressorNode;
+  /** The room, and everything that feeds it. */
+  reverb: ConvolverNode;
+  wet: GainNode;
+  sends: GainNode[];
+}
+
+/**
+ * An impulse response, generated.
+ *
+ * A convolution reverb is normally a recording of a real space, which would be
+ * a file with a licence attached — and this repository ships no audio files.
+ * It does not need to: an impulse response is only noise with a decay envelope
+ * on it, and what separates a convincing one from a hiss is two details.
+ *
+ * The first is the pre-delay. Reflections cannot arrive before the sound does,
+ * and the gap between the direct sound and the first reflection is how the ear
+ * measures the size of a room. Twenty-eight milliseconds is a large one.
+ *
+ * The second is that the tail darkens as it ages. Air absorbs treble long
+ * before it absorbs volume, so late reflections have bounced further and lost
+ * more high end. A tail that stays bright is a metal box.
+ */
+function impulse(context: AudioContext, seconds: number, decay: number): AudioBuffer {
+  const rate = context.sampleRate;
+  const length = Math.floor(rate * seconds);
+  const predelay = Math.floor(rate * 0.028);
+  const buffer = context.createBuffer(2, length, rate);
+
+  for (let channel = 0; channel < 2; channel += 1) {
+    const data = buffer.getChannelData(channel);
+    /* Independent noise per channel, which is the whole of the width. */
+    let last = 0;
+    for (let i = predelay; i < length; i += 1) {
+      const t = (i - predelay) / (length - predelay);
+      const noise = Math.random() * 2 - 1;
+      /* A one-pole lowpass whose smoothing rises with age. */
+      const smoothing = 0.2 + t * 0.58;
+      last = last * smoothing + noise * (1 - smoothing);
+      data[i] = last * Math.pow(1 - t, decay);
+    }
+  }
+
+  return buffer;
 }
 
 /** Wires a fresh desk. The caller owns the context's lifetime. */
@@ -92,15 +153,34 @@ export function createDesk(context: AudioContext): Desk {
   master.gain.value = 0;
   master.connect(limiter);
 
+  /* 2.6 seconds is a valley rather than a hall: long enough that a note has
+     somewhere to go, short enough that the next one is not fighting it. */
+  const reverb = context.createConvolver();
+  reverb.buffer = impulse(context, 2.6, 2);
+  const wet = context.createGain();
+  wet.gain.value = 0.5;
+  reverb.connect(wet).connect(master);
+
   const bus = {} as Record<BusName, GainNode>;
+  const sends: GainNode[] = [];
   for (const name of Object.keys(LEVELS) as BusName[]) {
     const node = context.createGain();
     node.gain.value = LEVELS[name];
     node.connect(master);
     bus[name] = node;
+
+    const amount = SENDS[name];
+    if (amount !== undefined) {
+      /* Taken after the bus fader, so ducking the music ducks its room with
+         it. A duck that leaves the reverb up sounds like the mix broke. */
+      const send = context.createGain();
+      send.gain.value = amount;
+      node.connect(send).connect(reverb);
+      sends.push(send);
+    }
   }
 
-  return { context, master, bus, limiter };
+  return { context, master, bus, limiter, reverb, wet, sends };
 }
 
 /**

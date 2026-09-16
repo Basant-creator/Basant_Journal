@@ -1,5 +1,5 @@
 import type { Desk } from "./buses";
-import { pluck, whistle } from "./instruments";
+import { type Sustained, bow, pluck, whistle } from "./instruments";
 
 /**
  * The Frontier motif.
@@ -24,6 +24,9 @@ import { pluck, whistle } from "./instruments";
 
 /** Hz. D minor pentatonic across two octaves, plus the drone's fifth. */
 const NOTES = {
+  /* The drone's two notes, an octave below the banjo's lowest. */
+  D2: 73.42,
+  A2: 110.0,
   D3: 146.83,
   F3: 174.61,
   G3: 196.0,
@@ -176,14 +179,56 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
   let sinceWhistle = 0;
   let index = Math.floor(Math.random() * BANJO.length);
 
+  /*
+    The drone runs on its own clock.
+
+    It has nothing to do with the phrase cursor and must not: the banjo rests
+    for up to sixteen beats at a time, and a bed that stopped during the rests
+    would be a bed nobody could hear the point of. So it is scheduled by the
+    same look-ahead, overlapping itself, and the banjo plays over whatever it
+    happens to be holding.
+  */
+  let droneCursor = context.currentTime + 0.4;
+  let droneRoot = 0;
+  let drones: Sustained[] = [];
+
   const LOOKAHEAD = 2;
+  /* Each drone overlaps the next by more than its release, so the handover is
+     a crossfade and never a gap. */
+  const DRONE_OVERLAP = 4;
+
+  const hushDrones = (seconds = 1.6) => {
+    for (const drone of drones) drone.release(seconds);
+    drones = [];
+  };
 
   const schedule = () => {
     if (state === "silence") {
-      /* Keep the cursor with the clock, so leaving silence does not dump a
+      /* Keep the cursors with the clock, so leaving silence does not dump a
          backlog of phrases into the present all at once. */
       cursor = Math.max(cursor, context.currentTime + 0.4);
+      droneCursor = Math.max(droneCursor, context.currentTime + 0.4);
       return;
+    }
+
+    /* The bed, first, so the banjo has something to land on. */
+    while (droneCursor < context.currentTime + LOOKAHEAD) {
+      const length = 15 + Math.random() * 6;
+      /* D and A alternating: the bare fifth is in the drone itself, which is
+         where the mode's ambiguity comes from. */
+      droneRoot = (droneRoot + 1) % 2;
+      drones.push(
+        bow(context, desk.bus.music, {
+          frequency: droneRoot === 0 ? NOTES.D2 : NOTES.A2,
+          duration: length,
+          level: state === "reflective" ? 0.11 : 0.15,
+          pan: (Math.random() - 0.5) * 0.3,
+          when: droneCursor,
+        }),
+      );
+      droneCursor += length - DRONE_OVERLAP;
+      /* Anything older than the overlap has already released itself. */
+      if (drones.length > 3) drones = drones.slice(-3);
     }
 
     while (cursor < context.currentTime + LOOKAHEAD) {
@@ -245,11 +290,17 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
 
   return {
     setState(next) {
+      if (next === state) return;
       state = next;
+      /* §21: the landing's music has to be gone before the visitor settles
+         anywhere else. A drone holds for twenty seconds, so silence has to
+         actually take it away rather than just stop scheduling more. */
+      if (next === "silence") hushDrones();
     },
     stop() {
       window.clearInterval(timer);
       state = "silence";
+      hushDrones(0.9);
     },
   };
 }

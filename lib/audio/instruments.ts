@@ -342,3 +342,124 @@ export function chirp(
   /* The panner outlives its notes by a moment, then goes. */
   window.setTimeout(() => panner.disconnect(), (notes * 0.13 + 0.4) * 1000);
 }
+
+/* -------------------------------------------------------------------------
+   THE BOW — what holds the whole thing up
+
+   The gap between a synthesised motif and a scored one is almost never the
+   tune. It is that a plucked note starts, decays and leaves nothing behind, so
+   the music arrives as a sequence of events rather than as a thing that is
+   already happening and that the banjo is playing over.
+
+   A bowed string is a sawtooth, and not by analogy: the Helmholtz motion of a
+   real bowed string is a travelling kink that makes the bridge force a near
+   perfect sawtooth. So three of them, detuned by a few cents, is most of a
+   string section — the detuning is what turns one instrument into several
+   players who cannot possibly agree.
+
+   Returned rather than fired and forgotten, because a drone that outlives the
+   route it belongs to is worse than no drone: the landing's music has to be
+   gone before the visitor settles anywhere else, and this one can ring for
+   twenty seconds.
+   ------------------------------------------------------------------------- */
+
+export interface Sustained {
+  /** Fades the note out early and frees it. */
+  release(seconds?: number): void;
+}
+
+export interface BowOptions {
+  frequency: number;
+  /** Seconds, including the attack and the release. */
+  duration: number;
+  level?: number;
+  pan?: number;
+  when?: number;
+}
+
+export function bow(
+  context: AudioContext,
+  destination: AudioNode,
+  { frequency, duration, level = 0.15, pan = 0, when }: BowOptions,
+): Sustained {
+  const t = when ?? context.currentTime;
+
+  /* Slow both ends. A drone that arrives is an event; a drone that was
+     already there is a place. */
+  const attack = Math.min(2.4, duration * 0.3);
+  const release = Math.min(3.2, duration * 0.35);
+
+  const gain = context.createGain();
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(level, t + attack);
+  gain.gain.setValueAtTime(level, t + duration - release);
+  gain.gain.linearRampToValueAtTime(0, t + duration);
+
+  /*
+    Bow pressure, as a filter that opens and closes.
+
+    A sawtooth held at a fixed cutoff is an organ. What makes it read as a bow
+    is that the brightness moves independently of the loudness — the player
+    leans in as the note settles and eases off at the end.
+  */
+  const tone = context.createBiquadFilter();
+  tone.type = "lowpass";
+  tone.frequency.setValueAtTime(frequency * 3, t);
+  tone.frequency.linearRampToValueAtTime(frequency * 7, t + attack);
+  tone.frequency.linearRampToValueAtTime(frequency * 3.5, t + duration);
+  tone.Q.value = 0.6;
+
+  const panner = context.createStereoPanner();
+  panner.pan.value = pan;
+
+  tone.connect(gain).connect(panner).connect(destination);
+
+  const voices: OscillatorNode[] = [];
+  for (const cents of [-7, 0, 6]) {
+    const osc = context.createOscillator();
+    osc.type = "sawtooth";
+    osc.frequency.value = frequency;
+    osc.detune.value = cents;
+    osc.connect(tone);
+    osc.start(t);
+    osc.stop(t + duration + 0.05);
+    voices.push(osc);
+  }
+
+  /* A very slow drift across all three at once, arriving after the attack.
+     Held strings wander; strings that do not are a sample being looped. */
+  const drift = context.createOscillator();
+  drift.type = "sine";
+  drift.frequency.value = 0.13;
+  const driftDepth = context.createGain();
+  driftDepth.gain.setValueAtTime(0, t);
+  driftDepth.gain.linearRampToValueAtTime(4, t + attack);
+  drift.connect(driftDepth);
+  for (const osc of voices) driftDepth.connect(osc.detune);
+  drift.start(t);
+  drift.stop(t + duration + 0.05);
+
+  voices[0].onended = () => {
+    for (const osc of voices) osc.disconnect();
+    drift.disconnect();
+    driftDepth.disconnect();
+    tone.disconnect();
+    gain.disconnect();
+    panner.disconnect();
+  };
+
+  return {
+    release(seconds = 1.4) {
+      const now = context.currentTime;
+      try {
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.linearRampToValueAtTime(0, now + seconds);
+        for (const osc of voices) osc.stop(now + seconds + 0.05);
+        drift.stop(now + seconds + 0.05);
+      } catch {
+        /* Already stopped, or a context that is closing. */
+      }
+    },
+  };
+}

@@ -500,6 +500,9 @@ export function stop(): void {
         node.disconnect();
       }
       for (const node of Object.values(desk.bus)) node.disconnect();
+      for (const send of desk.sends) send.disconnect();
+      desk.reverb.disconnect();
+      desk.wet.disconnect();
       master.disconnect();
       desk.limiter.disconnect();
       void context.close().catch(() => {});

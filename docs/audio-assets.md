@@ -47,6 +47,8 @@ models the physics rather than imitating the result.
 | **whistle** | a triangle oscillator scooped into pitch from 6% under, with vibrato that arrives late, and a 120 ms band of breath noise in front of the tone. |
 | **hooves** | a 90 ms noise burst with a 12 ms exponential decay, a peaking filter at 130 Hz for the thump, and a lowpass that closes from 2400 Hz to 700 Hz with distance — air eats treble before it eats loudness. |
 | **birds** | two to four sine sweeps, 50 ms each, over a random base between 2200 and 3800 Hz. |
+| **bowed strings** | three sawtooth oscillators detuned by −7, 0 and +6 cents through a lowpass that opens on the attack and closes on the release. A bowed string really is a sawtooth — the Helmholtz kink makes the bridge force one — and the detuning is what turns one instrument into several players who cannot quite agree. |
+| **the room** | a generated impulse response through a `ConvolverNode`: 2.6 seconds of stereo noise with a 28 ms pre-delay and a one-pole lowpass whose smoothing rises as the tail ages. No recorded space, no IR file. |
 | **paper** | a 160 ms noise burst through an 1800 Hz bandpass. |
 | **survey tick** | one sine, 1200 Hz falling to 320 Hz over 22 ms. |
 
@@ -79,7 +81,16 @@ terms apply.
 
 The brief's §1 rules out extracted game audio, game soundtrack recordings,
 YouTube rips of either, and fan uploads whose ownership cannot be independently
-verified. None was searched for, downloaded, or consulted. The same rule as
+verified. None was searched for, downloaded, or consulted.
+
+A commercial game score was later offered as a stylistic reference — a track
+from a published soundtrack by its credited composer. It was identified from
+its metadata and **not modelled on**: §1 forbids recreating such a composition
+and §42 asks for an original Frontier motif instead. What was taken from the
+exchange is at the level of idiom rather than material — that a scored western
+holds a sustained bed under the plucked parts and puts the whole thing in a
+space — and both of those are properties of the genre, implemented here from
+first principles. The same rule as
 CLAUDE.md's second non-negotiable: the vocabulary is the genre, not any product
 inside it.
 
@@ -126,6 +137,21 @@ The campfire moved with neither: it shares the environment bus with the wind,
 so its own gain went 0.5 → 0.94, which is the same product. Camp sounds exactly
 as it did and only the weather moved.
 
+**A bed and a room.** The motif now carries a bowed drone on D2 and A2,
+alternating, each note held 15–21 seconds and overlapping the next by four so
+the handover is a crossfade rather than a gap. It runs on its own clock, not
+the phrase cursor: the banjo rests for up to sixteen beats and a bed that
+stopped during the rests would be pointless. Music and animals are sent to the
+generated room — 0.34 and 0.55 — post-fader, so ducking the music ducks its
+reverb with it. Wind, interface ticks and paper stay dry: wind is already
+diffuse, a tick must be immediate or it feels laggy, and inside the book the
+page is *here*.
+
+The drone is released rather than left to ring. It holds for twenty seconds,
+so `setMusic("silence")` fades every sounding one over 1.6 s — measured, the
+music is gone 5.19 s after leaving the landing, which is that fade plus the
+2.6 s tail.
+
 A **limiter** now sits between the master and the speakers — threshold −6 dBFS,
 ratio 20:1, 3 ms attack. A banjo phrase holds notes for up to two seconds, so
 four can ring at once; nothing guarantees their peaks never align, and digital
@@ -151,12 +177,17 @@ frames.
 | console errors with audio running | none |
 | buses reaching the output | 5, each at its declared level |
 | nodes connected past the desk | 0 |
-| wind | 0.0141 RMS / 0.0570 peak |
-| music | 0.0119 RMS / 0.1762 peak, sounding in 380 of 692 frames |
-| **music peak over wind peak** | **3.09×** — was 0.80× before the retune |
-| output | −38.3 dBFS RMS, −19.5 dBFS peak |
+| wind | 0.0131 RMS / 0.0514 peak |
+| music | 0.0403 RMS / 0.2639 peak, sounding in 599 of 722 frames |
+| **music peak over wind peak** | **5.13×** — was 0.80× before any of this |
+| output | −32.0 dBFS RMS, −16.7 dBFS peak |
 | clipping | none |
-| limiter gain reduction | 0.04 dB maximum |
+| limiter gain reduction | 0.03 dB maximum |
+| music gone after leaving the landing | 5.19 s |
+
+Before the drone, the music bus sounded in 55% of frames and rested in the
+gaps. With it, 83% — the rests are still there in the banjo, but the music no
+longer stops existing between phrases.
 
 **The progression is real, not asserted.** With the sound switched on from
 cold, the music bus carries nothing for the first twelve to fourteen seconds
