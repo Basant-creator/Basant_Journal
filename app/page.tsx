@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ButtonLink } from "@/components/shared/Button";
-import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
+import { LandingScene } from "@/components/landing/LandingScene";
 import { Wordmark } from "@/components/world/Wordmark";
 import { links, meta, person } from "@/lib/content/portfolio";
-import { terrain } from "@/lib/map/terrain";
 import { routes } from "@/lib/routes";
 import styles from "./page.module.css";
 
@@ -32,34 +31,22 @@ export default function LandingPage() {
       {/* The dark the scene opens from. It exists only while the entry plays. */}
       <div className={styles.blackout} aria-hidden="true" />
 
-      {/* Horizon: three ridges, filled, each nearer and darker than the last. */}
-      <div className={styles.horizon} aria-hidden="true">
-        <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMax slice">
-          <path d={terrain.mountains.silhouettes[0]} className={styles.ridgeFar} />
-          <path d={terrain.mountains.silhouettes[1]} className={styles.ridgeMid} />
-          <path d={terrain.mountains.silhouettes[2]} className={styles.ridgeNear} />
-        </svg>
-      </div>
+      {/*
+        The living frontier.
 
-      {/* A fragment of the survey sheet, surfacing out of the dark. */}
-      <div className={styles.fragment} aria-hidden="true">
-        <svg viewBox="300 140 1120 620" preserveAspectRatio="xMidYMid slice">
-          <g className={styles.fragmentInk}>
-            {terrain.contours.map((d, i) => (
-              <path key={`c-${i}`} d={d} />
-            ))}
-            {terrain.mountains.ridges.map((d, i) => (
-              <path key={`r-${i}`} d={d} />
-            ))}
-            <path d={terrain.river.channel} />
-            {terrain.stations.lines.map((d, i) => (
-              <path key={`s-${i}`} d={d} />
-            ))}
-          </g>
-        </svg>
-      </div>
+        What was here — three filled ridges and a fragment of the survey sheet
+        surfacing out of the dark — is inside LandingScene now, and so is
+        everything §2 asks for beyond it: depth zones carried by tone, a rider
+        crossing the midground, a loose herd running its own lines, dust, the
+        low sun, and a trail leading to a thread of smoke on the horizon.
 
-      <SceneAtmosphere variant="drift" className={styles.air} />
+        It ships no JavaScript. Every moving part is a CSS animation on
+        server-rendered markup, which is how §25's "lighter than the Camp"
+        is met rather than merely aimed at: there is no renderer to load.
+      */}
+      <div className={styles.landscape} aria-hidden="true">
+        <LandingScene />
+      </div>
 
       <div className={styles.inner}>
         <p className={styles.eyebrow}>

@@ -1,0 +1,314 @@
+/* ==========================================================================
+   THE LIVING FRONTIER
+
+   Three depth zones, and the depth is tone. §30: atmospheric perspective is
+   what lets a slice of country imply a continent — the far band sits close to
+   the sky's own value, the midground separates, the near ground is nearly
+   black.
+
+   Every colour is a token. The palette is the Camp's blue hour warmed by a
+   low sun, so the landing and the place it leads to are lit by the same
+   afternoon rather than being two different worlds.
+   ========================================================================== */
+
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: var(--z-base);
+}
+
+/* --- the sky -------------------------------------------------------------- */
+
+/*
+  §15, §16: golden hour, held back.
+
+  The warm band sits low and narrow. The temptation with a western is to grade
+  the whole frame orange, and §15 says not to — so the warmth is a seam at the
+  horizon and the rest of the sky stays the cool blue the Camp uses.
+*/
+.sky {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      var(--camp-sky-zenith) 0%,
+      var(--camp-sky-high) 24%,
+      var(--camp-sky-mid) 46%,
+      var(--camp-sky-haze) 62%,
+      var(--camp-sky-afterglow) 74%,
+      var(--scene-dusk) 82%,
+      var(--scene-depth-3) 100%
+    );
+}
+
+/* --- the terrain bands ---------------------------------------------------- */
+
+/*
+  The bands sit on the bottom of the frame, not across all of it.
+
+  Each ridge profile is drawn into a box anchored to the floor, and the boxes
+  get shorter as they come forward — which is what stacks them into distance
+  and, more importantly, leaves a band of open ground between the middle ridge
+  and the near one. That gap is the midground the rider and the herd live in.
+  Drawn at full height they simply painted over both.
+*/
+.band {
+  position: absolute;
+  inset: auto 0 0 0;
+  pointer-events: none;
+}
+
+.band svg {
+  width: 100%;
+  height: 100%;
+}
+
+.band path {
+  stroke: none;
+}
+
+/*
+  Each band drifts by its own amount, and the far one barely moves.
+
+  That difference *is* the parallax §14 asks for: the viewer stands still and
+  the country breathes past at three rates. Slow enough — seventy-four seconds
+  out and back — that nobody catches it moving.
+*/
+.far {
+  height: 54%;
+  animation: drift 74s ease-in-out infinite alternate;
+}
+
+.far path {
+  fill: var(--camp-land-far);
+  opacity: 0.85;
+}
+
+.mid {
+  height: 40%;
+  animation: drift 74s ease-in-out infinite alternate;
+  animation-delay: -6s;
+  --shift: 10px;
+}
+
+.mid path {
+  fill: var(--camp-land-mid);
+}
+
+/* Low: the near ridge is a lip of ground at the bottom of the frame, and the
+   thing the rider and the herd pass behind. */
+.near {
+  height: 22%;
+  animation: drift 74s ease-in-out infinite alternate;
+  animation-delay: -12s;
+  --shift: 18px;
+}
+
+.near path {
+  fill: var(--camp-land-treeline);
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(calc(var(--shift, 5px) * -1), 0, 0);
+  }
+  to {
+    transform: translate3d(var(--shift, 5px), 0, 0);
+  }
+}
+
+/* --- the trail, and the smoke at the end of it ---------------------------- */
+
+.trail {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 44%;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.trail svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* A track worn pale into the ground, not a drawn line. */
+.trailLine {
+  fill: none;
+  stroke: var(--camp-sky-afterglow);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  opacity: 0.3;
+  stroke-dasharray: 3 9;
+}
+
+.smoke path {
+  fill: none;
+  stroke: var(--smoke-tint);
+  stroke-width: 5;
+  stroke-linecap: round;
+  opacity: 0.55;
+  animation: smokeRise 15s ease-in-out infinite alternate;
+  transform-origin: center bottom;
+}
+
+@keyframes smokeRise {
+  from {
+    transform: translateX(-1px) scaleY(0.94);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateX(2px) scaleY(1.06);
+    opacity: 0.62;
+  }
+}
+
+/* --- dust ----------------------------------------------------------------- */
+
+/*
+  §18: subtle, and it goes out.
+
+  Each mote fades up, crosses a little, and fades away — so the air has
+  something in it without ever accumulating into a cloud.
+*/
+.dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-base);
+}
+
+.mote {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: var(--camp-sky-afterglow);
+  opacity: 0;
+  animation: mote var(--float) linear infinite;
+  animation-delay: var(--delay);
+  will-change: transform, opacity;
+}
+
+@keyframes mote {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+  18% {
+    opacity: 0.5;
+  }
+  70% {
+    opacity: 0.32;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift), -70px, 0);
+  }
+}
+
+/* --- light and vignette --------------------------------------------------- */
+
+/* The low sun, washing in from the left where the sky is warmest. */
+.light {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 70% 46% at 22% 72%,
+    color-mix(in srgb, var(--fire-core) 10%, transparent) 0%,
+    transparent 68%
+  );
+  mix-blend-mode: screen;
+  animation: sun 88s ease-in-out infinite alternate;
+}
+
+@keyframes sun {
+  from {
+    opacity: 0.72;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+  §39: the corners go quiet so the wordmark has somewhere to sit.
+
+  This is the text safe zone, made rather than hoped for — the centre and the
+  edges lose contrast, and the type sits in what is left.
+*/
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 88% 76% at 50% 44%,
+      transparent 32%,
+      color-mix(in srgb, var(--scene-void) 58%, transparent) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--scene-void) 42%, transparent) 0%,
+      transparent 26%,
+      transparent 62%,
+      color-mix(in srgb, var(--scene-void) 52%, transparent) 100%
+    );
+}
+
+/* ==========================================================================
+   §37 — REDUCED MOTION
+
+   The country stays and stops moving. Nothing is removed: a still landscape
+   should look composed rather than emptied, which is why the rider and the
+   herd park in frame rather than off the edge (see their own stylesheets).
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .far,
+  .mid,
+  .near,
+  .light,
+  .smoke path {
+    animation: none;
+  }
+
+  /* Dust is the one thing that goes: a mote is only ever motion, and a still
+     one is a speck of dirt on the screen. */
+  .dust {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   §27, §38 — NARROW
+
+   Not a cropped desktop scene. The bands sit lower so the sky carries the
+   wordmark, the parallax shortens, and the dust thins out — a phone has less
+   frame to spend and the type needs most of it.
+   ========================================================================== */
+
+@media (max-width: 720px) {
+  .mid {
+    --shift: 6px;
+  }
+
+  .near {
+    --shift: 10px;
+  }
+
+  /* Half the motes. The rest are the same seeded set, simply not drawn. */
+  .mote:nth-child(2n) {
+    display: none;
+  }
+
+  .trail {
+    opacity: 0.32;
+  }
+}

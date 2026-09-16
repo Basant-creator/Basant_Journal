@@ -23,6 +23,14 @@
   opacity: 0;
 }
 
+/* The country, behind everything and taking no clicks. */
+.landscape {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-base);
+  pointer-events: none;
+}
+
 /* --- horizon ------------------------------------------------------------- */
 
 .horizon {
@@ -231,16 +239,8 @@
   animation: blackoutLift 1500ms var(--ease-cinematic) both;
 }
 
-:global([data-entry="play"]) .horizon {
+:global([data-entry="play"]) .landscape {
   animation: horizonRise 1700ms var(--ease-cinematic) 260ms both;
-}
-
-:global([data-entry="play"]) .fragment {
-  animation: fragmentSurface 1900ms var(--ease-cinematic) 700ms both;
-}
-
-:global([data-entry="play"]) .air {
-  animation: fadeIn 2000ms linear 300ms both;
 }
 
 :global([data-entry="play"]) .eyebrow {
