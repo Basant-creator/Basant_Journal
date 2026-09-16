@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BookSpread } from "@/components/book/BookSpread";
-import { RecordNav } from "@/components/journal/RecordNav";
+import { RecordPacket } from "@/components/book/RecordPacket";
 import { DocumentMeta } from "@/components/record/DocumentMeta";
 import { DocumentStamp } from "@/components/record/DocumentStamp";
 import { FieldNote } from "@/components/record/FieldNote";
@@ -9,7 +9,6 @@ import { FieldRecordHeader } from "@/components/record/FieldRecordHeader";
 import { MetricPanel } from "@/components/record/MetricPanel";
 import { ProjectNavigation } from "@/components/record/ProjectNavigation";
 import { ProjectSheet } from "@/components/record/ProjectSheet";
-import { RecordEntry } from "@/components/record/RecordEntry";
 import { TechnicalDiagram } from "@/components/record/TechnicalDiagram";
 import {
   DIAGRAM_HEIGHT,
@@ -159,16 +158,27 @@ export default async function ProjectRecordPage({ params }: PageProps) {
         </p>
       )}
 
-      <div className={styles.body}>
-        <aside className={styles.rail}>
-          <RecordNav />
-        </aside>
+      {/*
+        The record, as a packet of sheets.
 
-        <RecordEntry
-          kind={identity.entry}
-          recordId={project.id}
-          className={styles.sections}
-        >
+        §13 and §17: a field record is a set of documents clipped together,
+        and each sheet answers one question — what is this, what problem, how
+        was it built, what did it measure, what with, what did it teach. Those
+        six were already the document's own divisions; what changes is that
+        the reader now turns through them instead of scrolling past them.
+
+        §31: the URL does not move. Which record is open is a route; which
+        sheet is open is where in a document someone has read to, which is
+        state. That is what keeps Back walking records rather than paragraphs.
+      */}
+      <RecordPacket
+        filing={`Field record ${String(index).padStart(2, "0")}`}
+        previousRecord={
+          previous.isIndex ? null : { href: previous.href, label: previous.label }
+        }
+        nextRecord={next.isIndex ? null : { href: next.href, label: next.label }}
+        leaves={[
+          { id: "overview", label: "Overview", node: (
           <ProjectSheet
             id="overview"
             heading="Overview"
@@ -182,7 +192,9 @@ export default async function ProjectRecordPage({ params }: PageProps) {
             <h3 className={styles.subhead}>The objective</h3>
             <p>{project.objective}</p>
           </ProjectSheet>
+          ) },
 
+          { id: "architecture", label: "Architecture", node: (
           <ProjectSheet
             id="architecture"
             heading="Architecture"
@@ -203,7 +215,9 @@ export default async function ProjectRecordPage({ params }: PageProps) {
               </TechnicalDiagram>
             ) : null}
           </ProjectSheet>
+          ) },
 
+          { id: "implementation", label: "Implementation", node: (
           <ProjectSheet
             id="implementation"
             heading="Implementation"
@@ -221,7 +235,9 @@ export default async function ProjectRecordPage({ params }: PageProps) {
               ))}
             </ol>
           </ProjectSheet>
+          ) },
 
+          { id: "metrics", label: "Metrics", node: (
           <ProjectSheet
             id="metrics"
             heading="Metrics"
@@ -233,7 +249,9 @@ export default async function ProjectRecordPage({ params }: PageProps) {
               caption={`Measured on ${project.title} — ${project.date}`}
             />
           </ProjectSheet>
+          ) },
 
+          { id: "technology", label: "Technology", node: (
           <ProjectSheet
             id="technology"
             heading="Technology"
@@ -248,7 +266,9 @@ export default async function ProjectRecordPage({ params }: PageProps) {
               ))}
             </ul>
           </ProjectSheet>
+          ) },
 
+          { id: "notes", label: "Field notes", node: (
           <ProjectSheet
             id="notes"
             heading="Field notes"
@@ -272,8 +292,9 @@ export default async function ProjectRecordPage({ params }: PageProps) {
               {project.title} — {project.subtitle.toLowerCase()}.
             </FieldNote>
           </ProjectSheet>
-        </RecordEntry>
-      </div>
+          ) },
+        ]}
+      />
 
       {/* The sequence does not wrap, and the way out of a record is the map
           rather than the index it was reached from: Map → Journal → Record →

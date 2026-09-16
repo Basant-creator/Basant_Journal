@@ -1,0 +1,176 @@
+/* ==========================================================================
+   A RECORD PACKET
+
+   One sheet at a time, with the packet's own index above it and a folio
+   beneath. The sheets keep their own stock — a packet is a set of documents
+   clipped together, not a set of pages printed alike.
+   ========================================================================== */
+
+.packet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+/* --- the packet's index --------------------------------------------------- */
+
+.index {
+  min-width: 0;
+}
+
+.indexList {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.sheetTab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.sheetTab:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
+  background: var(--color-hover-wash);
+}
+
+/* The open sheet is marked in the hand — a clip on the one being read. */
+.sheetTabOpen,
+.sheetTabOpen:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-red);
+  background: color-mix(in srgb, var(--color-red) 12%, transparent);
+}
+
+.sheetNo {
+  font-family: var(--font-display);
+  color: var(--color-red-light);
+}
+
+/* --- the sheet ------------------------------------------------------------ */
+
+/*
+  The arrival.
+
+  §36 asks for acceleration, a midpoint and deceleration rather than a linear
+  slide, and §16 for the record to be *revealed* rather than appear. The sheet
+  comes in from the edge it was turned from, so the motion agrees with the
+  direction the reader asked for.
+
+  Resting state is the visible one: without the animation the sheet is simply
+  present, which is the rule this project has kept since Phase 4.
+*/
+.leaf {
+  min-width: 0;
+  animation: sheetIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.leaf:focus {
+  outline: none;
+}
+
+.leaf:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.leaf[data-direction="back"] {
+  animation-name: sheetInBack;
+}
+
+@keyframes sheetIn {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sheetInBack {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- the folio ------------------------------------------------------------ */
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.turnBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.turnBtn:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  background: var(--color-hover-wash);
+}
+
+.turnBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* §21: small. A page number is not a navigation system. */
+.folio {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* §44: no travel. The sheet still changes, and still says which one it is. */
+@media (prefers-reduced-motion: reduce) {
+  .leaf,
+  .leaf[data-direction="back"] {
+    animation: none;
+  }
+}
