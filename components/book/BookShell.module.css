@@ -6,7 +6,8 @@
    owns the document.
 
    The physicality budget stays small and deliberate: boards, a stack of page
-   edges, a binding shadow, a turning leaf and a ribbon. No per-page curl, no
+   edges, a turning leaf and a ribbon — the gutter belongs to BookSpread,
+   which is the only thing that knows two leaves are open. No per-page curl, no
    simulated fibre, no perspective on anything that is not moving. Every one
    of those costs a paint on every scroll, and §47 asks the book to render
    only what it needs.
@@ -176,37 +177,6 @@
   position: relative;
   min-width: 0;
   z-index: 1;
-}
-
-/*
-  The binding.
-
-  A seam of shadow down the centre and nothing else. §13 asks for the centre
-  binding to remain visible; a drawn stitch or spiral at this scale reads as
-  clip art, and what genuinely says "bound" is paper going darker as it curves
-  into the gutter. Hidden on a rear record, which runs as one wide leaf.
-*/
-.binding {
-  position: absolute;
-  top: clamp(10px, 1.4vw, 20px);
-  bottom: clamp(10px, 1.4vw, 20px);
-  left: 50%;
-  width: clamp(24px, 3vw, 44px);
-  transform: translateX(-50%);
-  z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.14) 34%,
-    rgba(0, 0, 0, 0.24) 50%,
-    rgba(0, 0, 0, 0.14) 66%,
-    rgba(0, 0, 0, 0) 100%
-  );
-}
-
-.book[data-rear] .binding {
-  opacity: 0.45;
 }
 
 /* --- the turning leaf ------------------------------------------------------ */
@@ -562,10 +532,6 @@
     width: 1px;
     height: 24px;
     transform: translateY(-50%);
-  }
-
-  .binding {
-    opacity: 0.3;
   }
 
   .arrowLabel {

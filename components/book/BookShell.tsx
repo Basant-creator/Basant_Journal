@@ -124,8 +124,13 @@ export function BookShell({ children }: { children: ReactNode }) {
         </nav>
 
         <div className={styles.spreadHolder}>
+          {/* No binding here. A gutter belongs to the paper, not to the
+              boards — see BookSpread, which is the only thing that knows
+              whether two leaves are actually open. Drawn from up here it ran
+              the full height of the board, straight up through the page
+              header, and appeared on single-leaf pages that have no gutter
+              to show. */}
           <div className={styles.spread}>
-            <span className={styles.binding} aria-hidden="true" />
             <div className={styles.leaf}>{shown}</div>
           </div>
 

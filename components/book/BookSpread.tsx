@@ -24,16 +24,28 @@ interface BookSpreadProps {
  *
  * Two leaves on a wide screen and one on a phone — not two shrunk to fit,
  * which is how a book becomes unreadable at 375px (§14, §50). The boards, the
- * binding and the bookmarks belong to BookShell and do not live here: this is
+ * boards and the bookmarks belong to BookShell and do not live here: this is
  * only the paper, so a spread can change without the object around it moving.
+ * The gutter is the one piece of the binding that *is* here, because it is a
+ * fold in the paper rather than a part of the covers.
  */
 export function BookSpread({ left, right, held = false }: BookSpreadProps) {
   if (held) {
     return <div className={styles.held}>{right}</div>;
   }
 
+  /*
+    The gutter, and only where there is one.
+
+    It lives here rather than on the boards because this is the only place
+    that knows two leaves are actually open. Drawn by the shell it spanned the
+    whole board — up through the page header, which is not paper — and showed
+    on single-leaf and held pages that have no gutter to show. A seam between
+    two pages that are not there is just a line down the middle of a page.
+  */
   return (
     <div className={left ? styles.spread : styles.single}>
+      {left ? <span className={styles.gutter} aria-hidden="true" /> : null}
       {left ? (
         <Paper
           variant="JOURNAL_PAGE"
