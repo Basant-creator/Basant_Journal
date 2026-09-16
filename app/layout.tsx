@@ -119,7 +119,17 @@ export default function RootLayout({
     // The pre-paint script below stamps data-entry on this element before
     // React hydrates, which is a deliberate server/client difference. Without
     // this, React reports it as a hydration mismatch on every load.
-    <html lang="en" className={fontVars} suppressHydrationWarning>
+    // data-scroll-behavior declares what globals.css already sets on <html>.
+    // Next disables smooth scrolling during route transitions today and warns
+    // that a future version will stop doing so unless the intent is stated
+    // here. Saying it now keeps the behaviour when that lands, and clears the
+    // warning from the console in the meantime.
+    <html
+      lang="en"
+      className={fontVars}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <head>
         {/* Both run before first paint, and both have to.
 

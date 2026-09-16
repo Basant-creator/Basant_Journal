@@ -274,7 +274,18 @@ export function SceneCanvas({
         releaseScene(world.current);
         world.current = null;
         gl.dispose();
-        gl.forceContextLoss();
+        /*
+          Only force the loss of a context that still exists.
+
+          A browser that has already evicted this one — or a driver that
+          dropped it — leaves `forceContextLoss()` shouting
+          "INVALID_OPERATION: loseContext: context already lost" into the
+          console on every unmount. The call is not wrong, it is just late,
+          and the warning is indistinguishable from a real fault when you are
+          reading a console looking for one.
+        */
+        const ctx = gl.getContext();
+        if (!ctx || !ctx.isContextLost()) gl.forceContextLoss();
         renderer.current = null;
       }, 0);
     };

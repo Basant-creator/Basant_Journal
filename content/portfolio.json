@@ -5,9 +5,7 @@
     "conceptSubtitle": "A survey of territory still being mapped",
     "volume": "Volume I",
     "sheet": "Sheet 1 of 1",
-    "surveyed": "2026",
-    "siteUrl": "https://example.com",
-    "siteUrlStatus": "unresolved"
+    "surveyed": "2026"
   },
   "person": {
     "name": "Basant Bhushan",
@@ -160,7 +158,7 @@
       "objective": "Order an arbitrary playlist so consecutive tracks are harmonically compatible and the overall energy follows an intentional trajectory — at a throughput that makes it interactive rather than a batch job.",
       "architecture": "A TypeScript/Express REST API fronts four independent sequencing engines. Track metadata is fetched from the YouTube Data API in batches of 12, rate-limited through Bottleneck, enriched by Google Gemini, and cached in PostgreSQL via Prisma so repeat analyses cost nothing. A Next.js 16 client renders the resulting energy trajectory and previews audio in-browser.",
       "implementation": [
-        "Four algorithmic sequencing engines built on Camelot wheel harmonic matching plus regression-based energy optimization.",
+        "Four algorithmic sequencing engines built on Camelot wheel harmonic matching plus regression-based energy optimisation.",
         "Tested and refined against music-analysis datasets including MusAV and MTG-Jamendo.",
         "Express.js/TypeScript REST API with 12-track batching and Bottleneck rate limiting across the YouTube Data and Gemini APIs.",
         "PostgreSQL + Prisma caching layer for track analysis results.",

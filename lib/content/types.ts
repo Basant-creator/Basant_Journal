@@ -39,8 +39,6 @@ export interface Meta {
   volume: string;
   sheet: string;
   surveyed: string;
-  siteUrl: string;
-  siteUrlStatus: UnresolvedStatus;
 }
 
 export interface JourneyStep {
