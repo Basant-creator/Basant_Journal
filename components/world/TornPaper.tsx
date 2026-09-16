@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { SurfaceTag } from "@/lib/dom/tags";
-import { type TornEdge, fringePath, tornPath } from "@/lib/world/torn";
+import { type TornEdge, foxingLayer, fringePath, tornPath } from "@/lib/world/torn";
 import styles from "./TornPaper.module.css";
 
 interface TornPaperProps {
@@ -47,6 +47,9 @@ export function TornPaper({
   id,
 }: TornPaperProps) {
   const options = { edges, cornerTear, amplitude, segments };
+  /* Aged from the same seed as the tear, so a sheet's stains and its edge
+     belong to each other and both survive a reload unchanged. */
+  const foxing = foxingLayer(seed);
   const clipId = `torn-${seed}`;
   const fringeId = `torn-${seed}-fringe`;
 
@@ -64,6 +67,7 @@ export function TornPaper({
           // beat every stylesheet rule, so a caller could never compose a
           // hover lift on top of the rest angle.
           "--tilt": `${tilt}deg`,
+          "--paper-foxing-layer": foxing,
         } as CSSProperties
       }
     >
@@ -81,6 +85,9 @@ export function TornPaper({
       {/* The pale lip of pulled fibres, sitting just behind the sheet. */}
       <span className={styles.fringe} aria-hidden="true" />
       <span className={styles.face} aria-hidden="true" />
+      {/* Age, in the sheet rather than on it: under the content, over the
+          face, and clipped with the tear so no mark floats past the edge. */}
+      <span className={styles.foxing} aria-hidden="true" />
 
       <div className={styles.content}>{children}</div>
     </Tag>

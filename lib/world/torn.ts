@@ -21,7 +21,15 @@ export interface TornOptions {
   edges: TornEdge[];
   /** Depth of the tear as a fraction of the box. 0.012–0.05 reads as paper. */
   amplitude?: number;
-  /** Bites per edge. Fewer reads as a coarse rip, more as a careful tear. */
+  /**
+   * Vertices per edge.
+   *
+   * Raised from 14 to 30 with the multi-scale depth above. At fourteen the
+   * fine tremor had nowhere to live — every vertex was a visible corner, so
+   * detail and shape were the same scale and the edge read as a graphic. At
+   * thirty the coarse wander still shapes the edge and the tremor becomes
+   * texture along it.
+   */
   segments?: number;
   /** A torn-away corner, for a sheet that has lost one. */
   cornerTear?: "none" | "tl" | "tr" | "br" | "bl";
@@ -50,15 +58,50 @@ function tornRun(
 ): Pt[] {
   const points: Pt[] = [];
 
+  /*
+    Paper tears in runs, and that is the whole difference.
+
+    The first version of this drew each point's depth independently — white
+    noise — which is why the edges read as a zigzag cut with pinking shears
+    rather than as a tear. Nothing about a random value per vertex knows that
+    the fibre beside it just gave way.
+
+    Real paper does. A tear propagates: it runs shallow for a while, catches,
+    digs in, and carries that state along the edge. So the depth here is three
+    scales added together, the way a natural edge actually decomposes:
+
+      coarse   a slow wander held across several segments — where the tear
+               was running deep and where it was skimming the margin
+      medium   the individual bites, independent per segment
+      fine     a fibre tremor, small enough to read as texture rather than
+               as shape
+
+    Only the middle one is the old behaviour. The coarse term is what makes it
+    look torn, and it costs one variable carried across the loop.
+  */
+  let coarse = rng.jitter(amplitude * 0.5);
+
   for (let i = 1; i < segments; i += 1) {
     const t = i / segments + rng.jitter(0.35 / segments);
     const x = from.x + (to.x - from.x) * t;
     const y = from.y + (to.y - from.y) * t;
 
-    // Coarse bite, plus a fine fibre tremor, plus rare deep notches.
-    let depth = Math.abs(rng.jitter(1)) * amplitude * 0.75 + amplitude * 0.15;
-    depth += rng.jitter(amplitude * 0.22);
-    if (rng.chance(0.09)) depth += amplitude * rng.range(0.8, 1.6);
+    /* The wander drifts rather than jumping: a small step each segment, gently
+       pulled back toward the edge so it cannot run away over a long run. */
+    coarse += rng.jitter(amplitude * 0.28);
+    coarse *= 0.86;
+
+    const medium = Math.abs(rng.jitter(1)) * amplitude * 0.55;
+    const fine = rng.jitter(amplitude * 0.16);
+
+    let depth = amplitude * 0.16 + medium + fine + coarse;
+
+    /* Where the sheet gave way altogether. Rare, and deeper than anything the
+       three scales produce, so it reads as an event rather than as noise. */
+    if (rng.chance(0.07)) depth += amplitude * rng.range(0.9, 1.8);
+
+    /* A tear never crosses back outside the sheet. */
+    depth = Math.max(amplitude * 0.04, depth);
 
     const px = Math.min(1, Math.max(0, x + inward.x * depth));
     const py = Math.min(1, Math.max(0, y + inward.y * depth));
@@ -79,7 +122,7 @@ const CORNERS: Record<string, Pt> = {
  * The clip path for a torn sheet, as a `d` string in objectBoundingBox units.
  */
 export function tornPath(seed: string, options: TornOptions): string {
-  const { edges, amplitude = 0.022, segments = 14, cornerTear = "none" } = options;
+  const { edges, amplitude = 0.022, segments = 30, cornerTear = "none" } = options;
   const rng = createRng(seedFrom(`torn:${seed}`));
   const torn = new Set(edges);
 
@@ -136,7 +179,7 @@ export function fringePath(seed: string, options: TornOptions): string {
   return tornPath(`${seed}:fringe`, {
     ...options,
     amplitude: (options.amplitude ?? 0.022) * 0.55,
-    segments: Math.round((options.segments ?? 14) * 0.75),
+    segments: Math.round((options.segments ?? 30) * 0.75),
   });
 }
 
@@ -220,4 +263,51 @@ export function tearHalves(seed: string, options: TearOptions = {}): TearHalves 
     bottom: `M ${round(lower[0].x)} ${round(lower[0].y)} ${forward} L 1 1 L 0 1 Z`,
     seam,
   };
+}
+
+/* -------------------------------------------------------------------------
+   Foxing.
+
+   The brown spotting old paper develops where damp and iron in the pulp have
+   met. It is the difference between paper that is *tinted* old and paper that
+   has *aged*: a flat wash reads as a colour choice, and a scatter of small
+   irregular stains reads as time.
+
+   Emitted as CSS radial gradients rather than an image, so it scales, costs
+   nothing to download, and recolours with the tokens. Seeded from the sheet's
+   own name, so a given sheet is stained the same way on the server, on the
+   client, and on every later visit — §25 of the field-book brief asks for
+   controlled deterministic variation rather than a fresh face per render, and
+   a stain that moves when you come back is worse than no stain at all.
+   ------------------------------------------------------------------------- */
+
+export interface FoxingOptions {
+  /** Roughly how many marks. Real sheets carry a handful, not a rash. */
+  count?: number;
+  /** Peak opacity of the darkest mark. Small: this is a tint, not a blot. */
+  strength?: number;
+}
+
+export function foxingLayer(seed: string, options: FoxingOptions = {}): string {
+  const { count = 7, strength = 0.05 } = options;
+  const rng = createRng(seedFrom(`foxing:${seed}`));
+  const marks: string[] = [];
+
+  for (let i = 0; i < count; i += 1) {
+    const x = round(rng.range(4, 96));
+    const y = round(rng.range(4, 96));
+    /* Mostly small, occasionally one that spread. */
+    const size = round(rng.chance(0.18) ? rng.range(9, 16) : rng.range(3, 7));
+    /* Elliptical: a stain spreads along the grain, never as a circle. */
+    const stretch = round(size * rng.range(0.7, 1.5));
+    const alpha = round(strength * rng.range(0.45, 1));
+
+    marks.push(
+      `radial-gradient(ellipse ${size}% ${stretch}% at ${x}% ${y}%, ` +
+        `color-mix(in srgb, var(--paper-foxing) ${Math.round(alpha * 100)}%, transparent) 0%, ` +
+        `transparent 70%)`,
+    );
+  }
+
+  return marks.join(", ");
 }

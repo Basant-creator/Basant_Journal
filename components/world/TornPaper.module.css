@@ -16,6 +16,7 @@
   pointer-events: none;
 }
 
+.foxing,
 .fringe,
 .face {
   position: absolute;
@@ -78,4 +79,25 @@
   .sheet {
     transform: none;
   }
+}
+
+/*
+  Foxing: the brown spotting age leaves in paper.
+
+  Above the face and below the content, so the marks sit in the sheet rather
+  than over the words. Multiplied, so a stain darkens what is under it instead
+  of painting a patch on top of it. Clipped with the tear, or a mark would
+  float in the gap where the paper came away.
+*/
+.foxing {
+  background-image: var(--paper-foxing-layer, none);
+  opacity: var(--paper-foxing-opacity, 1);
+  mix-blend-mode: multiply;
+  clip-path: var(--torn-clip);
+}
+
+/* A dark sheet is not stained brown — it is the one tone the marks would show
+   on as dirt rather than as age. */
+.dark .foxing {
+  display: none;
 }

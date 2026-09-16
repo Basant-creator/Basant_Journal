@@ -355,7 +355,7 @@
 
   /* --- torn paper --------------------------------------------------------- */
   --paper-tear-amplitude: 0.022;
-  --paper-tear-segments: 14;
+  --paper-tear-segments: 30;
   --paper-tear-shadow: 0 10px 22px rgba(0, 0, 0, 0.34);
   --paper-fringe-opacity: 0.55;
   /* A sheet darkens where it has been handled. */
@@ -367,6 +367,10 @@
   --paper-rule: #8d7855;
   --paper-edge: #9a8563;
   --paper-mat: #a08a66;
+  /* The colour age leaves in paper: iron and damp, not dirt. Kept weak —
+     foxingLayer scales it down again per mark. */
+  --paper-foxing: #6b4a2a;
+  --paper-foxing-opacity: 0.85;
   --paper-aged: #c9b795;
   --paper-aged-light: #ded0ae;
 

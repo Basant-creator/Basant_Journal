@@ -32,6 +32,7 @@
 
 .stock,
 .fringe,
+.foxing,
 .overlay {
   position: absolute;
   inset: 0;
@@ -52,6 +53,27 @@
 
 .paper[data-torn="true"] .stock,
 .paper[data-torn="true"] .overlay {
+  clip-path: var(--paper-clip);
+}
+
+/*
+  Foxing: the brown spotting age leaves in paper.
+
+  Its own layer, above the stock and below the printed matter, so the marks
+  sit *in* the sheet rather than over its rules — which is where they are in
+  a real one. Multiplied, so a stain darkens what is under it instead of
+  painting a patch on top.
+
+  It is clipped with the stock on a torn sheet, or a mark would float in the
+  gap where the paper was torn away.
+*/
+.foxing {
+  background-image: var(--paper-foxing-layer, none);
+  opacity: var(--paper-foxing-opacity, 1);
+  mix-blend-mode: multiply;
+}
+
+.paper[data-torn="true"] .foxing {
   clip-path: var(--paper-clip);
 }
 
@@ -150,6 +172,11 @@
   --figure-ink: #cfe2f0;
   --figure-caption: rgba(207, 226, 240, 0.78);
   --figure-number: #e8b9b9;
+
+  /* A blueprint does not fox brown. It fades and blooms pale where the light
+     and the damp got at it, so the stain is the drawing's own light ink. */
+  --paper-foxing: #cfe2f0;
+  --paper-foxing-opacity: 0.5;
 
   /* Red ink on cyanotype is one part in a hundred against the ground — the
      stamp measured 1.02:1 and was simply not there. A blueprint gets marked

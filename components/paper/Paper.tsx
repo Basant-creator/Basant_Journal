@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { SurfaceTag } from "@/lib/dom/tags";
-import { type TornEdge, fringePath, tornPath } from "@/lib/world/torn";
+import { type TornEdge, foxingLayer, fringePath, tornPath } from "@/lib/world/torn";
 import styles from "./Paper.module.css";
 
 /**
@@ -64,6 +64,9 @@ export function Paper({
   const clipId = torn ? `paper-${seed}` : undefined;
   const fringeId = torn ? `paper-${seed}-fringe` : undefined;
   const options = { edges: edges ?? [], cornerTear };
+  /* Aged where the sheet is named. An unseeded sheet is a clean one — the
+     professional view's stock should not develop spots. */
+  const foxing = seed ? foxingLayer(seed) : null;
 
   return (
     <Tag
@@ -74,6 +77,7 @@ export function Paper({
       style={
         {
           "--tilt": `${tilt}deg`,
+          ...(foxing ? { "--paper-foxing-layer": foxing } : null),
           ...(torn
             ? {
                 "--paper-clip": `url(#${clipId})`,
@@ -99,6 +103,7 @@ export function Paper({
 
       {torn ? <span className={styles.fringe} aria-hidden="true" /> : null}
       <span className={styles.stock} aria-hidden="true" />
+      {foxing ? <span className={styles.foxing} aria-hidden="true" /> : null}
       <span className={styles.overlay} aria-hidden="true" />
 
       <div className={styles.body}>{children}</div>

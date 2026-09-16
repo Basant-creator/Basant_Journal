@@ -18,6 +18,111 @@
   max-width: var(--container-max);
   margin: 0 auto;
   padding-block: clamp(16px, 3vw, 40px);
+  isolation: isolate;
+}
+
+/* ==========================================================================
+   THE LAMP, AND THE AIR IN FRONT OF IT
+
+   §26: the book should read as something being examined under a lantern —
+   warm light falling on the open leaf, the edges of the desk going dark, and
+   enough dust in the beam to say the air is real.
+
+   Both layers are decoration and neither takes a pointer event. They sit
+   behind the boards on the z axis, so nothing here can ever come between a
+   reader and a word: the pool is under the paper and the motes are under it
+   too, catching the light rather than floating over the text.
+   ========================================================================== */
+
+.book::before {
+  content: "";
+  position: absolute;
+  /* Wider than the book: a lamp lights the desk, not the page only. */
+  inset: -8% -12%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 58% 62% at 50% 34%,
+      color-mix(in srgb, var(--fire-core) 9%, transparent) 0%,
+      color-mix(in srgb, var(--fire-body) 4%, transparent) 38%,
+      transparent 72%
+    );
+  animation: lamp 19s ease-in-out infinite alternate;
+}
+
+/*
+  The lamp breathes rather than flickers.
+
+  A flicker reads as a fault on a reading surface — the eye keeps checking
+  whether the page moved. Nineteen seconds is slow enough that nobody catches
+  it happening and long enough that the light is never quite the same twice.
+*/
+@keyframes lamp {
+  from {
+    opacity: 0.78;
+    transform: translate3d(-0.4%, -0.6%, 0) scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0.4%, 0.6%, 0) scale(1.035);
+  }
+}
+
+/*
+  Dust in the beam.
+
+  Three sizes on one layer, drifting up and across at different rates, so the
+  motes never line up into a pattern. Drawn as radial gradients rather than
+  elements: one painted layer instead of forty nodes, which is the difference
+  between air and a particle system nobody asked to pay for.
+*/
+.book::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--dust-opacity-near);
+  background-image:
+    radial-gradient(1.5px 1.5px at 18% 24%, var(--color-paper-light) 50%, transparent 55%),
+    radial-gradient(1px 1px at 63% 12%, var(--color-paper-light) 50%, transparent 55%),
+    radial-gradient(1.5px 1.5px at 81% 58%, var(--color-paper-light) 50%, transparent 55%),
+    radial-gradient(1px 1px at 34% 71%, var(--color-paper-light) 50%, transparent 55%),
+    radial-gradient(2px 2px at 52% 44%, var(--color-paper-light) 50%, transparent 55%),
+    radial-gradient(1px 1px at 9% 88%, var(--color-paper-light) 50%, transparent 55%),
+    radial-gradient(1.5px 1.5px at 72% 91%, var(--color-paper-light) 50%, transparent 55%);
+  background-size: 340px 340px, 260px 260px, 420px 420px, 300px 300px, 500px 500px, 240px 240px, 380px 380px;
+  animation: motes var(--dust-drift-near) linear infinite;
+}
+
+@keyframes motes {
+  from {
+    background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  }
+  to {
+    /* Up and slightly across, at seven different rates. Nothing divides into
+       anything else, so the field never repeats inside a visit. */
+    background-position:
+      26px -340px, -18px -260px, 34px -420px, -12px -300px,
+      20px -500px, -26px -240px, 14px -380px;
+  }
+}
+
+/*
+  §44: no drifting dust, no breathing lamp. The pool stays — it is light, not
+  motion, and it is what makes the leaf read as lit rather than as flat — but
+  it holds still, and the motes go entirely.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .book::before {
+    animation: none;
+    opacity: 0.9;
+  }
+
+  .book::after {
+    display: none;
+  }
 }
 
 .board {
