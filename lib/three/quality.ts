@@ -171,7 +171,37 @@ export function tierFor(probe: QualityProbe | null): QualityTier {
      be an interruption rather than a scene. Either way the illustrated camp
      is already on screen and complete, so there is nothing to wait for.
      saveData is the visitor speaking; 2G is the network being unarguable. */
-  if (probe.saveData || probe.slowLink) return "fallback";
+  if (probe.saveData) return "fallback";
+
+  /*
+    A 2G *estimate* is not allowed to veto the scene on its own.
+
+    This is the same argument the 3g block below already makes, finished. The
+    comment there says effectiveType is "fine as one input among several and
+    wrong as a veto" — and then 2g was left as a veto anyway, which is the
+    half of the reasoning that had not been spent yet.
+
+    It matters because the estimate is measurably wrong on the machine this
+    was built on. CLAUDE.md records it: on localhost it reports 3g one minute
+    and 4g the next, with nothing changed. A rolling average of recent round
+    trips, on a connection doing almost nothing, reports whatever it last
+    believed — and if it lands on 2g, a sixteen-core desktop silently loses
+    the scene with no way to tell why.
+
+    So it needs corroboration from the *device* before it refuses. A phone
+    with four cores that also says 2g is a machine to believe; a desktop with
+    sixteen cores and 16GB that says 2g is an API being wrong. Where the
+    estimate stands alone it still costs a tier — the line below — which is
+    the recoverable version of the same caution.
+
+    saveData above keeps its veto, because that is the visitor speaking
+    rather than the browser guessing.
+  */
+  const constrainedDevice =
+    (probe.memoryGb !== null && probe.memoryGb <= 4) ||
+    (probe.cores !== null && probe.cores <= 4) ||
+    probe.coarsePointer;
+  if (probe.slowLink && constrainedDevice) return "fallback";
 
   /* A software rasteriser reports WebGL and is not a GPU. It can draw this
      scene and it would draw it at a handful of frames a second, which is
@@ -212,7 +242,16 @@ export function tierFor(probe: QualityProbe | null): QualityTier {
     outright is the only outcome that is unrecoverable, and saveData — the
     one signal a visitor actually sets on purpose — still does exactly that.
   */
-  if (small || probe.modestLink || (probe.coarsePointer && (thinMemory || fewCores))) return "low";
+  if (
+    small ||
+    probe.modestLink ||
+    /* A 2G estimate that survived the block above — an unconstrained device —
+       still buys the cheapest scene rather than none. */
+    probe.slowLink ||
+    (probe.coarsePointer && (thinMemory || fewCores))
+  ) {
+    return "low";
+  }
 
   /* WebGL1, or a machine filling three times the pixels with modest memory,
      gets the middle setting rather than the top one. */

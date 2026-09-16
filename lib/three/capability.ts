@@ -94,6 +94,33 @@ export function isCompactViewport(): boolean {
   }
 }
 
+/**
+ * Why the scene is not being drawn.
+ *
+ * CLAUDE.md records the afternoon this cost: the Camp renders as the
+ * illustrated fallback, nothing in the code changed, and the only way to find
+ * out whether it was reduced motion, a software rasteriser or a lying network
+ * estimate was to reason about it. The decision knows the answer at the moment
+ * it makes it — so it says so, and ThreeScene puts it on the element as
+ * `data-scene-reason`.
+ *
+ * It is an attribute rather than anything visible. A visitor is not owed an
+ * explanation of a scene they are already looking at, in the form it was
+ * always going to take on their machine. Whoever is debugging it is.
+ */
+export type SceneReason =
+  | "ready"
+  | "no-webgl"
+  | "reduced-motion"
+  | "tier-fallback";
+
+export function sceneCapabilityReason(): SceneReason {
+  if (!hasWebGL()) return "no-webgl";
+  if (prefersReducedMotion()) return "reduced-motion";
+  if (detectQualityTier() === "fallback") return "tier-fallback";
+  return "ready";
+}
+
 /** The single decision every caller needs. */
 export function detectSceneCapability(): Exclude<SceneCapability, "pending"> {
   if (!hasWebGL()) return "unsupported";

@@ -3,7 +3,12 @@
 import dynamic from "next/dynamic";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { useTransition } from "@/components/transition/TransitionContext";
-import { type SceneCapability, detectSceneCapability } from "@/lib/three/capability";
+import {
+  type SceneCapability,
+  type SceneReason,
+  detectSceneCapability,
+  sceneCapabilityReason,
+} from "@/lib/three/capability";
 import { markScene } from "@/lib/three/profile";
 import { type QualityTier, detectQualityTier } from "@/lib/three/quality";
 import type { SceneProps } from "./types";
@@ -101,6 +106,8 @@ export function ThreeScene({
   state,
 }: ThreeSceneProps) {
   const [capability, setCapability] = useState<SceneCapability>("pending");
+  /* Why, for whoever is debugging it. Never shown to a visitor. */
+  const [reason, setReason] = useState<SceneReason | null>(null);
   /* Probed once, next to the capability check, and for the same reason: it
      costs a throwaway context and it decides how much the expensive side is
      allowed to do. Null until the client has answered — the server has no
@@ -195,12 +202,16 @@ export function ThreeScene({
 
   useEffect(() => {
     setCapability(detectSceneCapability());
+    setReason(sceneCapabilityReason());
     setTier(detectQualityTier());
 
     // A visitor who turns reduced motion on mid-visit gets taken at their word.
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const size = window.matchMedia("(max-width: 860px)");
-    const recheck = () => setCapability(detectSceneCapability());
+    const recheck = () => {
+      setCapability(detectSceneCapability());
+      setReason(sceneCapabilityReason());
+    };
 
     motion.addEventListener("change", recheck);
     size.addEventListener("change", recheck);
@@ -217,6 +228,7 @@ export function ThreeScene({
       <div
         className={[styles.stage, className].filter(Boolean).join(" ")}
         data-scene-mode={capability}
+        data-scene-reason={reason ?? undefined}
       >
         <div className={styles.picture} {...pictureRole}>
           {fallback}
