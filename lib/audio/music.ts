@@ -1,5 +1,5 @@
 import type { Desk } from "./buses";
-import { type Sustained, bow, pluck, whistle } from "./instruments";
+import { type Sustained, bow, guitar, pluck, whistle } from "./instruments";
 
 /**
  * The Frontier motif.
@@ -140,6 +140,42 @@ const WHISTLES: Array<Array<{ at: number; note: number; hold: number }>> = [
     { at: 2, note: NOTES.A5, hold: 2.4 },
   ],
 ];
+
+/*
+  Guitar voicings: broken chords in the same five notes.
+
+  Each is a shape rather than a harmony. There is no third anywhere in the set
+  — D, F, G, A, C with the F only ever appearing on top — so these are
+  stacks of fourths and fifths with one colour note, which is what keeps the
+  mode as undecided as the drone does. A voicing that named itself major or
+  minor would resolve the whole piece by accident.
+
+  Four notes each, rolled rather than strummed: a thumb and three fingers, not
+  a pick dragged across the strings.
+*/
+const GUITAR: number[][] = [
+  [NOTES.D3, NOTES.A3, NOTES.D4, NOTES.F4],
+  [NOTES.G3, NOTES.D4, NOTES.G4, NOTES.C5],
+  [NOTES.A3, NOTES.C4, NOTES.G4, NOTES.D5],
+];
+
+/** Beats into the roll for each of the four notes. A thumb, then fingers. */
+const ROLL = [0, 0.62, 1.24, 1.95];
+
+/**
+ * How often the guitar answers, per state.
+ *
+ * It plays in the gap after a banjo phrase rather than underneath one. The
+ * banjo is the rhythm and the guitar is the reply, and two plucked
+ * instruments sounding at once is just a thicker banjo — the whole reason
+ * this reads as a second instrument is that it is heard on its own.
+ */
+const GUITAR_CHANCE: Record<MusicState, number> = {
+  silence: 0,
+  sparse: 0.5,
+  journey: 0.62,
+  reflective: 0.42,
+};
 
 /**
  * How often a phrase is followed by a whistle, per state.
@@ -309,6 +345,32 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
           pan: (Math.random() - 0.5) * 0.4,
           when: phraseEnd + 0.3,
         });
+      }
+
+      /*
+        The guitar's reply, in the gap.
+
+        Placed nearly a beat after the phrase ends so the banjo's last note has
+        somewhere to ring, and rolled over two beats so it arrives as an
+        instrument being played rather than as a chord being triggered.
+      */
+      if (Math.random() < GUITAR_CHANCE[state]) {
+        const voicing = GUITAR[Math.floor(Math.random() * GUITAR.length)];
+        /* The low string sits left of centre, the way a player's hand does. */
+        const spread = (Math.random() - 0.5) * 0.3;
+        for (let i = 0; i < voicing.length; i += 1) {
+          guitar(context, desk.bus.music, {
+            frequency: voicing[i],
+            /* Nylon rings longer than a banjo head lets it. */
+            decay: 2.2 + Math.random() * 0.8,
+            /* A soft fingerpick: dark, and quieter as the roll climbs, which
+               is what a thumb followed by three fingers actually does. */
+            attack: 0.2 + Math.random() * 0.12,
+            level: (0.24 - i * 0.025) * (0.9 + Math.random() * 0.2),
+            pan: spread + (i - 1.5) * 0.06,
+            when: phraseEnd + (0.9 + ROLL[i]) * BEAT + (Math.random() - 0.5) * 0.02,
+          });
+        }
       }
 
       const [restMin, restMax] = REST[state];

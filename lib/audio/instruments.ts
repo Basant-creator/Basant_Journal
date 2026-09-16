@@ -170,6 +170,82 @@ export function pluck(
 }
 
 /* -------------------------------------------------------------------------
+   THE GUITAR - the same string, a different box
+
+   Worth stating plainly, because it is the whole implementation: a banjo and a
+   guitar are not different strings. Both are a string under tension, plucked,
+   and both are the same delay line. What makes one a banjo is that its
+   resonator is a *drum* - a tensioned membrane with a sharp mid resonance
+   around 380 Hz, which is why a banjo cuts through anything. What makes the
+   other a guitar is that its resonator is a *box of air*, and a box resonates
+   low: the Helmholtz mode of a guitar body sits near 110 Hz, the top plate
+   near 215, and the wood absorbs most of what is above a couple of kilohertz.
+
+   So this shares `pluckBuffer` with the banjo and differs only in what it is
+   played through, and in being picked more softly. That is not a shortcut -
+   it is the reason the two read as genuinely different instruments rather
+   than as one instrument at two filter settings.
+
+   Nylon rather than steel, because the palette already has something bright
+   in it and a second bright plucked thing would just be a louder banjo.
+   ------------------------------------------------------------------------- */
+
+export function guitar(
+  context: AudioContext,
+  destination: AudioNode,
+  options: PluckOptions & { pan?: number; level?: number; when?: number },
+): void {
+  const source = context.createBufferSource();
+  source.buffer = pluckBuffer(context, options);
+
+  /* The air inside the box. The lowest thing the instrument does, and the
+     part a listener feels rather than hears. */
+  const air = context.createBiquadFilter();
+  air.type = "peaking";
+  air.frequency.value = 110;
+  air.Q.value = 1.2;
+  air.gain.value = 7;
+
+  /* The top plate: the wooden note under every note. */
+  const plate = context.createBiquadFilter();
+  plate.type = "peaking";
+  plate.frequency.value = 215;
+  plate.Q.value = 1.4;
+  plate.gain.value = 4;
+
+  /* Wood absorbs the top. Without this it is a harpsichord. */
+  const warmth = context.createBiquadFilter();
+  warmth.type = "lowpass";
+  warmth.frequency.value = 2600;
+  warmth.Q.value = 0.7;
+
+  const gain = context.createGain();
+  gain.gain.value = options.level ?? 0.28;
+
+  const panner = context.createStereoPanner();
+  panner.pan.value = options.pan ?? 0;
+
+  source
+    .connect(air)
+    .connect(plate)
+    .connect(warmth)
+    .connect(gain)
+    .connect(panner)
+    .connect(destination);
+
+  source.onended = () => {
+    source.disconnect();
+    air.disconnect();
+    plate.disconnect();
+    warmth.disconnect();
+    gain.disconnect();
+    panner.disconnect();
+  };
+
+  source.start(options.when ?? context.currentTime);
+}
+
+/* -------------------------------------------------------------------------
    THE WHISTLE - a person, not an instrument
 
    S9: the banjo is the landscape's rhythm and the whistle is the human in it.

@@ -43,6 +43,7 @@ models the physics rather than imitating the result.
 | --- | --- |
 | **wind** | brown noise — white noise integrated, so the spectrum falls 6 dB/octave — through two lowpass bands at 380 Hz and 1100 Hz, each gusting on its own slow LFO. Generated into a 4-second buffer whose tail is crossfaded over its head so the loop point lands on a sample that was already heading there. |
 | **campfire** | twelve exponential noise bursts placed at random inside a 6-second buffer, through a 1900 Hz bandpass. The randomness is the point: a fire has no tempo, and a regular pop is the tell that a loop is a loop. |
+| **guitar** | the *same* Karplus-Strong string as the banjo, through a different body: peaking filters at 110 Hz (the box's Helmholtz air mode) and 215 Hz (the top plate), then a 2600 Hz lowpass for the wood. Picked softly, so the burst is darker. |
 | **banjo slide** | a ramp on the buffer source's `playbackRate` from a semitone or a whole tone below, over 130 ms. The string is genuinely re-tuned while it rings, exactly as a real one is, rather than crossfaded between two samples. |
 | **banjo** | Karplus-Strong. A noise burst trapped in a delay line one wavelength long, losing its high end on each pass, with a 380 Hz bandpass standing in for the drum head. The algorithm is fifty years old and published; the notes played through it are ours. |
 | **whistle** | one sine per *phrase*, not per note, gliding between pitches, plus a 7% second harmonic. Scooped into from 6% under, vibrato at two incommensurate rates (4.9 and 6.7 Hz) so the wobble never repeats, a slow 0.6 Hz pitch drift, continuous breath noise underneath, and a sag at the end as the player runs out of air. |
@@ -160,6 +161,29 @@ already had to be undone once with a compensating gain. Lowering the layers
 leaves Camp untouched by construction instead of by arithmetic somebody has to
 remember.
 
+**The guitar is the same string in a different box.** That is the whole
+implementation and it is worth stating, because the instinct is to reach for a
+second string model. A banjo and a guitar are not different strings — both are
+a string under tension, plucked, and both are the same delay line. What makes
+one a banjo is that its resonator is a *drum*: a tensioned membrane with a
+sharp mid resonance near 380 Hz, which is why a banjo cuts through anything.
+What makes the other a guitar is that its resonator is a *box of air*, and a
+box resonates low — Helmholtz mode near 110 Hz, top plate near 215, and the
+wood absorbing most of what is above a couple of kilohertz.
+
+So `guitar()` shares `pluckBuffer` with the banjo and differs only in what it
+is played through and in being picked more softly. Nylon rather than steel,
+because the palette already has something bright in it and a second bright
+plucked thing is just a louder banjo.
+
+It plays **in the gap, not underneath**: a four-note roll placed nearly a beat
+after the banjo phrase ends, so the banjo's last note has somewhere to ring.
+Two plucked instruments sounding at once is a thicker banjo; the reason this
+reads as a second instrument at all is that it is heard on its own. The
+voicings are stacks of fourths and fifths with one colour note — there is no
+third anywhere in the five-note set, so a voicing cannot accidentally resolve
+the mode the drone spent so much effort leaving open.
+
 **A bed and a room.** The motif now carries a bowed drone on D2 and A2,
 alternating, each note held 15–21 seconds and overlapping the next by four so
 the handover is a crossfade rather than a gap. It runs on its own clock, not
@@ -205,9 +229,10 @@ frames.
 | **whistle band (620–1300 Hz) peak** | **−31.8 dB, at 879 Hz** — A5, exactly the written note |
 | **banjo band (140–530 Hz) peak** | −40.8 dB |
 | **whistle over banjo** | **+9.0 dB**, in a band the banjo does not occupy |
-| output | −31.0 dBFS RMS, −15.3 dBFS peak |
-| clipping | none |
-| limiter gain reduction | 0.00 dB |
+| guitar | 10 notes over 69 s in `reflective`, its sparsest state |
+| output | −32.5 dBFS RMS, −17.6 dBFS peak |
+| clipping | none; peak is 0.13 against the limiter's 0.50 threshold |
+| limiter gain reduction | 0.07 dB maximum |
 | music gone after leaving the landing | 5.19 s |
 
 Before the drone, the music bus sounded in 55% of frames and rested in the
