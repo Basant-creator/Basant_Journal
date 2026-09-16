@@ -90,6 +90,15 @@
   border-color: var(--color-red-light);
 }
 
+/* The sheet is not one of the places on it, and the rule says so. */
+.sheetItem {
+  display: flex;
+  align-items: center;
+  padding-right: var(--space-5);
+  margin-right: calc(-1 * var(--space-2));
+  border-right: var(--border-dark);
+}
+
 .actions {
   display: flex;
   align-items: center;
@@ -211,5 +220,21 @@
   .toggle {
     font-size: 0.64rem;
     padding: 9px var(--space-3);
+  }
+}
+
+/*
+  The three controls that are on screen everywhere.
+
+  The drawer button was already built to 44px; the wordmark (18px) and the
+  mode toggle (35px) were not, and they are the two a thumb reaches for most
+  on a phone — one goes home, the other is the whole recruiter path. Keyed on
+  the pointer rather than the width, for the same reason as the evidence
+  links: it is the finger that needs the room.
+*/
+@media (hover: none) and (pointer: coarse) {
+  .mark,
+  .toggle {
+    min-height: 44px;
   }
 }

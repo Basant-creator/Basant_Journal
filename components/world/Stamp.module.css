@@ -94,3 +94,11 @@
     transition: opacity 1ms;
   }
 }
+
+/* A stamp is a real button — it reveals what the mark means — so it gets a
+   real target. The mark itself does not grow; the box around it does. */
+@media (hover: none) and (pointer: coarse) {
+  .stamp {
+    min-height: 44px;
+  }
+}

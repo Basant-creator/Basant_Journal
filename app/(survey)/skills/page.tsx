@@ -32,15 +32,12 @@ export const metadata: Metadata = {
 export default function SkillsPage() {
   return (
     <div className={shared.page}>
-
-      <div className={shared.locate}>
-        <PageHeader
-          eyebrow="Gear · Skills"
-          title="Gear"
-          lede="What gets carried. Every entry that points at a project is evidenced in running code; the rest are marked as what they are — tools handled, not yet shipped."
-          symbol={location?.symbol}
-        />
-      </div>
+      <PageHeader
+        eyebrow="Gear · Skills"
+        title="Gear"
+        lede="What gets carried. Every entry that points at a project is evidenced in running code; the rest are marked as what they are — tools handled, not yet shipped."
+        symbol={location?.symbol}
+      />
 
       <p className={styles.tally}>
         <span className={styles.count}>{carried.length}</span> carried

@@ -34,9 +34,29 @@ interface Rig {
   context: AudioContext;
   master: GainNode;
   running: AudioScheduledSourceNode[];
+  /** The fire, when there is one. Null everywhere but Camp. */
+  ember: {
+    source: AudioBufferSourceNode;
+    filter: BiquadFilterNode;
+    gain: GainNode;
+  } | null;
 }
 
 let rig: Rig | null = null;
+
+/**
+ * Whether the listener is standing at the fire.
+ *
+ * The wind belongs to the territory and plays wherever the atmosphere is on.
+ * The fire belongs to one location, and mixing it into the bed meant a
+ * campfire crackling over the professional résumé and the record office —
+ * which is not atmosphere, it is a sound effect that escaped its scene.
+ *
+ * Kept outside the rig because it outlives it: it is a fact about where the
+ * visitor is, true whether or not anything is currently making noise, so
+ * switching the air on at Camp starts with the fire already lit.
+ */
+let nearFire = false;
 
 /**
  * Brown noise: white noise integrated.
@@ -164,8 +184,6 @@ export function start(): boolean {
       depth: 420,
       offset: 1.3,
     }),
-    /* Campfire crackle: sporadic subtle pops */
-    ...campCrackle(context, master),
   ];
 
   master.gain.setValueAtTime(0, context.currentTime);
@@ -175,38 +193,124 @@ export function start(): boolean {
      gesture that called this, so it is allowed. */
   void context.resume().catch(() => {});
 
-  rig = { context, master, running };
+  rig = { context, master, running, ember: null };
+  if (nearFire) lightFire(rig);
   return true;
 }
 
-/** Sporadic, gentle ember pops off the campfire bed. */
-function campCrackle(context: AudioContext, master: GainNode): AudioScheduledSourceNode[] {
-  const duration = 3;
-  const buffer = context.createBuffer(1, Math.floor(context.sampleRate * duration), context.sampleRate);
+/**
+ * The fire, as a loop of sporadic ember pops.
+ *
+ * The first version of this wrote a single full-scale sample every ~2200
+ * samples, which at 48 kHz is twenty-one of them a second: not a fire, a
+ * Geiger counter. And a one-sample impulse has no body — it is a click, and
+ * the ear hears a fault rather than an ember.
+ *
+ * This places a countable number of pops per loop, each a short exponential
+ * burst a few milliseconds long, and leaves the space between them silent.
+ * The wind bed is already supplying air; a second noise floor underneath it
+ * only ever added hiss.
+ */
+const EMBER_SECONDS = 6;
+/** Pops per loop. Twelve over six seconds is a fire settling, not roaring. */
+const EMBER_POPS = 12;
+
+function emberBed(context: AudioContext): AudioBuffer {
+  const length = Math.floor(context.sampleRate * EMBER_SECONDS);
+  const buffer = context.createBuffer(1, length, context.sampleRate);
   const data = buffer.getChannelData(0);
-  for (let i = 0; i < data.length; i += 1) {
-    const isPop = Math.random() < 0.00045;
-    data[i] = isPop ? (Math.random() * 2 - 1) * 0.75 : (Math.random() * 2 - 1) * 0.008;
+
+  for (let n = 0; n < EMBER_POPS; n += 1) {
+    /* Placed at random rather than on a grid: a fire has no tempo, and a
+       regular one is the tell that a loop is a loop. The tail is kept inside
+       the buffer so no pop is cut in half at the seam. */
+    const decay = 0.004 + Math.random() * 0.01;
+    const body = Math.floor(context.sampleRate * decay * 6);
+    const at = Math.floor(Math.random() * (length - body));
+    const level = 0.35 + Math.random() * 0.5;
+
+    for (let i = 0; i < body; i += 1) {
+      const t = i / context.sampleRate;
+      data[at + i] +=
+        (Math.random() * 2 - 1) * level * Math.exp(-t / decay);
+    }
   }
+
+  return buffer;
+}
+
+/** Starts the fire on a running rig, fading it in so it never simply appears. */
+function lightFire(target: Rig): void {
+  if (target.ember) return;
+  const { context, master } = target;
+
   const source = context.createBufferSource();
-  source.buffer = buffer;
+  source.buffer = emberBed(context);
   source.loop = true;
 
+  /* Bandpass rather than highpass: embers are woody, and everything above a
+     few kHz is the part that reads as static. */
   const filter = context.createBiquadFilter();
-  filter.type = "highpass";
-  filter.frequency.value = 1400;
+  filter.type = "bandpass";
+  filter.frequency.value = 1900;
+  filter.Q.value = 0.7;
 
   const gain = context.createGain();
-  gain.gain.value = 0.035;
+  gain.gain.setValueAtTime(0, context.currentTime);
+  gain.gain.linearRampToValueAtTime(0.5, context.currentTime + FADE);
 
   source.connect(filter).connect(gain).connect(master);
   source.start();
-  return [source];
+
+  target.ember = { source, filter, gain };
+}
+
+/** Puts it out, and disconnects once the fade has actually finished. */
+function douseFire(target: Rig): void {
+  const ember = target.ember;
+  if (!ember) return;
+  target.ember = null;
+
+  const { context } = target;
+  try {
+    ember.gain.gain.cancelScheduledValues(context.currentTime);
+    ember.gain.gain.setValueAtTime(ember.gain.gain.value, context.currentTime);
+    ember.gain.gain.linearRampToValueAtTime(0, context.currentTime + FADE);
+  } catch {
+    // A context already closing cannot be scheduled against.
+  }
+
+  window.setTimeout(() => {
+    try {
+      ember.source.stop();
+    } catch {
+      // Already stopped.
+    }
+    ember.source.disconnect();
+    ember.filter.disconnect();
+    ember.gain.disconnect();
+  }, FADE * 1000 + 60);
+}
+
+/**
+ * Declares whether the listener is at the fire.
+ *
+ * Called by the place, not by the control: Camp mounts and says there is a
+ * fire here, unmounts and says there is not. Safe to call when nothing is
+ * playing — it records the fact and the next start() honours it.
+ */
+export function setNearFire(on: boolean): void {
+  if (nearFire === on) return;
+  nearFire = on;
+  if (!rig) return;
+  if (on) lightFire(rig);
+  else douseFire(rig);
 }
 
 /** Fades out, then tears the whole rig down. */
 export function stop(): void {
   if (!rig) return;
+  douseFire(rig);
   const { context, master, running } = rig;
   rig = null;
 
@@ -263,6 +367,16 @@ export function triggerPaperRustle(): void {
     gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
 
     source.connect(filter).connect(gain).connect(master);
+    /* Rule 3 applies to the one-shots too. A finished source is eligible for
+       collection on its own, but "eligible" is the engine's business and this
+       file's promise is that nothing is left connected — a promise that costs
+       one line here and is worth more than the argument about whether it is
+       strictly required. */
+    source.onended = () => {
+      source.disconnect();
+      filter.disconnect();
+      gain.disconnect();
+    };
     source.start();
   } catch {
     // Silent fallback
@@ -287,6 +401,10 @@ export function triggerSurveyTick(): void {
     gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.022);
 
     osc.connect(gain).connect(master);
+    osc.onended = () => {
+      osc.disconnect();
+      gain.disconnect();
+    };
     osc.start();
     osc.stop(context.currentTime + 0.025);
   } catch {

@@ -30,15 +30,12 @@ const resumeAvailable = links.resumeStatus === "resolved";
 export default function ArchivePage() {
   return (
     <div className={shared.page}>
-
-      <div className={shared.locate}>
-        <PageHeader
-          eyebrow="Archive · Records"
-          title="Archive"
-          lede="The record office at the townsite: degree, training and certifications, filed as they were issued."
-          symbol={location?.symbol}
-        />
-      </div>
+      <PageHeader
+        eyebrow="Archive · Records"
+        title="Archive"
+        lede="The record office at the townsite: degree, training and certifications, filed as they were issued."
+        symbol={location?.symbol}
+      />
 
       <section className={shared.section} aria-labelledby="education">
         <h2 id="education" className={shared.sectionHeading}>

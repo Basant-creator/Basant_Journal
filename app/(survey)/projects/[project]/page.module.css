@@ -69,35 +69,33 @@
   means a stock can invert and the document still reads, without a single
   per-project override.
 */
-.specializationBadge {
+.docket {
   font-family: var(--font-ui);
   font-size: 0.64rem;
   font-weight: 600;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--color-red-dark);
+  /* Recessive against the lede below it: this says what the document is, the
+     lede says what it is about, and the second is the one to read first. */
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 78%, transparent);
   margin-bottom: var(--space-4);
   padding: 4px 10px;
-  border-left: 2px solid var(--color-red);
-  background: color-mix(in srgb, var(--paper-ink, var(--color-ink)) 4%, transparent);
+  /*
+    The rule is THE HAND, and --stamp-red is already the stock's answer to
+    "what does a red mark look like here" — red-dark on the warm stocks, and
+    the wax-pencil pink the cyanotype defines for itself, because red ink on
+    cyanotype measured 1.02:1 and was simply not there.
+
+    What was here instead was three per-project overrides, directly beneath a
+    comment saying there were none. Two of them restated the default; the
+    third painted BobAI's rule in --color-border-strong, which resolves to
+    brown at 55% on a #1f3446 ground and is invisible, and its text in warm
+    --color-paper-light, the one warm thing on a cold sheet. A record's
+    identity is its stock, its mark and its figure — never a branch on its id.
+  */
+  border-left: 2px solid var(--stamp-red);
+  background: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 5%, transparent);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
-
-.record[data-project="tuneit"] .specializationBadge {
-  border-left-color: var(--color-red);
-  color: var(--color-red-dark);
-}
-
-.record[data-project="onsight"] .specializationBadge {
-  border-left-color: var(--color-earth-dark);
-  color: var(--color-earth-dark);
-  background: rgba(64, 50, 37, 0.08);
-}
-
-.record[data-project="bobai"] .specializationBadge {
-  border-left-color: var(--color-border-strong);
-  color: var(--color-paper-light);
-  background: rgba(255, 255, 255, 0.08);
 }
 
 .lede {

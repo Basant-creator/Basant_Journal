@@ -96,7 +96,7 @@
   font-family: var(--font-editorial);
   font-size: var(--text-md);
   line-height: var(--leading-relaxed);
-  color: #2c2520;
+  color: var(--paper-body);
   max-width: var(--measure-prose);
   margin-bottom: var(--space-4);
 }
@@ -144,7 +144,7 @@
   font-family: var(--font-editorial);
   font-size: var(--text-sm);
   line-height: 1.5;
-  color: #3a312a;
+  color: var(--paper-body-soft);
   margin-top: var(--space-2);
 }
 
@@ -224,7 +224,7 @@
   font-family: var(--font-editorial);
   font-size: var(--text-sm);
   line-height: 1.6;
-  color: #2c2520;
+  color: var(--paper-body);
 }
 
 .bullets li::before {
@@ -302,7 +302,7 @@
 .skillList li {
   font-family: var(--font-editorial);
   font-size: var(--text-sm);
-  color: #2c2520;
+  color: var(--paper-body);
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -323,7 +323,7 @@
 }
 
 .skillEvidenced {
-  color: #2c2520;
+  color: var(--paper-body);
 }
 
 /* --- records ------------------------------------------------------------- */
@@ -390,5 +390,35 @@
 
   .backLink {
     display: none;
+  }
+}
+
+/* ==========================================================================
+   THE RECRUITER, ON A PHONE
+
+   This is the practical shortcut — the page someone opens to find an email
+   address and a link to the work — and on a phone its masthead contact links
+   stood 17px tall, the project titles 34px, and the closing email 23px. The
+   three things the page exists to let someone tap were the three hardest to
+   hit on it.
+
+   Type and layout are untouched: only the tappable box grows, and only where
+   the pointer is a finger.
+   ========================================================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  .contact a,
+  .projectLink,
+  .body a,
+  .stack a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  /* The row has to open up with them, or three 44px boxes overlap in a
+     line that was measured for 17px ones. */
+  .contact {
+    gap: 0 var(--space-5);
   }
 }

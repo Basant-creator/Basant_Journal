@@ -28,6 +28,16 @@ export type RecordEntryKind = "PULL" | "DRAW" | "UNFOLD";
 export interface RecordIdentity {
   /** The stock. Set once per record; a manila file is manila throughout. */
   stock: PaperVariant;
+  /**
+   * What this record is filed as, in the stationer's words.
+   *
+   * The line printed at the head of the overview sheet — a signal record, an
+   * investigation docket, a drafting specification. It is the sentence that
+   * says which of the three trades this document belongs to, which is why it
+   * is here beside the stock rather than being decided by the page: it is the
+   * same kind of fact as the mark and the figure.
+   */
+  docket: string;
   /** What the document does on arrival. */
   entry: RecordEntryKind;
   /** The strike on the masthead, and what it means. */
@@ -45,6 +55,7 @@ const IDENTITIES: Record<string, RecordIdentity> = {
   /* A working notebook: ruled, warm, the surface you sketch a curve on. */
   tuneit: {
     stock: "FIELD_NOTE",
+    docket: "Signal & Trajectory Record · Camelot Wheel 1A–12B Harmonic Analysis",
     entry: "PULL",
     stamp: {
       mark: "Measured",
@@ -62,6 +73,7 @@ const IDENTITIES: Record<string, RecordIdentity> = {
   /* Buff manila, ruled at the head. A file that has been opened before. */
   onsight: {
     stock: "CASE_FILE",
+    docket: "Investigation Docket · Examination Protocol & Gate Verification",
     entry: "DRAW",
     stamp: {
       mark: "Audited",
@@ -79,6 +91,7 @@ const IDENTITIES: Record<string, RecordIdentity> = {
   /* Cyanotype: dark ground, light line. Drawings of things not yet built. */
   bobai: {
     stock: "BLUEPRINT",
+    docket: "Drafting Specification · 3-Tier Modular Scaffolding Architecture",
     entry: "UNFOLD",
     stamp: {
       mark: "Generated",
@@ -97,6 +110,7 @@ const IDENTITIES: Record<string, RecordIdentity> = {
 /** The default is the working notebook: the surface everything starts on. */
 const FALLBACK: RecordIdentity = {
   stock: "FIELD_NOTE",
+  docket: "Field Record",
   entry: "PULL",
   stamp: { mark: "Filed", note: "Written up in full and filed." },
   figure: { label: "Fig. 1", caption: "", description: "" },

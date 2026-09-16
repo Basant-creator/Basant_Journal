@@ -1,11 +1,12 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Scene } from "@/components/scene/Scene";
 import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
 import { SceneInteraction } from "@/components/scene/SceneInteraction";
 import { SceneObject } from "@/components/scene/SceneObject";
 import { SceneObjects } from "@/components/scene/SceneObjects";
+import { setNearFire } from "@/lib/audio/atmosphere";
 import { CAMP_HEIGHT, CAMP_WIDTH, objectBox } from "@/lib/world/camp";
 import {
   CampRecord,
@@ -74,12 +75,30 @@ export function CampScene({
   const baseId = useId();
   const [open, setOpen] = useState<RecordId>("notebook");
 
+  /*
+    There is a fire here, and there is one nowhere else.
+
+    The atmosphere engine plays the territory's wind wherever it is switched
+    on; the ember bed used to be mixed into that same rig at start-up, which
+    meant a campfire crackling over the professional résumé. The place is the
+    only thing that knows it has a fire, so the place is what says so — and
+    unmounting puts it out, whether the visitor left by a link, the Back
+    button or a transition that changed its mind halfway.
+
+    Safe with the air switched off, which is how it almost always is: this
+    sets a flag and starts nothing.
+  */
+  useEffect(() => {
+    setNearFire(true);
+    return () => setNearFire(false);
+  }, []);
+
   return (
     <div className={styles.camp}>
       {/*
-        entry={false}: /about already opens with a ChapterCard, and a stage
-        that also fades itself in would be a second arrival stacked on the
-        first. The ratio is load-bearing — the object hit areas are
+        entry={false}: /about already has an arrival — the route curtain names
+        the chapter on the way in — and a stage that also fades itself in
+        would be a second arrival stacked on the first. The ratio is load-bearing — the object hit areas are
         percentages of this box, so it has to keep the artwork's proportions
         at every width or the controls drift off the things they belong to.
       */}

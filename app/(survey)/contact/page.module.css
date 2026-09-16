@@ -5,17 +5,25 @@
   gap: var(--space-6);
 }
 
+/*
+  The filing line at the head of the sheet.
+
+  It was a red-bordered pill with a red wash — which is red as UI chrome, and
+  §20 keeps red for the trail, the selected state, the annotation and the
+  chapter accent. This card already spends its red where it should: on the
+  surveyor's note at the foot, in THE HAND. So this is struck in filing ink
+  like every other piece of document metadata on the site, and the rule under
+  it does the separating a box was doing.
+*/
 .stationMark {
   font-family: var(--font-ui);
   font-size: 0.62rem;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--color-red-dark);
+  color: var(--color-text-on-paper-muted);
   align-self: flex-start;
-  padding: 3px 8px;
-  border: 1px solid rgba(122, 46, 46, 0.45);
-  border-radius: var(--radius-sm);
-  background: rgba(122, 46, 46, 0.05);
+  padding-bottom: var(--space-2);
+  border-bottom: var(--rule-ink);
 }
 
 .availability {

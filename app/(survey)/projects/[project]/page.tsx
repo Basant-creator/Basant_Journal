@@ -77,13 +77,6 @@ export default async function ProjectRecordPage({ params }: PageProps) {
   const hasLinks =
     project.linksStatus === "resolved" && (project.github || project.liveUrl);
 
-  const specialization =
-    project.id === "tuneit"
-      ? "Signal & Trajectory Record · Camelot Wheel 1A–12B Harmonic Analysis"
-      : project.id === "onsight"
-        ? "Investigation Docket · Examination Protocol & Gate Verification"
-        : "Drafting Specification · 3-Tier Modular Scaffolding Architecture";
-
   return (
     <article className={styles.record} data-project={project.id}>
       <FieldRecordHeader
@@ -160,7 +153,7 @@ export default async function ProjectRecordPage({ params }: PageProps) {
             sheet="1 of 6"
             variant={identity.stock}
           >
-            <p className={styles.specializationBadge}>{specialization}</p>
+            <p className={styles.docket}>{identity.docket}</p>
             <p className={styles.lede}>{project.summary}</p>
             <h3 className={styles.subhead}>The problem</h3>
             <p>{project.problem}</p>

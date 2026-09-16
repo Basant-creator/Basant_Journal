@@ -35,7 +35,7 @@
 }
 
 .item:hover {
-  background: rgba(64, 50, 37, 0.05);
+  background: color-mix(in srgb, var(--color-earth-dark) 5%, transparent);
 }
 
 .itemName {
@@ -56,7 +56,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-red-dark);
-  border-bottom: 1px solid rgba(84, 32, 32, 0.45);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-red-dark) 45%, transparent);
   padding: 2px 0;
   transition: color var(--duration-fast) var(--ease-standard),
               border-color var(--duration-fast) var(--ease-standard);
@@ -65,6 +65,36 @@
 .proofLink:hover {
   color: var(--color-red);
   border-bottom-color: var(--color-red);
+}
+
+/*
+  A finger is not a pointer.
+
+  These are the densest links on the site — every evidenced tool carries one
+  or two, packed into a wrapping row — and at 0.64rem they stand 20px tall,
+  which is under half the 44px a touch target wants. The type stays exactly
+  where it is; the tappable box grows around it, so a phone gets a reachable
+  target and a desktop layout is untouched.
+
+  Scoped to coarse pointers rather than to a width, because it is the input
+  device that has the problem, not the screen: a touchscreen laptop at 1440px
+  has the same thumb.
+*/
+@media (hover: none) and (pointer: coarse) {
+  .proof {
+    gap: var(--space-3);
+  }
+
+  .proofLink,
+  .unproven {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .item {
+    padding: var(--space-1) 6px;
+  }
 }
 
 .proofLink::after {

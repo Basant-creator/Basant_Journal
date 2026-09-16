@@ -233,7 +233,7 @@
   font-family: var(--font-editorial);
   font-size: var(--text-sm);
   line-height: 1.55;
-  color: #2c2520;
+  color: var(--paper-body);
 }
 
 .cardStatus {

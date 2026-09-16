@@ -398,7 +398,12 @@ export function FrontierMap() {
                 className={styles.svg}
                 viewBox={`0 0 ${SHEET_WIDTH} ${SHEET_HEIGHT}`}
                 role="navigation"
-                aria-label="Frontier survey map. Six locations; arrow keys move to the nearest location in that direction."
+                /* Counted from the model, like every other statement of this
+                   number. A screen reader announcing "six locations" over a
+                   sheet carrying seven is a worse failure than the visible
+                   copy making the same mistake, because nothing on screen
+                   contradicts it. */
+                aria-label={`Frontier survey map. ${locations.length} locations; arrow keys move to the nearest location in that direction.`}
               >
                 {/* Outer group: the entry settle, in CSS so it cannot fight Motion. */}
                 <g className={styles.settle}>

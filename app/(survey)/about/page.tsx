@@ -27,8 +27,6 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className={shared.page}>
-
-
       <PageHeader
         eyebrow="Camp · About"
         title="Camp"

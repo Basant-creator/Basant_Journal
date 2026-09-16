@@ -44,3 +44,12 @@
 .link:hover {
   text-decoration-color: var(--color-red-light);
 }
+
+/* The one link in a record's masthead, and on a phone it stood 21px tall. */
+@media (hover: none) and (pointer: coarse) {
+  .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}

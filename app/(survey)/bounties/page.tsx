@@ -51,22 +51,25 @@ const EDGES = [
 export default function BountiesPage() {
   return (
     <div className={shared.page}>
-
-      <div className={shared.locate}>
-        <PageHeader
-          eyebrow="Bounties · Results"
-          title="Bounties"
-          lede="Measured outcomes, not adjectives. Every number is pinned to the record that proves it."
-          symbol={location?.symbol}
-        />
-      </div>
+      <PageHeader
+        eyebrow="Bounties · Results"
+        title="Bounties"
+        lede="Measured outcomes, not adjectives. Every number is pinned to the record that proves it."
+        symbol={location?.symbol}
+      />
 
       <div className={styles.board}>
         <div className={styles.planks} aria-hidden="true" />
 
-        <p className={styles.boardHead}>Notable findings</p>
+        {/* A heading, not a decorative line of type. The board carried an h1
+            and then nothing: four measured results, and no way to reach them
+            by heading. It is already styled as the board's title — it just
+            was not marked as one. */}
+        <h2 id="findings" className={styles.boardHead}>
+          Notable findings
+        </h2>
 
-        <ul className={styles.notices}>
+        <ul className={styles.notices} aria-labelledby="findings">
           {metrics.map((metric, i) => {
             const project = metric.project ? getProject(metric.project) : undefined;
             return (
@@ -109,7 +112,7 @@ export default function BountiesPage() {
 
         {/* The marks are struck on the board itself, not on a notice: the
             dark-surface treatment is what keeps them legible there. */}
-        <div className={`${styles.marks} surfaceDark`}>
+        <div className={`${styles.marks} surfaceDark`} aria-label="Filing marks" role="group">
           <Stamp note="Field-tested and written up in the Journal." tilt={-5}>
             Surveyed
           </Stamp>

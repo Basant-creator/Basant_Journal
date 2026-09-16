@@ -103,8 +103,36 @@ export function Navigation() {
           <span className={styles.markText}>The Frontier</span>
         </Link>
 
-        <nav className={styles.links} aria-label="Survey locations">
+        <nav className={styles.links} aria-label="Survey">
           <ul className={styles.list}>
+            {/*
+              The sheet itself, first, and set apart from the six places on it.
+
+              The drawer has always offered it and the bar never did, so on a
+              desktop the one thing that cannot be reached from the persistent
+              navigation was the map — the hub the whole world is organised
+              around. A visitor at Gear had to scroll to the foot of the page
+              to find their way back to it.
+
+              It is not a location and is not rendered as one: it sits ahead of
+              them behind a rule, because you reach the places through the
+              sheet rather than alongside them.
+            */}
+            <li className={styles.sheetItem}>
+              <Link
+                href={routes.frontier}
+                className={
+                  pathname === routes.frontier
+                    ? `${styles.link} ${styles.current}`
+                    : styles.link
+                }
+                aria-current={pathname === routes.frontier ? "page" : undefined}
+              >
+                <span className={styles.dot} aria-hidden="true" />
+                The map
+              </Link>
+            </li>
+
             {locations.map((location) => {
               const current = pathname === location.route;
               return (

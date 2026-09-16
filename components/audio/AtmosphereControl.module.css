@@ -18,6 +18,8 @@
   align-items: center;
   gap: var(--space-2);
   padding: 6px 10px 6px 8px;
+  /* The only control for sound, and on a phone it stood 30px tall. */
+  min-height: 44px;
 
   font-family: var(--font-ui);
   font-size: var(--text-xs);
@@ -94,5 +96,13 @@
 
   .label {
     display: none;
+  }
+
+  /* With the word gone it is an icon button, and an icon button needs the
+     other dimension too: 44 tall and 36 wide is still a miss. */
+  .control {
+    min-width: 44px;
+    justify-content: center;
+    padding: 6px;
   }
 }

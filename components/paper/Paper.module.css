@@ -158,11 +158,13 @@
   --figure-accent: #e8a0a0;
 }
 
-/* The blueprint inverts the layer model, so its own text tokens invert too. */
+/* The blueprint inverts the layer model, so its own text tokens invert too.
+   Read from the variant's own --paper-ink rather than re-typing the value it
+   was just set to, so the two cannot drift apart. */
 .BLUEPRINT :global(p),
 .BLUEPRINT :global(h2),
 .BLUEPRINT :global(h3) {
-  color: #cfe2f0;
+  color: var(--paper-ink);
 }
 
 .BLUEPRINT .overlay {
