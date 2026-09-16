@@ -108,11 +108,25 @@ export function pluck(
   const source = context.createBufferSource();
   source.buffer = pluckBuffer(context, options);
 
-  /* The head: a banjo's resonance, standing in for the drum it is built on. */
+  /*
+    The head: a banjo's resonance, standing in for the drum it is built on.
+
+    Peaking, not bandpass, and the difference is not subtle. A bandpass in
+    series is a hole punched in the spectrum — everything away from 380 Hz is
+    thrown away, including most of the fundamental of every note above A3 and
+    all of the brightness that makes a banjo a banjo. It cost about 5.6x of
+    level, which meant `level` did not describe anything: notes asked for at
+    0.4 arrived at 0.035, below the wind.
+
+    A drum head does not remove the string. It resonates *with* it, lifting a
+    band and passing the rest. A peaking filter is that, it leaves the note's
+    amplitude alone, and it happens to sound more like the instrument.
+  */
   const body = context.createBiquadFilter();
-  body.type = "bandpass";
+  body.type = "peaking";
   body.frequency.value = 380;
-  body.Q.value = 0.7;
+  body.Q.value = 0.9;
+  body.gain.value = 5;
 
   const gain = context.createGain();
   gain.gain.value = options.level ?? 0.5;

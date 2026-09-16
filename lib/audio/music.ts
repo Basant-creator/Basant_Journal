@@ -130,12 +130,21 @@ const WHISTLES: Array<Array<{ at: number; note: number; hold: number }>> = [
   ],
 ];
 
-/** How often a phrase is followed by a whistle, per state. */
+/**
+ * How often a phrase is followed by a whistle, per state.
+ *
+ * `sparse` used to be 0, which meant the whistle could not arrive until
+ * `journey` did — forty-six seconds into the landing. That was defensible when
+ * the whistle was a detail and wrong once it became a lead: the visitor most
+ * likely to never hear it is the one who looks around for half a minute and
+ * moves on, which is most of them. It now answers about one phrase in five
+ * from the moment there is any music at all.
+ */
 const WHISTLE_CHANCE: Record<MusicState, number> = {
   silence: 0,
-  sparse: 0,
+  sparse: 0.22,
   journey: 0.34,
-  reflective: 0.12,
+  reflective: 0.18,
 };
 
 /** How much of a gap follows each phrase, in beats, per state. */
@@ -215,7 +224,11 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
           whistle(context, desk.bus.music, {
             frequency: n.note,
             duration: n.hold,
-            level: 0.26,
+            /* Raised with the music bus, and then a little further. A held
+               tone carries further than a pluck of the same peak, so this
+               reads *above* the banjo at a number below its loudest note —
+               which is what a person whistling over an instrument does. */
+            level: 0.36,
             pan,
             when: phraseEnd + n.at * BEAT + 0.3,
           });

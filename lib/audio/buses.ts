@@ -34,14 +34,25 @@ export type BusName =
 /**
  * Resting level per bus, as a fraction of master.
  *
- * Tuned against each other rather than set from a table: what matters is that
- * a whistle phrase never competes with a page turn, and that wind is always
- * the quietest thing running.
+ * Tuned against each other rather than set from a table. The second pass moved
+ * two of them a long way on the owner's ear: **the wind down and the music up.**
+ *
+ * The first balance followed §31's hierarchy literally and put the weather
+ * under everything, which is right for a place you are standing in and wrong
+ * for a place you are being shown. A portfolio is the second thing. Wind at
+ * 0.15 was a bed the banjo had to climb out of; at 0.08 it is air, and the
+ * banjo and the whistle are what the visitor came for.
+ *
+ * The one rule that survives unchanged: the environment is the quietest thing
+ * running, and its absence should be more noticeable than its presence.
  */
 const LEVELS: Record<BusName, number> = {
-  environment: 0.15,
+  /* Halved. Weather, not a soundtrack of weather. */
+  environment: 0.08,
   animals: 0.22,
-  music: 0.3,
+  /* Banjo and whistle, now the loudest voices in the mix rather than a layer
+     inside it. 0.3 -> 0.5. */
+  music: 0.5,
   interaction: 0.5,
   paper: 0.75,
 };
@@ -50,13 +61,36 @@ export interface Desk {
   context: AudioContext;
   master: GainNode;
   bus: Record<BusName, GainNode>;
+  /** The safety limiter. The last node before the speakers. */
+  limiter: DynamicsCompressorNode;
 }
 
 /** Wires a fresh desk. The caller owns the context's lifetime. */
 export function createDesk(context: AudioContext): Desk {
+  /*
+    A limiter, and it earns its place now that the music is loud.
+
+    A banjo phrase holds notes for up to two seconds, so four plucks can be
+    ringing at once; at the new music level four aligned peaks come to roughly
+    0.47 on their own, and the rest of the mix sits on top of that. Nothing
+    guarantees they never align. Digital clipping is not a soft failure — it is
+    a buzz, and one buzz is all it takes for the whole thing to sound cheap.
+
+    Set as a limiter rather than as a compressor: high ratio, fast attack, and
+    a threshold it only ever reaches on a stack. It is inaudible in normal
+    playing and catches the one phrase in a hundred that would have clipped.
+  */
+  const limiter = context.createDynamicsCompressor();
+  limiter.threshold.value = -6;
+  limiter.knee.value = 3;
+  limiter.ratio.value = 20;
+  limiter.attack.value = 0.003;
+  limiter.release.value = 0.25;
+  limiter.connect(context.destination);
+
   const master = context.createGain();
   master.gain.value = 0;
-  master.connect(context.destination);
+  master.connect(limiter);
 
   const bus = {} as Record<BusName, GainNode>;
   for (const name of Object.keys(LEVELS) as BusName[]) {
@@ -66,7 +100,7 @@ export function createDesk(context: AudioContext): Desk {
     bus[name] = node;
   }
 
-  return { context, master, bus };
+  return { context, master, bus, limiter };
 }
 
 /**

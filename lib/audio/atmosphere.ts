@@ -228,11 +228,13 @@ export function start(): boolean {
     comes in later, which is §5's progression and the difference between a
     world and a trailer.
   */
-  const music = conduct(desk, "silence");
+  const music = conduct(desk, musicState);
 
   rig = { context, desk, master, running, music, voices: [], ember: null };
   startVoices(rig);
   if (nearFire) lightFire(rig);
+  /* After the rig exists, so a subscriber may call straight back in. */
+  for (const fn of starters) fn();
   return true;
 }
 
@@ -307,13 +309,52 @@ export function setHerdAudible(on: boolean): void {
 }
 
 /**
+ * What the music should be doing, whether or not anything is playing.
+ *
+ * Kept outside the rig for exactly the reason `nearFire` is, and the bug that
+ * put it here is worth recording. It used to live only on the conductor, so
+ * `setMusic` was a no-op with the sound off — and every caller sets its state
+ * once, on mount. Camp says `reflective` when it mounts; the landing's timers
+ * say `sparse` at fourteen seconds and `journey` at forty-six.
+ *
+ * So a visitor who switched the air off and on again got a fresh conductor
+ * started at `silence`, and nothing was ever going to tell it otherwise. Wind
+ * forever, and not one note. Arriving at Camp with the sound off and then
+ * turning it on had the same ending. Measured: 0 music events in 39 seconds
+ * on a landing that should have been playing for 25 of them.
+ *
+ * The state is a fact about where the visitor is. It outlives the rig.
+ */
+let musicState: MusicState = "silence";
+
+/**
  * Moves the music between its states (§11, §45).
  *
  * Silence is a state rather than the absence of one, and the landing steps
  * through them over time rather than starting at full.
  */
 export function setMusic(state: MusicState): void {
+  musicState = state;
   rig?.music.setState(state);
+}
+
+/* -------------------------------------------------------------------------
+   STARTING OVER
+
+   Anything that wants to act the moment the air comes on. There is exactly one
+   subscriber — the landing, which restarts its progression — and it exists
+   because §5's fourteen seconds of quiet are counted from when the visitor
+   asked for sound, not from when the page happened to load. A visitor who
+   reads for two minutes and then presses the control should still get the
+   landscape before the banjo, not a phrase already in progress.
+   ------------------------------------------------------------------------- */
+
+const starters = new Set<() => void>();
+
+/** Subscribes to the air being switched on. Returns the unsubscribe. */
+export function onStart(fn: () => void): () => void {
+  starters.add(fn);
+  return () => starters.delete(fn);
 }
 
 /**
@@ -373,9 +414,14 @@ function lightFire(target: Rig): void {
   filter.frequency.value = 1900;
   filter.Q.value = 0.7;
 
+  /* 0.94, not 0.5, and the change is arithmetic rather than taste: the fire
+     shares the environment bus with the wind, and the wind's retune from 0.15
+     to 0.08 would have taken the fire down with it. 0.5 x 0.15 and 0.94 x 0.08
+     are the same number, so Camp sounds exactly as it did and only the weather
+     moved. */
   const gain = context.createGain();
   gain.gain.setValueAtTime(0, context.currentTime);
-  gain.gain.linearRampToValueAtTime(0.5, context.currentTime + FADE);
+  gain.gain.linearRampToValueAtTime(0.94, context.currentTime + FADE);
 
   source.connect(filter).connect(gain).connect(desk.bus.environment);
   source.start();
@@ -455,6 +501,7 @@ export function stop(): void {
       }
       for (const node of Object.values(desk.bus)) node.disconnect();
       master.disconnect();
+      desk.limiter.disconnect();
       void context.close().catch(() => {});
     },
     FADE * 1000 + 60,

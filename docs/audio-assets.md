@@ -106,38 +106,77 @@ unclear.**
 
 ---
 
+## The balance
+
+Retuned on the owner's ear after the first pass: **wind down, banjo and whistle
+up.** The first balance followed §31's hierarchy literally and put the weather
+under everything, which is right for a place you are standing in and wrong for
+a place you are being shown.
+
+| bus | was | is |
+| --- | --- | --- |
+| environment | 0.15 | **0.08** |
+| animals | 0.22 | 0.22 |
+| music | 0.30 | **0.50** |
+| interaction | 0.50 | 0.50 |
+| paper | 0.75 | 0.75 |
+| master | 0.56 | 0.56 |
+
+The campfire moved with neither: it shares the environment bus with the wind,
+so its own gain went 0.5 → 0.94, which is the same product. Camp sounds exactly
+as it did and only the weather moved.
+
+A **limiter** now sits between the master and the speakers — threshold −6 dBFS,
+ratio 20:1, 3 ms attack. A banjo phrase holds notes for up to two seconds, so
+four can ring at once; nothing guarantees their peaks never align, and digital
+clipping is a buzz rather than a soft failure. In normal playing it does
+essentially nothing: maximum gain reduction measured over a 69-second run was
+**0.04 dB**.
+
+---
+
 ## Measured behaviour
 
-Verified in a production build by tapping an analyser onto the master gain node
-— the only path to the speakers — and by recording every `connect()` the page
-makes, so the graph is observed rather than assumed.
+Verified in a production build by tapping an analyser onto each bus and onto
+the master — the only path to the speakers — and by recording every `connect()`
+the page makes, so the graph is observed rather than assumed. Figures below are
+from a single 69-second run on the landing with no route change and no dropped
+frames.
 
 | | |
 | --- | --- |
-| audio before the control is pressed | none: no `AudioContext` is constructed, and nothing reaches the output |
+| audio before the control is pressed | none: after 30 s on the page, no `AudioContext` exists |
 | constructed during SSR | no |
 | hydration errors | none |
 | console errors with audio running | none |
-| buses reaching the output | 5 — environment 0.15, animals 0.22, music 0.30, interaction 0.50, paper 0.75 |
-| master | 0.56 |
+| buses reaching the output | 5, each at its declared level |
 | nodes connected past the desk | 0 |
-| output level, landing | −36.3 dBFS RMS, −22.0 dBFS peak |
-| output level, journal | −37.0 dBFS RMS |
-| clipping | none; the sum of every peak in the mix is 0.36 of full scale |
+| wind | 0.0141 RMS / 0.0570 peak |
+| music | 0.0119 RMS / 0.1762 peak, sounding in 380 of 692 frames |
+| **music peak over wind peak** | **3.09×** — was 0.80× before the retune |
+| output | −38.3 dBFS RMS, −19.5 dBFS peak |
+| clipping | none |
+| limiter gain reduction | 0.04 dB maximum |
 
-**The progression is real, not asserted.** Counting the connections into each
-bus over time: the music bus takes nothing at all for the first fourteen
-seconds on the landing, then eleven feeds in the following ten. §18's silence
-is measured.
+**The progression is real, not asserted.** With the sound switched on from
+cold, the music bus carries nothing for the first twelve to fourteen seconds
+and then begins. §18's silence is measured.
+
+**The clock starts when the sound does.** The landing's progression is driven
+by `onStart` rather than by mount, so a visitor who reads for half a minute and
+then presses the control still gets the landscape before the banjo. Measured
+from a page left 30 seconds with the sound off: first note at 12.4 s after
+switch-on.
 
 **Leaving the landing takes its music and its herd with it.** Over ten seconds
-on `/frontier`: music `+0`, animals `+1` (one bird), environment steady at its
-two wind layers. On the landing the same window was music `+12` and animals in
-the dozens.
+on `/frontier`: music `+0` feeds, animals `+1` (one bird), environment steady
+at its two wind layers. On the landing the same window was music `+12`.
 
 **Ducking, sampled every 20 ms across a page turn** — the music bus falls from
-0.300 to 0.165 in 60 ms, holds 180 ms, and climbs back over 500 ms. Recovery
-measured at 0.72 s against 0.74 s scheduled.
+0.500 to 0.275 in 60 ms, holds 180 ms, and climbs back over 500 ms. Recovery
+measured at 0.73 s against 0.74 s scheduled. The floor is exactly 0.55 of rest,
+so the duck is a proportion of whatever the bus is set to rather than a level
+of its own.
 
 The preference is deliberately **not** remembered between visits. A remembered
 "on" resumes on some later unrelated click, which is a surprise to anyone who
