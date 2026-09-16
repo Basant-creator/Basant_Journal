@@ -1,0 +1,107 @@
+/* ==========================================================================
+   THE JOURNEY LEAF
+
+   Lifted from Camp's page, where this timeline used to sit beneath the fire,
+   and re-inked for paper: every colour derives from --paper-ink with the same
+   fallback the Paper substrate uses, so the leaf reads whatever stock it is
+   printed on.
+   ========================================================================== */
+
+.timeline {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-5);
+  padding-bottom: var(--space-6);
+  border-left: 1px solid color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 24%, transparent);
+  padding-left: var(--space-5);
+  margin-left: var(--space-2);
+  position: relative;
+}
+
+/* The survey mark on the line: where a station was occupied. */
+.step::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--paper-stock, var(--color-paper));
+  border: 2px solid var(--stamp-red);
+}
+
+.step:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0;
+}
+
+.year {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 62%, transparent);
+}
+
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.stepTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  letter-spacing: 0.03em;
+  color: var(--paper-ink, var(--color-text-on-paper));
+  margin: 0;
+}
+
+.prose {
+  font-family: var(--font-editorial);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 84%, transparent);
+  max-width: var(--measure-prose);
+}
+
+.lede {
+  font-family: var(--font-editorial);
+  font-size: var(--text-lg);
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 88%, transparent);
+  max-width: var(--measure-prose);
+}
+
+.sectionLabel {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 70%, transparent);
+  margin: 0;
+}
+
+.hand {
+  font-family: var(--font-hand);
+  font-size: 1.1rem;
+  line-height: 1.35;
+  color: var(--ink-annotation-paper);
+  transform: rotate(-0.7deg);
+  max-width: var(--measure-note);
+  margin-top: var(--space-6);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-height: clamp(380px, 46vh, 560px);
+}

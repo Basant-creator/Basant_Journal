@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SurveyAnnotation } from "@/components/annotations/SurveyAnnotation";
-import { FieldJournal } from "@/components/journal/FieldJournal";
+import { BookSpread } from "@/components/book/BookSpread";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { PaperSurface } from "@/components/paper/PaperSurface";
@@ -38,21 +38,10 @@ export default function ArchivePage() {
         symbol={location?.symbol}
       />
 
-      {/*
-        A leaf of the field journal.
-
-        The page is unchanged — same markup, same content, same source of
-        truth. What changed is that it is now held in the notebook rather
-        than standing on its own: the board, the fore-edge tabs and the
-        ribbon back to Camp are around it, and moving to a neighbouring
-        section turns a page instead of announcing a chapter.
-
-        `held` rather than printed on a leaf, because this page already
-        knows what it is made of. Putting it on a notebook page first
-        would stack two papers where the eye expects one.
-      */}
-      <FieldJournal current={routes.archive} held right={
-        <>
+      <BookSpread
+        held
+        right={
+          <>
           <section className={shared.section} aria-labelledby="education">
             <h2 id="education" className={shared.sectionHeading}>
               Education
@@ -148,8 +137,9 @@ export default function ArchivePage() {
               )}
             </div>
           </section>
-        </>
-      } />
+          </>
+        }
+      />
 
       <OnwardNav
         previous={{ href: routes.bounties, caption: "Back along the trail", label: "Bounties" }}

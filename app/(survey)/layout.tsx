@@ -1,27 +1,23 @@
-import { Navigation } from "@/components/navigation/Navigation";
 import styles from "./layout.module.css";
 
 /**
- * The shell every page inside the frontier shares.
+ * The ground every page inside the frontier shares.
  *
- * The landing page sits outside this group deliberately — arrival should not
- * have a navigation bar across it. Everywhere else, the linear route is
- * always present beside the spatial one.
+ * Deliberately thin: the dark field, and a `main` for the skip link to land
+ * in. What used to be here as well — the navigation bar — has moved down into
+ * the (world) group, because §43 of the field-book brief rules a conventional
+ * navbar out *inside the book*, and the cleanest way to honour that is for the
+ * book's routes never to be under a layout that renders one.
  *
- * Route-entry choreography is not this layout's job. It belongs to
- * TransitionProvider in the root layout, which sits above the router and owns
- * it for the whole application — including the landing page, which is outside
- * this group.
+ * So the split is structural rather than conditional:
+ *
+ *   (world)  Camp and the professional view — a navigation bar
+ *   (book)   the field book's leaves — bookmarks, and no bar at all
+ *
+ * Neither group changes a URL. A route group is a file-system fact.
  */
 export default function SurveyLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <div className={styles.shell}>
-      <Navigation />
-      <main id="main" className={styles.main}>
-        {children}
-      </main>
-    </div>
-  );
+  return <div className={styles.shell}>{children}</div>;
 }

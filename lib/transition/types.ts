@@ -1,5 +1,5 @@
 import { routes } from "@/lib/routes";
-import { isInBook, isRecordRoute, spineIndex } from "@/lib/journal/sections";
+import { isInBook, isRearLeaf } from "@/lib/book/registry";
 import { isMajorRoute } from "./chapters";
 
 /**
@@ -110,7 +110,7 @@ export function transitionFor(from: string | null, to: string): TransitionType {
 
   /* Arriving at a record from outside the book — a direct link, the map — is
      opening a document rather than entering an act. Records have no chapter. */
-  if (isRecordRoute(to)) return "PAPER_TO_RECORD";
+  if (isRearLeaf(to)) return "PAPER_TO_RECORD";
 
   if (!isMajorRoute(to)) return "NONE";
   if (from === routes.home) return "LANDING_TO_WORLD";
@@ -132,9 +132,3 @@ export type TurnDirection = "forward" | "back";
  * or typed the URL. A transition that depends on the control used is a
  * transition that disagrees with itself.
  */
-export function turnDirection(from: string, to: string): TurnDirection {
-  const a = spineIndex(from);
-  const b = spineIndex(to);
-  if (a < 0 || b < 0) return "forward";
-  return b >= a ? "forward" : "back";
-}

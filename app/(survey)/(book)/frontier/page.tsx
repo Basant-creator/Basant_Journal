@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BookSpread } from "@/components/book/BookSpread";
 import { FrontierMap } from "@/components/map/FrontierMap";
 import { locations, meta } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
@@ -52,7 +53,19 @@ export default function FrontierPage() {
         </dl>
       </header>
 
-      <FrontierMap />
+      {/*
+        §16: the survey sheet is printed on a leaf of the book.
+
+        `held` rather than printed onto a JOURNAL_PAGE, because the map is
+        already a sheet — a parchment field with ink cartography on it — and
+        putting a sheet on a page would be two papers where the eye expects
+        one. The book carries it; the map keeps its own stock.
+
+        The engine is untouched. Same SVG, same camera, same markers, same
+        keys, same legend column beside it — which is the "survey notes and
+        legend" §16 asks for on the facing page, and it was already there.
+      */}
+      <BookSpread held right={<FrontierMap />} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { FieldJournal } from "@/components/journal/FieldJournal";
+import { BookSpread } from "@/components/book/BookSpread";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Stamp } from "@/components/world/Stamp";
@@ -59,21 +59,10 @@ export default function BountiesPage() {
         symbol={location?.symbol}
       />
 
-      {/*
-        A leaf of the field journal.
-
-        The page is unchanged — same markup, same content, same source of
-        truth. What changed is that it is now held in the notebook rather
-        than standing on its own: the board, the fore-edge tabs and the
-        ribbon back to Camp are around it, and moving to a neighbouring
-        section turns a page instead of announcing a chapter.
-
-        `held` rather than printed on a leaf, because this page already
-        knows what it is made of. Putting it on a notebook page first
-        would stack two papers where the eye expects one.
-      */}
-      <FieldJournal current={routes.bounties} held right={
-        <>
+      <BookSpread
+        held
+        right={
+          <>
           <div className={styles.board}>
             <div className={styles.planks} aria-hidden="true" />
 
@@ -159,8 +148,9 @@ export default function BountiesPage() {
               </TornPaper>
             </div>
           </div>
-        </>
-      } />
+          </>
+        }
+      />
 
       <OnwardNav
         previous={{ href: routes.projects, caption: "Back along the trail", label: "Journal" }}

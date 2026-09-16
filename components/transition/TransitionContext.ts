@@ -2,6 +2,7 @@
 
 import { createContext, useContext } from "react";
 import type { ChapterMeta } from "@/lib/transition/chapters";
+import type { TurnWeight } from "@/lib/book/registry";
 import type { TransitionType } from "@/lib/transition/types";
 
 /**
@@ -27,6 +28,16 @@ export interface TransitionState {
   target: string | null;
   /** The chapter being announced, or null. Always the rendered route's. */
   meta: ChapterMeta | null;
+  /**
+   * Which way a page turn runs, and how far it travels.
+   *
+   * Published rather than kept private because the field book draws its own
+   * turn — a leaf sweeping inside the covers, not a sheet across the whole
+   * viewport, because the book never leaves the screen. The controller still
+   * owns *when*; the book owns what it looks like inside its own boards.
+   */
+  direction: "forward" | "back";
+  weight: TurnWeight;
 }
 
 export const TransitionContext = createContext<TransitionState | null>(null);

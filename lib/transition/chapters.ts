@@ -52,28 +52,33 @@ export const CHAPTERS: Record<string, ChapterMeta> = {
     title: "The Camp",
     subtitle: "Basant's Territory",
   },
-  [routes.projects]: {
+  [routes.journey]: {
     chapter: "III",
+    title: "The Journey",
+    subtitle: "How the ground was covered",
+  },
+  [routes.projects]: {
+    chapter: "IV",
     title: "The Journal",
     subtitle: "Field Records",
   },
   [routes.skills]: {
-    chapter: "IV",
+    chapter: "V",
     title: "The Workshop",
     subtitle: "Tools of the Trade",
   },
   [routes.bounties]: {
-    chapter: "V",
+    chapter: "VI",
     title: "The Board",
     subtitle: "Notable Findings",
   },
   [routes.archive]: {
-    chapter: "VI",
+    chapter: "VII",
     title: "The Archive",
     subtitle: "Records & History",
   },
   [routes.contact]: {
-    chapter: "VII",
+    chapter: "VIII",
     title: "Trail End",
     subtitle: "The Last Stop",
   },

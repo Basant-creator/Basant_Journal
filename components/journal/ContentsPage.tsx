@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { JOURNAL_SECTIONS } from "@/lib/journal/sections";
+import { BOOKMARKS } from "@/lib/book/registry";
 import { meta, person } from "@/lib/content/portfolio";
 import styles from "./JournalPages.module.css";
 
@@ -32,9 +32,9 @@ export function ContentsPage() {
       <h2 className={styles.sectionLabel}>Contents</h2>
 
       <ol className={styles.contents}>
-        {JOURNAL_SECTIONS.map((section, i) => (
+        {BOOKMARKS.map((section, i) => (
           <li key={section.id} className={styles.contentsItem}>
-            <Link href={section.href} className={styles.contentsLink}>
+            <Link href={section.route} className={styles.contentsLink}>
               <span className={styles.contentsNo}>
                 {String(i + 1).padStart(2, "0")}
               </span>

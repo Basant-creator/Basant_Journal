@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ContentsPage } from "@/components/journal/ContentsPage";
-import { FieldJournal } from "@/components/journal/FieldJournal";
+import { BookSpread } from "@/components/book/BookSpread";
 import { RecordsIndexPage } from "@/components/journal/RecordsIndexPage";
 import { getLocation } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
@@ -45,11 +45,7 @@ export default function JournalPage() {
         symbol={location?.symbol}
       />
 
-      <FieldJournal
-        current={routes.projects}
-        left={<ContentsPage />}
-        right={<RecordsIndexPage />}
-      />
+      <BookSpread left={<ContentsPage />} right={<RecordsIndexPage />} />
 
       <OnwardNav
         previous={{ href: routes.skills, caption: "Back along the trail", label: "Gear" }}

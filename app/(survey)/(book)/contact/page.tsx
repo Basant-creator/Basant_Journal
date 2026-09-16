@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FieldJournal } from "@/components/journal/FieldJournal";
+import { BookSpread } from "@/components/book/BookSpread";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { PaperSurface } from "@/components/paper/PaperSurface";
@@ -28,21 +28,10 @@ export default function ContactPage() {
         symbol={location?.symbol}
       />
 
-      {/*
-        A leaf of the field journal.
-
-        The page is unchanged — same markup, same content, same source of
-        truth. What changed is that it is now held in the notebook rather
-        than standing on its own: the board, the fore-edge tabs and the
-        ribbon back to Camp are around it, and moving to a neighbouring
-        section turns a page instead of announcing a chapter.
-
-        `held` rather than printed on a leaf, because this page already
-        knows what it is made of. Putting it on a notebook page first
-        would stack two papers where the eye expects one.
-      */}
-      <FieldJournal current={routes.contact} held right={
-        <>
+      <BookSpread
+        held
+        right={
+          <>
           <PaperSurface edge="worn" className={styles.card}>
             <div className={styles.stationMark}>Station VII · Dispatch Desk · Survey Limit</div>
             <p className={styles.availability}>{person.availability}</p>
@@ -101,8 +90,9 @@ export default function ContactPage() {
               Territory beyond this point is unmapped.
             </SurveyAnnotation>
           </PaperSurface>
-        </>
-      } />
+          </>
+        }
+      />
 
       <OnwardNav
         previous={{ href: routes.archive, caption: "Back along the trail", label: "Archive" }}

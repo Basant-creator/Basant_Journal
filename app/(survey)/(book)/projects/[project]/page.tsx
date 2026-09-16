@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { FieldJournal } from "@/components/journal/FieldJournal";
+import { BookSpread } from "@/components/book/BookSpread";
 import { RecordNav } from "@/components/journal/RecordNav";
 import { DocumentMeta } from "@/components/record/DocumentMeta";
 import { DocumentStamp } from "@/components/record/DocumentStamp";
@@ -93,8 +93,7 @@ export default async function ProjectRecordPage({ params }: PageProps) {
       record was already right. The book is the binding around it, not a
       rewrite of it.
     */
-    <FieldJournal
-      current={project.route}
+    <BookSpread
       held
       right={
         <article className={styles.record} data-project={project.id}>

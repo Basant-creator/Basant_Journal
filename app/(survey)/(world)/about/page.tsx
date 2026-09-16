@@ -2,11 +2,9 @@ import type { Metadata } from "next";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { CampScene } from "@/components/scenes/CampScene";
-import { SurveyAnnotation } from "@/components/annotations/SurveyAnnotation";
 import { education, getLocation, person } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
 import shared from "@/components/shared/Territory.module.css";
-import styles from "./page.module.css";
 
 const location = getLocation("camp");
 
@@ -48,29 +46,14 @@ export default function AboutPage() {
         mapHref={routes.frontier}
       />
 
-      <section className={shared.section} aria-labelledby="journey">
-        <h2 id="journey" className={shared.sectionHeading}>
-          The journey so far
-        </h2>
-        <ol className={styles.timeline}>
-          {person.journey.map((step) => (
-            <li key={step.year} className={styles.step}>
-              <span className={styles.year}>{step.year}</span>
-              <div className={styles.stepBody}>
-                <h3 className={styles.stepTitle}>{step.title}</h3>
-                <p className={shared.prose}>{step.body}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-        <SurveyAnnotation tag="Field note" className={styles.note}>
-          Third year. Still mapping — which is the point.
-        </SurveyAnnotation>
-      </section>
-
+      {/*
+        The journey timeline used to sit here. It is a leaf of the field book
+        now — a record of ground covered is something you turn to, and Camp is
+        somewhere you stand. The notebook on the table is how you reach it.
+      */}
       <OnwardNav
         previous={{ href: routes.frontier, caption: "Back to", label: "The map" }}
-        next={{ href: routes.skills, caption: "Next on the trail", label: "Gear" }}
+        next={{ href: routes.journey, caption: "Open the book at", label: "The Journey" }}
       />
     </div>
   );

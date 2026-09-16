@@ -1,0 +1,28 @@
+.interests {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.interests li {
+  position: relative;
+  padding-left: var(--space-6);
+}
+
+.interests li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 14px;
+  height: 1px;
+  background: rgba(64, 50, 37, 0.6);
+}
+
+@media (max-width: 620px) {
+  .step {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+}

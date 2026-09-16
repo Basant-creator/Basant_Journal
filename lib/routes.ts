@@ -79,6 +79,10 @@ export const routes = {
   home: "/",
   frontier: "/frontier",
   projects: "/projects",
+  /* The book's journey leaf. Camp keeps the fire and the table; the timeline
+     of how the surveyor got there is a page of the field book, which is where
+     a journey belongs and where the reader is already turning pages. */
+  journey: "/journey",
   professional: "/professional",
   about: "/about",
   skills: "/skills",

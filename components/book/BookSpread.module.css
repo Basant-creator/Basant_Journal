@@ -1,0 +1,71 @@
+/* The paper open on the boards. The object around it belongs to BookShell. */
+
+.spread {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  min-width: 0;
+}
+
+.single {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.leaf {
+  min-width: 0;
+  border-radius: 0;
+  box-shadow: var(--shadow-paper);
+}
+
+/*
+  The verso's margin rule belongs on the inner edge, beside the binding.
+  Paper's JOURNAL_PAGE draws it down the left, so the sheet is flipped and its
+  content flipped back — without this both pages carry the rule on the same
+  side and the spread reads as two right-hand pages.
+*/
+.verso {
+  border-top-left-radius: var(--radius-sm);
+  border-bottom-left-radius: var(--radius-sm);
+  transform: scaleX(-1);
+}
+
+.verso > * {
+  transform: scaleX(-1);
+}
+
+.recto {
+  border-top-right-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+.wide {
+  border-radius: var(--radius-sm);
+}
+
+/* Content the book holds rather than prints: padding, not paper. */
+.held {
+  min-width: 0;
+  padding: clamp(12px, 1.8vw, 26px) clamp(10px, 1.4vw, 22px);
+}
+
+/* One leaf on a phone. The verso is not shrunk — it is stacked above the
+   recto, in reading order. */
+@media (max-width: 900px) {
+  .spread {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .verso {
+    transform: none;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  }
+
+  .verso > * {
+    transform: none;
+  }
+
+  .recto {
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  }
+}

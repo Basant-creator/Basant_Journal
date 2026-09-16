@@ -10,12 +10,12 @@ import {
   useState,
 } from "react";
 import { type ChapterMeta, chapterFor } from "@/lib/transition/chapters";
+import { type TurnWeight, turnBetween } from "@/lib/book/registry";
 import {
   type TransitionType,
   type TurnDirection,
   profileFor,
   transitionFor,
-  turnDirection,
 } from "@/lib/transition/types";
 import { triggerPaperRustle } from "@/lib/audio/atmosphere";
 import { TransitionContext, type TransitionPhase } from "./TransitionContext";
@@ -116,6 +116,8 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   const [target, setTarget] = useState<string | null>(null);
   /** Which way a page turn is going. Meaningless for every other type. */
   const [direction, setDirection] = useState<TurnDirection>("forward");
+  /** How far it travels: one leaf, a few, or the far side of the book. */
+  const [weight, setWeight] = useState<TurnWeight>("single");
 
   const token = useRef(0);
   const timers = useRef<number[]>([]);
@@ -170,7 +172,9 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         // A page sweeps across while the route changes underneath it. No
         // mark, no chapter: a document is not a destination.
         triggerPaperRustle();
-        setDirection(turnDirection(window.location.pathname, url.pathname));
+        const turn = turnBetween(window.location.pathname, url.pathname);
+        setDirection(turn.direction);
+        setWeight(turn.weight);
         setPhase("EXIT");
         at(TURN_OUT + TURN_IN + 240, () => {
           setPhase("IDLE");
@@ -304,8 +308,8 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ phase, type, pathname, target, meta }),
-    [phase, type, pathname, target, meta],
+    () => ({ phase, type, pathname, target, meta, direction, weight }),
+    [phase, type, pathname, target, meta, direction, weight],
   );
 
   return (

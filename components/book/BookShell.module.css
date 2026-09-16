@@ -1,0 +1,512 @@
+/* ==========================================================================
+   THE FIELD BOOK
+
+   One object, mounted by a layout, never unmounted. DOM, CSS and the shared
+   Paper substrate — §12 is explicit that the Camp owns the 3D and the book
+   owns the document.
+
+   The physicality budget stays small and deliberate: boards, a stack of page
+   edges, a binding shadow, a turning leaf and a ribbon. No per-page curl, no
+   simulated fibre, no perspective on anything that is not moving. Every one
+   of those costs a paint on every scroll, and §47 asks the book to render
+   only what it needs.
+   ========================================================================== */
+
+.book {
+  position: relative;
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-block: clamp(16px, 3vw, 40px);
+}
+
+.board {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "spread marks"
+    "folio  marks";
+  align-items: start;
+}
+
+/* --- the spread ----------------------------------------------------------- */
+
+.spreadHolder {
+  grid-area: spread;
+  position: relative;
+  min-width: 0;
+  /* The turning leaf is clipped to the book, not to the window: a page does
+     not leave the covers it is bound into. */
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+
+/*
+  The boards, and the stack of leaves under the open one.
+
+  The two inset shadows are the page edges: a book open at the middle shows a
+  few millimetres of stacked paper on each side, and that — rather than a
+  drawn spiral — is what reads as thickness.
+*/
+.spread {
+  position: relative;
+  padding: clamp(10px, 1.4vw, 20px);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    180deg,
+    var(--timber-light),
+    var(--timber) 42%,
+    var(--timber-dark)
+  );
+  box-shadow:
+    var(--shadow-paper-deep),
+    inset 3px 0 0 color-mix(in srgb, var(--paper-aged) 55%, transparent),
+    inset -3px 0 0 color-mix(in srgb, var(--paper-aged) 55%, transparent),
+    inset 0 -3px 0 color-mix(in srgb, var(--paper-aged) 38%, transparent);
+  min-width: 0;
+}
+
+.leaf {
+  position: relative;
+  min-width: 0;
+  z-index: 1;
+}
+
+/*
+  The binding.
+
+  A seam of shadow down the centre and nothing else. §13 asks for the centre
+  binding to remain visible; a drawn stitch or spiral at this scale reads as
+  clip art, and what genuinely says "bound" is paper going darker as it curves
+  into the gutter. Hidden on a rear record, which runs as one wide leaf.
+*/
+.binding {
+  position: absolute;
+  top: clamp(10px, 1.4vw, 20px);
+  bottom: clamp(10px, 1.4vw, 20px);
+  left: 50%;
+  width: clamp(24px, 3vw, 44px);
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.14) 34%,
+    rgba(0, 0, 0, 0.24) 50%,
+    rgba(0, 0, 0, 0.14) 66%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.book[data-rear] .binding {
+  opacity: 0.45;
+}
+
+/* --- the turning leaf ------------------------------------------------------ */
+
+/*
+  Two leaves, not one.
+
+  A single sheet crossing the view is a wipe. A page turning is a sheet
+  leaving *and* the one beneath it arriving a beat later, which is why the
+  second is offset in time — and it is the whole difference between a
+  transition and a page.
+
+  Both rest off-stage with no transition at all, so a browser that never runs
+  the animation shows a book with nothing crossing it rather than a leaf
+  stranded over the page.
+*/
+.turnLeaf,
+.turnLeafTwo {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(102%);
+  transform-origin: left center;
+  background:
+    linear-gradient(100deg, rgba(0, 0, 0, 0.2) 0 2%, transparent 16%),
+    linear-gradient(255deg, var(--color-paper-light), var(--color-paper) 60%, var(--color-paper-dark));
+  box-shadow: -18px 0 46px rgba(0, 0, 0, 0.45);
+}
+
+.turnLeaf::after,
+.turnLeafTwo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--texture-paper-url);
+  background-size: 420px;
+  opacity: var(--texture-paper-opacity);
+  mix-blend-mode: multiply;
+}
+
+/* Back through the book: the leaf comes from the other side. */
+.book[data-direction="back"] .turnLeaf,
+.book[data-direction="back"] .turnLeafTwo {
+  transform: translateX(-102%);
+  transform-origin: right center;
+  box-shadow: 18px 0 46px rgba(0, 0, 0, 0.45);
+}
+
+/*
+  One leaf: a deliberate turn.
+  A few: quicker.
+  The far side of the book: a flutter — the same sweep run short and twice
+  over, which is §30's "rapid page flutter, book settles" without asking the
+  reader to watch fifteen pages.
+*/
+.book[data-turning] .turnLeaf {
+  opacity: 1;
+  animation: sweep var(--turn-ms, 460ms) var(--ease-standard) both;
+}
+
+.book[data-turning] .turnLeafTwo {
+  opacity: 1;
+  animation: sweep var(--turn-ms, 460ms) var(--ease-standard) calc(var(--turn-ms, 460ms) * 0.24) both;
+}
+
+.book[data-weight="single"] {
+  --turn-ms: 460ms;
+}
+
+.book[data-weight="near"] {
+  --turn-ms: 380ms;
+}
+
+.book[data-weight="flutter"] {
+  --turn-ms: 260ms;
+}
+
+.book[data-weight="flutter"] .turnLeaf,
+.book[data-weight="flutter"] .turnLeafTwo {
+  animation-iteration-count: 2;
+}
+
+@keyframes sweep {
+  from {
+    transform: translateX(102%) rotateY(0deg);
+  }
+  55% {
+    transform: translateX(0%) rotateY(-6deg);
+  }
+  to {
+    transform: translateX(-102%) rotateY(0deg);
+  }
+}
+
+.book[data-direction="back"] .turnLeaf,
+.book[data-direction="back"] .turnLeafTwo {
+  animation-name: sweepBack;
+}
+
+@keyframes sweepBack {
+  from {
+    transform: translateX(-102%) rotateY(0deg);
+  }
+  55% {
+    transform: translateX(0%) rotateY(6deg);
+  }
+  to {
+    transform: translateX(102%) rotateY(0deg);
+  }
+}
+
+/* --- the bookmarks -------------------------------------------------------- */
+
+.marks {
+  grid-area: marks;
+  position: relative;
+  z-index: 4;
+  padding-top: clamp(24px, 3.5vw, 48px);
+}
+
+.markList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* A scrap of card glued to the fore-edge: square where it meets the book,
+   rounded where a thumb finds it. */
+.mark {
+  display: block;
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
+  min-height: 36px;
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-on-paper-muted);
+  background: var(--paper-aged);
+  border: 1px solid color-mix(in srgb, var(--color-earth-dark) 34%, transparent);
+  border-left: 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mark:hover {
+  transform: translateX(3px);
+  background: var(--paper-aged-light);
+  color: var(--color-text-on-paper);
+}
+
+.markOpen,
+.markOpen:hover {
+  background: var(--color-paper-light);
+  color: var(--color-text-on-paper);
+  transform: translateX(6px);
+  border-left: 3px solid var(--color-red);
+  font-weight: 600;
+}
+
+/* The rear marker is a divider, not the last section. */
+.markRear {
+  margin-top: var(--space-5);
+  position: relative;
+}
+
+.markRear::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--space-3));
+  left: 0;
+  right: var(--space-4);
+  height: 1px;
+  background: var(--color-border-subtle);
+}
+
+/* --- the folio: page arrows and where you are ----------------------------- */
+
+.folio {
+  grid-area: folio;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) clamp(10px, 1.4vw, 20px) 0;
+}
+
+.arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.arrow:hover {
+  color: var(--color-text-primary);
+  background: var(--color-hover-wash);
+}
+
+.arrowSpacer {
+  min-width: 44px;
+}
+
+.folioMark {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* --- the way out ---------------------------------------------------------- */
+
+.exits {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding-left: clamp(10px, 1.4vw, 20px);
+}
+
+.ribbon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  min-height: 44px;
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-white-warm);
+  background: var(--color-red-dark);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.ribbon:hover {
+  background: var(--color-red);
+}
+
+.ribbonTail {
+  width: 9px;
+  height: 9px;
+  border-left: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg);
+  opacity: 0.8;
+}
+
+/* A slip tucked into the book: the one destination it does not swallow. */
+.slip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.slip:hover {
+  border-color: var(--color-paper-light);
+  background: var(--color-hover-wash);
+}
+
+/* ==========================================================================
+   NARROW
+
+   §14 and §50: not a shrunken spread. The bookmarks become a strip along the
+   head of the book — which is how a pocket notebook is actually indexed — and
+   they wrap rather than scroll, so no section is hidden behind a gesture
+   nobody was told about.
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .board {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "marks"
+      "spread"
+      "folio";
+  }
+
+  .marks {
+    padding-top: 0;
+    padding-bottom: var(--space-3);
+  }
+
+  .markList {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .mark {
+    border: 1px solid color-mix(in srgb, var(--color-earth-dark) 34%, transparent);
+    border-bottom: 0;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.26);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .mark:hover,
+  .markOpen,
+  .markOpen:hover {
+    transform: none;
+  }
+
+  .markOpen {
+    border-left: 1px solid color-mix(in srgb, var(--color-earth-dark) 34%, transparent);
+    border-top: 3px solid var(--color-red);
+  }
+
+  .markRear {
+    margin-top: 0;
+    margin-left: var(--space-4);
+  }
+
+  .markRear::before {
+    top: 50%;
+    bottom: auto;
+    left: calc(-1 * var(--space-3));
+    right: auto;
+    width: 1px;
+    height: 24px;
+    transform: translateY(-50%);
+  }
+
+  .binding {
+    opacity: 0.3;
+  }
+
+  .arrowLabel {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+
+   §45: the elaborate turn becomes a short paper transition. The leaf still
+   crosses — the reader is told a page changed — but it does not travel or
+   rotate, and the content is identical either way.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .turnLeaf,
+  .turnLeafTwo {
+    animation: none !important;
+    transform: none;
+  }
+
+  .book[data-turning] .turnLeaf {
+    opacity: 0.85;
+    animation: fadeLeaf 120ms linear both !important;
+  }
+
+  .book[data-turning] .turnLeafTwo {
+    opacity: 0;
+    animation: none !important;
+  }
+
+  @keyframes fadeLeaf {
+    from {
+      opacity: 0.85;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  .mark,
+  .mark:hover,
+  .markOpen,
+  .markOpen:hover {
+    transform: none;
+    transition: none;
+  }
+}

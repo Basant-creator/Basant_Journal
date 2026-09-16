@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { RECORD_LEAVES } from "@/lib/journal/sections";
+import { BOOK_LEAVES } from "@/lib/book/registry";
 import { getProject } from "@/lib/content/portfolio";
 import { identityFor } from "@/lib/record/identity";
 import styles from "./JournalPages.module.css";
@@ -26,13 +26,13 @@ export function RecordsIndexPage() {
       </p>
 
       <ol className={styles.records}>
-        {RECORD_LEAVES.map((record) => {
+        {BOOK_LEAVES.filter((l) => l.part === "rear").map((record, i) => {
           const project = getProject(record.id);
           const identity = identityFor(record.id);
           return (
             <li key={record.id} className={styles.recordItem}>
-              <Link href={record.href} className={styles.recordLink}>
-                <span className={styles.recordFiling}>{record.filing}</span>
+              <Link href={record.route} className={styles.recordLink}>
+                <span className={styles.recordFiling}>{String(i + 1).padStart(2, "0")}</span>
                 <span className={styles.recordBody}>
                   {/* A heading, not a styled span. The index of the three
                       systems is the document outline of this page — without
@@ -40,9 +40,9 @@ export function RecordsIndexPage() {
                       list of links, which is what this page became when the
                       cards were replaced by leaves. */}
                   <h3 className={styles.recordTitle}>{record.title}</h3>
-                  <span className={styles.recordSub}>{record.subtitle}</span>
+                  <span className={styles.recordSub}>{project?.subtitle}</span>
                   <span className={styles.recordMeta}>
-                    <span className={styles.recordDate}>{record.date}</span>
+                    <span className={styles.recordDate}>{project?.date}</span>
                     <span className={styles.recordStamp}>
                       {identity.stamp.mark}
                     </span>

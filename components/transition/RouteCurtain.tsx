@@ -43,18 +43,14 @@ export function RouteCurtain({
     field journal are turned — a sheet crosses, and the reader has not put
     the book down.
   */
-  if (type === "BOOK_TURN") {
-    return (
-      <div
-        className={styles.turn}
-        data-phase={phase}
-        data-direction={direction}
-        aria-hidden="true"
-      >
-        <span className={styles.leaf} />
-      </div>
-    );
-  }
+  /*
+    A turn between two leaves is the book's own, and it is drawn inside the
+    covers by BookShell — the field book never leaves the screen, so a sheet
+    sweeping the whole viewport would be a page from some other object
+    passing in front of it. The controller still owns the timing; nothing
+    global is painted.
+  */
+  if (type === "BOOK_TURN") return null;
 
   /*
     Opening the notebook.
