@@ -219,42 +219,38 @@ export function tierFor(probe: QualityProbe | null): QualityTier {
   const heavyPixels = probe.dpr >= 3;
 
   /*
-    A modest link buys less scene, not no scene.
+    From here down, the network has no vote.
 
-    "3g" used to sit with 2G in the refusal above, and it cost a machine that
-    should never have been asked the question: a sixteen-core desktop with
-    16GB and a Radeon 780M, on localhost, was handed the illustrated camp
-    because navigator.connection said 3g. effectiveType is a rolling estimate
-    of recent round trips, and with little traffic to go on it reports
-    whatever it last believed — which on a fast machine doing nothing is
-    frequently not 4g.
+    The split is the thing worth stating, because getting it wrong is what put
+    a sixteen-core desktop with 16GB on the lowest tier and made the Camp look
+    sparse and soft: **the network decides whether to draw at all; the device
+    decides how well.**
 
-    That is the §32 mistake wearing different clothes. A user-agent string is
-    a claim about the device; effectiveType is a guess about the network; and
-    neither is evidence about whether this GPU can draw a campfire. Both are
-    fine as one input among several and wrong as a veto.
+    Everything a tier changes is GPU work and texture memory. The grass, the
+    stones, the trees and the prop textures are generated on the machine, not
+    downloaded — so spending less of them saves nothing on a slow link. It
+    only makes the scene emptier on a machine that could have drawn it. The
+    one genuinely network-shaped decision is whether to fetch 880kB of
+    renderer in the first place, and that is settled above, where saveData and
+    a corroborated 2G reading still refuse outright.
 
-    So the estimate now does what an estimate should: it moves the tier down
-    a step. Grass, stones and embers thin out, shadows go, the renderer draws
-    at one device pixel. If the link really is 3G the scene costs less to
-    deliver and less to run; if the link was never 3G at all, the visitor
-    loses some density on a page they can still see properly. Refusing
-    outright is the only outcome that is unrecoverable, and saveData — the
-    one signal a visitor actually sets on purpose — still does exactly that.
+    So `modestLink` is gone from this half. It survives where it belongs — in
+    the refusal — and stops quietly costing shadows, half the trees and a
+    device pixel to a machine whose only crime was that
+    `navigator.connection` had nothing recent to average and guessed low.
   */
-  if (
-    small ||
-    probe.modestLink ||
-    /* A 2G estimate that survived the block above — an unconstrained device —
-       still buys the cheapest scene rather than none. */
-    probe.slowLink ||
-    (probe.coarsePointer && (thinMemory || fewCores))
-  ) {
+  if (small) return "low";
+
+  /*
+    A coarse pointer is a real phone, and on one the link estimate becomes
+    evidence again: a handset browsing over cellular is the case
+    `effectiveType` was designed for and is usually right about. Corroborated
+    by the pointer, it keeps its say. Standing alone on a desktop it has none.
+  */
+  if (probe.coarsePointer && (thinMemory || fewCores || probe.modestLink)) {
     return "low";
   }
 
-  /* WebGL1, or a machine filling three times the pixels with modest memory,
-     gets the middle setting rather than the top one. */
   if (!probe.webgl2 || heavyPixels || thinMemory || fewCores) return "medium";
 
   return "high";
