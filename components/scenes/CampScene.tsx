@@ -6,7 +6,7 @@ import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
 import { SceneInteraction } from "@/components/scene/SceneInteraction";
 import { SceneObject } from "@/components/scene/SceneObject";
 import { SceneObjects } from "@/components/scene/SceneObjects";
-import { setNearFire } from "@/lib/audio/atmosphere";
+import { setMusic, setNearFire } from "@/lib/audio/atmosphere";
 import { CAMP_HEIGHT, CAMP_WIDTH, objectBox } from "@/lib/world/camp";
 import {
   CampRecord,
@@ -90,7 +90,14 @@ export function CampScene({
   */
   useEffect(() => {
     setNearFire(true);
-    return () => setNearFire(false);
+    /* §23: Camp is more intimate than the landing. It gets the reflective
+       state — the sparest phrase, the longest gaps, the whistle almost never —
+       rather than the landing's loop carried in behind the visitor. */
+    setMusic("reflective");
+    return () => {
+      setNearFire(false);
+      setMusic("silence");
+    };
   }, []);
 
   return (

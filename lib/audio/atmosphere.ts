@@ -21,8 +21,25 @@
  *      context closed on stop, so leaving the page leaves nothing running.
  */
 
-/** Quiet enough to be weather rather than content. */
-const GAIN = 0.085;
+import { type Desk, createDesk, duck } from "./buses";
+import { chirp, hoof } from "./instruments";
+import { type Conductor, type MusicState, conduct } from "./music";
+
+/**
+ * Master level — and the one number the desk moved.
+ *
+ * This was 0.085 when the wind connected straight to the output, and 0.085 was
+ * the *wind's* level rather than the mix's. Putting the desk in between
+ * multiplies every source by its bus, and the environment bus is 0.15, so the
+ * same constant left the air running at a seventh of what it used to be:
+ * measured at the master, an RMS of 0.0022 — about -53 dBFS, which is nothing
+ * on a laptop speaker.
+ *
+ * The per-source tuning now lives in the buses, where §32 wants it, and this is
+ * a master again. 0.56 x 0.15 puts the wind back at 0.084, which is where it
+ * was before and where it was right.
+ */
+const GAIN = 0.56;
 
 /** Long enough that starting and stopping are never abrupt. */
 const FADE = 1.1;
@@ -32,8 +49,13 @@ const BED = 4;
 
 interface Rig {
   context: AudioContext;
+  desk: Desk;
   master: GainNode;
   running: AudioScheduledSourceNode[];
+  /** The music, when there is any. */
+  music: Conductor;
+  /** Timers for the sparse voices — birds, and the herd's hooves. */
+  voices: number[];
   /** The fire, when there is one. Null everywhere but Camp. */
   ember: {
     source: AudioBufferSourceNode;
@@ -159,14 +181,19 @@ export function start(): boolean {
     return false;
   }
 
-  const master = context.createGain();
-  master.gain.value = 0;
-  master.connect(context.destination);
+  /*
+    One desk, and nothing reaches the speakers except through it (§32, §34).
+    The wind is not connected to the output any more — it is connected to the
+    environment bus, which is what makes "duck the music under a page turn" a
+    property of the mixer rather than a negotiation between components.
+  */
+  const desk = createDesk(context);
+  const master = desk.master;
 
   const bed = noiseBed(context);
   const running = [
     /* Far: the body of the wind, mostly felt. */
-    ...layer(context, bed, master, {
+    ...layer(context, bed, desk.bus.environment, {
       cutoff: 380,
       q: 0.6,
       level: 1,
@@ -176,7 +203,7 @@ export function start(): boolean {
     }),
     /* Near: thinner, quicker, the air actually passing you. Offset so the two
        loops never line up and give the bed a period. */
-    ...layer(context, bed, master, {
+    ...layer(context, bed, desk.bus.environment, {
       cutoff: 1100,
       q: 0.9,
       level: 0.28,
@@ -193,9 +220,100 @@ export function start(): boolean {
      gesture that called this, so it is allowed. */
   void context.resume().catch(() => {});
 
-  rig = { context, master, running, ember: null };
+  /*
+    §4: the first impression is subtle.
+
+    The master was already fading in over FADE. What changed is that the music
+    does not arrive with it — the landscape establishes first and the banjo
+    comes in later, which is §5's progression and the difference between a
+    world and a trailer.
+  */
+  const music = conduct(desk, "silence");
+
+  rig = { context, desk, master, running, music, voices: [], ember: null };
+  startVoices(rig);
   if (nearFire) lightFire(rig);
   return true;
+}
+
+/* -------------------------------------------------------------------------
+   THE SPARSE VOICES
+
+   §17 and §18: birds and hooves arrive occasionally and the gaps between them
+   are the point. Scheduled by timer rather than by loop, because what makes
+   them read as a place is that they are *not* periodic.
+   ------------------------------------------------------------------------- */
+
+/** Whether the herd is on screen. Only the landing sets this. */
+let herdAudible = false;
+
+function startVoices(target: Rig): void {
+  const { context, desk } = target;
+
+  /* A bird, every so often, from somewhere. Long gaps on purpose — §18 says
+     the silence is doing as much work as the sound. */
+  const bird = () => {
+    if (!rig) return;
+    chirp(context, desk.bus.animals, {
+      level: 0.16 + Math.random() * 0.1,
+      pan: (Math.random() - 0.5) * 1.4,
+    });
+    target.voices.push(
+      window.setTimeout(bird, 6000 + Math.random() * 22000),
+    );
+  };
+  target.voices.push(window.setTimeout(bird, 3000 + Math.random() * 6000));
+
+  /*
+    Hooves, when there is something to make them.
+
+    A gallop is four beats with a gap — not four even ones — so the group is
+    scheduled as a rhythm rather than a metronome, and the whole figure is
+    placed far back in the mix. §13: the herd is heard, not attended to.
+  */
+  const hooves = () => {
+    if (!rig) return;
+    if (herdAudible) {
+      const pan = (Math.random() - 0.5) * 1.2;
+      const distance = 0.55 + Math.random() * 0.35;
+      const t = context.currentTime;
+      /* The four-beat figure, with the uneven spacing that makes it a gallop
+         rather than a trot. */
+      const beats = [0, 0.11, 0.26, 0.35];
+      for (const b of beats) {
+        hoof(context, desk.bus.animals, {
+          level: 0.3 + Math.random() * 0.12,
+          pan,
+          distance,
+          when: t + b + Math.random() * 0.012,
+        });
+      }
+    }
+    target.voices.push(
+      window.setTimeout(hooves, 900 + Math.random() * 2600),
+    );
+  };
+  target.voices.push(window.setTimeout(hooves, 1200));
+}
+
+/**
+ * Says whether horses are crossing the frame.
+ *
+ * Called by the place, like the fire: the landing knows its herd is on screen
+ * and nothing else does. Safe with the air switched off — it sets a flag.
+ */
+export function setHerdAudible(on: boolean): void {
+  herdAudible = on;
+}
+
+/**
+ * Moves the music between its states (§11, §45).
+ *
+ * Silence is a state rather than the absence of one, and the landing steps
+ * through them over time rather than starting at full.
+ */
+export function setMusic(state: MusicState): void {
+  rig?.music.setState(state);
 }
 
 /**
@@ -242,7 +360,7 @@ function emberBed(context: AudioContext): AudioBuffer {
 /** Starts the fire on a running rig, fading it in so it never simply appears. */
 function lightFire(target: Rig): void {
   if (target.ember) return;
-  const { context, master } = target;
+  const { context, desk } = target;
 
   const source = context.createBufferSource();
   source.buffer = emberBed(context);
@@ -259,7 +377,7 @@ function lightFire(target: Rig): void {
   gain.gain.setValueAtTime(0, context.currentTime);
   gain.gain.linearRampToValueAtTime(0.5, context.currentTime + FADE);
 
-  source.connect(filter).connect(gain).connect(master);
+  source.connect(filter).connect(gain).connect(desk.bus.environment);
   source.start();
 
   target.ember = { source, filter, gain };
@@ -311,7 +429,9 @@ export function setNearFire(on: boolean): void {
 export function stop(): void {
   if (!rig) return;
   douseFire(rig);
-  const { context, master, running } = rig;
+  rig.music.stop();
+  for (const id of rig.voices) window.clearTimeout(id);
+  const { context, master, running, desk } = rig;
   rig = null;
 
   const end = context.currentTime + FADE;
@@ -333,6 +453,7 @@ export function stop(): void {
         }
         node.disconnect();
       }
+      for (const node of Object.values(desk.bus)) node.disconnect();
       master.disconnect();
       void context.close().catch(() => {});
     },
@@ -346,7 +467,10 @@ export function stop(): void {
  */
 export function triggerPaperRustle(): void {
   if (!rig) return;
-  const { context, master } = rig;
+  const { context, desk } = rig;
+  /* §33: the page is the subject for a moment, so the music steps back and
+     returns without anyone noticing it left. */
+  duck(desk, "music");
   try {
     const duration = 0.16;
     const buffer = context.createBuffer(1, Math.floor(context.sampleRate * duration), context.sampleRate);
@@ -362,11 +486,15 @@ export function triggerPaperRustle(): void {
     filter.frequency.value = 1800;
     filter.Q.value = 1.2;
 
+    /* Relative to the paper bus (0.75), not to the output. At the old 0.04 a
+       page turn peaked level with the wind bed and vanished into it; §31 has
+       paper as the loudest thing running, because inside the book the paper is
+       the subject and the weather is not. */
     const gain = context.createGain();
-    gain.gain.setValueAtTime(0.04, context.currentTime);
+    gain.gain.setValueAtTime(0.09, context.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
 
-    source.connect(filter).connect(gain).connect(master);
+    source.connect(filter).connect(gain).connect(desk.bus.paper);
     /* Rule 3 applies to the one-shots too. A finished source is eligible for
        collection on its own, but "eligible" is the engine's business and this
        file's promise is that nothing is left connected — a promise that costs
@@ -389,18 +517,20 @@ export function triggerPaperRustle(): void {
  */
 export function triggerSurveyTick(): void {
   if (!rig) return;
-  const { context, master } = rig;
+  const { context, desk } = rig;
   try {
     const osc = context.createOscillator();
     osc.type = "sine";
     osc.frequency.setValueAtTime(1200, context.currentTime);
     osc.frequency.exponentialRampToValueAtTime(320, context.currentTime + 0.022);
 
+    /* Relative to the interaction bus (0.5). Sits just above the air — a tick
+       the visitor notices without it becoming a beep. */
     const gain = context.createGain();
-    gain.gain.setValueAtTime(0.025, context.currentTime);
+    gain.gain.setValueAtTime(0.06, context.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.022);
 
-    osc.connect(gain).connect(master);
+    osc.connect(gain).connect(desk.bus.interaction);
     osc.onended = () => {
       osc.disconnect();
       gain.disconnect();

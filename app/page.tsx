@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ButtonLink } from "@/components/shared/Button";
+import { LandingAudio } from "@/components/landing/LandingAudio";
 import { LandingScene } from "@/components/landing/LandingScene";
 import { ThreeScene } from "@/components/three/ThreeScene";
 import { Wordmark } from "@/components/world/Wordmark";
@@ -45,6 +46,10 @@ export default function LandingPage() {
         server-rendered markup, which is how §25's "lighter than the Camp"
         is met rather than merely aimed at: there is no renderer to load.
       */}
+      {/* The landing's own soundscape progression. Silent, and no-op, until
+          the visitor switches the air on. */}
+      <LandingAudio />
+
       <div className={styles.landscape} aria-hidden="true">
         {/*
           The country, and the herd crossing it.
