@@ -38,6 +38,14 @@ const NOTES = {
   A4: 440.0,
   C5: 523.25,
   D5: 587.33,
+  /* The whistle's octave. People whistle high — roughly 700 Hz to 2 kHz — and
+     putting it up here is both the truthful range and the reason it can be
+     picked out at all: it is the only voice above the banjo's top string. */
+  F5: 698.46,
+  G5: 783.99,
+  A5: 880.0,
+  C6: 1046.5,
+  D6: 1174.66,
 } as const;
 
 /** 84 BPM. Walking pace, which is the pace of the thing on screen. */
@@ -118,36 +126,42 @@ const BANJO: Phrase[] = [
 */
 const WHISTLES: Array<Array<{ at: number; note: number; hold: number }>> = [
   [
-    { at: 0, note: NOTES.A4, hold: 1.2 },
-    { at: 1.5, note: NOTES.G4, hold: 0.8 },
-    { at: 2.5, note: NOTES.D4, hold: 1.8 },
+    { at: 0, note: NOTES.A5, hold: 1.2 },
+    { at: 1.5, note: NOTES.G5, hold: 0.8 },
+    { at: 2.5, note: NOTES.D5, hold: 1.8 },
   ],
   [
-    { at: 0, note: NOTES.D5, hold: 0.9 },
-    { at: 1, note: NOTES.C5, hold: 0.7 },
-    { at: 2, note: NOTES.A4, hold: 2.2 },
+    { at: 0, note: NOTES.D6, hold: 0.9 },
+    { at: 1, note: NOTES.C6, hold: 0.7 },
+    { at: 2, note: NOTES.A5, hold: 2.2 },
   ],
   [
-    { at: 0, note: NOTES.F4, hold: 1.4 },
-    { at: 2, note: NOTES.A4, hold: 2.4 },
+    { at: 0, note: NOTES.F5, hold: 1.4 },
+    { at: 2, note: NOTES.A5, hold: 2.4 },
   ],
 ];
 
 /**
  * How often a phrase is followed by a whistle, per state.
  *
- * `sparse` used to be 0, which meant the whistle could not arrive until
- * `journey` did — forty-six seconds into the landing. That was defensible when
- * the whistle was a detail and wrong once it became a lead: the visitor most
- * likely to never hear it is the one who looks around for half a minute and
- * moves on, which is most of them. It now answers about one phrase in five
- * from the moment there is any music at all.
+ * These have been raised twice, and the second time was measured rather than
+ * argued. §8 asks for the whistle to be much rarer than the banjo, and taken
+ * literally that produced a voice nobody ever heard: in `sparse` a phrase and
+ * its rest run nine to fourteen seconds, the gate below wanted two phrases
+ * between whistles, and the chance was 0.22 — so the expected number of
+ * whistles across an entire visit was less than one. Verified: zero in
+ * fifty-four seconds, with the 620-1300 Hz band never rising above -49.8 dB.
+ *
+ * A voice that rare is not restrained, it is absent, and "rarer than the
+ * banjo" is satisfied at a far higher number than that. The whistle is the
+ * only human thing in the mix and it now answers roughly every second or
+ * third phrase.
  */
 const WHISTLE_CHANCE: Record<MusicState, number> = {
   silence: 0,
-  sparse: 0.22,
-  journey: 0.34,
-  reflective: 0.18,
+  sparse: 0.45,
+  journey: 0.6,
+  reflective: 0.3,
 };
 
 /** How much of a gap follows each phrase, in beats, per state. */
@@ -244,8 +258,20 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
         state === "reflective" && Math.random() < 0.5 ? BANJO[3] : phrase;
 
       for (const n of chosen.notes) {
+        /* Roughly one note in five is slid into, and never the drone — a
+           player bends the tune, not the string keeping time. A whole tone
+           twice as often as a semitone, because the wider one is the gesture
+           the ear actually recognises. */
+        const ornament =
+          n.note !== NOTES.D3 && Math.random() < 0.22
+            ? Math.random() < 0.66
+              ? 0.891
+              : 0.944
+            : undefined;
+
         pluck(context, desk.bus.music, {
           frequency: n.note,
+          slideFrom: ornament,
           decay: 1.6 + Math.random() * 0.5,
           /* A hand is never even. This is the difference between a player and
              a sequencer, and it is worth more than any amount of reverb. */
@@ -261,23 +287,28 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
       /* The whistle answers the banjo rather than sitting on top of it: it
          enters after the phrase, in the gap. */
       sinceWhistle += 1;
-      if (sinceWhistle >= 2 && Math.random() < WHISTLE_CHANCE[state]) {
+      /* One phrase of separation, not two. Two meant the whistle could never
+         answer the phrase it was actually answering. */
+      if (sinceWhistle >= 1 && Math.random() < WHISTLE_CHANCE[state]) {
         sinceWhistle = 0;
         const line = WHISTLES[Math.floor(Math.random() * WHISTLES.length)];
-        const pan = (Math.random() - 0.5) * 0.4;
-        for (const n of line) {
-          whistle(context, desk.bus.music, {
-            frequency: n.note,
-            duration: n.hold,
-            /* Raised with the music bus, and then a little further. A held
-               tone carries further than a pluck of the same peak, so this
-               reads *above* the banjo at a number below its loudest note —
-               which is what a person whistling over an instrument does. */
-            level: 0.36,
-            pan,
-            when: phraseEnd + n.at * BEAT + 0.3,
-          });
-        }
+        /* One call for the whole line, not one per note. The phrase is a
+           single continuous tone that slides between its pitches, which is
+           what a person does and what an oscillator per note cannot. */
+        whistle(context, desk.bus.music, {
+          notes: line.map((n) => ({
+            at: n.at * BEAT,
+            note: n.note,
+            hold: n.hold,
+          })),
+          /* A held sine an octave above the banjo carries further than a
+             pluck of the same peak, so this reads *above* the instrument at a
+             number below its loudest note — which is what a person whistling
+             over a banjo actually sounds like. */
+          level: 0.34,
+          pan: (Math.random() - 0.5) * 0.4,
+          when: phraseEnd + 0.3,
+        });
       }
 
       const [restMin, restMax] = REST[state];

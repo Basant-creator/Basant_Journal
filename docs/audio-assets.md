@@ -43,8 +43,9 @@ models the physics rather than imitating the result.
 | --- | --- |
 | **wind** | brown noise — white noise integrated, so the spectrum falls 6 dB/octave — through two lowpass bands at 380 Hz and 1100 Hz, each gusting on its own slow LFO. Generated into a 4-second buffer whose tail is crossfaded over its head so the loop point lands on a sample that was already heading there. |
 | **campfire** | twelve exponential noise bursts placed at random inside a 6-second buffer, through a 1900 Hz bandpass. The randomness is the point: a fire has no tempo, and a regular pop is the tell that a loop is a loop. |
+| **banjo slide** | a ramp on the buffer source's `playbackRate` from a semitone or a whole tone below, over 130 ms. The string is genuinely re-tuned while it rings, exactly as a real one is, rather than crossfaded between two samples. |
 | **banjo** | Karplus-Strong. A noise burst trapped in a delay line one wavelength long, losing its high end on each pass, with a 380 Hz bandpass standing in for the drum head. The algorithm is fifty years old and published; the notes played through it are ours. |
-| **whistle** | a triangle oscillator scooped into pitch from 6% under, with vibrato that arrives late, and a 120 ms band of breath noise in front of the tone. |
+| **whistle** | one sine per *phrase*, not per note, gliding between pitches, plus a 7% second harmonic. Scooped into from 6% under, vibrato at two incommensurate rates (4.9 and 6.7 Hz) so the wobble never repeats, a slow 0.6 Hz pitch drift, continuous breath noise underneath, and a sag at the end as the player runs out of air. |
 | **hooves** | a 90 ms noise burst with a 12 ms exponential decay, a peaking filter at 130 Hz for the thump, and a lowpass that closes from 2400 Hz to 700 Hz with distance — air eats treble before it eats loudness. |
 | **birds** | two to four sine sweeps, 50 ms each, over a random base between 2200 and 3800 Hz. |
 | **bowed strings** | three sawtooth oscillators detuned by −7, 0 and +6 cents through a lowpass that opens on the attack and closes on the release. A bowed string really is a sawtooth — the Helmholtz kink makes the bridge force one — and the detuning is what turns one instrument into several players who cannot quite agree. |
@@ -137,6 +138,28 @@ The campfire moved with neither: it shares the environment bus with the wind,
 so its own gain went 0.5 → 0.94, which is the same product. Camp sounds exactly
 as it did and only the weather moved.
 
+**The whistle, rebuilt.** It was a triangle wave retriggered per note, sitting
+in the banjo's own octave — three separate reasons it read as a synthesiser
+rather than a person, and could not be picked out of the mix at all. It is now
+a near-pure sine (a human whistle is a Helmholtz resonator and sings at almost
+exactly one frequency), one continuous oscillator per phrase that *slides*
+between its notes the way a person cannot help doing, and it has moved up an
+octave into the range people actually whistle in — which is also the only
+range nothing else in the mix occupies.
+
+It was also, measurably, almost never heard. In `sparse` a phrase and its rest
+run nine to fourteen seconds, the gate wanted two phrases between whistles, and
+the chance was 0.22, so the expected number across a whole visit was under one.
+Verified: zero in fifty-four seconds. The rates are now 0.45 / 0.6 / 0.3 with
+one phrase of separation instead of two.
+
+**Wind, down again**, and lowered on the wind's own two layers (1 → 0.6 and
+0.28 → 0.17) rather than on the bus. The environment bus also carries the
+fire, so lowering the bus puts the campfire out with the weather — which has
+already had to be undone once with a compensating gain. Lowering the layers
+leaves Camp untouched by construction instead of by arithmetic somebody has to
+remember.
+
 **A bed and a room.** The motif now carries a bowed drone on D2 and A2,
 alternating, each note held 15–21 seconds and overlapping the next by four so
 the handover is a crossfade rather than a gap. It runs on its own clock, not
@@ -177,12 +200,14 @@ frames.
 | console errors with audio running | none |
 | buses reaching the output | 5, each at its declared level |
 | nodes connected past the desk | 0 |
-| wind | 0.0131 RMS / 0.0514 peak |
-| music | 0.0403 RMS / 0.2639 peak, sounding in 599 of 722 frames |
-| **music peak over wind peak** | **5.13×** — was 0.80× before any of this |
-| output | −32.0 dBFS RMS, −16.7 dBFS peak |
+| wind | 0.0088 RMS / 0.0457 peak |
+| music | 0.0489 RMS / 0.2871 peak |
+| **whistle band (620–1300 Hz) peak** | **−31.8 dB, at 879 Hz** — A5, exactly the written note |
+| **banjo band (140–530 Hz) peak** | −40.8 dB |
+| **whistle over banjo** | **+9.0 dB**, in a band the banjo does not occupy |
+| output | −31.0 dBFS RMS, −15.3 dBFS peak |
 | clipping | none |
-| limiter gain reduction | 0.03 dB maximum |
+| limiter gain reduction | 0.00 dB |
 | music gone after leaving the landing | 5.19 s |
 
 Before the drone, the music bus sounded in 55% of frames and rested in the

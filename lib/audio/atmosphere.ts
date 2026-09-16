@@ -192,11 +192,18 @@ export function start(): boolean {
 
   const bed = noiseBed(context);
   const running = [
-    /* Far: the body of the wind, mostly felt. */
+    /* Far: the body of the wind, mostly felt.
+
+       Taken down a second time, and taken down *here* rather than on the bus.
+       The environment bus also carries the fire, and lowering the bus would
+       quietly put the campfire out along with the weather — which has already
+       had to be corrected once with a compensating gain. Lowering the wind's
+       own layers leaves Camp untouched by construction instead of by
+       arithmetic that has to be maintained. */
     ...layer(context, bed, desk.bus.environment, {
       cutoff: 380,
       q: 0.6,
-      level: 1,
+      level: 0.6,
       gust: 0.045,
       depth: 170,
       offset: 0,
@@ -206,7 +213,7 @@ export function start(): boolean {
     ...layer(context, bed, desk.bus.environment, {
       cutoff: 1100,
       q: 0.9,
-      level: 0.28,
+      level: 0.17,
       gust: 0.072,
       depth: 420,
       offset: 1.3,

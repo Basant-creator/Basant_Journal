@@ -99,14 +99,37 @@ export function pluckBuffer(
   return buffer;
 }
 
-/** Plays one pluck through the given destination, panned. */
+/**
+ * Plays one pluck through the given destination, panned.
+ *
+ * `slideFrom` is the ornament that does more for the idiom than any amount of
+ * reverb: a note that starts a tone or a semitone flat and is pulled up into
+ * place. It is a finger moving along a string after the pick has hit, and it
+ * is the gesture that separates western playing from a scale being typed in.
+ *
+ * Cheap, too. The buffer was rendered at one pitch, so bending it is a ramp on
+ * `playbackRate` - the string is genuinely re-tuned while it rings, exactly as
+ * a real one is, rather than being crossfaded between two samples.
+ */
 export function pluck(
   context: AudioContext,
   destination: AudioNode,
-  options: PluckOptions & { pan?: number; level?: number; when?: number },
+  options: PluckOptions & {
+    pan?: number;
+    level?: number;
+    when?: number;
+    /** Ratio to start from: 0.944 is a semitone below, 0.891 a whole tone. */
+    slideFrom?: number;
+  },
 ): void {
   const source = context.createBufferSource();
   source.buffer = pluckBuffer(context, options);
+
+  if (options.slideFrom !== undefined) {
+    const at = options.when ?? context.currentTime;
+    source.playbackRate.setValueAtTime(options.slideFrom, at);
+    source.playbackRate.exponentialRampToValueAtTime(1, at + 0.13);
+  }
 
   /*
     The head: a banjo's resonance, standing in for the drum it is built on.
@@ -147,19 +170,46 @@ export function pluck(
 }
 
 /* -------------------------------------------------------------------------
-   THE WHISTLE — a person, not an instrument
+   THE WHISTLE - a person, not an instrument
 
-   §9: the banjo is the landscape's rhythm and the whistle is the human in it.
-   What makes a whistle read as a person rather than as a sine wave is entirely
-   in its imperfections: it arrives a little under pitch and slides up, the
-   vibrato starts after the note rather than with it, and there is breath in
-   front of the tone.
+   S9: the banjo is the landscape's rhythm and the whistle is the human in it.
+   The first version missed on three counts, and each one is the difference
+   between a person and a patch.
+
+   **It was a triangle wave.** A triangle carries strong odd harmonics, which
+   is a flute, or a cheap synth lead. A human whistle is a Helmholtz resonator
+   - the mouth cavity is the volume, the lips are the neck - and a resonator
+   sings at almost exactly one frequency. It is very nearly a pure sine with a
+   whisper of second harmonic and nothing above it.
+
+   **Every note was its own oscillator.** So a phrase re-attacked on each note,
+   which is an arpeggiator. A person cannot restart a whistle between notes any
+   more than they can restart a vowel: the pitch *slides*, the tone never
+   stops, and that continuous glide is most of what the ear uses to decide a
+   human is doing it. The whole phrase is now one oscillator with a contour.
+
+   **It sat in the banjo's octave.** Below about 600 Hz it competed with the
+   instrument it is meant to answer, and lost. People whistle high - this now
+   runs where whistling actually lives, above everything else in the mix, which
+   is both more truthful and the reason it can be picked out at all.
+
+   Everything else here is imperfection, deliberately: the pitch is a little
+   off concert, the vibrato is two rates that never line up, there is breath
+   under the whole note rather than in front of it, and the phrase sags at the
+   end because the player is running out of air.
    ------------------------------------------------------------------------- */
 
+export interface WhistleNote {
+  /** Seconds from the phrase's start. */
+  at: number;
+  /** Hz. */
+  note: number;
+  /** Seconds this note is held. */
+  hold: number;
+}
+
 export interface WhistleOptions {
-  frequency: number;
-  /** Seconds. */
-  duration: number;
+  notes: WhistleNote[];
   level?: number;
   pan?: number;
   when?: number;
@@ -168,70 +218,167 @@ export interface WhistleOptions {
 export function whistle(
   context: AudioContext,
   destination: AudioNode,
-  { frequency, duration, level = 0.3, pan = 0, when }: WhistleOptions,
+  { notes, level = 0.3, pan = 0, when }: WhistleOptions,
 ): void {
+  if (notes.length === 0) return;
+
   const t = when ?? context.currentTime;
+  const tail = notes[notes.length - 1];
+  const duration = tail.at + tail.hold;
+  const mean = notes.reduce((sum, n) => sum + n.note, 0) / notes.length;
 
-  const osc = context.createOscillator();
-  /* Triangle rather than sine: a whistled note has a little second harmonic
-     in it, and a pure sine reads as a test tone. */
-  osc.type = "triangle";
-
-  /* Scooped into: nobody hits a whistled note dead centre from silence. */
-  osc.frequency.setValueAtTime(frequency * 0.94, t);
-  osc.frequency.exponentialRampToValueAtTime(frequency, t + 0.09);
-
-  /* Vibrato, arriving late and shallow — a held note wavers, an attack does
-     not, and starting them together is the tell of a synthesised whistle. */
-  const vibrato = context.createOscillator();
-  vibrato.frequency.value = 4.6;
-  const vibratoDepth = context.createGain();
-  vibratoDepth.gain.setValueAtTime(0, t);
-  vibratoDepth.gain.linearRampToValueAtTime(frequency * 0.006, t + duration * 0.45);
-  vibrato.connect(vibratoDepth).connect(osc.frequency);
-
-  /* Breath: a whisper of noise under the tone, gone before the note is. */
-  const breath = context.createBufferSource();
-  const breathLength = Math.floor(context.sampleRate * 0.12);
-  const breathBuffer = context.createBuffer(1, breathLength, context.sampleRate);
-  const bd = breathBuffer.getChannelData(0);
-  for (let i = 0; i < breathLength; i += 1) {
-    bd[i] = (Math.random() * 2 - 1) * (1 - i / breathLength) * 0.5;
-  }
-  breath.buffer = breathBuffer;
-  const breathFilter = context.createBiquadFilter();
-  breathFilter.type = "bandpass";
-  breathFilter.frequency.value = frequency * 1.6;
-  breathFilter.Q.value = 1.2;
-  const breathGain = context.createGain();
-  breathGain.gain.value = level * 0.3;
-
-  const gain = context.createGain();
-  gain.gain.setValueAtTime(0, t);
-  gain.gain.linearRampToValueAtTime(level, t + 0.12);
-  gain.gain.setValueAtTime(level, t + duration - 0.2);
-  gain.gain.linearRampToValueAtTime(0, t + duration);
+  /* Nobody whistles at concert pitch. Up to a quarter tone out, per phrase. */
+  const offset = (Math.random() - 0.5) * 50;
 
   const panner = context.createStereoPanner();
   panner.pan.value = pan;
+  panner.connect(destination);
 
-  osc.connect(gain).connect(panner).connect(destination);
-  breath.connect(breathFilter).connect(breathGain).connect(panner);
+  const gain = context.createGain();
+  gain.connect(panner);
+
+  const osc = context.createOscillator();
+  osc.type = "sine";
+  osc.detune.value = offset;
+
+  /* The one harmonic a real whistle has, and it is faint. Any more and it
+     stops being a whistle and becomes a recorder. */
+  const harmonic = context.createOscillator();
+  harmonic.type = "sine";
+  harmonic.detune.value = offset;
+  const harmonicGain = context.createGain();
+  harmonicGain.gain.value = 0.07;
+
+  osc.connect(gain);
+  harmonic.connect(harmonicGain).connect(gain);
+
+  /*
+    The pitch contour - one continuous line through the whole phrase.
+
+    Each note is *arrived at* rather than started: the slide begins 70 ms early
+    and completes just after the beat, which is what a whistled interval
+    actually does. The first note is scooped into from below, because nobody
+    hits a pitch dead centre out of silence.
+  */
+  const contour = (param: AudioParam, multiple: number) => {
+    param.setValueAtTime(notes[0].note * 0.94 * multiple, t);
+    param.exponentialRampToValueAtTime(notes[0].note * multiple, t + 0.1);
+    for (let i = 1; i < notes.length; i += 1) {
+      param.setValueAtTime(notes[i - 1].note * multiple, t + notes[i].at - 0.07);
+      param.exponentialRampToValueAtTime(
+        notes[i].note * multiple,
+        t + notes[i].at + 0.03,
+      );
+    }
+    /* Running out of air: the last note sags rather than holding. */
+    param.exponentialRampToValueAtTime(tail.note * 0.975 * multiple, t + duration);
+  };
+  contour(osc.frequency, 1);
+  contour(harmonic.frequency, 2);
+
+  /*
+    Vibrato at two rates that never line up.
+
+    A single LFO is a machine - the ear locks onto the period within a second.
+    4.9 and 6.7 Hz are incommensurate, so the combined wobble never repeats,
+    and a slow third one underneath keeps the centre pitch drifting. All of it
+    arrives *after* the attack, because a held note wavers and an attack does
+    not, and starting them together is the tell of a synthesised whistle.
+  */
+  const wobble = context.createGain();
+  wobble.gain.setValueAtTime(0, t);
+  wobble.gain.linearRampToValueAtTime(20, t + Math.min(0.6, duration * 0.4));
+  wobble.connect(osc.detune);
+  wobble.connect(harmonic.detune);
+
+  const vibratos: OscillatorNode[] = [];
+  for (const rate of [4.9, 6.7]) {
+    const lfo = context.createOscillator();
+    lfo.frequency.value = rate;
+    const depth = context.createGain();
+    depth.gain.value = rate === 4.9 ? 1 : 0.55;
+    lfo.connect(depth).connect(wobble);
+    lfo.start(t);
+    lfo.stop(t + duration + 0.1);
+    vibratos.push(lfo);
+  }
+
+  const drift = context.createOscillator();
+  drift.frequency.value = 0.6;
+  const driftDepth = context.createGain();
+  driftDepth.gain.value = 9;
+  drift.connect(driftDepth);
+  driftDepth.connect(osc.detune);
+  driftDepth.connect(harmonic.detune);
+  drift.start(t);
+  drift.stop(t + duration + 0.1);
+
+  /*
+    Loudness, and the small dip at each note boundary.
+
+    The tone never stops, but a person does re-articulate - a push of breath on
+    each new note. Without the dip the phrase is one long smear and the
+    individual notes stop being audible as notes.
+  */
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(level, t + 0.14);
+  for (let i = 1; i < notes.length; i += 1) {
+    const at = t + notes[i].at;
+    gain.gain.setValueAtTime(level * 0.66, at - 0.05);
+    gain.gain.linearRampToValueAtTime(level, at + 0.08);
+  }
+  gain.gain.setValueAtTime(level, t + duration - 0.32);
+  gain.gain.linearRampToValueAtTime(0, t + duration);
+
+  /*
+    Breath, under the whole phrase rather than in front of it.
+
+    The original put a 120 ms puff at the start, which reads as a consonant.
+    Real whistling leaks air continuously, and it is that noise floor riding
+    along with the tone that makes the ear place a mouth behind the sound.
+  */
+  const breath = context.createBufferSource();
+  const breathLength = Math.max(1, Math.floor(context.sampleRate * duration));
+  const breathBuffer = context.createBuffer(1, breathLength, context.sampleRate);
+  const data = breathBuffer.getChannelData(0);
+  for (let i = 0; i < breathLength; i += 1) data[i] = Math.random() * 2 - 1;
+  breath.buffer = breathBuffer;
+
+  const breathBand = context.createBiquadFilter();
+  breathBand.type = "bandpass";
+  breathBand.frequency.value = mean * 1.4;
+  breathBand.Q.value = 0.9;
+
+  const breathGain = context.createGain();
+  breathGain.gain.setValueAtTime(0, t);
+  /* Loudest at the attack - the first push of air - then settling. */
+  breathGain.gain.linearRampToValueAtTime(level * 0.3, t + 0.1);
+  breathGain.gain.linearRampToValueAtTime(level * 0.13, t + 0.5);
+  breathGain.gain.setValueAtTime(level * 0.13, t + duration - 0.32);
+  breathGain.gain.linearRampToValueAtTime(0, t + duration);
+
+  breath.connect(breathBand).connect(breathGain).connect(panner);
 
   osc.start(t);
   osc.stop(t + duration + 0.05);
-  vibrato.start(t);
-  vibrato.stop(t + duration + 0.05);
+  harmonic.start(t);
+  harmonic.stop(t + duration + 0.05);
   breath.start(t);
+  breath.stop(t + duration + 0.05);
 
   osc.onended = () => {
     osc.disconnect();
-    vibrato.disconnect();
-    vibratoDepth.disconnect();
+    harmonic.disconnect();
+    harmonicGain.disconnect();
+    for (const lfo of vibratos) lfo.disconnect();
+    drift.disconnect();
+    driftDepth.disconnect();
+    wobble.disconnect();
     gain.disconnect();
-    panner.disconnect();
-    breathFilter.disconnect();
+    breath.disconnect();
+    breathBand.disconnect();
     breathGain.disconnect();
+    panner.disconnect();
   };
 }
 
