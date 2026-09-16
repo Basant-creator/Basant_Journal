@@ -56,7 +56,7 @@
 }
 
 /* A rear record runs across one wide leaf instead of a two-page spread. */
-.book[data-rear] .spread {
+.book[data-held] .spread {
   grid-template-columns: 1fr;
 }
 
@@ -91,9 +91,9 @@
   border-radius: var(--radius-sm);
 }
 
-/* The back of the book: the board holds the sheets, and the sheets keep
-   their own stock. Padding rather than paper. */
-.rearLeaf {
+/* The book holding content rather than printing it: the board carries the
+   sheets, and the sheets keep their own stock. Padding rather than paper. */
+.heldLeaf {
   min-width: 0;
   padding: clamp(14px, 2vw, 30px) clamp(12px, 1.6vw, 26px);
 }
@@ -125,7 +125,7 @@
   );
 }
 
-.book[data-rear] .binding {
+.book[data-held] .binding {
   display: none;
 }
 

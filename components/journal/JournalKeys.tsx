@@ -2,14 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { JOURNAL_SECTIONS, RECORD_LEAVES } from "@/lib/journal/sections";
-import { routes } from "@/lib/routes";
-
-/** The whole book in reading order: six sections, then the rear records. */
-const SPINE = [
-  ...JOURNAL_SECTIONS.map((s) => s.href),
-  ...RECORD_LEAVES.map((r) => r.href),
-];
+import { CAMP_HREF, SPINE } from "@/lib/journal/sections";
 
 /**
  * Turning the page from the keyboard.
@@ -58,7 +51,7 @@ export function JournalKeys({ current }: { current: string }) {
 
       if (event.key === "Escape") {
         event.preventDefault();
-        router.push(routes.about);
+        router.push(CAMP_HREF);
         return;
       }
 

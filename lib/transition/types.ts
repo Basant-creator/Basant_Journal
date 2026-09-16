@@ -1,5 +1,5 @@
-import { projects } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
+import { isInBook, isRecordRoute, spineIndex } from "@/lib/journal/sections";
 import { isMajorRoute } from "./chapters";
 
 /**
@@ -16,7 +16,8 @@ export type TransitionType =
   | "PAPER_TO_RECORD"
   /** Camp to the journal: the notebook is picked up and opened. */
   | "CAMP_TO_JOURNAL"
-  | "RECORD_TO_RECORD"
+  /** Between two leaves of the field journal. A page turns. */
+  | "BOOK_TURN"
   | "ANY_TO_PROFESSIONAL"
   /** Not a transition: same page, a fragment, or somewhere with no ceremony. */
   | "NONE";
@@ -75,14 +76,15 @@ const PROFILES: Record<TransitionType, TransitionProfile> = {
      RouteCurtain. The dwell is the paper's, not a hold on the route.
   */
   CAMP_TO_JOURNAL: { cover: true, loader: false, chapter: false, dwell: 0, turn: false },
-  /* One record to the next is a page being turned. */
-  RECORD_TO_RECORD: { cover: false, loader: false, chapter: false, dwell: 0, turn: true },
+  /* One leaf of the book to the next is a page being turned — between two
+     records, and equally between Gear and the Archive. They are pages of the
+     same notebook now, and a chapter card between two of them would announce
+     a journey the reader did not take. */
+  BOOK_TURN: { cover: false, loader: false, chapter: false, dwell: 0, turn: true },
   /* The recruiter path stays quick: a fade, no ceremony, no chapter. */
   ANY_TO_PROFESSIONAL: { cover: false, loader: false, chapter: false, dwell: 0, turn: false },
   NONE: { cover: false, loader: false, chapter: false, dwell: 0, turn: false },
 };
-
-const isRecord = (pathname: string) => pathname.startsWith(`${routes.projects}/`);
 
 /**
  * Classify a move.
@@ -95,20 +97,20 @@ export function transitionFor(from: string | null, to: string): TransitionType {
   if (from === to) return "NONE";
   if (to === routes.professional) return "ANY_TO_PROFESSIONAL";
 
-  /* Camp → the journal is the notebook being opened, and only from Camp:
-     arriving at the journal from the map or the navigation is still entering
-     a place, and still gets the chapter that says so. */
-  if (from === routes.about && to === routes.projects) return "CAMP_TO_JOURNAL";
+  const toInBook = isInBook(to);
 
-  if (isRecord(to)) {
-    // Journal → record, and record → record. Neither is a new chapter.
-    if (from && (isRecord(from) || from === routes.projects)) {
-      return isRecord(from) ? "RECORD_TO_RECORD" : "PAPER_TO_RECORD";
-    }
-    // Arriving at a record from anywhere else — a direct link, the map — is
-    // still opening a document rather than entering an act.
-    return "PAPER_TO_RECORD";
-  }
+  /* Inside the book, a page turns. Both ends have to be leaves: Gear to the
+     Archive is a turn; the map to the Archive is arriving somewhere. */
+  if (toInBook && from !== null && isInBook(from)) return "BOOK_TURN";
+
+  /* Camp to any leaf is the notebook being picked up and opened. It is the
+     only way into the book from the world that is a reach for an object
+     rather than a journey to a place. */
+  if (toInBook && from === routes.about) return "CAMP_TO_JOURNAL";
+
+  /* Arriving at a record from outside the book — a direct link, the map — is
+     opening a document rather than entering an act. Records have no chapter. */
+  if (isRecordRoute(to)) return "PAPER_TO_RECORD";
 
   if (!isMajorRoute(to)) return "NONE";
   if (from === routes.home) return "LANDING_TO_WORLD";
@@ -131,11 +133,8 @@ export type TurnDirection = "forward" | "back";
  * transition that disagrees with itself.
  */
 export function turnDirection(from: string, to: string): TurnDirection {
-  const index = (pathname: string) =>
-    projects.findIndex((project) => project.route === pathname);
-
-  const a = index(from);
-  const b = index(to);
+  const a = spineIndex(from);
+  const b = spineIndex(to);
   if (a < 0 || b < 0) return "forward";
   return b >= a ? "forward" : "back";
 }

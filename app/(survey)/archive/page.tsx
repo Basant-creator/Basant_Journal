@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SurveyAnnotation } from "@/components/annotations/SurveyAnnotation";
+import { FieldJournal } from "@/components/journal/FieldJournal";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { PaperSurface } from "@/components/paper/PaperSurface";
@@ -37,101 +38,118 @@ export default function ArchivePage() {
         symbol={location?.symbol}
       />
 
-      <section className={shared.section} aria-labelledby="education">
-        <h2 id="education" className={shared.sectionHeading}>
-          Education
-        </h2>
-        <ul className={shared.cardsTwo}>
-          {education.map((entry) => (
-            <li key={entry.institution}>
-              <PaperSurface as="article" edge="worn" className={styles.record}>
-                {entry.current ? <p className={styles.stamp}>Current</p> : null}
-                <h3 className={shared.paperTitle}>{entry.qualification}</h3>
-                <p className={styles.institution}>{entry.institution}</p>
-                <dl className={styles.facts}>
-                  <div>
-                    <dt>Period</dt>
-                    <dd>{entry.period}</dd>
-                  </div>
-                  <div>
-                    <dt>Place</dt>
-                    <dd>{entry.place}</dd>
-                  </div>
-                  <div>
-                    <dt>Record</dt>
-                    <dd>{entry.detail}</dd>
-                  </div>
-                </dl>
-              </PaperSurface>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {/*
+        A leaf of the field journal.
 
-      <section className={shared.section} aria-labelledby="training">
-        <h2 id="training" className={shared.sectionHeading}>
-          Training &amp; certifications
-        </h2>
-        <ul className={shared.cards}>
-          {training.map((entry) => (
-            <li key={entry.title}>
-              <PaperSurface as="article" edge="worn" className={styles.record}>
-                <h3 className={shared.paperTitle}>{entry.title}</h3>
-                <p className={styles.institution}>{entry.issuer}</p>
-                <p className={shared.paperBody}>{entry.body}</p>
-                <p className={shared.paperMeta}>
-                  {entry.period} · {entry.detail}
-                </p>
-                {entry.certificateStatus === "unresolved" ? (
-                  <p className={styles.unresolved}>Certificate not yet filed</p>
-                ) : null}
-              </PaperSurface>
-            </li>
-          ))}
-          {certifications.map((entry) => (
-            <li key={entry.title}>
-              <PaperSurface as="article" edge="worn" className={styles.record}>
-                <h3 className={shared.paperTitle}>{entry.title}</h3>
-                {entry.issuer ? <p className={styles.institution}>{entry.issuer}</p> : null}
-                <p className={shared.paperMeta}>{entry.period}</p>
-                {entry.certificateStatus === "unresolved" ? (
-                  <p className={styles.unresolved}>Certificate not yet filed</p>
-                ) : null}
-              </PaperSurface>
-            </li>
-          ))}
-        </ul>
+        The page is unchanged — same markup, same content, same source of
+        truth. What changed is that it is now held in the notebook rather
+        than standing on its own: the board, the fore-edge tabs and the
+        ribbon back to Camp are around it, and moving to a neighbouring
+        section turns a page instead of announcing a chapter.
 
-        <SurveyAnnotation tag="Filing note" side="right" className={styles.note}>
-          Where a certificate isn&rsquo;t filed, the record says so. Nothing in
-          this office is claimed on memory alone.
-        </SurveyAnnotation>
-      </section>
+        `held` rather than printed on a leaf, because this page already
+        knows what it is made of. Putting it on a notebook page first
+        would stack two papers where the eye expects one.
+      */}
+      <FieldJournal current={routes.archive} held right={
+        <>
+          <section className={shared.section} aria-labelledby="education">
+            <h2 id="education" className={shared.sectionHeading}>
+              Education
+            </h2>
+            <ul className={shared.cardsTwo}>
+              {education.map((entry) => (
+                <li key={entry.institution}>
+                  <PaperSurface as="article" edge="worn" className={styles.record}>
+                    {entry.current ? <p className={styles.stamp}>Current</p> : null}
+                    <h3 className={shared.paperTitle}>{entry.qualification}</h3>
+                    <p className={styles.institution}>{entry.institution}</p>
+                    <dl className={styles.facts}>
+                      <div>
+                        <dt>Period</dt>
+                        <dd>{entry.period}</dd>
+                      </div>
+                      <div>
+                        <dt>Place</dt>
+                        <dd>{entry.place}</dd>
+                      </div>
+                      <div>
+                        <dt>Record</dt>
+                        <dd>{entry.detail}</dd>
+                      </div>
+                    </dl>
+                  </PaperSurface>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-      <section className={shared.section} aria-labelledby="resume">
-        <h2 id="resume" className={shared.sectionHeading}>
-          The record of file
-        </h2>
-        <p className={shared.prose}>
-          Everything in this archive, plus the full project write-ups, is
-          available as one scannable page.
-        </p>
-        <div className={styles.actions}>
-          <ButtonLink href={routes.professional} variant="primary">
-            Professional view
-          </ButtonLink>
-          {resumeAvailable ? (
-            <ButtonLink href={links.resume} variant="secondary" external>
-              Download résumé
-            </ButtonLink>
-          ) : (
-            <p className={styles.unresolved}>
-              A downloadable résumé is not yet filed — the professional view
-              carries the same record.
+          <section className={shared.section} aria-labelledby="training">
+            <h2 id="training" className={shared.sectionHeading}>
+              Training &amp; certifications
+            </h2>
+            <ul className={shared.cards}>
+              {training.map((entry) => (
+                <li key={entry.title}>
+                  <PaperSurface as="article" edge="worn" className={styles.record}>
+                    <h3 className={shared.paperTitle}>{entry.title}</h3>
+                    <p className={styles.institution}>{entry.issuer}</p>
+                    <p className={shared.paperBody}>{entry.body}</p>
+                    <p className={shared.paperMeta}>
+                      {entry.period} · {entry.detail}
+                    </p>
+                    {entry.certificateStatus === "unresolved" ? (
+                      <p className={styles.unresolved}>Certificate not yet filed</p>
+                    ) : null}
+                  </PaperSurface>
+                </li>
+              ))}
+              {certifications.map((entry) => (
+                <li key={entry.title}>
+                  <PaperSurface as="article" edge="worn" className={styles.record}>
+                    <h3 className={shared.paperTitle}>{entry.title}</h3>
+                    {entry.issuer ? <p className={styles.institution}>{entry.issuer}</p> : null}
+                    <p className={shared.paperMeta}>{entry.period}</p>
+                    {entry.certificateStatus === "unresolved" ? (
+                      <p className={styles.unresolved}>Certificate not yet filed</p>
+                    ) : null}
+                  </PaperSurface>
+                </li>
+              ))}
+            </ul>
+
+            <SurveyAnnotation tag="Filing note" side="right" className={styles.note}>
+              Where a certificate isn&rsquo;t filed, the record says so. Nothing in
+              this office is claimed on memory alone.
+            </SurveyAnnotation>
+          </section>
+
+          <section className={shared.section} aria-labelledby="resume">
+            <h2 id="resume" className={shared.sectionHeading}>
+              The record of file
+            </h2>
+            <p className={shared.prose}>
+              Everything in this archive, plus the full project write-ups, is
+              available as one scannable page.
             </p>
-          )}
-        </div>
-      </section>
+            <div className={styles.actions}>
+              <ButtonLink href={routes.professional} variant="primary">
+                Professional view
+              </ButtonLink>
+              {resumeAvailable ? (
+                <ButtonLink href={links.resume} variant="secondary" external>
+                  Download résumé
+                </ButtonLink>
+              ) : (
+                <p className={styles.unresolved}>
+                  A downloadable résumé is not yet filed — the professional view
+                  carries the same record.
+                </p>
+              )}
+            </div>
+          </section>
+        </>
+      } />
 
       <OnwardNav
         previous={{ href: routes.bounties, caption: "Back along the trail", label: "Bounties" }}

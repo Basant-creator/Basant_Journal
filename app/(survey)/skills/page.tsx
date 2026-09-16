@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { FieldJournal } from "@/components/journal/FieldJournal";
 import { OnwardNav } from "@/components/shared/OnwardNav";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { PaperSurface } from "@/components/paper/PaperSurface";
@@ -39,52 +40,69 @@ export default function SkillsPage() {
         symbol={location?.symbol}
       />
 
-      <p className={styles.tally}>
-        <span className={styles.count}>{carried.length}</span> carried
-        <span className={styles.sep} aria-hidden="true">·</span>
-        <span className={styles.count}>{evidenced}</span> evidenced in shipped code
-        <span className={styles.sep} aria-hidden="true">·</span>
-        <span className={styles.count}>{carried.length - evidenced}</span> handled, not yet
-        shipped
-      </p>
+      {/*
+        A leaf of the field journal.
 
-      <ul className={shared.cards}>
-        {skills.map((group) => (
-          <li key={group.group}>
-            <PaperSurface as="section" edge="worn" className={styles.group}>
-              <h2 className={styles.groupHeading}>{group.group}</h2>
-              <ul className={styles.items}>
-                {group.items.map((item) => {
-                  const evidence = item.projects
-                    .map((id) => getProject(id))
-                    .filter((p) => p !== undefined);
+        The page is unchanged — same markup, same content, same source of
+        truth. What changed is that it is now held in the notebook rather
+        than standing on its own: the board, the fore-edge tabs and the
+        ribbon back to Camp are around it, and moving to a neighbouring
+        section turns a page instead of announcing a chapter.
 
-                  return (
-                    <li key={item.name} className={styles.item}>
-                      <span className={styles.itemName}>{item.name}</span>
-                      {evidence.length > 0 ? (
-                        <span className={styles.proof}>
-                          {evidence.map((project) => (
-                            <Link
-                              key={project.id}
-                              href={project.route}
-                              className={styles.proofLink}
-                            >
-                              {project.title}
-                            </Link>
-                          ))}
-                        </span>
-                      ) : (
-                        <span className={styles.unproven}>No record yet</span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </PaperSurface>
-          </li>
-        ))}
-      </ul>
+        `held` rather than printed on a leaf, because this page already
+        knows what it is made of. Putting it on a notebook page first
+        would stack two papers where the eye expects one.
+      */}
+      <FieldJournal current={routes.skills} held right={
+        <>
+          <p className={styles.tally}>
+            <span className={styles.count}>{carried.length}</span> carried
+            <span className={styles.sep} aria-hidden="true">·</span>
+            <span className={styles.count}>{evidenced}</span> evidenced in shipped code
+            <span className={styles.sep} aria-hidden="true">·</span>
+            <span className={styles.count}>{carried.length - evidenced}</span> handled, not yet
+            shipped
+          </p>
+
+          <ul className={shared.cards}>
+            {skills.map((group) => (
+              <li key={group.group}>
+                <PaperSurface as="section" edge="worn" className={styles.group}>
+                  <h2 className={styles.groupHeading}>{group.group}</h2>
+                  <ul className={styles.items}>
+                    {group.items.map((item) => {
+                      const evidence = item.projects
+                        .map((id) => getProject(id))
+                        .filter((p) => p !== undefined);
+
+                      return (
+                        <li key={item.name} className={styles.item}>
+                          <span className={styles.itemName}>{item.name}</span>
+                          {evidence.length > 0 ? (
+                            <span className={styles.proof}>
+                              {evidence.map((project) => (
+                                <Link
+                                  key={project.id}
+                                  href={project.route}
+                                  className={styles.proofLink}
+                                >
+                                  {project.title}
+                                </Link>
+                              ))}
+                            </span>
+                          ) : (
+                            <span className={styles.unproven}>No record yet</span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </PaperSurface>
+              </li>
+            ))}
+          </ul>
+        </>
+      } />
 
       <OnwardNav
         previous={{ href: routes.about, caption: "Back along the trail", label: "Camp" }}

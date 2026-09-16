@@ -48,8 +48,8 @@ export function ContentsPage() {
       </ol>
 
       <p className={styles.marginNote}>
-        Kept in the field. Corrections in the margin are the record, not a
-        mistake in it.
+        Kept at camp, on the table by the fire. Corrections in the margin are
+        the record, not a mistake in it.
       </p>
     </div>
   );

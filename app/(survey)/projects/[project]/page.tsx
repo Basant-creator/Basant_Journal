@@ -95,7 +95,7 @@ export default async function ProjectRecordPage({ params }: PageProps) {
     */
     <FieldJournal
       current={project.route}
-      rear
+      held
       right={
         <article className={styles.record} data-project={project.id}>
           <p className={styles.filing}>

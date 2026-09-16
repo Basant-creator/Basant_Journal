@@ -39,10 +39,11 @@ export function RouteCurtain({
 
   /*
     A page turn is a different presentation, not a lighter version of the
-    same one. Worlds are entered — dark, named, announced. Documents are
-    turned — a sheet crosses, and the reader is still in the journal.
+    same one. Worlds are entered — dark, named, announced. Leaves of the
+    field journal are turned — a sheet crosses, and the reader has not put
+    the book down.
   */
-  if (type === "RECORD_TO_RECORD") {
+  if (type === "BOOK_TURN") {
     return (
       <div
         className={styles.turn}

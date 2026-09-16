@@ -40,13 +40,6 @@ export interface JournalLeaf {
  */
 export const JOURNAL_SECTIONS: JournalLeaf[] = [
   {
-    id: "journey",
-    tab: "Journey",
-    title: "The Journey",
-    hand: "Where the surveyor has been, and when.",
-    href: routes.about,
-  },
-  {
     id: "journal",
     tab: "Journal",
     title: "The Journal",
@@ -82,6 +75,17 @@ export const JOURNAL_SECTIONS: JournalLeaf[] = [
     href: routes.contact,
   },
 ];
+
+/**
+ * Camp is not in the book, and that is the point.
+ *
+ * Every tab on the fore-edge is a leaf you can turn to. Camp is where the
+ * notebook is *found* — a fire, a table, and the journal lying on it — so
+ * putting it inside its own pages would be circular, and a 3D camp rendered
+ * onto a paper leaf would be neither a camp nor a page. It is reached by the
+ * ribbon instead, which is what a ribbon in a book is for: the way out.
+ */
+export const CAMP_HREF = routes.about;
 
 /** The section the book is currently open at, from the route. */
 export function sectionFor(pathname: string): JournalLeaf | null {
@@ -127,10 +131,15 @@ export function isRecordRoute(pathname: string): boolean {
  * way a hand would, and the reverse turns forward. Anything not in the book
  * (the landing page, the professional view) has no position and does not turn.
  */
-const SPINE: string[] = [
+export const SPINE: string[] = [
   ...JOURNAL_SECTIONS.map((s) => s.href),
   ...RECORD_LEAVES.map((r) => r.href),
 ];
+
+/** Whether a route is a leaf of the book at all. */
+export function isInBook(pathname: string): boolean {
+  return SPINE.includes(pathname);
+}
 
 export function spineIndex(pathname: string): number {
   return SPINE.indexOf(pathname);

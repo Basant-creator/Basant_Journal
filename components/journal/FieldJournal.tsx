@@ -1,20 +1,33 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Paper } from "@/components/paper/Paper";
-import { JOURNAL_SECTIONS, RECORD_LEAVES } from "@/lib/journal/sections";
-import { routes } from "@/lib/routes";
+import {
+  CAMP_HREF,
+  JOURNAL_SECTIONS,
+  RECORD_LEAVES,
+  isRecordRoute,
+} from "@/lib/journal/sections";
 import { JournalKeys } from "./JournalKeys";
 import styles from "./FieldJournal.module.css";
 
 interface FieldJournalProps {
   /** Which spine position is open. Drives the tabs and the turn direction. */
   current: string;
-  /** The left page. Omitted on a rear record, which runs across the spread. */
+  /** The left page. Omitted when the book holds content rather than prints it. */
   left?: ReactNode;
   /** The right page, or the whole leaf when `left` is absent. */
   right: ReactNode;
-  /** A rear record reads as one wide leaf rather than a two-page spread. */
-  rear?: boolean;
+  /**
+   * The book *holds* this content instead of printing it on a leaf.
+   *
+   * A field record arrives on its own stock and the board of notices arrives
+   * on planks. Printing either onto a JOURNAL_PAGE first would stack two
+   * substrates where the eye expects one, and bury the thing that makes that
+   * page itself. So the board, the fore-edge and the ribbon stay, and the
+   * content sits straight onto them — the notebook as a binder rather than as
+   * a printing press.
+   */
+  held?: boolean;
   /** Written on the head of the open leaf, in the hand. */
   hand?: string;
 }
@@ -52,11 +65,15 @@ export function FieldJournal({
   current,
   left,
   right,
-  rear = false,
+  held = false,
   hand,
 }: FieldJournalProps) {
+  /* Derived, never passed in. Which tab is lit is a fact about the route, and
+     a prop saying otherwise is a prop that can be wrong. */
+  const atRecord = isRecordRoute(current);
+
   return (
-    <div className={styles.book} data-rear={rear || undefined}>
+    <div className={styles.book} data-held={held || undefined}>
       {/* Arrow keys turn the page. The only client code in the book. */}
       <JournalKeys current={current} />
 
@@ -87,11 +104,11 @@ export function FieldJournal({
                 the back of the book. */}
             <li className={styles.tabRear}>
               <Link
-                href={RECORD_LEAVES[0]?.href ?? routes.projects}
+                href={RECORD_LEAVES[0]?.href ?? CAMP_HREF}
                 className={
-                  rear ? `${styles.tab} ${styles.tabOpen}` : styles.tab
+                  atRecord ? `${styles.tab} ${styles.tabOpen}` : styles.tab
                 }
-                aria-current={rear ? "page" : undefined}
+                aria-current={atRecord ? "page" : undefined}
               >
                 Records
               </Link>
@@ -126,8 +143,8 @@ export function FieldJournal({
             the board, the tabs and the ribbon stay, and the document sits
             straight onto them.
           */}
-          {rear ? (
-            <div className={styles.rearLeaf}>{right}</div>
+          {held ? (
+            <div className={styles.heldLeaf}>{right}</div>
           ) : (
             <Paper
               variant="JOURNAL_PAGE"
@@ -147,7 +164,7 @@ export function FieldJournal({
         link with a real accessible name, because "physical" is a visual
         decision and not an excuse to make the exit unreachable.
       */}
-      <Link href={routes.about} className={styles.ribbon}>
+      <Link href={CAMP_HREF} className={styles.ribbon}>
         <span className={styles.ribbonTail} aria-hidden="true" />
         <span className={styles.ribbonText}>Back to camp</span>
       </Link>
