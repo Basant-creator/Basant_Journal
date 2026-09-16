@@ -228,3 +228,76 @@
     display: none;
   }
 }
+
+/* ==========================================================================
+   THE NOTEBOOK, OPENING
+
+   Camp to the journal, and nothing else. A leaf comes up off the table,
+   fills the frame while the route changes behind it, and lifts away.
+
+   It rises rather than sweeping sideways, which is the whole difference
+   between this and the page turn above it: a page is turned across a book
+   that is already open, and this is a book being picked up. The reader is
+   looking down at a table in both cases, so paper that comes *toward* them
+   reads as the object being lifted.
+   ========================================================================== */
+
+.open {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-passage);
+  pointer-events: none;
+  overflow: hidden;
+  perspective: 1400px;
+}
+
+.openLeaf {
+  position: absolute;
+  inset: -6% -6%;
+  background:
+    linear-gradient(176deg, rgba(0, 0, 0, 0.26) 0 2%, transparent 12%),
+    linear-gradient(200deg, var(--color-paper-light), var(--color-paper) 58%, var(--color-paper-dark));
+  box-shadow: 0 -30px 90px rgba(0, 0, 0, 0.6);
+  transform-origin: 50% 100%;
+  /* Below the fold and tipped away, as a book lying on a table is. */
+  transform: translateY(104%) rotateX(38deg) scale(1.04);
+  will-change: transform, opacity;
+}
+
+.openLeaf::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--texture-paper-url);
+  background-size: 420px;
+  opacity: var(--texture-paper-opacity);
+  mix-blend-mode: multiply;
+}
+
+/* Coming up off the table. */
+.open[data-phase="EXIT"] .openLeaf,
+.open[data-phase="LOADER"] .openLeaf {
+  transform: translateY(0) rotateX(0deg) scale(1);
+  transition: transform 300ms cubic-bezier(0.32, 0, 0.67, 0);
+}
+
+/* Lifting away, leaving the book open underneath. */
+.open[data-phase="ENTER"] .openLeaf,
+.open[data-phase="CHAPTER"] .openLeaf {
+  transform: translateY(-16%) rotateX(-12deg) scale(1.06);
+  opacity: 0;
+  transition:
+    transform 520ms var(--ease-cinematic),
+    opacity 520ms var(--ease-standard);
+}
+
+/*
+  §30: no perspective movement under reduced motion. The leaf is removed
+  entirely rather than simplified — unlike a chapter card it carries no
+  words, so there is nothing to preserve by keeping it.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .open {
+    display: none;
+  }
+}

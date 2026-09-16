@@ -69,6 +69,17 @@
   means a stock can invert and the document still reads, without a single
   per-project override.
 */
+/* Where in the book this sheet is. The reader turned to the back; this says
+   so, in the clerk's voice rather than a breadcrumb's. */
+.filing {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
 .docket {
   font-family: var(--font-ui);
   font-size: 0.64rem;

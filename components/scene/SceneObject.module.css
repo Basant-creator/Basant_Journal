@@ -165,10 +165,19 @@
   and the transform is the identity, so the illustrated layout is untouched.
 */
 .object {
+  /*
+    One owner for this property, and --object-lift is how anything else gets
+    a say in it. A scene that wants an object to rise toward the hand cannot
+    write its own `transform` here: it would replace the anchor correction
+    rather than add to it, and the hit area would jump half its own width the
+    moment a renderer was placing it. Composing through a custom property is
+    the only way both can be true at once.
+  */
   transform: translate(
     calc(var(--anchor-shift, 0) * -50%),
-    calc(var(--anchor-shift, 0) * -50%)
+    calc(var(--anchor-shift, 0) * -50% + var(--object-lift, 0px))
   );
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 /* ==========================================================================

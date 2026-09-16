@@ -14,12 +14,26 @@ export type TransitionType =
   | "WORLD_TO_SCENE"
   | "WORLD_TO_PAPER"
   | "PAPER_TO_RECORD"
+  /** Camp to the journal: the notebook is picked up and opened. */
+  | "CAMP_TO_JOURNAL"
   | "RECORD_TO_RECORD"
   | "ANY_TO_PROFESSIONAL"
   /** Not a transition: same page, a fragment, or somewhere with no ceremony. */
   | "NONE";
 
 export interface TransitionProfile {
+  /**
+   * Something covers the view while the destination is on its way.
+   *
+   * Separate from `loader` because they answer different questions. `cover`
+   * decides whether this move is announced at all — whether a click is worth
+   * intercepting and a presentation worth playing. `loader` decides whether
+   * that presentation includes the Frontier mark. Opening the notebook is the
+   * case that forced them apart: it covers the view with paper and shows no
+   * mark at all, and before this it had to claim a loader it did not want in
+   * order to be noticed.
+   */
+  cover: boolean;
   /** Show the Frontier mark while the destination is on its way. */
   loader: boolean;
   /** Show the destination's chapter once it has arrived. */
@@ -45,17 +59,27 @@ export interface TransitionProfile {
  * already waiting, so it must not be the reason they are.
  */
 const PROFILES: Record<TransitionType, TransitionProfile> = {
-  LANDING_TO_WORLD: { loader: true, chapter: true, dwell: 780, turn: false },
-  WORLD_TO_SCENE: { loader: true, chapter: true, dwell: 620, turn: false },
-  WORLD_TO_PAPER: { loader: true, chapter: true, dwell: 620, turn: false },
+  LANDING_TO_WORLD: { cover: true, loader: true, chapter: true, dwell: 780, turn: false },
+  WORLD_TO_SCENE: { cover: true, loader: true, chapter: true, dwell: 620, turn: false },
+  WORLD_TO_PAPER: { cover: true, loader: true, chapter: true, dwell: 620, turn: false },
   /* Opening a document inside the journal is not leaving the journal. The
      record pulls forward under its own steam; nothing covers the view. */
-  PAPER_TO_RECORD: { loader: false, chapter: false, dwell: 0, turn: false },
+  PAPER_TO_RECORD: { cover: false, loader: false, chapter: false, dwell: 0, turn: false },
+  /*
+     The notebook, picked up.
+
+     No loader and no chapter: this is the one move in the world that is not
+     a journey between places but a reach for an object on a table, and a
+     mark struck over a dark veil would say exactly the wrong thing about it.
+     What plays instead is paper coming up to meet the reader — see
+     RouteCurtain. The dwell is the paper's, not a hold on the route.
+  */
+  CAMP_TO_JOURNAL: { cover: true, loader: false, chapter: false, dwell: 0, turn: false },
   /* One record to the next is a page being turned. */
-  RECORD_TO_RECORD: { loader: false, chapter: false, dwell: 0, turn: true },
+  RECORD_TO_RECORD: { cover: false, loader: false, chapter: false, dwell: 0, turn: true },
   /* The recruiter path stays quick: a fade, no ceremony, no chapter. */
-  ANY_TO_PROFESSIONAL: { loader: false, chapter: false, dwell: 0, turn: false },
-  NONE: { loader: false, chapter: false, dwell: 0, turn: false },
+  ANY_TO_PROFESSIONAL: { cover: false, loader: false, chapter: false, dwell: 0, turn: false },
+  NONE: { cover: false, loader: false, chapter: false, dwell: 0, turn: false },
 };
 
 const isRecord = (pathname: string) => pathname.startsWith(`${routes.projects}/`);
@@ -70,6 +94,11 @@ const isRecord = (pathname: string) => pathname.startsWith(`${routes.projects}/`
 export function transitionFor(from: string | null, to: string): TransitionType {
   if (from === to) return "NONE";
   if (to === routes.professional) return "ANY_TO_PROFESSIONAL";
+
+  /* Camp → the journal is the notebook being opened, and only from Camp:
+     arriving at the journal from the map or the navigation is still entering
+     a place, and still gets the chapter that says so. */
+  if (from === routes.about && to === routes.projects) return "CAMP_TO_JOURNAL";
 
   if (isRecord(to)) {
     // Journal → record, and record → record. Neither is a new chapter.

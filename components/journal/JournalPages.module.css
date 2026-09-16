@@ -1,0 +1,249 @@
+/* ==========================================================================
+   What is written on a leaf.
+
+   Every colour derives from --paper-ink with the same fallback the Paper
+   substrate itself uses, so a leaf printed on a different stock inverts
+   correctly instead of going invisible. That rule already cost this project
+   one unreadable record; it is not re-learned here.
+   ========================================================================== */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-height: clamp(420px, 52vh, 620px);
+}
+
+/* --- the cover plate, printed on the contents page ------------------------ */
+
+.plate {
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 28%, transparent);
+}
+
+.owner {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-hero);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 62%, transparent);
+}
+
+.bookTitle {
+  font-family: var(--font-chapter);
+  font-size: clamp(1.5rem, 3.4vw, 2.3rem);
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+  color: var(--paper-ink, var(--color-text-on-paper));
+  margin-top: var(--space-2);
+}
+
+.bookSub {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 58%, transparent);
+  margin-top: var(--space-2);
+}
+
+/* --- shared leaf furniture ------------------------------------------------ */
+
+.sectionLabel {
+  margin: 0;
+  font-weight: 400;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 70%, transparent);
+}
+
+.rearNote {
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  font-style: italic;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 66%, transparent);
+  margin-top: calc(-1 * var(--space-3));
+}
+
+.marginNote {
+  margin-top: auto;
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  line-height: 1.35;
+  color: var(--ink-annotation-paper);
+  transform: rotate(-0.8deg);
+  max-width: var(--measure-note);
+}
+
+/* --- contents ------------------------------------------------------------- */
+
+.contents {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.contentsLink {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-2);
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.contentsLink:hover {
+  background: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 6%, transparent);
+}
+
+.contentsNo {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--ink-annotation-paper);
+  min-width: 2ch;
+}
+
+.contentsBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.contentsTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  letter-spacing: 0.03em;
+  color: var(--paper-ink, var(--color-text-on-paper));
+}
+
+.contentsHand {
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 68%, transparent);
+}
+
+/* --- the rear index ------------------------------------------------------- */
+
+.records {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.recordLink {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-3);
+  min-height: 44px;
+  border-top: 1px solid color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 20%, transparent);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.recordLink:hover {
+  background: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 6%, transparent);
+  transform: translateX(3px);
+}
+
+/* The filing number, struck large the way a clerk writes it. */
+.recordFiling {
+  font-family: var(--font-chapter);
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  line-height: 0.9;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 34%, transparent);
+}
+
+.recordBody {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.recordTitle {
+  margin: 0;
+  font-weight: 400;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  letter-spacing: 0.03em;
+  color: var(--paper-ink, var(--color-text-on-paper));
+}
+
+.recordSub {
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 70%, transparent);
+}
+
+.recordMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-1);
+}
+
+.recordDate,
+.recordTech {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 56%, transparent);
+}
+
+/* The mark the record was struck with — the one red thing on this page. */
+.recordStamp {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--stamp-red);
+  border: 1px solid color-mix(in srgb, var(--stamp-red) 45%, transparent);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+
+.recordSummary {
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 82%, transparent);
+  margin-top: var(--space-2);
+  max-width: var(--measure-prose);
+}
+
+.recordTech {
+  margin-top: var(--space-2);
+}
+
+.recordTurn {
+  align-self: center;
+  font-size: var(--text-lg);
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 40%, transparent);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.recordLink:hover .recordTurn {
+  transform: translateX(3px);
+  color: var(--stamp-red);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recordLink:hover,
+  .recordLink:hover .recordTurn {
+    transform: none;
+  }
+}

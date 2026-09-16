@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { FieldJournal } from "@/components/journal/FieldJournal";
 import { RecordNav } from "@/components/journal/RecordNav";
 import { DocumentMeta } from "@/components/record/DocumentMeta";
 import { DocumentStamp } from "@/components/record/DocumentStamp";
@@ -78,8 +79,30 @@ export default async function ProjectRecordPage({ params }: PageProps) {
     project.linksStatus === "resolved" && (project.github || project.liveUrl);
 
   return (
-    <article className={styles.record} data-project={project.id}>
-      <FieldRecordHeader
+    /*
+      The record, in the back of the notebook.
+
+      §34: the notebook stays the visual container all the way down, so a
+      reader who opened the book at the contents and turned to a record never
+      lands on a differently-shaped website — the board, the fore-edge tabs
+      and the ribbon back to Camp are the same object they were a page ago.
+
+      What does not change is the document. It is the same field record it
+      has always been, on its own stock, with its own mark and figure and the
+      same six sheet anchors — because §23 says one canonical source and the
+      record was already right. The book is the binding around it, not a
+      rewrite of it.
+    */
+    <FieldJournal
+      current={project.route}
+      rear
+      right={
+        <article className={styles.record} data-project={project.id}>
+          <p className={styles.filing}>
+            Field record {String(index).padStart(2, "0")} — the back of the
+            journal
+          </p>
+          <FieldRecordHeader
         eyebrow={`Record ${project.chapter}`}
         title={project.title}
         subtitle={project.subtitle}
@@ -256,26 +279,28 @@ export default async function ProjectRecordPage({ params }: PageProps) {
       {/* The sequence does not wrap, and the way out of a record is the map
           rather than the index it was reached from: Map → Journal → Record →
           Map. Both are the routing contract's, not this page's. */}
-      <ProjectNavigation
-        previous={{
-          href: previous.href,
-          label: previous.label,
-          caption: previous.isIndex ? "Back to" : "Previous record",
-        }}
-        next={{
-          href: next.href,
-          label: next.label,
-          caption: next.isIndex ? "End of the records" : "Next record",
-        }}
-        exits={[
-          { href: routes.frontier, label: "Return to map" },
-          {
-            href: professionalAnchor(project.id),
-            label: "View professional record",
-            quiet: true,
-          },
-        ]}
-      />
-    </article>
+          <ProjectNavigation
+            previous={{
+              href: previous.href,
+              label: previous.label,
+              caption: previous.isIndex ? "Back to" : "Previous record",
+            }}
+            next={{
+              href: next.href,
+              label: next.label,
+              caption: next.isIndex ? "End of the records" : "Next record",
+            }}
+            exits={[
+              { href: routes.frontier, label: "Return to map" },
+              {
+                href: professionalAnchor(project.id),
+                label: "View professional record",
+                quiet: true,
+              },
+            ]}
+          />
+        </article>
+      }
+    />
   );
 }

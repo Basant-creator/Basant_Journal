@@ -55,6 +55,23 @@ export function RouteCurtain({
     );
   }
 
+  /*
+    Opening the notebook.
+
+    Not a curtain and not a page turn: a leaf of paper rises from the table
+    into the frame, holds the view for the moment the route changes behind it,
+    and lifts away to leave the book open. No veil, because nothing went dark
+    — the reader never left the table. No mark, because the Frontier stamp
+    announces a journey and this is a hand picking something up.
+  */
+  if (type === "CAMP_TO_JOURNAL") {
+    return (
+      <div className={styles.open} data-phase={phase} aria-hidden="true">
+        <span className={styles.openLeaf} />
+      </div>
+    );
+  }
+
   const showMark = phase === "EXIT" || phase === "LOADER";
 
   return (

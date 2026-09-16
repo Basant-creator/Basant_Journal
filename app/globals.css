@@ -178,25 +178,26 @@
      screen the whole time, so the target state says what it means by closing
      its ring and bringing in brackets instead of by changing colour.
 
-     Three states, and three is the whole set:
+     Four states, and four is the whole set:
 
        field    a scene you are looking into        components/scene
        target   something in it you can engage      markers, scene objects
+       inspect  an object worth picking up          Camp's field journal
        map      the survey sheet itself             /frontier
 
-     There were six. Inspect, drag and document were defined — a kilobyte of
-     data URI each — and never once referenced, because the interactions they
-     name do not exist here: nothing on this site drags, nothing inspects in a
-     way that differs from engaging, and the paragraph above is explicit that
-     a pointer over paper stays a pointer. A cursor state with no interaction
-     behind it is not a state, and shipping one is how the rule "the cursor
-     changes where the interaction changes" quietly stops being true.
+     There were six, then three, and now four. Drag and document stay absent
+     because nothing here drags and a pointer over paper stays a pointer — a
+     cursor state with no interaction behind it is not a state. Inspect was
+     removed for exactly that reason and has come back for exactly that
+     reason: the notebook at Camp is the one object the world asks you to
+     pick up rather than merely click, and it now has a state that says so.
 
      Each token is a complete cursor value, fallback included, so the
      forced-colors override below is a plain substitution rather than a
      declaration engineered to be invalid. */
   --cursor-field: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'32'%20height%3D'32'%20viewBox%3D'0%200%2032%2032'%3E%3Cg%20fill%3D'none'%20stroke%3D'%230B0907'%20stroke-width%3D'3'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%20opacity%3D'0.5'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'6.5'%2F%3E%3Cpath%20d%3D'M16%203.5v4M16%2024.5v4M3.5%2016h4M24.5%2016h4'%2F%3E%3C%2Fg%3E%3Cg%20fill%3D'none'%20stroke%3D'%23E7D9BC'%20stroke-width%3D'1.1'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'6.5'%2F%3E%3Cpath%20d%3D'M16%203.5v4M16%2024.5v4M3.5%2016h4M24.5%2016h4'%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'0.9'%20fill%3D'%23E7D9BC'%2F%3E%3C%2Fsvg%3E") 16 16, crosshair;
   --cursor-target: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'32'%20height%3D'32'%20viewBox%3D'0%200%2032%2032'%3E%3Cg%20fill%3D'none'%20stroke%3D'%230B0907'%20stroke-width%3D'3'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%20opacity%3D'0.5'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'4.8'%2F%3E%3Cpath%20d%3D'M16%203v3.6M16%2025.4v3.6M3%2016h3.6M25.4%2016h3.6'%2F%3E%3Cpath%20d%3D'M8.5%2011.5v-3h3M20.5%208.5h3v3M23.5%2020.5v3h-3M11.5%2023.5h-3v-3'%2F%3E%3C%2Fg%3E%3Cg%20fill%3D'none'%20stroke%3D'%23E7D9BC'%20stroke-width%3D'1.2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'4.8'%2F%3E%3Cpath%20d%3D'M16%203v3.6M16%2025.4v3.6M3%2016h3.6M25.4%2016h3.6'%2F%3E%3Cpath%20d%3D'M8.5%2011.5v-3h3M20.5%208.5h3v3M23.5%2020.5v3h-3M11.5%2023.5h-3v-3'%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'1.9'%20fill%3D'%23E7D9BC'%2F%3E%3C%2Fsvg%3E") 16 16, pointer;
+  --cursor-inspect: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'32'%20height%3D'32'%20viewBox%3D'0%200%2032%2032'%3E%3Cg%20fill%3D'none'%20stroke%3D'%230B0907'%20stroke-width%3D'3'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%20opacity%3D'0.5'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'5.5'%2F%3E%3Cpath%20d%3D'M16%202.5v3M16%2026.5v3M2.5%2016h3M26.5%2016h3M7%207l2.5%202.5M22.5%2022.5l2.5%202.5M25%207l-2.5%202.5M9.5%2022.5l-2.5%202.5'%2F%3E%3C%2Fg%3E%3Cg%20fill%3D'none'%20stroke%3D'%23E7D9BC'%20stroke-width%3D'1.2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'5.5'%2F%3E%3Cpath%20d%3D'M16%202.5v3M16%2026.5v3M2.5%2016h3M26.5%2016h3M7%207l2.5%202.5M22.5%2022.5l2.5%202.5M25%207l-2.5%202.5M9.5%2022.5l-2.5%202.5'%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'1.2'%20fill%3D'%23E7D9BC'%2F%3E%3C%2Fsvg%3E") 16 16, crosshair;
   --cursor-map: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'32'%20height%3D'32'%20viewBox%3D'0%200%2032%2032'%3E%3Cg%20fill%3D'none'%20stroke%3D'%230B0907'%20stroke-width%3D'3'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%20opacity%3D'0.5'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'8'%2F%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'3.5'%2F%3E%3Cpath%20d%3D'M16%202v4M16%2026v4M2%2016h4M26%2016h4'%2F%3E%3C%2Fg%3E%3Cg%20fill%3D'none'%20stroke%3D'%23E7D9BC'%20stroke-width%3D'1.2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'8'%2F%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'3.5'%2F%3E%3Cpath%20d%3D'M16%202v4M16%2026v4M2%2016h4M26%2016h4'%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D'16'%20cy%3D'16'%20r%3D'1'%20fill%3D'%23E7D9BC'%2F%3E%3C%2Fsvg%3E") 16 16, crosshair;
   --texture-paper-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23p)'/%3E%3C/svg%3E");
 
@@ -620,6 +621,7 @@ html:not([data-boot="play"]):not([data-boot="short"]) [data-boot-layer] {
   :root {
     --cursor-field: crosshair;
     --cursor-target: pointer;
+    --cursor-inspect: crosshair;
     --cursor-map: crosshair;
   }
 }

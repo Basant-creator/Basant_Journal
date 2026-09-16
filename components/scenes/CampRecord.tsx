@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useTransition } from "@/components/transition/TransitionContext";
 import { FieldPhotograph } from "@/components/world/FieldPhotograph";
 import { TornPaper } from "@/components/world/TornPaper";
 import type { CampObjectId } from "@/lib/world/camp";
+import { routes } from "@/lib/routes";
 import styles from "./CampScene.module.css";
 import { useSheetArrival } from "./useSheetArrival";
 
@@ -170,6 +172,31 @@ export function CampRecord({
               <p className={styles.recordName}>{name}</p>
               <p className={styles.recordRole}>{role}</p>
               <p className={styles.recordBody}>{summary}</p>
+
+              {/*
+                The door into the book.
+
+                Two beats rather than one, and deliberately: picking the
+                notebook up shows whose it is, opening it shows what is in it.
+                Collapsing them into a single click would have meant either
+                losing this record — the only place on the site that says, in
+                the surveyor's own hand, who is keeping it — or making the
+                object mean two things depending on how many times you had
+                already pressed it.
+
+                It is a real link to a real route, so it is tabbable, it
+                middle-clicks, and the notebook-opening transition that plays
+                over it is choreography rather than a gate.
+              */}
+              <Link href={routes.projects} className={styles.openJournal}>
+                <span className={styles.openJournalMark} aria-hidden="true" />
+                <span>
+                  Open the field journal
+                  <span className={styles.openJournalHint}>
+                    Contents, and the records in the back
+                  </span>
+                </span>
+              </Link>
             </>
           ) : null}
 

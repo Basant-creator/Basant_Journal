@@ -354,3 +354,103 @@
     border-color: rgba(216, 199, 165, 0.28);
   }
 }
+
+/* ==========================================================================
+   THE FIELD JOURNAL, ON THE TABLE
+
+   §2: the notebook should read as an object worth picking up, without a
+   tooltip and without looking like a website button. Three marks do it, and
+   all three are things a real object does rather than things an interface
+   does: the pointer becomes an instrument for inspecting, the object lifts a
+   little toward the hand, and a faint warmth gathers under it the way
+   firelight catches a thing being reached for.
+   ========================================================================== */
+
+.hero {
+  cursor: var(--cursor-inspect);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: -6% -4%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 60%,
+    var(--fire-glow-mid) 0%,
+    var(--fire-glow-edge) 70%
+  );
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-standard);
+}
+
+/* Composed into SceneObject's own transform, never replacing it — see the
+   note on .object for what replacing it costs. */
+.hero:hover,
+.hero:focus-visible {
+  --object-lift: -3px;
+}
+
+.hero:hover::after,
+.hero:focus-visible::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero:hover,
+  .hero:focus-visible {
+    --object-lift: 0px;
+  }
+}
+
+/* --- the way into the book ------------------------------------------------ */
+
+/*
+  Printed on the notebook's own record, not floated over the scene. It reads
+  as the next line of the same page — an instruction written under the name,
+  in the hand that wrote the name.
+*/
+.openJournal {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  min-height: 44px;
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-on-paper);
+  border-top: 1px solid color-mix(in srgb, var(--color-earth-dark) 32%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-earth-dark) 32%, transparent);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.openJournal:hover {
+  background: color-mix(in srgb, var(--color-earth-dark) 6%, transparent);
+}
+
+/* A bound edge: three stacked leaves seen end-on. */
+.openJournalMark {
+  flex: none;
+  width: 16px;
+  height: 20px;
+  border-left: 3px solid var(--color-red-dark);
+  border-top: 1px solid var(--color-earth-dark);
+  border-bottom: 1px solid var(--color-earth-dark);
+  border-right: 1px solid var(--color-earth-dark);
+  box-shadow:
+    2px 2px 0 -1px var(--color-paper-dark),
+    4px 4px 0 -2px var(--color-paper-dark);
+}
+
+.openJournalHint {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--color-text-on-paper-soft);
+}

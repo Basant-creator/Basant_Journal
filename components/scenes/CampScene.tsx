@@ -148,6 +148,12 @@ export function CampScene({
                 box={objectBox(id)}
                 label={LABELS[id].object}
                 note={LABELS[id].note}
+                /* §2: the notebook is the hero object — the one thing on the
+                   table that leads somewhere rather than merely saying
+                   something. It is marked here rather than inside SceneObject
+                   because "which object is the door" is a fact about this
+                   scene, not about scene objects in general. */
+                className={id === "notebook" ? styles.hero : undefined}
               />
             ))}
 

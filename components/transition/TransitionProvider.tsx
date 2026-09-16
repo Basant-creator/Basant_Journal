@@ -58,6 +58,16 @@ const MARK_MIN = 300;
 const TURN_OUT = 230;
 const TURN_IN = 250;
 
+/**
+ * The notebook, opening.
+ *
+ * Paper rises to meet the reader while the route changes behind it, then
+ * clears to leave the book open. Longer than a page turn and shorter than a
+ * chapter, because it is neither: it is a hand reaching for an object.
+ */
+const OPEN_OUT = 300;
+const OPEN_IN = 520;
+
 function prefersReducedMotion(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -88,8 +98,9 @@ function prefersReducedMotion(): boolean {
  *      transitions cancel rather than stack.
  *   3. **It always returns to IDLE.** A guard timer that no cancellation path
  *      can clear runs on every transition. Nothing on this site is allowed to
- *      leave a visitor behind an overlay — a lesson this codebase has already
- *      learned once, at JournalOpening.
+ *      leave a visitor behind an overlay — a lesson this codebase learned
+ *      once, from a journal cover that could be cancelled into staying shut
+ *      over the page it was covering.
  *
  * It never delays navigation. Clicks are observed in the capture phase and
  * not prevented; the browser routes on its own schedule while the curtain
@@ -144,7 +155,9 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
 
       const next = transitionFor(window.location.pathname, url.pathname);
       const profile = profileFor(next);
-      if (!profile.loader && !profile.turn) return;
+      /* `cover` rather than `loader`: a move can have a presentation without
+         having a mark in it, which is exactly what opening the notebook is. */
+      if (!profile.cover && !profile.turn) return;
 
       token.current += 1;
       const mine = token.current;
@@ -167,7 +180,10 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       }
 
       setPhase("EXIT");
-      at(EXIT_MS, () => setPhase("LOADER"), mine);
+      /* Only a move that shows the mark moves on to LOADER. The notebook
+         stays in EXIT — its paper is still on its way up — until the route
+         arrives and turns it into ENTER. */
+      if (profile.loader) at(EXIT_MS, () => setPhase("LOADER"), mine);
 
       // If the destination never arrives — a cancelled navigation, a route
       // that failed — the curtain comes down rather than waiting forever.
@@ -208,6 +224,26 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       clearTimers();
       setPhase("ENTER");
       at(TURN_IN + 60, () => {
+        setPhase("IDLE");
+        setTarget(null);
+      }, mine);
+      return;
+    }
+
+    /* The notebook has arrived: the paper clears and the book is open.
+       Handled before the chapter check below, because /projects *has* a
+       chapter and this move deliberately does not use it — reaching for an
+       object on a table is not entering an act. */
+    if (announced && kind === "CAMP_TO_JOURNAL") {
+      token.current += 1;
+      const mine = token.current;
+      clearTimers();
+      setPhase("ENTER");
+      at(OPEN_IN + 80, () => {
+        setPhase("IDLE");
+        setTarget(null);
+      }, mine);
+      at(GUARD, () => {
         setPhase("IDLE");
         setTarget(null);
       }, mine);
