@@ -62,7 +62,18 @@ export const herd: HerdHorse[] = (() => {
     as a formation.
   */
   /*
-    Staggered across the whole run, and well back.
+    Ten of them, in two loose bands.
+
+    Spread evenly across the run they were a thin stream: ten horses in the
+    config and one on screen, because the camera sees perhaps forty units of
+    an eighty-unit loop. A herd that is never more than one horse at a time is
+    not a herd.
+
+    So they are grouped — six leading, four straggling half a frame behind —
+    which is also what §8 actually asks for: a leader, some close, some
+    trailing, none of them in a line. The z values alternate near and far
+    inside each band so the group reads as depth rather than as a row, and no
+    two neighbours share a distance.
 
     Two mistakes were measured and corrected here. The first: bunched starts
     meant long stretches with nothing in frame at all, then several at once —
@@ -73,14 +84,22 @@ export const herd: HerdHorse[] = (() => {
     times further away now, which also buys the depth §30 asks for.
   */
   const anchors: Array<[number, number]> = [
-    // x, z
-    [-38, -30],
-    [-20, -35],
-    [-4, -28],
-    [12, -41],
-    [26, -32],
-    [38, -47],
+    // x, z — two loose bands rather than one thin stream
+    // the leading group
+    [-4, -26],
+    [-12, -31],
+    [-19, -24],
+    [-9, -37],
+    [-26, -33],
+    [-21, -42],
+    // the stragglers, half a frame behind
+    [-48, -28],
+    [-56, -35],
+    [-63, -27],
+    [-54, -44],
   ];
+
+
 
   return anchors.map(([x, z], i) => {
     /* Further back is smaller. Tied to z rather than rolled separately, so
@@ -108,10 +127,17 @@ export const herd: HerdHorse[] = (() => {
 })();
 
 /** How many of the herd each quality tier draws. §26. */
-export const HERD_BY_TIER = { high: 6, medium: 4, low: 2 } as const;
+export const HERD_BY_TIER = { high: 10, medium: 6, low: 3 } as const;
 
 /** Where the run wraps. A horse past this is put back at the far edge. */
-export const HERD_RANGE = { from: -42, to: 42 } as const;
+/*
+  Where the run wraps.
+
+  Wider than the frame on both sides so a horse is put back well out of sight,
+  and asymmetric: the herd enters from further out than it leaves, which gives
+  the two bands room to separate before they come round again.
+*/
+export const HERD_RANGE = { from: -78, to: 40 } as const;
 
 /* -------------------------------------------------------------------------
    DUST
