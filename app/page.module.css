@@ -23,6 +23,18 @@
   opacity: 0;
 }
 
+/*
+  ThreeScene's own .stage is `position: relative` with no height, so it
+  collapses to zero unless its parent gives it one — the same failure
+  CampStage.module.css records as "the fallback rendered 699 by 0". Sized
+  rather than positioned, because which of the two `position` declarations
+  wins depends on stylesheet order and is not worth depending on.
+*/
+.world {
+  width: 100%;
+  height: 100%;
+}
+
 /* The country, behind everything and taking no clicks. */
 .landscape {
   position: absolute;

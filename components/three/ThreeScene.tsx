@@ -39,6 +39,11 @@ const SCENES = {
   campWorld: dynamic(() => import("./camp/CampWorld").then((m) => m.CampWorld), {
     ssr: false,
   }),
+  /** The landing's country, with the herd crossing it. */
+  landing: dynamic(
+    () => import("./scenes/LandingWorld").then((m) => m.LandingWorld),
+    { ssr: false },
+  ),
 } as const;
 
 export type SceneName = keyof typeof SCENES;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ButtonLink } from "@/components/shared/Button";
 import { LandingScene } from "@/components/landing/LandingScene";
+import { ThreeScene } from "@/components/three/ThreeScene";
 import { Wordmark } from "@/components/world/Wordmark";
 import { links, meta, person } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
@@ -45,7 +46,32 @@ export default function LandingPage() {
         is met rather than merely aimed at: there is no renderer to load.
       */}
       <div className={styles.landscape} aria-hidden="true">
-        <LandingScene />
+        {/*
+          The country, and the herd crossing it.
+
+          Two renderings of one place. The drawing is complete on its own and
+          is what every visitor sees first — three tonal bands, a trail, smoke,
+          dust, all server-rendered with no JavaScript at all. The renderer
+          arrives over the top of it only once the capability check has passed
+          and the browser has gone idle, and it brings the one thing a drawing
+          could not: horses that actually gallop.
+
+          That order is the point. §25 wants the landing lighter than the Camp
+          and it is — a 314 kB model with no textures against the Camp's 665 kB
+          of props — but more importantly a visitor who never reaches the
+          renderer is not looking at a placeholder. They are looking at the
+          landscape, finished.
+
+          label={null}: this is scenery. The page's own heading says where the
+          visitor is, and announcing a picture in front of it would put a
+          description between a reader and the way in.
+        */}
+        <ThreeScene
+          scene="landing"
+          className={styles.world}
+          label={null}
+          fallback={<LandingScene />}
+        />
       </div>
 
       <div className={styles.inner}>

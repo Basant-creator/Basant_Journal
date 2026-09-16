@@ -22,23 +22,96 @@ export const FRONTIER_WIDTH = 1600;
 export const FRONTIER_HEIGHT = 900;
 
 /* -------------------------------------------------------------------------
-   THE RIDER AND THE HERD — not here yet, and deliberately not stubbed.
+   THE HERD
 
-   The path, the six seeded horses and their gait timings lived here. They are
-   removed rather than left unused: nothing renders them, and configuration
-   with no consumer is the dead config this repository keeps deleting.
+   Six horses, and no two alike. §8 is the whole design: a herd whose members
+   share a speed is a conveyor belt, and the eye finds that out immediately
+   even when it cannot say why. So nothing is shared between two horses except
+   the model — depth, scale, speed, starting place, gait rate and animation
+   phase are all their own.
 
-   They were removed because the drawing defeated this pass, not because the
-   design did — see the note in components/landing/LandingScene.tsx. When a
-   horse and rider silhouette exists, this is where their placement, speeds and
-   phase offsets belong, and the shape that worked was:
+   World units, and the ground is y = 0. The scene runs them left to right
+   across the middle distance; z is how far back each one is, and it carries
+   the scale as well, because a horse that is further away is smaller *and*
+   slower across the frame for the same real speed.
 
-     rider   one path string for `offset-path`, a duration, and the fractions
-             of the journey spent behind ground
-     herd    per-horse x, y, scale, duration, delay, stride and drift, seeded
-             so the group is identical on the server and the client
-
+   No rider. The brief is explicit: horses only.
    ------------------------------------------------------------------------- */
+
+export interface HerdHorse {
+  id: string;
+  /** Depth. More negative is further away. */
+  z: number;
+  /** Where in its run it starts, in world units along x. */
+  x: number;
+  scale: number;
+  /** World units per second. */
+  speed: number;
+  /** Multiplier on the gallop clip, so the legs match the ground speed. */
+  gait: number;
+  /** Seconds into the clip at mount, so no two are in step. */
+  phase: number;
+}
+
+export const herd: HerdHorse[] = (() => {
+  const rng = createRng(seedFrom("frontier:herd"));
+
+  /*
+    The group's shape before it is disturbed: a leader, two close behind, and
+    stragglers at the back and the flanks. The jitter is what stops it reading
+    as a formation.
+  */
+  /*
+    Staggered across the whole run, and well back.
+
+    Two mistakes were measured and corrected here. The first: bunched starts
+    meant long stretches with nothing in frame at all, then several at once —
+    so the x values are spread across the run rather than clustered. The
+    second: at ten units out a horse spanned a third of the frame and crossed
+    the wordmark, which is §3's "small against the landscape" and §21's "do
+    not put the subject over the text" broken at the same time. They are three
+    times further away now, which also buys the depth §30 asks for.
+  */
+  const anchors: Array<[number, number]> = [
+    // x, z
+    [-38, -30],
+    [-20, -35],
+    [-4, -28],
+    [12, -41],
+    [26, -32],
+    [38, -47],
+  ];
+
+  return anchors.map(([x, z], i) => {
+    /* Further back is smaller. Tied to z rather than rolled separately, so
+       the herd never produces a distant horse that is somehow larger. */
+    const depth = Math.abs(z);
+    const scale = round(0.62 - depth * 0.004 + rng.jitter(0.03));
+
+    /* Speeds inside a narrow band. Too wide and the group pulls apart before
+       it leaves the frame; identical and it is a conveyor belt. */
+    const speed = round(rng.range(5.4, 7.2));
+
+    return {
+      id: `horse-${i}`,
+      z: round(z + rng.jitter(1.2)),
+      x: round(x + rng.jitter(2)),
+      scale,
+      speed,
+      /* The clip was authored at one ground speed; a faster horse has to turn
+         its legs over faster or it skates. Tuned against the model's own
+         stride rather than guessed. */
+      gait: round(speed / 6.2),
+      phase: round(rng.range(0, 2.4)),
+    };
+  });
+})();
+
+/** How many of the herd each quality tier draws. §26. */
+export const HERD_BY_TIER = { high: 6, medium: 4, low: 2 } as const;
+
+/** Where the run wraps. A horse past this is put back at the far edge. */
+export const HERD_RANGE = { from: -42, to: 42 } as const;
 
 /* -------------------------------------------------------------------------
    DUST
