@@ -1,17 +1,18 @@
 import type { Desk } from "./buses";
-import { type Sustained, bow, guitar, pluck, whistle } from "./instruments";
+import { type Sustained, bow, guitar, whistle } from "./instruments";
 
 /**
  * The Frontier motif.
  *
  * Original, and deliberately so. §10 forbids reproducing any existing western
  * soundtrack's melody, harmony or arrangement, and §42 asks instead for
- * something with a stated shape: sparse banjo, a human whistle, 70–100 BPM,
+ * something with a stated shape: a sparse plucked lead, a human whistle,
+ * 70–100 BPM,
  * open fifths, major/minor ambiguity, and real pauses. What is written below
  * is that brief and nothing else — no transcription, no quotation.
  *
  * The ambiguity is in the note set. D–F–G–A–C is D minor pentatonic, but the
- * banjo's drone alternates D and A — a bare fifth with no third in it — so the
+ * drone alternates D and A — a bare fifth with no third in it — so the
  * mode is only decided by whichever note the whistle happens to land on. That
  * is the "open, unresolved" quality the brief asks for, and it costs one
  * missing note rather than a modulation scheme.
@@ -24,7 +25,7 @@ import { type Sustained, bow, guitar, pluck, whistle } from "./instruments";
 
 /** Hz. D minor pentatonic across two octaves, plus the drone's fifth. */
 const NOTES = {
-  /* The drone's two notes, an octave below the banjo's lowest. */
+  /* The drone's two notes, an octave below the guitar's lowest. */
   D2: 73.42,
   A2: 110.0,
   D3: 146.83,
@@ -40,7 +41,7 @@ const NOTES = {
   D5: 587.33,
   /* The whistle's octave. People whistle high — roughly 700 Hz to 2 kHz — and
      putting it up here is both the truthful range and the reason it can be
-     picked out at all: it is the only voice above the banjo's top string. */
+     picked out at all: it is the only voice above the guitar's top string. */
   F5: 698.46,
   G5: 783.99,
   A5: 880.0,
@@ -68,14 +69,18 @@ interface Phrase {
 }
 
 /*
-  Four banjo phrases, and the rests inside them are as composed as the notes.
+  Four figures, and the rests inside them are as composed as the notes.
 
-  Each is a drone on the low string with a figure over it — the clawhammer
-  shape, where the thumb keeps a pulse and the fingers carry the tune. None of
-  them fills its own length: every phrase ends with at least two beats of
-  nothing, which is what stops a loop sounding like a loop.
+  Each is a pedal on the low string with a tune over it — the thumb keeps a
+  pulse while the fingers carry the melody. That shape was written for a banjo
+  and transferred to the guitar without a note changing, which is not luck:
+  clawhammer and fingerstyle are the same right hand, and the difference
+  between the two instruments was never in what was played.
+
+  None of them fills its own length: every phrase ends with at least two beats
+  of nothing, which is what stops a loop sounding like a loop.
 */
-const BANJO: Phrase[] = [
+const FIGURES: Phrase[] = [
   {
     beats: 8,
     notes: [
@@ -120,7 +125,7 @@ const BANJO: Phrase[] = [
 /*
   Whistle phrases: three of them, all short.
 
-  §8 asks for the whistle to be much rarer than the banjo, to sit in long gaps
+  §8 asks for the whistle to be much rarer than the guitar, to sit in long gaps
   and to disappear entirely at times. It is a person somewhere in the
   landscape, and a person does not whistle continuously.
 */
@@ -153,7 +158,7 @@ const WHISTLES: Array<Array<{ at: number; note: number; hold: number }>> = [
   Four notes each, rolled rather than strummed: a thumb and three fingers, not
   a pick dragged across the strings.
 */
-const GUITAR: number[][] = [
+const VOICINGS: number[][] = [
   [NOTES.D3, NOTES.A3, NOTES.D4, NOTES.F4],
   [NOTES.G3, NOTES.D4, NOTES.G4, NOTES.C5],
   [NOTES.A3, NOTES.C4, NOTES.G4, NOTES.D5],
@@ -163,14 +168,15 @@ const GUITAR: number[][] = [
 const ROLL = [0, 0.62, 1.24, 1.95];
 
 /**
- * How often the guitar answers, per state.
+ * How often a rolled chord answers the figure, per state.
  *
- * It plays in the gap after a banjo phrase rather than underneath one. The
- * banjo is the rhythm and the guitar is the reply, and two plucked
- * instruments sounding at once is just a thicker banjo — the whole reason
- * this reads as a second instrument is that it is heard on its own.
+ * It lands in the gap rather than underneath: the figure is the rhythm and the
+ * roll is the reply. This mattered more when the two were different
+ * instruments and one could bury the other; now that both are the guitar it is
+ * simply what a player does — state a line, then let a chord ring under the
+ * silence after it.
  */
-const GUITAR_CHANCE: Record<MusicState, number> = {
+const ROLL_CHANCE: Record<MusicState, number> = {
   silence: 0,
   sparse: 0.5,
   journey: 0.62,
@@ -181,7 +187,7 @@ const GUITAR_CHANCE: Record<MusicState, number> = {
  * How often a phrase is followed by a whistle, per state.
  *
  * These have been raised twice, and the second time was measured rather than
- * argued. §8 asks for the whistle to be much rarer than the banjo, and taken
+ * argued. §8 asks for the whistle to be much rarer than the lead, and taken
  * literally that produced a voice nobody ever heard: in `sparse` a phrase and
  * its rest run nine to fourteen seconds, the gate below wanted two phrases
  * between whistles, and the chance was 0.22 — so the expected number of
@@ -189,7 +195,7 @@ const GUITAR_CHANCE: Record<MusicState, number> = {
  * fifty-four seconds, with the 620-1300 Hz band never rising above -49.8 dB.
  *
  * A voice that rare is not restrained, it is absent, and "rarer than the
- * banjo" is satisfied at a far higher number than that. The whistle is the
+ * lead" is satisfied at a far higher number than that. The whistle is the
  * only human thing in the mix and it now answers roughly every second or
  * third phrase.
  */
@@ -227,15 +233,15 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
   let cursor = context.currentTime + 0.4;
   /* Phrases since the last whistle, so it cannot arrive twice in a row. */
   let sinceWhistle = 0;
-  let index = Math.floor(Math.random() * BANJO.length);
+  let index = Math.floor(Math.random() * FIGURES.length);
 
   /*
     The drone runs on its own clock.
 
-    It has nothing to do with the phrase cursor and must not: the banjo rests
+    It has nothing to do with the phrase cursor and must not: the guitar rests
     for up to sixteen beats at a time, and a bed that stopped during the rests
     would be a bed nobody could hear the point of. So it is scheduled by the
-    same look-ahead, overlapping itself, and the banjo plays over whatever it
+    same look-ahead, overlapping itself, and the guitar plays over whatever it
     happens to be holding.
   */
   let droneCursor = context.currentTime + 0.4;
@@ -261,7 +267,7 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
       return;
     }
 
-    /* The bed, first, so the banjo has something to land on. */
+    /* The bed, first, so the guitar has something to land on. */
     while (droneCursor < context.currentTime + LOOKAHEAD) {
       const length = 15 + Math.random() * 6;
       /* D and A alternating: the bare fifth is in the drone itself, which is
@@ -284,34 +290,43 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
     while (cursor < context.currentTime + LOOKAHEAD) {
       /* Never the same phrase twice running: the repetition a listener
          notices is adjacency, not recurrence. */
-      let next = Math.floor(Math.random() * BANJO.length);
-      if (next === index) next = (next + 1) % BANJO.length;
+      let next = Math.floor(Math.random() * FIGURES.length);
+      if (next === index) next = (next + 1) % FIGURES.length;
       index = next;
-      const phrase = BANJO[index];
+      const phrase = FIGURES[index];
 
       /* Reflective leans on the sparest phrase; journey avoids it. */
       const chosen =
-        state === "reflective" && Math.random() < 0.5 ? BANJO[3] : phrase;
+        state === "reflective" && Math.random() < 0.5 ? FIGURES[3] : phrase;
 
       for (const n of chosen.notes) {
-        /* Roughly one note in five is slid into, and never the drone — a
+        /* Roughly one note in four is slid into, and never the pedal — a
            player bends the tune, not the string keeping time. A whole tone
            twice as often as a semitone, because the wider one is the gesture
-           the ear actually recognises. */
+           the ear actually recognises.
+
+           Raised from one in five with the move to guitar. On a banjo the
+           slide was an ornament; on a guitar it is most of the accent. */
         const ornament =
-          n.note !== NOTES.D3 && Math.random() < 0.22
+          n.note !== NOTES.D3 && Math.random() < 0.26
             ? Math.random() < 0.66
               ? 0.891
               : 0.944
             : undefined;
 
-        pluck(context, desk.bus.music, {
+        guitar(context, desk.bus.music, {
           frequency: n.note,
           slideFrom: ornament,
-          decay: 1.6 + Math.random() * 0.5,
+          /* Gut rings longer than a banjo head ever let it: 1.6 s was a note
+             being stopped, not a note ending. */
+          decay: 2.1 + Math.random() * 0.7,
           /* A hand is never even. This is the difference between a player and
-             a sequencer, and it is worth more than any amount of reverb. */
-          attack: n.level * (0.85 + Math.random() * 0.3),
+             a sequencer, and it is worth more than any amount of reverb.
+
+             Softer than the banjo's pick, too — `attack` sets brightness as
+             well as force, and a nylon string struck as hard as a banjo is a
+             nylon string being mistaken for one. */
+          attack: n.level * (0.55 + Math.random() * 0.3),
           level: n.level * (0.9 + Math.random() * 0.2),
           pan: n.pan,
           when: cursor + n.at * BEAT + (Math.random() - 0.5) * 0.018,
@@ -320,7 +335,7 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
 
       const phraseEnd = cursor + chosen.beats * BEAT;
 
-      /* The whistle answers the banjo rather than sitting on top of it: it
+      /* The whistle answers the guitar rather than sitting on top of it: it
          enters after the phrase, in the gap. */
       sinceWhistle += 1;
       /* One phrase of separation, not two. Two meant the whistle could never
@@ -337,10 +352,10 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
             note: n.note,
             hold: n.hold,
           })),
-          /* A held sine an octave above the banjo carries further than a
+          /* A held sine an octave above the guitar carries further than a
              pluck of the same peak, so this reads *above* the instrument at a
              number below its loudest note — which is what a person whistling
-             over a banjo actually sounds like. */
+             over a guitar actually sounds like. */
           level: 0.34,
           pan: (Math.random() - 0.5) * 0.4,
           when: phraseEnd + 0.3,
@@ -350,18 +365,18 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
       /*
         The guitar's reply, in the gap.
 
-        Placed nearly a beat after the phrase ends so the banjo's last note has
+        Placed nearly a beat after the phrase ends so its last note has
         somewhere to ring, and rolled over two beats so it arrives as an
         instrument being played rather than as a chord being triggered.
       */
-      if (Math.random() < GUITAR_CHANCE[state]) {
-        const voicing = GUITAR[Math.floor(Math.random() * GUITAR.length)];
+      if (Math.random() < ROLL_CHANCE[state]) {
+        const voicing = VOICINGS[Math.floor(Math.random() * VOICINGS.length)];
         /* The low string sits left of centre, the way a player's hand does. */
         const spread = (Math.random() - 0.5) * 0.3;
         for (let i = 0; i < voicing.length; i += 1) {
           guitar(context, desk.bus.music, {
             frequency: voicing[i],
-            /* Nylon rings longer than a banjo head lets it. */
+            /* Left to ring: this is the chord under the silence. */
             decay: 2.2 + Math.random() * 0.8,
             /* A soft fingerpick: dark, and quieter as the roll climbs, which
                is what a thumb followed by three fingers actually does. */

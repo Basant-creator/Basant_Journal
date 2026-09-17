@@ -13,7 +13,7 @@
  *   master
  *   ├── environment   wind, air, weather — the bed
  *   ├── animals       hooves, birds, insects
- *   ├── music         banjo and whistle
+ *   ├── music         guitar and whistle
  *   ├── interaction   ticks and marks the interface makes
  *   └── paper         pages, covers, documents
  *
@@ -40,8 +40,8 @@ export type BusName =
  * The first balance followed §31's hierarchy literally and put the weather
  * under everything, which is right for a place you are standing in and wrong
  * for a place you are being shown. A portfolio is the second thing. Wind at
- * 0.15 was a bed the banjo had to climb out of; at 0.08 it is air, and the
- * banjo and the whistle are what the visitor came for.
+ * 0.15 was a bed the guitar had to climb out of; at 0.08 it is air, and the
+ * guitar and the whistle are what the visitor came for.
  *
  * The one rule that survives unchanged: the environment is the quietest thing
  * running, and its absence should be more noticeable than its presence.
@@ -50,7 +50,7 @@ const LEVELS: Record<BusName, number> = {
   /* Halved. Weather, not a soundtrack of weather. */
   environment: 0.08,
   animals: 0.22,
-  /* Banjo and whistle, now the loudest voices in the mix rather than a layer
+  /* Guitar and whistle, now the loudest voices in the mix rather than a layer
      inside it. 0.3 -> 0.5. */
   music: 0.5,
   interaction: 0.5,
@@ -61,8 +61,8 @@ const LEVELS: Record<BusName, number> = {
  * How much of each bus is sent to the room.
  *
  * A send, not an insert: the dry signal still goes straight to the master, and
- * this is a second copy arriving late. That is the difference between a banjo
- * in a valley and a banjo underwater.
+ * this is a second copy arriving late. That is the difference between a guitar
+ * in a valley and a guitar underwater.
  *
  * Only two buses go. Animals go the furthest, because a bird that answers from
  * somewhere is the whole point of a bird. Wind is already diffuse and reverb
@@ -131,7 +131,7 @@ export function createDesk(context: AudioContext): Desk {
   /*
     A limiter, and it earns its place now that the music is loud.
 
-    A banjo phrase holds notes for up to two seconds, so four plucks can be
+    A guitar phrase holds notes for nearly three seconds, so several can be
     ringing at once; at the new music level four aligned peaks come to roughly
     0.47 on their own, and the rest of the mix sits on top of that. Nothing
     guarantees they never align. Digital clipping is not a soft failure — it is

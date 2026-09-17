@@ -5,7 +5,7 @@
  * is unclear, §42 authorises original material where a licensed track does not
  * exist, and this repository's audio has been generated rather than recorded
  * from the beginning — the wind is filtered noise, the fire is a bed of
- * exponential pops. The banjo and the whistle join them on the same terms:
+ * exponential pops. The guitar and the whistle join them on the same terms:
  * original, zero bytes over the network, and no licence to establish.
  *
  * Three voices and a percussive one, each the cheapest model that actually
@@ -13,7 +13,7 @@
  */
 
 /* -------------------------------------------------------------------------
-   THE BANJO — Karplus-Strong
+   THE STRING - Karplus-Strong
 
    A plucked string is a burst of noise trapped in a loop that is exactly one
    wavelength long, losing a little of its high end on each pass. That is the
@@ -22,9 +22,10 @@
    the noise burst is the pick, the loop is the string, and the losses are the
    bridge and the air.
 
-   A banjo rather than a guitar comes from three things — a very short, bright
-   burst, little damping so it rings, and a head resonance around 300-400 Hz
-   that the bandpass below stands in for.
+   Note that this is the *string* and not an instrument. A string on its own
+   sounds like almost nothing in particular; what decides whether you are
+   hearing a guitar, a banjo or a harp is the body it is coupled to. So this
+   returns a bare buffer and `guitar()` below supplies the body.
    ------------------------------------------------------------------------- */
 
 export interface PluckOptions {
@@ -72,8 +73,10 @@ export function pluckBuffer(
     The loop, with a one-pole lowpass in it.
 
     `damping` is how much of each sample survives to the next pass. Higher
-    rings longer and brighter; a banjo sits high, around 0.5, where a nylon
-    string would be nearer 0.3.
+    rings longer and brighter. This stays at 0.5, the lossless two-point
+    average, so the string itself sustains like gut; the darkness that makes it
+    a nylon guitar rather than a bright one comes from the body below and from
+    how softly it is picked, not from strangling the string here.
   */
   const damping = 0.5;
   let previous = 0;
@@ -99,19 +102,27 @@ export function pluckBuffer(
   return buffer;
 }
 
-/**
- * Plays one pluck through the given destination, panned.
- *
- * `slideFrom` is the ornament that does more for the idiom than any amount of
- * reverb: a note that starts a tone or a semitone flat and is pulled up into
- * place. It is a finger moving along a string after the pick has hit, and it
- * is the gesture that separates western playing from a scale being typed in.
- *
- * Cheap, too. The buffer was rendered at one pitch, so bending it is a ramp on
- * `playbackRate` - the string is genuinely re-tuned while it rings, exactly as
- * a real one is, rather than being crossfaded between two samples.
- */
-export function pluck(
+/* -------------------------------------------------------------------------
+   THE GUITAR
+
+   The body, which is where the instrument actually lives. The string above is
+   the same delay line whatever you build around it; a guitar is what you get
+   when the resonator is a *box of air*, and a box resonates low - the
+   Helmholtz mode of a guitar body sits near 110 Hz, the top plate near 215,
+   and the wood absorbs most of what is above three kilohertz.
+
+   (For contrast, and because this used to be one: a banjo's resonator is a
+   drum, a tensioned membrane with a sharp mid resonance around 380 Hz. Same
+   string, one filter chain apart, and they sound nothing alike. That is the
+   whole reason this file models bodies rather than instruments.)
+
+   Nylon rather than steel. The brief asked for banjo and the owner asked for
+   guitar instead, and a dark gut-string is the right reading of that: the
+   palette already has a bright voice in the whistle, and the point of moving
+   off the banjo was to stop the lead cutting so hard.
+   ------------------------------------------------------------------------- */
+
+export function guitar(
   context: AudioContext,
   destination: AudioNode,
   options: PluckOptions & {
@@ -125,86 +136,31 @@ export function pluck(
   const source = context.createBufferSource();
   source.buffer = pluckBuffer(context, options);
 
+  /*
+    The slide, and on a guitar it is the signature rather than an ornament: a
+    note that starts a tone or a semitone flat and is pulled up into place by a
+    finger moving along the string after the pick has hit.
+
+    A ramp on `playbackRate`, so the string is genuinely re-tuned while it
+    rings, exactly as a real one is, rather than crossfaded between two
+    samples.
+  */
   if (options.slideFrom !== undefined) {
     const at = options.when ?? context.currentTime;
     source.playbackRate.setValueAtTime(options.slideFrom, at);
     source.playbackRate.exponentialRampToValueAtTime(1, at + 0.13);
   }
 
-  /*
-    The head: a banjo's resonance, standing in for the drum it is built on.
-
-    Peaking, not bandpass, and the difference is not subtle. A bandpass in
-    series is a hole punched in the spectrum — everything away from 380 Hz is
-    thrown away, including most of the fundamental of every note above A3 and
-    all of the brightness that makes a banjo a banjo. It cost about 5.6x of
-    level, which meant `level` did not describe anything: notes asked for at
-    0.4 arrived at 0.035, below the wind.
-
-    A drum head does not remove the string. It resonates *with* it, lifting a
-    band and passing the rest. A peaking filter is that, it leaves the note's
-    amplitude alone, and it happens to sound more like the instrument.
-  */
-  const body = context.createBiquadFilter();
-  body.type = "peaking";
-  body.frequency.value = 380;
-  body.Q.value = 0.9;
-  body.gain.value = 5;
-
-  const gain = context.createGain();
-  gain.gain.value = options.level ?? 0.5;
-
-  const panner = context.createStereoPanner();
-  panner.pan.value = options.pan ?? 0;
-
-  source.connect(body).connect(gain).connect(panner).connect(destination);
-
-  source.onended = () => {
-    source.disconnect();
-    body.disconnect();
-    gain.disconnect();
-    panner.disconnect();
-  };
-
-  source.start(options.when ?? context.currentTime);
-}
-
-/* -------------------------------------------------------------------------
-   THE GUITAR - the same string, a different box
-
-   Worth stating plainly, because it is the whole implementation: a banjo and a
-   guitar are not different strings. Both are a string under tension, plucked,
-   and both are the same delay line. What makes one a banjo is that its
-   resonator is a *drum* - a tensioned membrane with a sharp mid resonance
-   around 380 Hz, which is why a banjo cuts through anything. What makes the
-   other a guitar is that its resonator is a *box of air*, and a box resonates
-   low: the Helmholtz mode of a guitar body sits near 110 Hz, the top plate
-   near 215, and the wood absorbs most of what is above a couple of kilohertz.
-
-   So this shares `pluckBuffer` with the banjo and differs only in what it is
-   played through, and in being picked more softly. That is not a shortcut -
-   it is the reason the two read as genuinely different instruments rather
-   than as one instrument at two filter settings.
-
-   Nylon rather than steel, because the palette already has something bright
-   in it and a second bright plucked thing would just be a louder banjo.
-   ------------------------------------------------------------------------- */
-
-export function guitar(
-  context: AudioContext,
-  destination: AudioNode,
-  options: PluckOptions & { pan?: number; level?: number; when?: number },
-): void {
-  const source = context.createBufferSource();
-  source.buffer = pluckBuffer(context, options);
-
   /* The air inside the box. The lowest thing the instrument does, and the
      part a listener feels rather than hears. */
   const air = context.createBiquadFilter();
   air.type = "peaking";
   air.frequency.value = 110;
-  air.Q.value = 1.2;
-  air.gain.value = 7;
+  /* Gentler and wider than when the guitar only answered in the gaps. The
+     figures pedal on D3, whose 147 Hz fundamental sits on the shoulder of this
+     peak - at +7 dB and Q 1.2 a repeated low string boomed. */
+  air.Q.value = 1;
+  air.gain.value = 5;
 
   /* The top plate: the wooden note under every note. */
   const plate = context.createBiquadFilter();
@@ -216,7 +172,9 @@ export function guitar(
   /* Wood absorbs the top. Without this it is a harpsichord. */
   const warmth = context.createBiquadFilter();
   warmth.type = "lowpass";
-  warmth.frequency.value = 2600;
+  /* Opened from 2600: the instrument carries the tune now, and at 2600 the
+     melody above the third string went muddy. */
+  warmth.frequency.value = 3200;
   warmth.Q.value = 0.7;
 
   const gain = context.createGain();
@@ -248,7 +206,7 @@ export function guitar(
 /* -------------------------------------------------------------------------
    THE WHISTLE - a person, not an instrument
 
-   S9: the banjo is the landscape's rhythm and the whistle is the human in it.
+   S9: the guitar is the landscape's rhythm and the whistle is the human in it.
    The first version missed on three counts, and each one is the difference
    between a person and a patch.
 
@@ -264,7 +222,7 @@ export function guitar(
    stops, and that continuous glide is most of what the ear uses to decide a
    human is doing it. The whole phrase is now one oscillator with a contour.
 
-   **It sat in the banjo's octave.** Below about 600 Hz it competed with the
+   **It sat in the lead's octave.** Below about 600 Hz it competed with the
    instrument it is meant to answer, and lost. People whistle high - this now
    runs where whistling actually lives, above everything else in the mix, which
    is both more truthful and the reason it can be picked out at all.
@@ -572,7 +530,7 @@ export function chirp(
    The gap between a synthesised motif and a scored one is almost never the
    tune. It is that a plucked note starts, decays and leaves nothing behind, so
    the music arrives as a sequence of events rather than as a thing that is
-   already happening and that the banjo is playing over.
+   already happening and that the guitar is playing over.
 
    A bowed string is a sawtooth, and not by analogy: the Helmholtz motion of a
    real bowed string is a travelling kink that makes the bridge force a near

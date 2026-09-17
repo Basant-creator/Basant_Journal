@@ -231,7 +231,7 @@ export function start(): boolean {
     §4: the first impression is subtle.
 
     The master was already fading in over FADE. What changed is that the music
-    does not arrive with it — the landscape establishes first and the banjo
+    does not arrive with it — the landscape establishes first and the guitar
     comes in later, which is §5's progression and the difference between a
     world and a trailer.
   */
@@ -353,7 +353,7 @@ export function setMusic(state: MusicState): void {
    because §5's fourteen seconds of quiet are counted from when the visitor
    asked for sound, not from when the page happened to load. A visitor who
    reads for two minutes and then presses the control should still get the
-   landscape before the banjo, not a phrase already in progress.
+   landscape before the guitar, not a phrase already in progress.
    ------------------------------------------------------------------------- */
 
 const starters = new Set<() => void>();

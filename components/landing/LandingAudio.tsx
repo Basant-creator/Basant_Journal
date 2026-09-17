@@ -12,7 +12,7 @@ import { isRunning, onStart, setHerdAudible, setMusic } from "@/lib/audio/atmosp
  * setting one —
  *
  *   0s    environment only. Wind, and the occasional bird.
- *   14s   sparse — the banjo appears, with long gaps between phrases.
+ *   14s   sparse — the guitar appears, with long gaps between phrases.
  *   46s   journey — phrases closer together, and the whistle answers more often.
  *
  * Fourteen seconds of no music at all is deliberate and is the part most
