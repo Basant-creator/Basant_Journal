@@ -197,3 +197,41 @@
     transform: none !important;
   }
 }
+
+/* ==========================================================================
+   CHECKPOINT STATE
+
+   The sheet and the trail at the foot of the page are describing one walk, so
+   they mark it the same way: a place behind you is stamped, a place ahead is
+   drawn faintly. §14 asks the map to reveal the route *and* what is still to
+   come, which is two different jobs for one set of marks.
+
+   The node stays a link in every state. This is annotation, not gating.
+   ========================================================================== */
+
+.stamp {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.82;
+  pointer-events: none;
+}
+
+/* Somewhere the visitor has not reached yet: present on the sheet, quieter
+   than the ground they have covered. Not hidden — §14 wants upcoming
+   destinations legible, and a route you cannot read is not a route.
+
+   Scoped to .mark rather than left as a bare attribute selector: CSS Modules
+   refuses an unscoped one ("not pure"), and rightly — a global rule on
+   [data-checkpoint] would reach the trail's markers as well. */
+.mark[data-checkpoint="ahead"] {
+  opacity: 0.72;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp {
+    transition: none;
+  }
+}

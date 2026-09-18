@@ -11,6 +11,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { Scene } from "@/components/scene/Scene";
 import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
@@ -65,6 +66,14 @@ import { directionForKey, nearestInDirection } from "@/lib/map/navigation";
 import { SHEET_HEIGHT, SHEET_WIDTH } from "@/lib/map/terrain";
 import { completeEntry } from "@/lib/motion/entry";
 import { survey } from "@/lib/motion/variants";
+import {
+  LOCATION_CHECKPOINT,
+  indexOfCheckpoint,
+  markerState,
+  serverSnapshot,
+  subscribeTrail,
+  visitedSnapshot,
+} from "@/lib/world/trail";
 import { LocationNode, type NodeRef } from "./LocationNode";
 import { MapLayer } from "./MapLayer";
 import { MapLegend } from "./MapLegend";
@@ -98,6 +107,20 @@ export function FrontierMap() {
   const [state, setState] = useState<MapState>("exploring");
   // Camp is the initial active location — the sheet opens at the trailhead.
   const [activeId, setActiveId] = useState<string | null>(originLocationId);
+
+  /*
+    Which places the visitor has already walked.
+
+    Through `useSyncExternalStore` rather than reading storage during render,
+    and the server snapshot is deliberately empty: the sheet the server sends
+    has nothing stamped on it, the client re-renders once with the session's
+    real history, and there is no hydration mismatch to explain away later.
+  */
+  useSyncExternalStore(subscribeTrail, visitedSnapshot, serverSnapshot);
+
+  /* The map *is* the Frontier checkpoint, so that is where the visitor stands
+     while reading it. Everything else on the sheet is measured from here. */
+  const here = indexOfCheckpoint("frontier");
   const [engagedId, setEngagedId] = useState<string | null>(null);
   const [focusIndex, setFocusIndex] = useState(0);
   /** The trail control is hovered or focused: the journey, previewed. */
@@ -528,6 +551,11 @@ export function FrontierMap() {
                           key={location.id}
                           location={location}
                           index={index}
+                          checkpointState={(() => {
+                            const id = LOCATION_CHECKPOINT[location.id];
+                            if (!id) return null;
+                            return markerState(indexOfCheckpoint(id), here);
+                          })()}
                           hovered={
                             activeId === location.id ||
                             (trailPreview &&

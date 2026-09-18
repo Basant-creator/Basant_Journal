@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties, FocusEvent, KeyboardEvent, ReactNode } from "react";
 import type { NavigationLocation } from "@/lib/content/types";
+import type { MarkerState } from "@/lib/world/trail";
 import { triggerSurveyTick } from "@/lib/audio/atmosphere";
 import { LocationGlyph } from "./symbols";
 import styles from "./LocationNode.module.css";
@@ -20,6 +21,19 @@ interface LocationNodeProps {
   onFocus: (event: FocusEvent) => void;
   onKeyDown: (event: KeyboardEvent) => void;
   onEngage: (id: string) => void;
+  /**
+   * Where this place sits on the world route, if it is on it at all.
+   *
+   * Null for a spur — Gear is drawn on the sheet but is not a checkpoint, and
+   * stamping it would say the visitor had passed a place that is not on the
+   * way to anywhere.
+   *
+   * The node stays a link whatever this says. §12 constrains the *trail*, and
+   * §13 is explicit that the Camp is reached "by the marked trail / location
+   * on the map" — so the map is how a visitor travels, and this only changes
+   * what the marker says about the journey so far.
+   */
+  checkpointState?: MarkerState | null;
 }
 
 const BASE_RADIUS = 30;
@@ -53,6 +67,7 @@ export function LocationNode({
   onFocus,
   onKeyDown,
   onEngage,
+  checkpointState = null,
 }: LocationNodeProps) {
   const [x, y] = location.coord;
   const weight = location.weight ?? 1;
@@ -121,9 +136,21 @@ export function LocationNode({
 
   return (
     <g
+      className={styles.mark}
       transform={`translate(${x} ${y})`}
+      data-checkpoint={checkpointState ?? undefined}
       style={{ "--node-delay": `${900 + index * 70}ms` } as CSSProperties}
     >
+      {/* §9: a place the visitor has already been is stamped, here as on the
+          trail, so the sheet and the strip at the foot of the page tell the
+          same story about the same walk. */}
+      {checkpointState === "behind" ? (
+        <path
+          className={styles.stamp}
+          d={`M${-radius * 0.45} ${radius * 0.05} l${radius * 0.32} ${radius * 0.36} l${radius * 0.62} -${radius * 0.8}`}
+          aria-hidden="true"
+        />
+      ) : null}
       {unmapped ? (
         // Focusable and described, but it goes nowhere: a marker on the ground
         // whose record has not been written yet.

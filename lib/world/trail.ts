@@ -199,6 +199,27 @@ export function subscribeTrail(listener: () => void): () => void {
    WHAT THE VISITOR MAY DO WITH A MARKER
    ------------------------------------------------------------------------- */
 
+/**
+ * Which checkpoint each location on the survey map stands for.
+ *
+ * The map's locations and the world's checkpoints are two lists that have to
+ * agree, and they are not the same list: the map draws Gear, which §4 places
+ * *inside* the Records checkpoint rather than beside it. Anything absent from
+ * this table is drawn on the sheet but is not a stop on the route — which is
+ * exactly what a spur is.
+ */
+export const LOCATION_CHECKPOINT: Record<string, string> = {
+  camp: "camp",
+  journal: "records",
+  bounties: "board",
+  archive: "archive",
+  "trail-end": "end",
+};
+
+export function indexOfCheckpoint(id: string): number {
+  return checkpoints.findIndex((point) => point.id === id);
+}
+
 export type MarkerState = "behind" | "here" | "ahead";
 
 /**

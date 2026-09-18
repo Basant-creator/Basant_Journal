@@ -27,15 +27,35 @@ export interface Trail {
  * plausible ground — around the knoll, along the draw, clear of the river.
  */
 const BOW: Record<string, number> = {
-  "camp>gear": -34,
-  "gear>journal": -38,
+  "camp>journal": 62,
   "journal>bounties": -30,
   "bounties>archive": 44,
   "archive>trail-end": 34,
+  /* The spur. */
+  "journal>gear": -26,
 };
 
-/** The shortcut sags south along the valley floor, under the Gear route. */
-const PRIMARY_BOW = 62;
+/*
+  The main trail, and which locations are on it.
+
+  §15 asks for one clearly readable route through the world, and the map was
+  drawing something else: a chain that ran Camp -> Gear -> Journal -> Bounties
+  -> Archive -> Trail End, with a separate red shortcut from Camp to Journal
+  laid over the top. Two routes, and the longer one detoured through Gear.
+
+  Gear is not a place in the world. §4 is explicit that it lives *inside* the
+  Records checkpoint along with the journey and the project files, and a world
+  route that visits it is the same category error the bookmarks were making —
+  document scale drawn as territory.
+
+  So the main trail is the checkpoint sequence and nothing else, and Gear
+  hangs off Records as a spur: on the sheet, reachable, plainly not on the
+  way to anywhere.
+*/
+const MAIN_SEQUENCE = ["camp", "journal", "bounties", "archive", "trail-end"];
+
+/** Spurs: a location that is drawn, but is not a stop on the world route. */
+const SPURS: Array<[string, string]> = [["journal", "gear"]];
 
 function coordOf(location: NavigationLocation) {
   return pt(location.coord[0], location.coord[1]);
@@ -43,10 +63,29 @@ function coordOf(location: NavigationLocation) {
 
 function buildTrails(): Trail[] {
   const out: Trail[] = [];
+  const byId = new Map(locations.map((l) => [l.id, l]));
 
-  for (let i = 1; i < locations.length; i += 1) {
-    const from = locations[i - 1];
-    const to = locations[i];
+  /* The world route, in red, drawn first so the eye finds it first. */
+  for (let i = 1; i < MAIN_SEQUENCE.length; i += 1) {
+    const from = byId.get(MAIN_SEQUENCE[i - 1]);
+    const to = byId.get(MAIN_SEQUENCE[i]);
+    if (!from || !to) continue;
+    const key = `${from.id}>${to.id}`;
+    out.push({
+      id: key,
+      from: from.id,
+      to: to.id,
+      path: arcPath(coordOf(from), coordOf(to), BOW[key] ?? 0),
+      kind: "primary",
+      index: out.length,
+    });
+  }
+
+  /* Spurs, in ink: drawn ground that the route does not take. */
+  for (const [anchorId, leafId] of SPURS) {
+    const from = byId.get(anchorId);
+    const to = byId.get(leafId);
+    if (!from || !to) continue;
     const key = `${from.id}>${to.id}`;
     out.push({
       id: key,
@@ -54,20 +93,6 @@ function buildTrails(): Trail[] {
       to: to.id,
       path: arcPath(coordOf(from), coordOf(to), BOW[key] ?? 0),
       kind: "route",
-      index: i - 1,
-    });
-  }
-
-  const origin = locations.find((l) => l.id === originLocationId);
-  const primary = locations.find((l) => l.id === primaryLocationId);
-
-  if (origin && primary) {
-    out.push({
-      id: `${origin.id}>${primary.id}:primary`,
-      from: origin.id,
-      to: primary.id,
-      path: arcPath(coordOf(origin), coordOf(primary), PRIMARY_BOW),
-      kind: "primary",
       index: out.length,
     });
   }
@@ -88,17 +113,16 @@ export const primaryTrail: Trail | undefined = trails.find((t) => t.kind === "pr
  * all, which is what reduced-motion and a failed stylesheet both need.
  */
 export const primaryTrailArrows: PointOnPath[] = (() => {
-  const origin = locations.find((l) => l.id === originLocationId);
-  const primary = locations.find((l) => l.id === primaryLocationId);
-  if (!origin || !primary) return [];
+  /* Taken from the main sequence rather than from the origin/primary pair, so
+     the arrows cannot end up on a different arc from the one they are meant to
+     be lying on. They mark the first leg out of Camp. */
+  const from = locations.find((l) => l.id === MAIN_SEQUENCE[0]);
+  const to = locations.find((l) => l.id === MAIN_SEQUENCE[1]);
+  if (!from || !to) return [];
+  const bow = BOW[`${from.id}>${to.id}`] ?? 0;
 
   return [0.3, 0.56, 0.82].map((t) =>
-    pointOnArc(
-      pt(origin.coord[0], origin.coord[1]),
-      pt(primary.coord[0], primary.coord[1]),
-      PRIMARY_BOW,
-      t,
-    ),
+    pointOnArc(pt(from.coord[0], from.coord[1]), pt(to.coord[0], to.coord[1]), bow, t),
   );
 })();
 

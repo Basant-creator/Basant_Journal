@@ -31,10 +31,10 @@ export default function FrontierPage() {
           <p className={styles.eyebrow}>{meta.volume} · The survey</p>
           <h1 className={styles.title}>The Frontier</h1>
           <p className={styles.lede}>
-            {spelled.charAt(0).toUpperCase() + spelled.slice(1)} locations,
-            walked in order. The red route is the one that
-            matters — it runs from camp straight to the engineering work, and
-            you are not expected to take the long way round.
+            {spelled.charAt(0).toUpperCase() + spelled.slice(1)} locations.
+            The red route is the trail itself — camp, records, board, archive,
+            trail end, in that order. Gear hangs off the records as a spur: on
+            the sheet, and not on the way to anywhere.
           </p>
         </div>
         <dl className={styles.sheetData}>
