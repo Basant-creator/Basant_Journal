@@ -92,7 +92,11 @@ void main() {
      jitter, and no height term - there is no silhouette up here to bend
      around, and wobble against open sky reads as a rendering fault. */
   vec2 uv = gl_FragCoord.xy / max(uViewport, vec2(1.0));
-  float axis = dot(uv - 0.5, normalize(uDir)) + 0.5;
+  vec2 dir = normalize(uDir);
+  /* Same normalisation as the ground: 0 at one corner, 1 at the opposite one,
+     so the sky's boundary and the terrain's are the same line. */
+  float span = (abs(dir.x) + abs(dir.y)) * 0.5;
+  float axis = (dot(uv - 0.5, dir) + span) / (2.0 * span);
   axis += (skyNoise(uv * 2.6 + uTime * 0.02) - 0.5) * uJitter * 0.45;
 
   float side = smoothstep(uSweep - uBand, uSweep + uBand, axis);

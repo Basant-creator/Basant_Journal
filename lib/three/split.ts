@@ -30,11 +30,29 @@ import { Color, Vector2, type Material } from "three";
    ------------------------------------------------------------------------- */
 
 export const split = {
-  /** Where the boundary is, 0..1 along its own axis. */
-  uSweep: { value: 1.1 },
-  /** Dawnness behind the boundary (the hour being left). 0 dusk, 1 dawn. */
-  uFrom: { value: 0 },
-  /** Dawnness ahead of it (the hour arriving). */
+  /**
+   * Where the boundary is, along its own axis.
+   *
+   * The axis runs roughly -0.2 at the bottom-left corner to 1.2 at the
+   * top-right. Everything *below* this value wears dusk and everything above
+   * it wears dawn, so the one number says which hour the frame is in:
+   * 1.3 is all dusk, -0.3 is all dawn, and 0.62 is the resting split.
+   *
+   * Starts at the split, because the split is what a first visit shows.
+   */
+  uSweep: { value: 0.62 },
+  /**
+   * Which hour each side of the boundary wears. These are *constants*, not a
+   * from/to pair.
+   *
+   * The first cut swapped them on every crossing, which meant the shader had
+   * to be told both where the line was and what it separated — two pieces of
+   * state that could disagree, and did, for the frame between a React update
+   * and the next animation tick. Fixing the sides and moving only the line
+   * removed the disagreement entirely and made the reverse crossing free: it
+   * is the same number travelling the other way.
+   */
+  uFrom: { value: 1 },
   uTo: { value: 0 },
   /** The diagonal's direction. Normalised, in screen space. */
   uDir: { value: new Vector2(0.78, 0.63) },
@@ -45,19 +63,14 @@ export const split = {
   /** Viewport, for turning gl_FragCoord into a 0..1 axis. */
   uViewport: { value: new Vector2(1, 1) },
   uTime: { value: 0 },
+  /* The two airs. Set once from the hour palettes; see the fog note below. */
+  uDuskFog: { value: new Color("#1b1410") },
+  uDawnFog: { value: new Color("#bfae97") },
 };
 
-/**
- * Parks the boundary off-screen so nothing is masked.
- *
- * Called whenever a crossing finishes. A resting sweep of exactly 1 would
- * leave the trailing half of the blend band still on screen — hence 1.1,
- * which is past the far corner by more than `uBand`.
- */
-export function settle(dawnness: number): void {
-  split.uFrom.value = dawnness;
-  split.uTo.value = dawnness;
-  split.uSweep.value = 1.1;
+/** Puts the boundary somewhere along its axis. That is the whole API now. */
+export function sweepTo(position: number): void {
+  split.uSweep.value = position;
 }
 
 /* -------------------------------------------------------------------------
@@ -105,7 +118,22 @@ float splitNoise(vec2 p) {
 const AXIS = /* glsl */ `
 float splitAxis(vec2 frag, float worldHeight) {
   vec2 uv = frag / max(uViewport, vec2(1.0));
-  float axis = dot(uv - 0.5, normalize(uDir)) + 0.5;
+  vec2 dir = normalize(uDir);
+
+  /*
+    Normalised so that 0 is the corner the boundary starts from and 1 is the
+    opposite corner, *whatever shape the window is*.
+
+    The first version was a bare dot product, whose range depends on the
+    direction vector and therefore on nothing the caller can predict: a sweep
+    of 0.62 put the line near the middle on one aspect ratio and down in a
+    corner on another, and the resting split came out as a small wedge instead
+    of covering the title. The span below is the half-extent of that dot product
+    over the unit square, so dividing by it makes the sweep mean exactly
+    "this fraction of the way across" on any window.
+  */
+  float span = (abs(dir.x) + abs(dir.y)) * 0.5;
+  float axis = (dot(uv - 0.5, dir) + span) / (2.0 * span);
 
   float coarse = splitNoise(uv * 3.4 + uTime * 0.03) - 0.5;
   float fine = splitNoise(uv * 11.0 - uTime * 0.05) - 0.5;
@@ -128,7 +156,11 @@ uniform float uBand;
 uniform float uJitter;
 uniform vec2 uViewport;
 uniform float uTime;
+uniform vec3 uDuskFog;
+uniform vec3 uDawnFog;
 varying vec3 vSplitWorld;
+/* Worked out once in color_fragment and read again by the fog below. */
+float gSplitDawn = 0.0;
 ${NOISE}
 ${AXIS}
 `;
@@ -178,6 +210,8 @@ export function splitMaterial<T extends Material>(
     shader.uniforms.uTime = split.uTime;
     shader.uniforms.uDusk = { value: duskColour };
     shader.uniforms.uDawn = { value: dawnColour };
+    shader.uniforms.uDuskFog = split.uDuskFog;
+    shader.uniforms.uDawnFog = split.uDawnFog;
 
     shader.vertexShader = shader.vertexShader
       .replace("#include <common>", `#include <common>\n${SPLIT_VERTEX_HEAD}`)
@@ -186,7 +220,34 @@ export function splitMaterial<T extends Material>(
         `#include <worldpos_vertex>\n${SPLIT_VERTEX_BODY}`,
       );
 
+    /*
+      The air is part of the hour, and this is the line that proves it.
+
+      Fog is a scene-wide uniform in three, so the first cut had one fog colour
+      for both sides of the boundary — and because fog dominates everything at
+      distance, dawn's pale haze washed straight across the dusk half. At the
+      resting split the whole frame came out light and the title lost its
+      background. Measured by eye and unmistakable: a territory that was
+      supposed to be two-thirds dusk read as entirely dawn.
+
+      So the fog chunk is replaced with the same mix the surface already made.
+      Near and far stay global — they are distances, not colours, and the
+      difference between the two hours there is small enough to interpolate.
+    */
     shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <fog_fragment>",
+        /* glsl */ `
+        #ifdef USE_FOG
+          float splitFogFactor = smoothstep( fogNear, fogFar, vFogDepth );
+          gl_FragColor.rgb = mix(
+            gl_FragColor.rgb,
+            mix(uDuskFog, uDawnFog, gSplitDawn),
+            splitFogFactor
+          );
+        #endif
+        `,
+      )
       .replace(
         "#include <common>",
         `#include <common>\nuniform vec3 uDusk;\nuniform vec3 uDawn;\n${SPLIT_FRAGMENT_HEAD}`,
@@ -199,13 +260,19 @@ export function splitMaterial<T extends Material>(
           float axis = splitAxis(gl_FragCoord.xy, vSplitWorld.y);
           float side = smoothstep(uSweep - uBand, uSweep + uBand, axis);
           float dawnness = mix(uTo, uFrom, side);
+          gSplitDawn = dawnness;
           diffuseColor.rgb *= mix(uDusk, uDawn, dawnness);
 
           // A thin warm lip riding the boundary itself: the light arriving,
           // rather than a colour changing. §17 - it is what stops the sweep
           // reading as a wipe.
+          /* The warm lip rides the boundary itself: the light arriving,
+             rather than a colour changing (§17). Faded out once the boundary
+             has left the frame in either direction, so a settled world has no
+             stray glow along a corner. */
+          float onScreen = smoothstep(-0.16, -0.04, uSweep) * (1.0 - smoothstep(1.04, 1.16, uSweep));
           float lip = 1.0 - smoothstep(0.0, uBand * 1.35, abs(axis - uSweep));
-          diffuseColor.rgb += vec3(0.16, 0.10, 0.05) * lip * step(uSweep, 1.0);
+          diffuseColor.rgb += vec3(0.16, 0.10, 0.05) * lip * onScreen;
         }
         `,
       );

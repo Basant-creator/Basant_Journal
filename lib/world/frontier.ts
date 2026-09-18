@@ -83,20 +83,33 @@ export const herd: HerdHorse[] = (() => {
     not put the subject over the text" broken at the same time. They are three
     times further away now, which also buys the depth §30 asks for.
   */
+  /*
+    Pushed back again, by about sixteen units.
+
+    The distances below were chosen when the landing was three tonal bands and
+    empty air — there was nothing for a horse to be near *to*, so "far enough"
+    meant "not over the wordmark". Now there is a floor, three ranges, four
+    mesas and a trail, and against real country the herd read as standing in
+    the reader's lap: too large, too detailed, and crowding the type.
+
+    They sit between the low hills and the middle distance now, which is where
+    §30 wants the depth and where a herd you are *watching* rather than
+    *meeting* belongs.
+  */
   const anchors: Array<[number, number]> = [
     // x, z — two loose bands rather than one thin stream
     // the leading group
-    [-4, -26],
-    [-12, -31],
-    [-19, -24],
-    [-9, -37],
-    [-26, -33],
-    [-21, -42],
+    [-4, -42],
+    [-12, -47],
+    [-19, -40],
+    [-9, -53],
+    [-26, -49],
+    [-21, -58],
     // the stragglers, half a frame behind
-    [-48, -28],
-    [-56, -35],
-    [-63, -27],
-    [-54, -44],
+    [-48, -44],
+    [-56, -51],
+    [-63, -43],
+    [-54, -60],
   ];
 
 
@@ -105,7 +118,14 @@ export const herd: HerdHorse[] = (() => {
     /* Further back is smaller. Tied to z rather than rolled separately, so
        the herd never produces a distant horse that is somehow larger. */
     const depth = Math.abs(z);
-    const scale = round(0.62 - depth * 0.004 + rng.jitter(0.03));
+    /*
+      Gentler falloff than before. The curve was tuned for z between -24 and
+      -44; at the new distances the same slope took the furthest horse under
+      0.38 and it stopped reading as an animal at all. Perspective is already
+      doing most of this work — this only keeps a distant horse from ever
+      being drawn larger than a near one.
+    */
+    const scale = round(0.74 - depth * 0.0028 + rng.jitter(0.03));
 
     /* Speeds inside a narrow band. Too wide and the group pulls apart before
        it leaves the frame; identical and it is a conveyor belt. */

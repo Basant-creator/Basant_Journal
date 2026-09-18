@@ -3,8 +3,9 @@
 
    Bottom-right, quiet, and the same furniture weight as the sound control at
    the other corner — they are siblings, not a primary and a secondary. The
-   one difference is that this one always shows both of its states, because it
-   is a position on a dial rather than a switch.
+   difference is that this one always shows both of its states, because it is
+   a position on a dial rather than a switch, and at rest the dial sits between
+   them: nothing has been chosen, and the world on screen says the same thing.
    ========================================================================== */
 
 .control {
@@ -16,9 +17,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 6px 10px;
-  /* Touch target, same as the sound control. */
-  min-height: 44px;
+  padding: 0 10px;
 
   font-family: var(--font-ui);
   font-size: var(--text-xs);
@@ -29,7 +28,6 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
   backdrop-filter: blur(3px);
-  cursor: pointer;
 
   transition:
     background-color var(--duration-normal) var(--ease-standard),
@@ -40,32 +38,48 @@
   border-color: var(--color-border);
 }
 
-/* The one thing §38 will not let slide: a visible focus ring. */
-.control:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
-}
-
 /*
-  Both words, one lit.
+  The two hours.
 
-  Full-strength muted rather than a low opacity for the inactive word: a
-  resting state is the state contrast is judged at, and the sound control
-  already had to learn that lesson once.
+  Full-strength muted rather than a low opacity for the unchosen one: a resting
+  state is the state contrast is judged at, and the sound control at the other
+  corner already had to learn that lesson once.
 */
 .word {
+  appearance: none;
+  background: none;
+  border: 0;
+  margin: 0;
+  /* The whole 44px touch target lives on the button, not on the wrapper, so
+     the thing you press is the thing you aimed at. */
+  padding: 0 4px;
+  min-height: 44px;
+
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
   color: var(--color-text-muted);
+  cursor: pointer;
+
   transition: color var(--duration-normal) var(--ease-standard);
 }
 
-.word[data-active="true"] {
-  color: var(--color-text);
+.word:hover {
+  color: var(--color-text-secondary);
 }
 
-/*
-  The dial. A short track with the sun somewhere along it — the smallest mark
-  that says "there are two of these and you are at one end".
-*/
+.word[aria-pressed="true"] {
+  color: var(--color-text-primary);
+}
+
+/* The one thing §38 will not let slide: a visible focus ring. */
+.word:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* The dial: a short track with the sun somewhere along it. */
 .track {
   position: relative;
   display: block;
@@ -88,6 +102,16 @@
   transition: inset-inline-start var(--duration-slow) var(--ease-standard);
 }
 
+/*
+  Three positions, and the middle one is the default.
+
+  It sits on the boundary while the world does, which is the whole point: the
+  control is a small diagram of the screen behind it.
+*/
+.control[data-hour="split"] .sun {
+  inset-inline-start: 50%;
+}
+
 .control[data-hour="dusk"] .sun {
   inset-inline-start: 0;
 }
@@ -102,7 +126,7 @@
   .control {
     right: var(--space-3);
     bottom: var(--space-3);
-    padding: 6px 8px;
+    padding: 0 6px;
   }
 }
 

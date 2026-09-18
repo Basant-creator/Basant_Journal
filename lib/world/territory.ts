@@ -191,14 +191,46 @@ export const FLOOR = {
   segments: [40, 30] as [number, number],
   /** How far a vertex may lift or drop. */
   relief: 0.85,
+  /** Where the floor mesh sits in the world. */
+  origin: [0, -1, -70] as [number, number, number],
 } as const;
 
-/** Seeded, rounded height at a floor vertex. */
+/**
+ * The smooth swell of the plain, in the floor's own coordinates.
+ *
+ * Split out from the vertex displacement below because **anything that stands
+ * on the ground has to agree with the ground**, and the per-vertex faceting
+ * cannot be sampled between vertices — it is seeded on rounded coordinates, so
+ * a horse walking across it would jitter rather than climb. The swell is a
+ * continuous function and can be sampled anywhere.
+ */
+export function swellAt(x: number, z: number): number {
+  return round(Math.sin(x * 0.037) * Math.cos(z * 0.029) * 0.55 * FLOOR.relief);
+}
+
+/**
+ * World-space ground height at a world (x, z).
+ *
+ * The one function anything standing on the plain should call. It exists
+ * because the herd used to be placed at y = 0 in a world that had no floor —
+ * and then this phase put a floor a metre below it, leaving ten horses running
+ * through the air with nothing under their feet.
+ */
+export function groundLevel(x: number, z: number): number {
+  return round(FLOOR.origin[1] + swellAt(x, z - FLOOR.origin[2]));
+}
+
+/**
+ * A floor vertex: the swell, plus a little faceting.
+ *
+ * The random part is much smaller than it was. At the old amplitude the floor
+ * out-wandered the swell, so nothing could stand on it convincingly — and a
+ * noisy per-vertex plain at this polygon count reads as static rather than as
+ * ground anyway.
+ */
 export function floorHeight(x: number, z: number): number {
   const rng = createRng(seedFrom(`territory:floor:${Math.round(x)}:${Math.round(z)}`));
-  /* Two scales of swell so it is not uniformly bumpy. */
-  const broad = Math.sin(x * 0.037) * Math.cos(z * 0.029) * 0.55;
-  return round((broad + (rng.next() - 0.5) * 0.9) * FLOOR.relief);
+  return round(swellAt(x, z) + (rng.next() - 0.5) * 0.3 * FLOOR.relief);
 }
 
 /* -------------------------------------------------------------------------

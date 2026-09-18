@@ -14,6 +14,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { splitMaterial } from "@/lib/three/split";
 import { HERD_RANGE, type HerdHorse } from "@/lib/world/frontier";
+import { groundLevel } from "@/lib/world/territory";
 import { hours } from "../hours";
 
 const MODEL = "/frontier/landing/horse.glb";
@@ -143,6 +144,16 @@ export function HorseHerd3D({ horses, still = false }: HorseHerd3DProps) {
       if (object.position.x > HERD_RANGE.to) {
         object.position.x = HERD_RANGE.from;
       }
+      /*
+        And on the ground, every frame, because the ground is not flat.
+
+        They used to stand at y = 0 in a world with no floor, which looked
+        correct right up until this phase put a floor a metre beneath them —
+        ten horses galloping through the air. `groundLevel` is the smooth
+        swell rather than the floor's faceted vertices: sampling the faceting
+        would make them jitter between vertices instead of climbing.
+      */
+      object.position.y = groundLevel(object.position.x, horse.z);
     }
   });
 
@@ -152,7 +163,7 @@ export function HorseHerd3D({ horses, still = false }: HorseHerd3DProps) {
         <primitive
           key={horse.id}
           object={object}
-          position={[horse.x, 0, horse.z]}
+          position={[horse.x, groundLevel(horse.x, horse.z), horse.z]}
           /* The model faces -z; the herd runs along +x. */
           rotation={[0, Math.PI / 2, 0]}
           scale={horse.scale}

@@ -2,16 +2,17 @@
 
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useSyncExternalStore } from "react";
-import { Color, Fog, Vector2 } from "three";
+import { Color, Fog } from "three";
 import type { DirectionalLight, HemisphereLight, AmbientLight } from "three";
-import { settle, split } from "@/lib/three/split";
+import { split, sweepTo } from "@/lib/three/split";
 import {
   DEFAULT_HOUR,
   SWEEP_MS,
   SWEEP_MS_REDUCED,
-  dawnness,
+  dawnFraction,
   readHour,
   subscribeHour,
+  sweepFor,
 } from "@/lib/world/hour";
 import { hours } from "../hours";
 
@@ -20,13 +21,13 @@ import { hours } from "../hours";
  *
  * Two jobs that have to stay in one component because they share a clock.
  *
- * **The sweep.** When the hour changes, the boundary starts off one corner and
- * travels to the opposite one, and every material in the scene reads its
- * position per fragment. §16 asks dusk→dawn to run bottom-left to top-right
- * and the reverse to run back the other way, and §15 insists it be the same
- * mechanism rather than a second animation — so the direction vector is simply
- * negated and the sweep always runs 0 to 1. One path, played forwards or
- * backwards, which is also why rapid toggling cannot desynchronise it.
+ * **The sweep.** The boundary's two sides are fixed — dusk below the line,
+ * dawn above it — and the only thing that ever moves is the line. At rest it
+ * stands on screen and the territory holds both hours at once; choosing dusk
+ * pushes it off the top-right corner and choosing dawn pushes it off the
+ * bottom-left. §16's opposite directions are not arranged anywhere, they are
+ * just what one number does when it travels to a smaller value instead of a
+ * larger one, and §15's "same mechanism backwards" is literal.
  *
  * **The light.** §23 warns against flipping every shadow at once, so the sun
  * does not jump from one side to the other: its position, colour and intensity
@@ -61,17 +62,16 @@ function useHour() {
 
 export function HourRig() {
   const hour = useHour();
-  const { size } = useThree();
+  const { size, gl } = useThree();
 
   const sun = useRef<DirectionalLight>(null);
   const ambient = useRef<AmbientLight>(null);
   const bounce = useRef<HemisphereLight>(null);
 
   /* The crossing in progress, if there is one. */
-  const sweep = useRef<{ start: number; ms: number } | null>(null);
-  /* What the light is currently showing, 0..1. Not the same as the hour:
-     during a crossing it is somewhere between. */
-  const lit = useRef(dawnness(hour));
+  const sweep = useRef<{ from: number; to: number; start: number; ms: number } | null>(
+    null,
+  );
   const previous = useRef(hour);
 
   /* Scratch colours, reused. Allocating in a frame loop is the one rule this
@@ -85,38 +85,51 @@ export function HourRig() {
     b: new Color(),
   });
 
-  /* The viewport, for turning gl_FragCoord into a 0..1 axis. */
+  /*
+    The viewport, for turning gl_FragCoord into a 0..1 axis.
+
+    **The drawing buffer, not the CSS size.** `gl_FragCoord` is measured in
+    framebuffer pixels, which on a 2x display is twice the element's CSS
+    dimensions — so dividing by `size` ran the axis out to 2.6 at the far
+    corner instead of 1.2, and the boundary sat in a completely different
+    place on a retina screen than on an ordinary one. Measured: a 1200x850
+    element backed by a 2400x1700 buffer.
+
+    `getDrawingBufferSize` is the renderer's own answer to that question,
+    which also keeps this correct if the dpr cap ever changes.
+  */
   useEffect(() => {
-    split.uViewport.value = new Vector2(size.width, size.height);
-  }, [size.width, size.height]);
+    gl.getDrawingBufferSize(split.uViewport.value);
+  }, [gl, size.width, size.height]);
+
+  /* The two airs, from the palette rather than from literals in the shader
+     module. Set once: they are the hours' own fog colours and never change. */
+  useEffect(() => {
+    split.uDuskFog.value.set(hours.dusk.air.fog);
+    split.uDawnFog.value.set(hours.dawn.air.fog);
+  }, []);
 
   /* Start a crossing when the hour changes. */
   useEffect(() => {
     if (previous.current === hour) return;
-
-    const from = previous.current;
     previous.current = hour;
 
     /*
-      §16: dusk→dawn runs bottom-left to top-right; the reverse runs back.
-      One vector, negated. The sweep itself always counts 0 to 1, which is
-      what makes the reversal feel like the same physical mechanism rather
-      than a second animation that happens to look similar.
-    */
-    const toward = hour === "dawn" ? 1 : -1;
-    split.uDir.value.set(0.78 * toward, 0.63 * toward);
+      §48: the newest selection wins, and it wins from wherever the boundary
+      actually is. Starting the crossing at the *current* sweep rather than at
+      an edge means an interrupted crossing carries on from the line the
+      visitor can see, instead of snapping to a corner and running again.
+      Rapid toggling therefore looks like one boundary being pushed back and
+      forth, which is what it is.
 
-    /*
-      §48: the newest selection wins, always. Whatever was showing becomes
-      the hour being left, so a crossing interrupted halfway never strands a
-      half-lit world — the boundary simply starts again from the edge with
-      the current appearance behind it.
+      §16 falls out of this rather than being arranged: going to dawn moves
+      the number down and going to dusk moves it up, so the same boundary
+      travels in opposite directions without a second animation or a negated
+      vector.
     */
-    split.uFrom.value = dawnness(from);
-    split.uTo.value = dawnness(hour);
-    split.uSweep.value = -0.25;
-
     sweep.current = {
+      from: split.uSweep.value,
+      to: sweepFor(hour),
       start: performance.now(),
       /* §39: reduced motion keeps the dawn/dusk identity and drops the
          journey across the territory. */
@@ -127,30 +140,25 @@ export function HourRig() {
   useFrame((state, delta) => {
     split.uTime.value += delta;
 
-    const target = dawnness(hour);
+    const target = sweepFor(hour);
     const run = sweep.current;
 
     if (run) {
       const t = Math.min(1, (performance.now() - run.start) / run.ms);
-      /* -0.25 to 1.25 so the blend band clears both corners entirely. */
-      split.uSweep.value = -0.25 + ease(t) * 1.5;
-
-      /* The lighting follows the boundary rather than leading it. */
-      lit.current = lerp(split.uFrom.value, split.uTo.value, ease(t));
-
+      sweepTo(lerp(run.from, run.to, ease(t)));
       if (t >= 1) {
         sweep.current = null;
-        lit.current = target;
-        settle(target);
+        sweepTo(target);
       }
-    } else if (lit.current !== target) {
+    } else if (split.uSweep.value !== target) {
       /* No crossing ran — first paint, or a hydration that arrived already
-         set to dawn. Snap, and park the boundary off screen. */
-      lit.current = target;
-      settle(target);
+         holding a chosen hour. Put the boundary where it belongs. */
+      sweepTo(target);
     }
 
-    const mix = lit.current;
+    /* The lighting rides the boundary rather than the state, so the sun keeps
+       pace with the line instead of jumping when React flips the attribute. */
+    const mix = dawnFraction(split.uSweep.value);
     const dusk = hours.dusk;
     const dawn = hours.dawn;
     const c = scratch.current;

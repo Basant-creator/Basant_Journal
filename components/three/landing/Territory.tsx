@@ -14,6 +14,7 @@ import { splitMaterial } from "@/lib/three/split";
 import {
   FLOOR,
   floorHeight,
+  groundLevel,
   mesas,
   ranges,
   rocks,
@@ -211,7 +212,7 @@ function Floor() {
     [],
   );
 
-  return <mesh geometry={geometry} material={material} position={[0, -1, -70]} />;
+  return <mesh geometry={geometry} material={material} position={FLOOR.origin} />;
 }
 
 function Trail() {
@@ -221,17 +222,18 @@ function Trail() {
     for (let i = 0; i < trail.length - 1; i += 1) {
       const a = trail[i];
       const b = trail[i + 1];
-      /* Lifted a hand above the floor: co-planar surfaces z-fight, and a
-         flickering path is worse than no path. */
-      const y = -0.94;
+      /* Follows the swell, lifted a hand above it: co-planar surfaces
+         z-fight, and a flickering path is worse than no path. */
+      const ya = groundLevel(a.x, a.z) + 0.06;
+      const yb = groundLevel(b.x, b.z) + 0.06;
 
-      positions.push(a.x - a.half, y, a.z);
-      positions.push(a.x + a.half, y, a.z);
-      positions.push(b.x + b.half, y, b.z);
+      positions.push(a.x - a.half, ya, a.z);
+      positions.push(a.x + a.half, ya, a.z);
+      positions.push(b.x + b.half, yb, b.z);
 
-      positions.push(a.x - a.half, y, a.z);
-      positions.push(b.x + b.half, y, b.z);
-      positions.push(b.x - b.half, y, b.z);
+      positions.push(a.x - a.half, ya, a.z);
+      positions.push(b.x + b.half, yb, b.z);
+      positions.push(b.x - b.half, yb, b.z);
     }
 
     const geo = new BufferGeometry();
@@ -284,7 +286,14 @@ function Rocks() {
           key={rock.id}
           geometry={geometry}
           material={material}
-          position={rock.position}
+          /* On the ground, not at a nominal ground level. Everything that
+             stands on the plain asks the same function, so nothing floats and
+             nothing sinks into a swell. */
+          position={[
+            rock.position[0],
+            groundLevel(rock.position[0], rock.position[2]),
+            rock.position[2],
+          ]}
           rotation={[0, rock.spin, 0]}
           scale={[
             rock.scale * rock.squash[0],
@@ -317,7 +326,11 @@ function Scrub() {
           key={bush.id}
           geometry={geometry}
           material={material}
-          position={[bush.position[0], bush.position[1] + bush.scale * 0.6, bush.position[2]]}
+          position={[
+            bush.position[0],
+            groundLevel(bush.position[0], bush.position[2]) + bush.scale * 0.6,
+            bush.position[2],
+          ]}
           rotation={[0, bush.spin, 0]}
           scale={[
             bush.scale * bush.squash[0],
