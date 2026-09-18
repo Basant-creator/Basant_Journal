@@ -3,6 +3,7 @@ import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import type { Metadata, Viewport } from "next";
 import { Caveat, IM_Fell_English_SC, Inter, Rye, Source_Serif_4 } from "next/font/google";
 import { AtmosphereControl } from "@/components/audio/AtmosphereControl";
+import { FrontierTrail } from "@/components/navigation/FrontierTrail";
 import { Quiet } from "@/components/shell/Quiet";
 import { TextureLayer } from "@/components/shell/TextureLayer";
 import { SkipLink } from "@/components/navigation/SkipLink";
@@ -162,6 +163,10 @@ export default function RootLayout({
           {/* Everywhere the air can play, so it can always be stopped —
               including the landing page, which has no navigation by design. */}
           <Quiet name="AtmosphereControl"><AtmosphereControl /></Quiet>
+          {/* The world's own navigation, mounted once so it survives every
+              route change and can remember the walk. It draws nothing on
+              the landing or off the trail; see FrontierTrail. */}
+          <Quiet name="FrontierTrail"><FrontierTrail /></Quiet>
         </div>
 
         {/* Server-rendered, so it is in the first painted frame. The boot

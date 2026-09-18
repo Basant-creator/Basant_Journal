@@ -137,8 +137,25 @@ export function isRearLeaf(pathname: string): boolean {
   return leafFor(pathname)?.part === "rear";
 }
 
-/** The bookmarks: the front sections, plus one marker for the rear. */
-export const BOOKMARKS = BOOK_LEAVES.filter((leaf) => leaf.part === "front");
+/**
+ * Leaves that are world checkpoints rather than document sections.
+ *
+ * They are still pages of the book — the Board, the Archive and Trail End are
+ * printed on leaves and reached by turning to them. What they are not is
+ * *bookmarks*, because §5 keeps two navigation scales apart and a bookmark is
+ * the document scale: it moves the reader inside one object.
+ *
+ * Leaving them on the bookmark rail meant the book could carry a reader from
+ * the Journal straight to Trail End, which is world travel performed by a
+ * document control — precisely the teleportation §33 asks to be removed, and
+ * the reason the trail exists.
+ */
+const WORLD_LEAVES = new Set(["bounties", "archive", "trail-end"]);
+
+/** The bookmarks: the front *document* sections. The world is the trail's. */
+export const BOOKMARKS = BOOK_LEAVES.filter(
+  (leaf) => leaf.part === "front" && !WORLD_LEAVES.has(leaf.id),
+);
 export const FIRST_REAR_LEAF =
   BOOK_LEAVES.find((leaf) => leaf.part === "rear") ?? null;
 
