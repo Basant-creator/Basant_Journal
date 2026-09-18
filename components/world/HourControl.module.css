@@ -1,0 +1,113 @@
+/* ==========================================================================
+   The control for the hour.
+
+   Bottom-right, quiet, and the same furniture weight as the sound control at
+   the other corner — they are siblings, not a primary and a secondary. The
+   one difference is that this one always shows both of its states, because it
+   is a position on a dial rather than a switch.
+   ========================================================================== */
+
+.control {
+  position: fixed;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  z-index: var(--z-overlay);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 10px;
+  /* Touch target, same as the sound control. */
+  min-height: 44px;
+
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+
+  background: color-mix(in srgb, var(--color-ink) 78%, transparent);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    border-color var(--duration-normal) var(--ease-standard);
+}
+
+.control:hover {
+  border-color: var(--color-border);
+}
+
+/* The one thing §38 will not let slide: a visible focus ring. */
+.control:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/*
+  Both words, one lit.
+
+  Full-strength muted rather than a low opacity for the inactive word: a
+  resting state is the state contrast is judged at, and the sound control
+  already had to learn that lesson once.
+*/
+.word {
+  color: var(--color-text-muted);
+  transition: color var(--duration-normal) var(--ease-standard);
+}
+
+.word[data-active="true"] {
+  color: var(--color-text);
+}
+
+/*
+  The dial. A short track with the sun somewhere along it — the smallest mark
+  that says "there are two of these and you are at one end".
+*/
+.track {
+  position: relative;
+  display: block;
+  inline-size: 26px;
+  block-size: 1px;
+  background: var(--color-border);
+}
+
+.sun {
+  position: absolute;
+  inset-block-start: 50%;
+  inline-size: 7px;
+  block-size: 7px;
+  margin-block-start: -3.5px;
+  margin-inline-start: -3.5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+
+  /* Travels the track rather than appearing at the other end. */
+  transition: inset-inline-start var(--duration-slow) var(--ease-standard);
+}
+
+.control[data-hour="dusk"] .sun {
+  inset-inline-start: 0;
+}
+
+.control[data-hour="dawn"] .sun {
+  inset-inline-start: 100%;
+}
+
+/* On a phone the two corners are close together; this one gives way, because
+   the sound control is the one a visitor is more likely to be hunting for. */
+@media (max-width: 30rem) {
+  .control {
+    right: var(--space-3);
+    bottom: var(--space-3);
+    padding: 6px 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sun {
+    transition-duration: 1ms;
+  }
+}

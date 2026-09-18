@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/shared/Button";
 import { LandingAudio } from "@/components/landing/LandingAudio";
 import { LandingScene } from "@/components/landing/LandingScene";
+import { Quiet } from "@/components/shell/Quiet";
+import { HourControl } from "@/components/world/HourControl";
 import { ThreeScene } from "@/components/three/ThreeScene";
 import { Wordmark } from "@/components/world/Wordmark";
 import { links, meta, person } from "@/lib/content/portfolio";
@@ -122,6 +124,19 @@ export default function LandingPage() {
           <Link href={routes.archive}>Records</Link>
         </nav>
       </footer>
+
+      {/*
+        The control that moves the sun.
+
+        Landing-only, and last in the document so it comes after everything a
+        visitor actually came to read. Wrapped like the sound control is: the
+        hour is pure enhancement, and a client component that throws inside
+        this tree should cost the territory its weather, not the page its
+        stylesheets.
+      */}
+      <Quiet name="HourControl">
+        <HourControl />
+      </Quiet>
     </main>
   );
 }

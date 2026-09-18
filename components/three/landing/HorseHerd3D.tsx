@@ -12,7 +12,9 @@ import {
 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
+import { splitMaterial } from "@/lib/three/split";
 import { HERD_RANGE, type HerdHorse } from "@/lib/world/frontier";
+import { hours } from "../hours";
 
 const MODEL = "/frontier/landing/horse.glb";
 
@@ -65,11 +67,28 @@ export function HorseHerd3D({ horses, still = false }: HorseHerd3DProps) {
   */
   const coat = useMemo(
     () =>
-      new MeshStandardMaterial({
-        color: new Color("#141b24"),
-        roughness: 0.94,
-        metalness: 0,
-      }),
+      splitMaterial(
+        new MeshStandardMaterial({
+          /*
+            White, with the colour coming from the split instead.
+
+            The patched shader *multiplies* the hour's tone into whatever the
+            material already holds, so leaving the old dark blue here would
+            square it and the herd would go to black. White is the identity
+            for that multiply, which makes both hour colours mean exactly what
+            they say.
+
+            This is also all §21 needs: the herd is the same meshes, the same
+            mixers and the same gallop either side of the boundary. Nothing
+            reloads, nothing teleports - the light simply reaches them.
+          */
+          color: new Color("#ffffff"),
+          roughness: 0.94,
+          metalness: 0,
+        }),
+        hours.dusk.creature,
+        hours.dawn.creature,
+      ),
     [],
   );
 

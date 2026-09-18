@@ -9,6 +9,7 @@ import { SkipLink } from "@/components/navigation/SkipLink";
 import { person } from "@/lib/content/portfolio";
 import { ENTRY_STAMP_SCRIPT } from "@/lib/motion/entry";
 import { BOOT_STAMP_SCRIPT } from "@/lib/boot/boot";
+import { HOUR_STAMP_SCRIPT } from "@/lib/world/hour";
 import { BootScreen } from "@/components/boot/BootScreen";
 import "./globals.css";
 
@@ -141,6 +142,12 @@ export default function RootLayout({
             is the right failure for both. */}
         <script dangerouslySetInnerHTML={{ __html: BOOT_STAMP_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: ENTRY_STAMP_SCRIPT }} />
+        {/* The hour, stamped before first paint for the same reason as the
+            two above. Without it the server renders dusk, the browser reads
+            dawn out of session storage on mount, and the visitor watches the
+            whole page change its mind — which is the one flash Phase 10C
+            exists to avoid. */}
+        <script dangerouslySetInnerHTML={{ __html: HOUR_STAMP_SCRIPT }} />
       </head>
       <body>
         {/* The application. Mounted and laid out from the first frame even

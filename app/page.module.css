@@ -406,3 +406,131 @@
     display: none;
   }
 }
+
+/* ==========================================================================
+   THE HOUR
+
+   §19 is the rule that shapes this whole block: the environment is the event
+   and the interface is not. So nothing here leads — every property waits out
+   most of the sweep before it begins, and then takes its time. Press the
+   control and the land changes; the words notice afterwards, the way a room
+   does when the sun reaches it.
+
+   §18 is the constraint: the title has to stay readable the entire way
+   across, including at the half-second when a bright dawn sky has arrived
+   behind text still coloured for dusk. Two things handle that — the scrim
+   below, which is strongest exactly while the boundary is crossing, and the
+   fact that ink and paper are both token families that already carry measured
+   contrast. Nothing here invents a colour.
+   ========================================================================== */
+
+/*
+  Dawn remaps the text tokens rather than restating the rules.
+
+  `--color-text-on-paper*` is the family the record sheets already use, and it
+  is measured: 10.7:1, 7.4:1 and the soft earth between them. Pointing the
+  landing's own tokens at it means every rule above keeps working and the
+  contrast comes along for free.
+*/
+:global(html[data-hour="dawn"]) .scene {
+  --color-text-primary: var(--color-text-on-paper);
+  --color-text-secondary: var(--color-text-on-paper-soft);
+  --color-text-muted: var(--color-text-on-paper-muted);
+  /* The name is set in paper-light for the dark hour; at dawn that is white
+     on cream. Ink, and it becomes the darkest thing on the page. */
+  --color-paper-light: var(--color-ink);
+  --color-border-subtle: color-mix(in srgb, var(--color-ink) 22%, transparent);
+  --color-border: color-mix(in srgb, var(--color-ink) 38%, transparent);
+
+  /*
+    The wordmark, inverted.
+
+    Measured before this existed: the title stayed at --color-white-warm with
+    a --color-paper-dark shadow, which is cream on a pale dawn sky — the one
+    thing §18 says must not happen, and the one element on the page that
+    cannot be allowed to fail it.
+
+    Overriding the four `--wordmark-*` hooks rather than restyling the SVG:
+    the component already exposes them for exactly this, and its `press`
+    variant uses the same mechanism. The face and its shadow swap roles — at
+    dusk the letter is light and pressed into darkness, at dawn it is ink with
+    the light catching the edge it was pressed out of.
+  */
+  --wordmark-face: var(--color-ink);
+  --wordmark-secondary: var(--color-earth-dark);
+  --wordmark-impression: color-mix(in srgb, var(--color-paper-light) 72%, transparent);
+  --wordmark-highlight: color-mix(in srgb, var(--color-paper-light) 26%, transparent);
+}
+
+/*
+  The UI's own crossing, held back behind the landscape's.
+
+  1.05s of delay against a 1.9s sweep: by the time the words begin to turn,
+  the boundary is past the middle of the screen and the visitor has already
+  understood that the world is what changed. Reversing these two — letting the
+  buttons repaint first — is exactly what §19 forbids, and it makes the
+  landscape look like it is catching up with the interface.
+*/
+.scene,
+.inner,
+.foot {
+  transition:
+    color var(--duration-slow) var(--ease-standard) 1050ms,
+    background-color var(--duration-slow) var(--ease-standard) 1050ms,
+    border-color var(--duration-slow) var(--ease-standard) 1050ms;
+}
+
+/*
+  The fallback landscape, at dawn.
+
+  Only ever seen without WebGL — the canvas covers it otherwise — but a
+  visitor on a machine that cannot draw the territory still gets the hour they
+  chose, rather than a dark drawing under light text. That is the whole reason
+  the drawing was built to stand on its own.
+*/
+:global(html[data-hour="dawn"]) .scene {
+  background:
+    radial-gradient(120% 90% at 50% 88%, var(--color-paper-light) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-paper-dark) 0%, var(--color-paper) 46%, var(--color-paper-light) 100%);
+}
+
+/*
+  §18's contrast-support layer.
+
+  A very soft wash directly under the words, tinted toward whichever hour is
+  arriving. It is not a box and it must never read as one: no edge, no border,
+  and it sits behind the type at a strength that is invisible against open sky
+  and only does work when a mesa or a bright horizon passes behind a line of
+  text.
+*/
+.inner::before {
+  content: "";
+  position: absolute;
+  inset: -8% -6%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    62% 52% at 50% 46%,
+    color-mix(in srgb, var(--color-ink) 46%, transparent) 0%,
+    transparent 72%
+  );
+  transition: opacity var(--duration-slow) var(--ease-standard) 1050ms;
+}
+
+:global(html[data-hour="dawn"]) .inner::before {
+  background: radial-gradient(
+    62% 52% at 50% 46%,
+    color-mix(in srgb, var(--color-paper-light) 62%, transparent) 0%,
+    transparent 72%
+  );
+}
+
+/* §39: reduced motion keeps the two hours and drops the journey between. */
+@media (prefers-reduced-motion: reduce) {
+  .scene,
+  .inner,
+  .foot,
+  .inner::before {
+    transition-delay: 0ms;
+  }
+}
