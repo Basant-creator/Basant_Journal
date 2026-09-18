@@ -1,10 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { HERD_BY_TIER, herd } from "@/lib/world/frontier";
 import { CameraRig } from "../CameraRig";
 import { SceneCanvas } from "../SceneCanvas";
-import { HorseHerd3D } from "../landing/HorseHerd3D";
 import { HourRig } from "../landing/HourRig";
 import { Sky } from "../landing/Sky";
 import { Territory } from "../landing/Territory";
@@ -29,17 +26,21 @@ import type { SceneProps } from "../types";
  * The thing worth understanding about this tree is what is *not* in it. There
  * is no dusk scene and no dawn scene. There is one scene, drawn once, whose
  * every material carries both hours and asks a shared boundary which one this
- * fragment wears. That is §12, and it is what makes §21 true for free: the
- * herd crossing the boundary is one herd in changing light, because it is
- * literally the same meshes and the same mixers on both sides.
+ * fragment wears. That is §12: a mesa standing across the boundary is one
+ * mesa in two lights, because it is literally the same triangles on both
+ * sides of it.
  *
- * No rider. Horses only, as asked — §20 and §22 notwithstanding.
+ * **No animals.** There was a herd here, and it is gone at the owner's
+ * request. Two rounds of trying to seat it in the new terrain cost more than
+ * it returned: the model's origin is not at its hooves, so it floated; putting
+ * it on the ground with the wrong measurement threw it into the sky; and far
+ * enough back to look right put it behind a ridge. Removing it also takes 314
+ * kB of model off the first page anyone loads, and retires the only asset in
+ * this repository whose licence was never verified.
+ *
+ * The land is the subject now, which it always mostly was.
  */
-function Rig({ tier }: { tier: keyof typeof HERD_BY_TIER }) {
-  /* §26: the tier decides how many run. Sliced from the front of the config,
-     so a lower tier gets the leaders rather than the stragglers. */
-  const horses = useMemo(() => herd.slice(0, HERD_BY_TIER[tier]), [tier]);
-
+function Rig() {
   return (
     <>
       {/*
@@ -63,13 +64,11 @@ function Rig({ tier }: { tier: keyof typeof HERD_BY_TIER }) {
       <HourRig />
 
       <Territory />
-      <HorseHerd3D horses={horses} />
     </>
   );
 }
 
-export function LandingWorld({ tier }: SceneProps) {
-  const level = (tier ?? "high") as keyof typeof HERD_BY_TIER;
+export function LandingWorld(_props: SceneProps) {
   return (
     <SceneCanvas
       /* The sky sphere covers the frame, so this is only ever seen for the
@@ -81,7 +80,7 @@ export function LandingWorld({ tier }: SceneProps) {
         far: hours.dusk.air.far,
       }}
     >
-      <Rig tier={level in HERD_BY_TIER ? level : "high"} />
+      <Rig />
     </SceneCanvas>
   );
 }

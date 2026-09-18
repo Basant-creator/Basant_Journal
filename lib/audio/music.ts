@@ -1,5 +1,5 @@
 import type { Desk } from "./buses";
-import { type Sustained, bow, guitar, whistle } from "./instruments";
+import { type Sustained, bow, guitar, harmonica, whistle } from "./instruments";
 
 /**
  * The Frontier motif.
@@ -183,6 +183,50 @@ const ROLL_CHANCE: Record<MusicState, number> = {
   reflective: 0.42,
 };
 
+/*
+  The mouth organ.
+
+  A third voice, and placed in the arrangement rather than added to it. The
+  guitar is the rhythm, the whistle is a person a long way off, and this sits
+  between them: mid-register, sustained, and close enough to be someone in the
+  same camp rather than someone across the valley.
+
+  It plays where the whistle does %s in the gap after a figure %s but never in
+  the same gap. Two human voices answering the same phrase is a duet, and the
+  point of both of them is that the frontier is mostly empty.
+
+  Lines are short and end on a long note. A harmonica phrase that keeps moving
+  sounds like practice; one that arrives somewhere and holds sounds like
+  somebody meaning it. `at` is in beats and `hold` in seconds, matching the
+  whistle's tables.
+*/
+const REED: Array<Array<{ at: number; note: number; hold: number; bend?: number }>> = [
+  [
+    { at: 0, note: NOTES.D4, hold: 1.1, bend: 1 },
+    { at: 1.5, note: NOTES.F4, hold: 0.8 },
+    { at: 2.4, note: NOTES.G4, hold: 2.1 },
+  ],
+  [
+    { at: 0, note: NOTES.A4, hold: 0.9 },
+    { at: 1.1, note: NOTES.G4, hold: 0.7 },
+    { at: 1.9, note: NOTES.F4, hold: 0.8, bend: 2 },
+    { at: 3, note: NOTES.D4, hold: 2.3 },
+  ],
+  [
+    /* The sigh. Two notes and a bend, and it is the one most often heard. */
+    { at: 0, note: NOTES.C4, hold: 1.4 },
+    { at: 1.8, note: NOTES.D4, hold: 2.6, bend: 1 },
+  ],
+];
+
+/** How often the mouth organ answers, per state. */
+const REED_CHANCE: Record<MusicState, number> = {
+  silence: 0,
+  sparse: 0.34,
+  journey: 0.4,
+  reflective: 0.3,
+};
+
 /**
  * How often a phrase is followed by a whistle, per state.
  *
@@ -338,10 +382,12 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
       /* The whistle answers the guitar rather than sitting on top of it: it
          enters after the phrase, in the gap. */
       sinceWhistle += 1;
+      let answered = false;
       /* One phrase of separation, not two. Two meant the whistle could never
          answer the phrase it was actually answering. */
       if (sinceWhistle >= 1 && Math.random() < WHISTLE_CHANCE[state]) {
         sinceWhistle = 0;
+        answered = true;
         const line = WHISTLES[Math.floor(Math.random() * WHISTLES.length)];
         /* One call for the whole line, not one per note. The phrase is a
            single continuous tone that slides between its pitches, which is
@@ -359,6 +405,30 @@ export function conduct(desk: Desk, initial: MusicState = "silence"): Conductor 
           level: 0.34,
           pan: (Math.random() - 0.5) * 0.4,
           when: phraseEnd + 0.3,
+        });
+      }
+
+      /*
+        The mouth organ, in the gaps the whistle did not take.
+
+        Guarded rather than rolled independently: both are people, and two of
+        them answering the same figure turns an empty country into a band.
+      */
+      if (!answered && Math.random() < REED_CHANCE[state]) {
+        const line = REED[Math.floor(Math.random() * REED.length)];
+        harmonica(context, desk.bus.music, {
+          notes: line.map((n) => ({
+            at: n.at * BEAT,
+            note: n.note,
+            hold: n.hold,
+            bend: n.bend,
+          })),
+          /* Under the whistle, over the guitar's quieter notes. A reed
+             sustains, and a sustained tone at the whistle's level would sit
+             on top of everything for four beats at a time. */
+          level: 0.24,
+          pan: (Math.random() - 0.5) * 0.5,
+          when: phraseEnd + 0.45,
         });
       }
 

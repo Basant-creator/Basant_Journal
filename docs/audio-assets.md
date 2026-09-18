@@ -25,7 +25,7 @@ four source files and 1,228 lines:
 | file | what it makes |
 | --- | --- |
 | `lib/audio/atmosphere.ts` | wind bed, campfire embers, paper rustle, survey tick, the rig's lifetime |
-| `lib/audio/instruments.ts` | the string, the guitar body, whistle, bowed drone, hooves, birds |
+| `lib/audio/instruments.ts` | the string, the guitar body, mouth organ, whistle, bowed drone, birds |
 | `lib/audio/music.ts` | the Frontier motif — phrases, rests, states |
 | `lib/audio/buses.ts` | the mixing desk |
 
@@ -46,8 +46,8 @@ models the physics rather than imitating the result.
 | **the string** | Karplus-Strong. A noise burst trapped in a delay line one wavelength long, losing its high end on each pass. The algorithm is fifty years old and published; the notes played through it are ours. It is deliberately only a *string* — what instrument you are hearing is decided by the body below. |
 | **guitar** | the body, and therefore the instrument: peaking filters at 110 Hz (the box's Helmholtz air mode, +5 dB) and 215 Hz (the top plate, +4 dB), then a 3200 Hz lowpass for the wood. Picked softly, so the excitation is darker. Nylon, not steel. |
 | **guitar slide** | a ramp on the buffer source's `playbackRate` from a semitone or a whole tone below, over 130 ms. The string is genuinely re-tuned while it rings, exactly as a real one is, rather than crossfaded between two samples. Roughly one note in four. |
+| **mouth organ** | a free reed, built as an explicit harmonic series through `createPeriodicWave` — strong fundamental, a long shallow tail of both odd and even partials. Two oscillators five and six cents apart for the beat between a reed pair, a peaking filter sweeping 1500 Hz for the player's hands opening and closing, a 3600 Hz lowpass for brass rather than wire, breath underneath, and an occasional draw bend pulled a semitone or two flat and released. |
 | **whistle** | one sine per *phrase*, not per note, gliding between pitches, plus a 7% second harmonic. Scooped into from 6% under, vibrato at two incommensurate rates (4.9 and 6.7 Hz) so the wobble never repeats, a slow 0.6 Hz pitch drift, continuous breath noise underneath, and a sag at the end as the player runs out of air. |
-| **hooves** | a 90 ms noise burst with a 12 ms exponential decay, a peaking filter at 130 Hz for the thump, and a lowpass that closes from 2400 Hz to 700 Hz with distance — air eats treble before it eats loudness. |
 | **birds** | two to four sine sweeps, 50 ms each, over a random base between 2200 and 3800 Hz. |
 | **bowed strings** | three sawtooth oscillators detuned by −7, 0 and +6 cents through a lowpass that opens on the attack and closes on the release. A bowed string really is a sawtooth — the Helmholtz kink makes the bridge force one — and the detuning is what turns one instrument into several players who cannot quite agree. |
 | **the room** | a generated impulse response through a `ConvolverNode`: 2.6 seconds of stereo noise with a 28 ms pre-delay and a one-pole lowpass whose smoothing rises as the tail ages. No recorded space, no IR file. |
@@ -113,9 +113,10 @@ This file becomes a real manifest, and a row may not be left incomplete. Each
 entry needs: the file, its source URL, the named rights holder, the exact
 licence and its version, whether attribution is required and where it is given,
 and the date the licence was read. `docs/landing-assets.md` shows what an
-incomplete row looks like — the horse model is marked `license-review` because
-it arrived attributed but unverified, and "probably CC0" is not the same as
-knowing.
+incomplete row looks like. (Its one unverified entry, a horse model marked
+`license-review`, has since been removed from the project along with the herd
+it belonged to — so at the time of writing nothing in the repository carries
+an unresolved licence at all.)
 
 §40 is the rule that settles it: **do not ship an audio file if licensing is
 unclear.**
@@ -259,9 +260,12 @@ then presses the control still gets the landscape before the guitar. Measured
 from a page left 30 seconds with the sound off: first note at 12.4 s after
 switch-on.
 
-**Leaving the landing takes its music and its herd with it.** Over ten seconds
-on `/frontier`: music `+0` feeds, animals `+1` (one bird), environment steady
-at its two wind layers. On the landing the same window was music `+12`.
+**Leaving the landing takes its music with it.** Over ten seconds on
+`/frontier`: music `+0` feeds, animals `+1` (one bird), environment steady at
+its two wind layers. On the landing the same window was music `+12`.
+
+(That measurement predates the herd's removal. The hoofbeats it mentions are
+gone with the horses; birds and wind are what the animals bus carries now.)
 
 **Ducking, sampled every 20 ms across a page turn** — the music bus falls from
 0.500 to 0.275 in 60 ms, holds 180 ms, and climbs back over 500 ms. Recovery

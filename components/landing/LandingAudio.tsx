@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { isRunning, onStart, setHerdAudible, setMusic } from "@/lib/audio/atmosphere";
+import { isRunning, onStart, setMusic } from "@/lib/audio/atmosphere";
 
 /**
  * What the landing sounds like, over time.
@@ -29,9 +29,6 @@ import { isRunning, onStart, setHerdAudible, setMusic } from "@/lib/audio/atmosp
  */
 export function LandingAudio() {
   useEffect(() => {
-    /* There are horses on screen here, and nowhere else on the site. */
-    setHerdAudible(true);
-
     let timers: number[] = [];
 
     const begin = () => {
@@ -54,10 +51,8 @@ export function LandingAudio() {
     return () => {
       stopListening();
       for (const id of timers) window.clearTimeout(id);
-      /* Leaving the landing takes the horses and the music with it. §21: the
-         landing's music should be gone before the visitor settles anywhere
-         else, and Camp gets its own acoustic identity. */
-      setHerdAudible(false);
+      /* Leaving the landing takes its music with it: §21 wants it gone before
+         the visitor settles anywhere else, and Camp has its own identity. */
       setMusic("silence");
     };
   }, []);

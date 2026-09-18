@@ -39,7 +39,7 @@ const SCENES = {
   campWorld: dynamic(() => import("./camp/CampWorld").then((m) => m.CampWorld), {
     ssr: false,
   }),
-  /** The landing's country, with the herd crossing it. */
+  /** The landing's country, at whichever hour the visitor has chosen. */
   landing: dynamic(
     () => import("./scenes/LandingWorld").then((m) => m.LandingWorld),
     { ssr: false },

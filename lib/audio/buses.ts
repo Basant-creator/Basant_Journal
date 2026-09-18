@@ -13,7 +13,7 @@
  *   master
  *   ├── environment   wind, air, weather — the bed
  *   ├── animals       hooves, birds, insects
- *   ├── music         guitar and whistle
+ *   ├── music         guitar, mouth organ and whistle
  *   ├── interaction   ticks and marks the interface makes
  *   └── paper         pages, covers, documents
  *
@@ -50,7 +50,7 @@ const LEVELS: Record<BusName, number> = {
   /* Halved. Weather, not a soundtrack of weather. */
   environment: 0.08,
   animals: 0.22,
-  /* Guitar and whistle, now the loudest voices in the mix rather than a layer
+  /* The instruments, now the loudest voices in the mix rather than a layer
      inside it. 0.3 -> 0.5. */
   music: 0.5,
   interaction: 0.5,

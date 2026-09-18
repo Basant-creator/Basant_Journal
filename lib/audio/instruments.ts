@@ -417,66 +417,6 @@ export function whistle(
 }
 
 /* -------------------------------------------------------------------------
-   HOOVES
-
-   A hoof on dry ground is a short noise burst with a fast pitch drop — the
-   impact, then the ground absorbing it. Two of them close together is a
-   walking horse; four in the gallop's uneven rhythm is a running one.
-   ------------------------------------------------------------------------- */
-
-export function hoof(
-  context: AudioContext,
-  destination: AudioNode,
-  { level = 0.4, pan = 0, when, distance = 0 }: { level?: number; pan?: number; when?: number; distance?: number },
-): void {
-  const t = when ?? context.currentTime;
-
-  const source = context.createBufferSource();
-  const length = Math.floor(context.sampleRate * 0.09);
-  const buffer = context.createBuffer(1, length, context.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < length; i += 1) {
-    /* Sharp attack, quick decay: the strike and the dust. */
-    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (context.sampleRate * 0.012));
-  }
-  source.buffer = buffer;
-
-  /*
-    Distance, as filtering rather than only as level (§12, §14).
-
-    Air eats high frequencies before it eats loudness, so a far hoofbeat is
-    duller as well as quieter. Turning only the volume down leaves a close,
-    bright sound played softly — which the ear reads as "small", not "far".
-  */
-  const body = context.createBiquadFilter();
-  body.type = "lowpass";
-  body.frequency.value = 2400 - distance * 1700;
-  body.Q.value = 0.8;
-
-  const thump = context.createBiquadFilter();
-  thump.type = "peaking";
-  thump.frequency.value = 130;
-  thump.gain.value = 8 - distance * 5;
-  thump.Q.value = 1.1;
-
-  const gain = context.createGain();
-  gain.gain.value = level * (1 - distance * 0.72);
-
-  const panner = context.createStereoPanner();
-  panner.pan.value = pan;
-
-  source.connect(body).connect(thump).connect(gain).connect(panner).connect(destination);
-  source.onended = () => {
-    source.disconnect();
-    body.disconnect();
-    thump.disconnect();
-    gain.disconnect();
-    panner.disconnect();
-  };
-  source.start(t);
-}
-
-/* -------------------------------------------------------------------------
    BIRDS
 
    §17 asks for sparse wildlife and §18 for silence around it. A chirp is a
@@ -642,5 +582,195 @@ export function bow(
         /* Already stopped, or a context that is closing. */
       }
     },
+  };
+}
+
+/* -------------------------------------------------------------------------
+   THE MOUTH ORGAN - a free reed
+
+   The third way of making a note in this file, and deliberately not a variant
+   of either of the other two. The guitar is a plucked string: energy goes in
+   once and leaks out. The whistle is a resonator: a cavity singing at one
+   frequency. A harmonica is neither - it is a strip of brass being pushed
+   past a slot by moving air, opening and closing the gap as it goes.
+
+   What that does to the sound is the part worth modelling. A free reed chops
+   the airflow rather than swinging smoothly through it, so the spectrum is
+   rich and *shallow*: a strong fundamental with a long tail of harmonics that
+   fall away slowly, both odd and even, where a plucked string's die off fast
+   and a whistle has almost none at all. That is why a harmonica cuts through
+   a band at a fraction of the volume, and why it cannot be faked with a
+   filtered sawtooth - a saw has the wrong ratio between the low harmonics.
+
+   So the waveform is built from an explicit harmonic series through
+   `createPeriodicWave`, which is exact, costs nothing at runtime, and is the
+   one place in this file where naming the partials is simpler than modelling
+   the physics.
+
+   Two other things carry it. Reeds come in pairs that are never quite in
+   tune, so two oscillators a few cents apart beat against each other - that
+   slow waver is most of what says "harmonica" before a single note is over.
+   And the player's hands open and close over the back of the instrument,
+   which is a filter sweep and a tremolo at the same time.
+   ------------------------------------------------------------------------- */
+
+export interface ReedNote {
+  /** Seconds from the phrase's start. */
+  at: number;
+  note: number;
+  /** Seconds the note is held. */
+  hold: number;
+  /**
+   * Semitones to bend up into the note from below.
+   *
+   * A draw bend is the harmonica's signature and nothing else in this palette
+   * can do it: the reed is pulled flat by the player's throat and released.
+   * Rare on purpose - on every note it is a novelty rather than an accent.
+   */
+  bend?: number;
+}
+
+export interface HarmonicaOptions {
+  notes: ReedNote[];
+  level?: number;
+  pan?: number;
+  when?: number;
+}
+
+/**
+ * The reed's spectrum.
+ *
+ * Index 0 is DC and must be zero. After that: a strong fundamental, a second
+ * partial close behind it, and a tail that thins slowly rather than falling
+ * off a cliff. The imaginary terms stay zero — phase is inaudible here and
+ * zeroing it keeps the wave symmetrical.
+ *
+ * Built once and shared: a PeriodicWave is immutable and can be handed to
+ * every oscillator this instrument ever creates.
+ */
+const REED_PARTIALS = [
+  0, 1, 0.62, 0.48, 0.34, 0.27, 0.19, 0.14, 0.1, 0.075, 0.055, 0.04,
+];
+
+let reedWave: PeriodicWave | null = null;
+function reed(context: AudioContext): PeriodicWave {
+  if (!reedWave) {
+    reedWave = context.createPeriodicWave(
+      new Float32Array(REED_PARTIALS),
+      new Float32Array(REED_PARTIALS.length),
+      { disableNormalization: false },
+    );
+  }
+  return reedWave;
+}
+
+export function harmonica(
+  context: AudioContext,
+  destination: AudioNode,
+  { notes, level = 0.26, pan = 0, when }: HarmonicaOptions,
+): void {
+  if (notes.length === 0) return;
+
+  const t = when ?? context.currentTime;
+  const tail = notes[notes.length - 1];
+  const duration = tail.at + tail.hold;
+  const wave = reed(context);
+
+  const panner = context.createStereoPanner();
+  panner.pan.value = pan;
+  panner.connect(destination);
+
+  /* The hands. A slow sweep across the phrase rather than a fixed tone: open
+     hands are bright and forward, closed hands are dark and behind. */
+  const cup = context.createBiquadFilter();
+  cup.type = "peaking";
+  cup.frequency.value = 1500;
+  cup.Q.value = 0.9;
+  cup.gain.setValueAtTime(-3, t);
+  cup.gain.linearRampToValueAtTime(5, t + duration * 0.45);
+  cup.gain.linearRampToValueAtTime(-2, t + duration);
+
+  /* Brass, not wire. Everything above this is reed buzz nobody wants. */
+  const air = context.createBiquadFilter();
+  air.type = "lowpass";
+  air.frequency.value = 3600;
+  air.Q.value = 0.7;
+
+  cup.connect(air).connect(panner);
+
+  /* Breath, under the whole phrase. A harmonica leaks air by design. */
+  const breath = context.createBufferSource();
+  const breathLength = Math.max(1, Math.floor(context.sampleRate * duration));
+  const breathBuffer = context.createBuffer(1, breathLength, context.sampleRate);
+  const data = breathBuffer.getChannelData(0);
+  for (let i = 0; i < breathLength; i += 1) data[i] = Math.random() * 2 - 1;
+  breath.buffer = breathBuffer;
+  const breathBand = context.createBiquadFilter();
+  breathBand.type = "bandpass";
+  breathBand.frequency.value = 1100;
+  breathBand.Q.value = 0.6;
+  const breathGain = context.createGain();
+  breathGain.gain.setValueAtTime(0, t);
+  breathGain.gain.linearRampToValueAtTime(level * 0.16, t + 0.12);
+  breathGain.gain.setValueAtTime(level * 0.16, t + duration - 0.3);
+  breathGain.gain.linearRampToValueAtTime(0, t + duration);
+  breath.connect(breathBand).connect(breathGain).connect(panner);
+  breath.start(t);
+  breath.stop(t + duration + 0.05);
+
+  const spent: Array<{ disconnect(): void }> = [cup, air, breathBand, breathGain];
+
+  for (const n of notes) {
+    const at = t + n.at;
+    const end = at + n.hold;
+
+    const gain = context.createGain();
+    /* Air has to build. A hard attack is an accordion button, not a breath. */
+    gain.gain.setValueAtTime(0, at);
+    gain.gain.linearRampToValueAtTime(level, at + 0.075);
+    gain.gain.setValueAtTime(level, end - 0.14);
+    gain.gain.linearRampToValueAtTime(0, end);
+
+    /* Hand tremolo, arriving after the note has settled. */
+    const waver = context.createOscillator();
+    waver.frequency.value = 5.4;
+    const waverDepth = context.createGain();
+    waverDepth.gain.setValueAtTime(0, at);
+    waverDepth.gain.linearRampToValueAtTime(level * 0.22, at + n.hold * 0.5);
+    waver.connect(waverDepth).connect(gain.gain);
+    waver.start(at);
+    waver.stop(end + 0.05);
+
+    gain.connect(cup);
+
+    /* The pair of reeds, a few cents apart. */
+    for (const cents of [-5, 6]) {
+      const osc = context.createOscillator();
+      osc.setPeriodicWave(wave);
+      osc.detune.value = cents;
+
+      if (n.bend) {
+        /* Pulled flat, then released into the note. */
+        osc.frequency.setValueAtTime(n.note * 2 ** (-n.bend / 12), at);
+        osc.frequency.exponentialRampToValueAtTime(n.note, at + 0.22);
+      } else {
+        osc.frequency.setValueAtTime(n.note, at);
+      }
+
+      osc.connect(gain);
+      osc.start(at);
+      osc.stop(end + 0.05);
+      spent.push(osc);
+    }
+
+    spent.push(gain, waver, waverDepth);
+  }
+
+  /* One teardown for the whole phrase, hung off the breath because it is the
+     only node guaranteed to outlive every note in it. */
+  breath.onended = () => {
+    breath.disconnect();
+    for (const node of spent) node.disconnect();
+    panner.disconnect();
   };
 }

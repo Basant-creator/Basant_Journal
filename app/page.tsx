@@ -41,7 +41,7 @@ export default function LandingPage() {
         What was here — three filled ridges and a fragment of the survey sheet
         surfacing out of the dark — is inside LandingScene now, and so is
         everything §2 asks for beyond it: depth zones carried by tone, a rider
-        crossing the midground, a loose herd running its own lines, dust, the
+        crossing the midground, dust, the
         low sun, and a trail leading to a thread of smoke on the horizon.
 
         It ships no JavaScript. Every moving part is a CSS animation on
@@ -54,14 +54,14 @@ export default function LandingPage() {
 
       <div className={styles.landscape} aria-hidden="true">
         {/*
-          The country, and the herd crossing it.
+          The country.
 
           Two renderings of one place. The drawing is complete on its own and
           is what every visitor sees first — three tonal bands, a trail, smoke,
           dust, all server-rendered with no JavaScript at all. The renderer
           arrives over the top of it only once the capability check has passed
           and the browser has gone idle, and it brings the one thing a drawing
-          could not: horses that actually gallop.
+          could not: real depth, real facets, and a sun that can cross it.
 
           That order is the point. §25 wants the landing lighter than the Camp
           and it is — a 314 kB model with no textures against the Camp's 665 kB

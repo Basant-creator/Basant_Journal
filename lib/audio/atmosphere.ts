@@ -22,7 +22,7 @@
  */
 
 import { type Desk, createDesk, duck } from "./buses";
-import { chirp, hoof } from "./instruments";
+import { chirp } from "./instruments";
 import { type Conductor, type MusicState, conduct } from "./music";
 
 /**
@@ -253,9 +253,6 @@ export function start(): boolean {
    them read as a place is that they are *not* periodic.
    ------------------------------------------------------------------------- */
 
-/** Whether the herd is on screen. Only the landing sets this. */
-let herdAudible = false;
-
 function startVoices(target: Rig): void {
   const { context, desk } = target;
 
@@ -273,46 +270,6 @@ function startVoices(target: Rig): void {
   };
   target.voices.push(window.setTimeout(bird, 3000 + Math.random() * 6000));
 
-  /*
-    Hooves, when there is something to make them.
-
-    A gallop is four beats with a gap — not four even ones — so the group is
-    scheduled as a rhythm rather than a metronome, and the whole figure is
-    placed far back in the mix. §13: the herd is heard, not attended to.
-  */
-  const hooves = () => {
-    if (!rig) return;
-    if (herdAudible) {
-      const pan = (Math.random() - 0.5) * 1.2;
-      const distance = 0.55 + Math.random() * 0.35;
-      const t = context.currentTime;
-      /* The four-beat figure, with the uneven spacing that makes it a gallop
-         rather than a trot. */
-      const beats = [0, 0.11, 0.26, 0.35];
-      for (const b of beats) {
-        hoof(context, desk.bus.animals, {
-          level: 0.3 + Math.random() * 0.12,
-          pan,
-          distance,
-          when: t + b + Math.random() * 0.012,
-        });
-      }
-    }
-    target.voices.push(
-      window.setTimeout(hooves, 900 + Math.random() * 2600),
-    );
-  };
-  target.voices.push(window.setTimeout(hooves, 1200));
-}
-
-/**
- * Says whether horses are crossing the frame.
- *
- * Called by the place, like the fire: the landing knows its herd is on screen
- * and nothing else does. Safe with the air switched off — it sets a flag.
- */
-export function setHerdAudible(on: boolean): void {
-  herdAudible = on;
 }
 
 /**
