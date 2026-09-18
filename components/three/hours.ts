@@ -1,4 +1,3 @@
-import { scene } from "./palette";
 
 /**
  * One territory, two hours.
@@ -55,33 +54,67 @@ export interface HourEnvironment {
  * Dusk. The hour this site was designed at.
  *
  * Warm light that has already gone below the ridge, a violet band above it,
- * and everything in front reading as silhouette. The terrain colours are the
- * existing `--scene-depth-N` family, so the landing and the Camp are lit by
- * the same evening.
+ * and everything in front reading as silhouette. The terrain tones started as
+ * the `--scene-depth-N` family the Camp uses and have since been spread apart
+ * — see the note on `ground` below for why, and for what is still shared.
  */
 const dusk: HourEnvironment = {
   sky: {
-    top: "#100c0a",
-    middle: "#2a2130",
+    top: "#171119",
+    middle: "#382d40",
     horizon: "#8a4f26",
   },
-  air: { fog: "#1b1410", near: 26, far: 96 },
+  /*
+    The air, lifted off black and opened out.
+
+    This used to be #1b1410 with a far plane at 96, which put the furthest
+    range past the fog entirely and crushed the two behind it into the same
+    near-black. The result was the thing this phase exists to avoid: a
+    landscape built as layers that read as one flat shape, with the faceting
+    invisible because every facet resolved to the same colour.
+
+    Distance now settles onto a tone rather than into nothing, and the far
+    plane is out past the last ridge so the range is *hazy* instead of gone.
+  */
+  air: { fog: "#2c2119", near: 34, far: 168 },
   sun: {
     colour: "#e8a862",
-    intensity: 1.5,
+    intensity: 1.6,
     /* Low and to the left, where the sky is warmest. */
     position: [-14, 3.4, -6],
   },
-  ambient: { colour: "#5a6478", intensity: 0.5 },
-  bounce: "#3c3126",
+  /*
+    Ambient well up from 0.5. A low ambient at dusk is physically reasonable
+    and visually fatal here: the only thing separating one facet from the next
+    is how much sky each catches, and at 0.5 the unlit faces all bottomed out
+    together. This is the single biggest contributor to the geometry reading
+    as geometry.
+  */
+  ambient: { colour: "#6a7488", intensity: 0.74 },
+  bounce: "#4c3f30",
+  /*
+    The depth ladder, spread.
+
+    These were `scene.depth[0..2]` verbatim — the tokens the Camp uses — and
+    the tie was deliberate (§6 asks the two places to share a palette). But
+    that ladder was built for *overlaid flat bands* in a drawing, where a two
+    per cent step is enough to separate one plane from the next. Lit geometry
+    in fog needs much more, and at the token values the three ranges resolved
+    to within a few points of each other and of the air behind them.
+
+    Same hue family, same intent, roughly double the separation: the far range
+    is nearly the haze, the near hills are nearly the ground, and there is
+    visible country in between. Deliberate divergence, recorded here rather
+    than silently drifting.
+  */
   ground: {
-    far: scene.depth[0],
-    ridge: scene.depth[1],
-    hill: scene.depth[2],
-    plain: scene.ground,
-    rock: "#2a2018",
-    scrub: "#1d2017",
-    trail: "#2f2519",
+    far: "#3d3428",
+    ridge: "#2e2720",
+    hill: "#241d16",
+    plain: "#1c150d",
+    rock: "#382c21",
+    scrub: "#262a1c",
+    trail: "#3d3022",
   },
   creature: "#141b24",
 };
@@ -106,7 +139,7 @@ const dawn: HourEnvironment = {
     horizon: "#e7bb87",
   },
   /* Haze closes in: you can see less far at dawn, not more. */
-  air: { fog: "#bfae97", near: 20, far: 84 },
+  air: { fog: "#bfae97", near: 26, far: 140 },
   sun: {
     colour: "#ffd9a8",
     intensity: 1.7,

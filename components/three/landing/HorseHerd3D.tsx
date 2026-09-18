@@ -22,6 +22,29 @@ const MODEL = "/frontier/landing/horse.glb";
 /** The clip the herd runs on. Baked into the model beside `Idle`. */
 const GALLOP = "Gallop";
 
+/*
+  How far the model's feet sit below its own origin, at scale 1.
+
+  The origin is not at the hooves. Read straight out of the GLB: the mesh's
+  POSITION accessor spans -0.035 to +0.022 in y, and its node carries a scale
+  of 100 — so the hooves are 3.5 units under the origin and the whole animal
+  is 5.7 tall.
+
+  That went unnoticed while the landing had no floor. The herd hung at y = 0,
+  nothing contradicted it, and the eye simply put the ground at their feet.
+  Then this phase laid a floor a metre down and standing them *on* it buried
+  them to the shoulder.
+
+  **A constant, and not `Box3.setFromObject`,** which is the obvious fix and
+  is wrong here. Measured on the real clones: it returns a box two hundred
+  units tall with a minimum at y = -77, because the bounds of a skinned mesh
+  are its bind pose pushed through the skin's own matrices and have nothing to
+  do with the animal you can see. Using it threw the herd seventy-seven to
+  ninety-one units into the sky, which is a far better disappearing act than
+  being buried was.
+*/
+const FOOT_DROP = 3.5;
+
 interface HorseHerd3DProps {
   horses: HerdHorse[];
   /** Still, for reduced motion: the herd stands rather than gallops. */
@@ -109,6 +132,10 @@ export function HorseHerd3D({ horses, still = false }: HorseHerd3DProps) {
         }
       });
 
+      object.scale.setScalar(horse.scale);
+      /* How far this horse's feet sit below its own origin. See FOOT_DROP. */
+      const lift = FOOT_DROP * horse.scale;
+
       const mixer = new AnimationMixer(object);
       const clip = gltf.animations.find((a) => a.name === GALLOP) ?? gltf.animations[0];
       const action = mixer.clipAction(clip);
@@ -118,7 +145,7 @@ export function HorseHerd3D({ horses, still = false }: HorseHerd3DProps) {
          frame, so six horses would stand still together and then start. */
       mixer.setTime(horse.phase);
 
-      return { horse, object, mixer };
+      return { horse, object, mixer, lift };
     });
   }, [coat, gltf.animations, gltf.scene, horses]);
 
@@ -136,7 +163,7 @@ export function HorseHerd3D({ horses, still = false }: HorseHerd3DProps) {
 
   useFrame((_, delta) => {
     if (still) return;
-    for (const { horse, object, mixer } of instances) {
+    for (const { horse, object, mixer, lift } of instances) {
       mixer.update(delta);
       object.position.x += horse.speed * delta;
       /* Off the end of the run and back to the far edge. The wrap is silent
@@ -153,20 +180,27 @@ export function HorseHerd3D({ horses, still = false }: HorseHerd3DProps) {
         swell rather than the floor's faceted vertices: sampling the faceting
         would make them jitter between vertices instead of climbing.
       */
-      object.position.y = groundLevel(object.position.x, horse.z);
+      object.position.y = groundLevel(object.position.x, horse.z) + lift;
     }
   });
 
   return (
     <group ref={group}>
-      {instances.map(({ horse, object }) => (
+      {instances.map(({ horse, object, lift }) => (
         <primitive
           key={horse.id}
           object={object}
-          position={[horse.x, groundLevel(horse.x, horse.z), horse.z]}
+          position={[
+            horse.x,
+            groundLevel(horse.x, horse.z) + lift,
+            horse.z,
+          ]}
           /* The model faces -z; the herd runs along +x. */
           rotation={[0, Math.PI / 2, 0]}
-          scale={horse.scale}
+          /* No `scale` here: it is set on the object before its bounds are
+             measured, because the foot offset has to be in the same units the
+             position is. Setting it twice would be harmless but would leave
+             two places to change it. */
         />
       ))}
     </group>

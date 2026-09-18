@@ -104,30 +104,42 @@ function makeRange(
   return { id, z, base, peaks, tone };
 }
 
+/*
+  The three bands sit a long way back, and the reason is the herd.
+
+  They used to stand at -34, -52 and -78 — and the nearest of them is a solid
+  wall from fourteen units below the floor up to its crest, so when the herd
+  was moved out to -40 and beyond it went *behind* the hills and vanished.
+  Not dimmed, not small: occluded, with a ridge drawn over the top of it.
+
+  So the country opens up instead. The herd runs at -40 to -60 with clear
+  ground in front of the first band, which is also the better composition —
+  §30 wants the depth behind the animals rather than in front of them.
+*/
 export const ranges: Range[] = [
   /* The far range. Almost the colour of the sky, and the thing that says the
      territory does not stop at the edge of the screen. */
-  makeRange("far", -78, -1.5, "far", {
-    span: 240,
-    count: 17,
-    low: 9,
-    high: 21,
+  makeRange("far", -112, -1.5, "far", {
+    span: 320,
+    count: 19,
+    low: 13,
+    high: 30,
     frame: 0.62,
   }),
   /* Middle distance: where the country stops being a backdrop. */
-  makeRange("ridge", -52, -1.2, "ridge", {
-    span: 170,
-    count: 13,
-    low: 4.5,
-    high: 10,
+  makeRange("ridge", -86, -1.2, "ridge", {
+    span: 240,
+    count: 15,
+    low: 7,
+    high: 15,
     frame: 0.44,
   }),
-  /* Low hills just behind the herd. Barely more than a swell. */
-  makeRange("hill", -34, -0.9, "hill", {
-    span: 130,
-    count: 11,
-    low: 1.8,
-    high: 4.2,
+  /* Low hills just behind the herd — and *behind* is the operative word. */
+  makeRange("hill", -68, -0.9, "hill", {
+    span: 200,
+    count: 13,
+    low: 3,
+    high: 7,
     frame: 0.24,
   }),
 ];
