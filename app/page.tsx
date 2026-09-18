@@ -97,7 +97,19 @@ export default function LandingPage() {
         <p className={styles.lede}>{person.tagline}</p>
 
         <div className={styles.doors}>
-          <ButtonLink href={routes.frontier} variant="primary">
+          {/*
+            Camp, not the survey sheet.
+
+            The way in used to be the map, and the map is the heaviest page on
+            the site — 177 kB of first-load JavaScript against a 104 kB
+            baseline, a 3D vista, a foreground and a terrain layer, all of it
+            loaded before the visitor had seen anything. It also dropped them
+            straight into the Journal, which is the middle of the story.
+
+            You arrive at a camp. The notebook is on the table, and everything
+            else is inside it.
+          */}
+          <ButtonLink href={routes.about} variant="primary">
             Enter the frontier
           </ButtonLink>
           <ButtonLink href={routes.professional} variant="secondary">

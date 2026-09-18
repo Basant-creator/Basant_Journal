@@ -118,9 +118,10 @@ export function FrontierMap() {
   */
   useSyncExternalStore(subscribeTrail, visitedSnapshot, serverSnapshot);
 
-  /* The map *is* the Frontier checkpoint, so that is where the visitor stands
-     while reading it. Everything else on the sheet is measured from here. */
-  const here = indexOfCheckpoint("frontier");
+  /* The sheet is a page of the field book, so a visitor reading it is at the
+     Records checkpoint. It stopped being a checkpoint of its own when the
+     trail was folded from seven marks to three. */
+  const here = indexOfCheckpoint("records");
   const [engagedId, setEngagedId] = useState<string | null>(null);
   const [focusIndex, setFocusIndex] = useState(0);
   /** The trail control is hovered or focused: the journey, previewed. */

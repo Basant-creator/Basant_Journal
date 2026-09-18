@@ -138,23 +138,23 @@ export function isRearLeaf(pathname: string): boolean {
 }
 
 /**
- * Leaves that are world checkpoints rather than document sections.
+ * Leaves that are reached by turning to them, not by a tab.
  *
- * They are still pages of the book — the Board, the Archive and Trail End are
- * printed on leaves and reached by turning to them. What they are not is
- * *bookmarks*, because §5 keeps two navigation scales apart and a bookmark is
- * the document scale: it moves the reader inside one object.
+ * The Board, the Archive and Trail End are pages of this book like any other
+ * — but they are the *later* pages, and they are deliberately off the
+ * bookmark rail. Two reasons, and the second is the one that matters now.
  *
- * Leaving them on the bookmark rail meant the book could carry a reader from
- * the Journal straight to Trail End, which is world travel performed by a
- * document control — precisely the teleportation §33 asks to be removed, and
- * the reason the trail exists.
+ * Eight tabs is not an index, it is a navbar with a different texture; the
+ * rail stays at five and the book stays readable. And the walk is supposed to
+ * be sequential: you reach the results by turning past the work, which is the
+ * whole difference between a journey and a menu. The page arrows and each
+ * page's own onward link carry the reader forward.
  */
-const WORLD_LEAVES = new Set(["bounties", "archive", "trail-end"]);
+const LATE_LEAVES = new Set(["bounties", "archive", "trail-end"]);
 
-/** The bookmarks: the front *document* sections. The world is the trail's. */
+/** The bookmarks: the sections a reader jumps between. Later pages are turned to. */
 export const BOOKMARKS = BOOK_LEAVES.filter(
-  (leaf) => leaf.part === "front" && !WORLD_LEAVES.has(leaf.id),
+  (leaf) => leaf.part === "front" && !LATE_LEAVES.has(leaf.id),
 );
 export const FIRST_REAR_LEAF =
   BOOK_LEAVES.find((leaf) => leaf.part === "rear") ?? null;

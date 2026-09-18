@@ -52,13 +52,6 @@ export const checkpoints: Checkpoint[] = [
     ahead: "Where the trail begins.",
   },
   {
-    id: "frontier",
-    label: "Frontier",
-    route: "/frontier",
-    mark: "compass",
-    ahead: "The survey map, and the route across the territory.",
-  },
-  {
     id: "camp",
     label: "Camp",
     route: "/about",
@@ -69,31 +62,21 @@ export const checkpoints: Checkpoint[] = [
     id: "records",
     label: "Records",
     route: "/projects",
-    /* §4: everything the field book holds is *this* checkpoint. */
-    within: ["/projects/", "/journey", "/skills"],
+    /*
+      Everything the field book holds is *this* checkpoint.
+
+      The trail had seven marks and four of them were pages of one object: the
+      survey sheet, the board, the archive and trail end are all leaves of the
+      notebook, and giving each its own world marker put the book's table of
+      contents along the bottom of every screen. That is the clutter, and it is
+      the same mistake §4 warns about one level up.
+
+      Three marks now: you arrived, you are at the camp, and the records are
+      what the camp is for. Inside the book, the book navigates.
+    */
+    within: ["/projects/", "/journey", "/skills", "/frontier", "/bounties", "/archive", "/contact"],
     mark: "book",
-    ahead: "The field book: the journey, the work, and the gear.",
-  },
-  {
-    id: "board",
-    label: "Board",
-    route: "/bounties",
-    mark: "board",
-    ahead: "Results posted from the field.",
-  },
-  {
-    id: "archive",
-    label: "Archive",
-    route: "/archive",
-    mark: "box",
-    ahead: "The historical record: training, study, papers.",
-  },
-  {
-    id: "end",
-    label: "Trail end",
-    route: "/contact",
-    mark: "end",
-    ahead: "The far edge of the mapped territory.",
+    ahead: "The field book: the survey, the work, the results, the record.",
   },
 ];
 
@@ -203,17 +186,15 @@ export function subscribeTrail(listener: () => void): () => void {
  * Which checkpoint each location on the survey map stands for.
  *
  * The map's locations and the world's checkpoints are two lists that have to
- * agree, and they are not the same list: the map draws Gear, which §4 places
- * *inside* the Records checkpoint rather than beside it. Anything absent from
- * this table is drawn on the sheet but is not a stop on the route — which is
- * exactly what a spur is.
+ * agree, and they are not the same list. Most of what the sheet draws — Gear,
+ * the board, the archive, trail end — lives *inside* the Records checkpoint
+ * rather than beside it, because all of it is pages of one notebook. Anything
+ * absent from this table is drawn on the sheet and is not a stop on the world
+ * route, which is what a spur is.
  */
 export const LOCATION_CHECKPOINT: Record<string, string> = {
   camp: "camp",
   journal: "records",
-  bounties: "board",
-  archive: "archive",
-  "trail-end": "end",
 };
 
 export function indexOfCheckpoint(id: string): number {
