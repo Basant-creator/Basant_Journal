@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { BookSpread } from "@/components/book/BookSpread";
 import { FrontierMap } from "@/components/map/FrontierMap";
+import { TrailOnward } from "@/components/navigation/TrailOnward";
 import { locations, meta } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
 import styles from "./page.module.css";
@@ -34,7 +34,8 @@ export default function FrontierPage() {
             {spelled.charAt(0).toUpperCase() + spelled.slice(1)} locations.
             The red route is the trail itself — camp, records, board, archive,
             trail end, in that order. Gear hangs off the records as a spur: on
-            the sheet, and not on the way to anywhere.
+            the sheet, and not on the way to anywhere. Follow it to the camp
+            and the rest of the territory follows from there.
           </p>
         </div>
         <dl className={styles.sheetData}>
@@ -54,18 +55,26 @@ export default function FrontierPage() {
       </header>
 
       {/*
-        §16: the survey sheet is printed on a leaf of the book.
+        The sheet, standing on its own ground again.
 
-        `held` rather than printed onto a JOURNAL_PAGE, because the map is
-        already a sheet — a parchment field with ink cartography on it — and
-        putting a sheet on a page would be two papers where the eye expects
-        one. The book carries it; the map keeps its own stock.
+        It was printed on a leaf of the field book for two phases, and that
+        was a defensible reading — a survey does open with its sheet. Phase 12
+        §51.2 resolves it the other way and the reason is §4: the whole
+        argument of the site is that the visitor moves from looking at a
+        territory to examining the survey *of* that territory, and a survey
+        that is a page inside a notebook lying on a table at the camp cannot
+        be the thing the camp is drawn on. The map is the world's own scale;
+        the book is the document's.
 
-        The engine is untouched. Same SVG, same camera, same markers, same
-        keys, same legend column beside it — which is the "survey notes and
-        legend" §16 asks for on the facing page, and it was already there.
+        The engine is untouched — same SVG, same camera, same markers, same
+        keys, same legend column beside it. What changed is the frame around
+        it, which is now the scene the map already carried rather than a pair
+        of book boards. What remains of the sheet inside the book is
+        SheetReference: the same trail geometry, drawn small, as a figure.
       */}
-      <BookSpread held right={<FrontierMap />} />
+      <FrontierMap />
+
+      <TrailOnward />
     </div>
   );
 }

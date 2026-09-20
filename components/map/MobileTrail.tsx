@@ -1,10 +1,21 @@
 import Link from "next/link";
 import { locations } from "@/lib/content/portfolio";
 import { terrain } from "@/lib/map/terrain";
+import {
+  LOCATION_CHECKPOINT,
+  type MarkerState,
+  indexOfCheckpoint,
+  markerState,
+} from "@/lib/world/trail";
 import { LocationGlyph } from "./symbols";
 import { TrailheadAction } from "./TrailheadAction";
 import styles from "./MobileTrail.module.css";
 import { routes } from "@/lib/routes";
+
+interface MobileTrailProps {
+  /** Which checkpoint the reader is standing on, as an index on the route. */
+  here: number;
+}
 
 /**
  * The mobile composition.
@@ -17,7 +28,7 @@ import { routes } from "@/lib/routes";
  * The ridge at the top is the same generated terrain as the desktop sheet,
  * cropped — so the two compositions are visibly the same territory.
  */
-export function MobileTrail() {
+export function MobileTrail({ here }: MobileTrailProps) {
   return (
     <div className={styles.wrap}>
       <div className={styles.banner} aria-hidden="true">
@@ -41,8 +52,8 @@ export function MobileTrail() {
       <div className={styles.trailhead}>
         <p className={styles.trailheadTag}>Camp · Trailhead</p>
         <p className={styles.trailheadBody}>
-          Begin the survey. The primary trail runs from camp straight to the
-          engineering work.
+          Begin the survey. The trail runs from this sheet to the camp, and the
+          field book — with the engineering work in it — is on the table there.
         </p>
         <TrailheadAction className={styles.trailheadAction} />
       </div>
@@ -50,8 +61,20 @@ export function MobileTrail() {
       <ol className={styles.trail}>
         {locations.map((location, index) => {
           const primary = location.weight > 1;
+          /* §37: the phone keeps the checkpoint identity and the direction of
+             travel. It is the same state the sheet draws and the same the
+             trail indicator draws — the composition changes on a phone, the
+             world model does not. */
+          const checkpoint = LOCATION_CHECKPOINT[location.id];
+          const state: MarkerState | null = checkpoint
+            ? markerState(indexOfCheckpoint(checkpoint), here)
+            : null;
           return (
-            <li key={location.id} className={styles.step}>
+            <li
+              key={location.id}
+              className={styles.step}
+              data-checkpoint={state ?? undefined}
+            >
               <span className={styles.rail} aria-hidden="true">
                 <span
                   className={[
@@ -99,6 +122,10 @@ export function MobileTrail() {
                     <span className={styles.cardStatus}>
                       Survey in progress
                     </span>
+                  ) : state === "here" ? (
+                    <span className={styles.cardHere}>You are here</span>
+                  ) : state === "behind" ? (
+                    <span className={styles.cardStatus}>Surveyed</span>
                   ) : null}
                 </span>
               </Link>

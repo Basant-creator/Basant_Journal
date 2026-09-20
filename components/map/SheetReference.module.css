@@ -1,0 +1,82 @@
+/* ==========================================================================
+   THE SURVEY, AS A FIGURE
+
+   A key map printed on a leaf of the field book. It borrows the sheet's
+   geometry and its ink and nothing else — no terrain, no hachures, no
+   camera. At this size those are noise, and the point of the figure is
+   recognition: the reader should see the shape of the route they walked.
+   ========================================================================== */
+
+.figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sheet {
+  position: relative;
+  aspect-ratio: 1600 / 1000;
+  inline-size: 100%;
+  border: 1px solid color-mix(in srgb, var(--color-earth) 34%, transparent);
+  border-radius: 2px;
+  background: var(--map-field);
+  overflow: hidden;
+}
+
+.svg {
+  inline-size: 100%;
+  block-size: 100%;
+  display: block;
+}
+
+/*
+  Stroke widths are in user units of a 1600-wide viewBox rendered at maybe
+  520px, so everything here is roughly a third of what the number says. That
+  is the same trap the project's notes record for SVG filters and it applies
+  just as hard to strokes: 1px here is a third of a device pixel and reads as
+  nothing at all.
+*/
+.trail {
+  fill: none;
+  stroke: var(--map-ink-soft);
+  stroke-width: 4;
+  stroke-dasharray: 16 12;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+
+/* The route itself, in the hand's red — the one thing the eye should find
+   first, and the same ink it is drawn in on the sheet. */
+.trail[data-kind="primary"] {
+  stroke: var(--map-hand);
+  stroke-width: 6;
+  stroke-dasharray: none;
+  opacity: 0.9;
+}
+
+.disc {
+  fill: var(--map-field-light, var(--map-field));
+  stroke: var(--map-ink);
+  stroke-width: 3;
+}
+
+.glyph {
+  stroke: var(--map-ink);
+  fill: none;
+}
+
+.label {
+  font-family: var(--font-ui);
+  font-size: 30px;
+  letter-spacing: 3px;
+  fill: var(--map-label);
+}
+
+.caption {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--color-text-on-paper-muted);
+}

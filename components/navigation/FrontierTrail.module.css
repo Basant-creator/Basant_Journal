@@ -73,9 +73,15 @@
   dotted survey line ahead of them — the cartographic convention for a route
   that is planned rather than travelled, which is exactly what §12 wants the
   eye to understand without a label.
+
+  It is a real element rather than a ::before, and that is not a style
+  preference. §31 asks for the line to *grow* into newly reached ground, and
+  an animation only replays when the element runs it is freshly mounted —
+  which a pseudo-element can never be, because it belongs to a parent that
+  stays put for the whole session. FrontierTrail keys this span on the
+  current checkpoint so arriving somewhere remounts it. See the note there.
 */
-.stop + .stop::before {
-  content: "";
+.link {
   position: absolute;
   inset-block-start: 11px;
   inset-inline-start: -2.1rem;
@@ -85,10 +91,37 @@
   opacity: 0.5;
 }
 
-.stop[data-state="ahead"]::before {
+.stop[data-state="ahead"] .link {
   background: none;
   border-block-start: 1px dashed currentColor;
   opacity: 0.32;
+}
+
+/*
+  §31 — the surveyor has marked another portion of the route.
+
+  Deliberately not a progress bar: it is chained from the mark behind toward
+  the mark the visitor is standing on, in the direction the route runs, and it
+  is over in a third of a second. §30 asks for the animation to be short and
+  it should be — the growth is the confirmation of a move that has already
+  happened, not the move itself.
+*/
+@keyframes chain {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 0.5;
+  }
+}
+
+.link[data-grow] {
+  transform-origin: 0 50%;
+  /* fill-mode both, so a browser that never runs this shows the finished
+     line rather than no line at all. The resting state is the visible one. */
+  animation: chain 320ms var(--ease-standard) both;
 }
 
 .stopMark {
@@ -208,7 +241,7 @@ a.stopMark:focus-visible {
     inline-size: 2.4rem;
   }
 
-  .stop + .stop::before {
+  .link {
     inset-inline-start: -0.9rem;
     inline-size: 0.9rem;
   }
@@ -223,9 +256,17 @@ a.stopMark:focus-visible {
   }
 }
 
-/* §36: the route stays legible; the movement goes. */
+/* §36 and §45: the route stays legible; the movement goes. The grown line is
+   simply there, which is what "simplify trail growth" has to mean for an
+   animation whose entire content is a transform. */
 @media (prefers-reduced-motion: reduce) {
   a.stopMark {
     transition-duration: 1ms;
+  }
+
+  .link[data-grow] {
+    animation: none;
+    transform: none;
+    opacity: 0.5;
   }
 }

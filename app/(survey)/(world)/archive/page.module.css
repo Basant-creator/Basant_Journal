@@ -1,0 +1,199 @@
+.record {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.stamp {
+  align-self: flex-start;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-red-dark);
+  border: 1px solid rgba(84, 32, 32, 0.5);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  transform: rotate(-1.5deg);
+}
+
+.institution {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: var(--text-md);
+  color: var(--color-earth);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  margin: var(--space-2) 0 0;
+  padding-top: var(--space-4);
+  border-top: var(--rule-ink);
+}
+
+.facts div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.facts dt {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-earth);
+}
+
+.facts dd {
+  margin: 0;
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  color: var(--color-earth-dark);
+}
+
+.unresolved {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+  margin-top: auto;
+  padding-top: var(--space-4);
+  max-width: 44ch;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* The one annotation in the record office.
+
+   It sits at the foot of the section whose convention it explains rather than
+   beside each unresolved item: a policy stated once reads as a standard, and
+   the same policy repeated six times reads as an apology. */
+.note {
+  margin-top: var(--space-2);
+  align-self: flex-end;
+}
+
+/* ==========================================================================
+   THE CABINET
+
+   §26 lists the possible metaphors for this place — an archival desk, a
+   document cabinet, a correspondence table — and asks for none of them to
+   become a new heavy environment. A drawer is the one that costs a border and
+   a label: each section is a drawer front, the heading sits in the label
+   holder screwed to it, and what the drawer holds is filed underneath.
+
+   The paper language is unchanged (§40). These are the same PaperSurface
+   records they always were; what is new is the furniture they are filed in.
+   ========================================================================== */
+
+.cabinet {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 3vw, 34px);
+}
+
+.drawer {
+  position: relative;
+  padding: clamp(22px, 3vw, 38px) clamp(16px, 2.4vw, 30px) clamp(24px, 3vw, 36px);
+  border: 1px solid color-mix(in srgb, var(--timber-light) 34%, transparent);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--timber) 22%, transparent),
+    color-mix(in srgb, var(--timber-deep) 30%, transparent)
+  );
+  /* Drawn out a little: a highlight along the top lip and shadow underneath
+     it, which is the whole of what makes a panel read as a front rather than
+     as a box. */
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--timber-light) 30%, transparent),
+    0 10px 24px rgba(0, 0, 0, 0.32);
+}
+
+/*
+  The label holder.
+
+  A brass frame with a card in it, which is the one detail that says "record
+  office" without a caption saying so. It overhangs the drawer's top edge by
+  design — a holder is screwed *to* the front, not printed on it.
+*/
+/*
+  Written as `.drawer .drawerLabel` rather than `.drawerLabel`, and both halves
+  of that matter.
+
+  The heading carries `Territory.sectionHeading` as well, which sets a colour
+  for a heading on the dark field — and at equal specificity which of the two
+  wins is decided by the order the two stylesheets happen to land in the
+  bundle. That is a coin toss, and the losing side of it is white type on a
+  cream card. Two classes settle it.
+
+  `align-self` is the second half: `.section` is a flex column, so an
+  `inline-block` label is a stretched flex item and the card would run the
+  full width of the drawer front. The gap is the flex gap, which is also why
+  there is no margin at the bottom.
+*/
+.drawer .drawerLabel {
+  position: relative;
+  align-self: flex-start;
+  margin-block-start: calc(-1 * clamp(30px, 4vw, 46px));
+  padding: var(--space-2) var(--space-5);
+
+  color: var(--color-text-on-paper);
+  background: linear-gradient(
+    180deg,
+    var(--paper-aged-light, var(--color-paper-light)),
+    var(--paper-aged, var(--color-paper)) 70%,
+    var(--color-paper-dark)
+  );
+  border: 1px solid color-mix(in srgb, var(--color-earth) 55%, transparent);
+  border-radius: 2px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.42);
+}
+
+/* The two screws that hold it on. */
+.drawerLabel::before,
+.drawerLabel::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  inline-size: 5px;
+  block-size: 5px;
+  border-radius: var(--radius-pill);
+  transform: translateY(-50%);
+  background: radial-gradient(
+    circle at 34% 30%,
+    var(--nail-head),
+    var(--nail-body) 62%,
+    var(--nail-shadow)
+  );
+}
+
+.drawerLabel::before {
+  inset-inline-start: 6px;
+}
+
+.drawerLabel::after {
+  inset-inline-end: 6px;
+}
+
+@media (max-width: 40rem) {
+  /* §37: the drawer stays, the overhang goes. A label hanging off the top of
+     a panel at 375px lands on the section above it. */
+  .drawer .drawerLabel {
+    margin-block-start: 0;
+  }
+
+  .drawer {
+    padding-inline: var(--space-4);
+  }
+}

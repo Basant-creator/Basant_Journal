@@ -11,8 +11,14 @@ interface Step {
 interface OnwardNavProps {
   previous?: Step;
   next?: Step;
-  /** Defaults to the map: no page on the frontier dead-ends. */
-  returnTo?: { href: string; label: string };
+  /**
+   * Defaults to the map: no page on the frontier dead-ends.
+   *
+   * `null` omits it, and there is exactly one caller that wants to — the
+   * survey sheet itself, where "return to the survey" is an offer to go where
+   * the reader already is.
+   */
+  returnTo?: { href: string; label: string } | null;
 }
 
 /**
@@ -55,9 +61,11 @@ export function OnwardNav({
         )}
       </div>
 
-      <Link href={returnTo.href} className={styles.returnLink}>
-        {returnTo.label}
-      </Link>
+      {returnTo ? (
+        <Link href={returnTo.href} className={styles.returnLink}>
+          {returnTo.label}
+        </Link>
+      ) : null}
     </nav>
   );
 }

@@ -165,6 +165,25 @@ export function FrontierTrail() {
             </span>
           );
 
+          /*
+            §31 — the trail grows.
+
+            The stretch of line running *into* the checkpoint the visitor has
+            just reached is drawn rather than simply being there: it scales
+            from the mark behind it toward the one they are standing on, which
+            is the direction a surveyor chains a route and the direction this
+            line is read in. Everything else about the indicator is static.
+
+            It replays per arrival rather than once per session, which is the
+            reason the key carries `current`. Keying it on the checkpoint id
+            alone would grow the line the first time and never again — so
+            walking Camp → Records → Board would animate once and then look
+            broken for the rest of the walk. Changing the key remounts the
+            span, and a freshly mounted element runs its animation; this is
+            the same "replay per subject" rule the record sheets follow.
+          */
+          const growing = index === current && index > 0;
+
           return (
             <li
               key={point.id}
@@ -176,6 +195,15 @@ export function FrontierTrail() {
                  eye has to skip. */
               aria-current={state === "here" ? "step" : undefined}
             >
+              {index > 0 ? (
+                <span
+                  key={growing ? `grow-${current}` : "rest"}
+                  className={styles.link}
+                  data-grow={growing || undefined}
+                  aria-hidden="true"
+                />
+              ) : null}
+
               {state === "ahead" ? (
                 /*
                   Ahead: drawn, not offered (§12).

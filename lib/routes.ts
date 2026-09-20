@@ -86,6 +86,10 @@ export const routes = {
   professional: "/professional",
   about: "/about",
   skills: "/skills",
+  /* The book's closing leaf: what the ground taught, collected from the
+     records themselves. Nothing is written here that is not already written
+     in a project's own `lessons`. */
+  notes: "/notes",
   bounties: "/bounties",
   archive: "/archive",
   contact: "/contact",

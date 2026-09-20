@@ -3,7 +3,11 @@ import { projects } from "@/lib/content/portfolio";
 import { SITE_ORIGIN, routes } from "@/lib/routes";
 
 /**
- * The twelve routes, declared.
+ * Every route, declared.
+ *
+ * Not "the twelve routes", which is what this said until a phase added one.
+ * A count in prose drifts and the derivation does not — the same rule the
+ * survey sheet follows about how many locations it draws.
  *
  * Built from `routes` and the content model rather than a hand-kept list, so a
  * route cannot exist without appearing here and cannot appear here after being

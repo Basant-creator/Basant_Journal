@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BookSpread } from "@/components/book/BookSpread";
-import { OnwardNav } from "@/components/shared/OnwardNav";
+import { TrailOnward } from "@/components/navigation/TrailOnward";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { Place } from "@/components/world/Place";
 import { Stamp } from "@/components/world/Stamp";
 import { TornPaper } from "@/components/world/TornPaper";
 import { getLocation, getProject, meta, metrics } from "@/lib/content/portfolio";
@@ -48,21 +48,36 @@ const EDGES = [
  * from the record — nothing here is invented — and every one carries a link to
  * the write-up that substantiates it, because an unlinked number reads as
  * marketing.
+ *
+ * **It stands somewhere now.** §20 asks the Board to feel like a place rather
+ * than a page, and the board itself was never the problem — it was already
+ * planks and nails. What it lacked was ground: it was pinned to a leaf of the
+ * field book, which is to say it was a picture of a notice board printed in a
+ * notebook. So the book boards are gone, the structure stands on two posts
+ * under a head-rail, and behind it is the same ridge the survey sheet draws
+ * (see Place). The content is untouched.
  */
 export default function BountiesPage() {
   return (
-    <div className={shared.page}>
-      <PageHeader
-        eyebrow="Bounties · Results"
-        title="Bounties"
-        lede="Measured outcomes, not adjectives. Every number is pinned to the record that proves it."
-        symbol={location?.symbol}
-      />
+    <Place hour="dusk" station="Station V · Notice Board · Bounty Plateau">
+      <div className={shared.page}>
+        <PageHeader
+          eyebrow="Bounties · Results"
+          title="Bounties"
+          lede="Measured outcomes, not adjectives. Every number is pinned to the record that proves it."
+          symbol={location?.symbol}
+        />
 
-      <BookSpread
-        held
-        right={
-          <>
+        {/* The structure. Two posts driven into the ground and a rail across
+            the top of them — the thing that makes a board a board rather than a
+            panel, and the reason it reads as standing in front of the ridge
+            rather than floating over it. All decoration; the board's content is
+            a list and stays one. */}
+        <div className={styles.structure}>
+          <span className={styles.rail} aria-hidden="true" />
+          <span className={`${styles.post} ${styles.postLeft}`} aria-hidden="true" />
+          <span className={`${styles.post} ${styles.postRight}`} aria-hidden="true" />
+
           <div className={styles.board}>
             <div className={styles.planks} aria-hidden="true" />
 
@@ -148,14 +163,10 @@ export default function BountiesPage() {
               </TornPaper>
             </div>
           </div>
-          </>
-        }
-      />
+        </div>
 
-      <OnwardNav
-        previous={{ href: routes.projects, caption: "Back along the trail", label: "Journal" }}
-        next={{ href: routes.archive, caption: "Next on the trail", label: "Archive" }}
-      />
-    </div>
+        <TrailOnward />
+      </div>
+    </Place>
   );
 }

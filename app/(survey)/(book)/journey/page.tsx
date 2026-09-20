@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BookSpread } from "@/components/book/BookSpread";
+import { LeafOnward } from "@/components/book/LeafOnward";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { education, person } from "@/lib/content/portfolio";
 import { routes } from "@/lib/routes";
@@ -79,6 +80,10 @@ export default function JourneyPage() {
           </div>
         }
       />
+
+      {/* The first leaf, so "back" is the way out of the book rather than a
+          page that does not exist. LeafOnward reads the registry for both. */}
+      <LeafOnward route={routes.journey} />
     </div>
   );
 }

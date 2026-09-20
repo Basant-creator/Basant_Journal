@@ -1,3 +1,104 @@
+/* ==========================================================================
+   THE STRUCTURE
+
+   §20: the Board has to read as a place, and what separated it from one was
+   never the board — it was that the board had nothing holding it up. A panel
+   floating on a page is a card with a wood texture; a panel on two posts with
+   a rail across the top is a thing somebody built beside a trail.
+
+   Decoration only, and aria-hidden. The findings are a list and stay one.
+   ========================================================================== */
+
+.structure {
+  position: relative;
+  /* Room for the posts to stand in below the board, and for the rail above
+     it. The board itself is unchanged; this is the ground around it. */
+  padding-block: clamp(14px, 2vw, 22px) clamp(28px, 4vw, 44px);
+}
+
+/*
+  The head-rail. Wider than the board and a little proud of it, because a rail
+  cut exactly to the panel is a frame — and a frame is furniture. This is
+  structure.
+*/
+.rail {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: clamp(-20px, -2vw, -8px);
+  block-size: clamp(10px, 1.4vw, 16px);
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--timber-light),
+    var(--timber) 48%,
+    var(--timber-deep)
+  );
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* The grain runs along the rail, not across it. */
+.rail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--timber-grain) 0 1px,
+    transparent 1px 9px
+  );
+  opacity: 0.5;
+}
+
+.post {
+  position: absolute;
+  inset-block: clamp(6px, 1vw, 10px) 0;
+  inline-size: clamp(12px, 1.6vw, 18px);
+  background: linear-gradient(
+    90deg,
+    var(--timber-deep),
+    var(--timber) 42%,
+    var(--timber-dark)
+  );
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.5);
+}
+
+/* Driven in, not set down: the foot narrows and darkens into the ground. */
+.post::after {
+  content: "";
+  position: absolute;
+  inset-inline: -2px;
+  inset-block-end: 0;
+  block-size: clamp(14px, 2vw, 22px);
+  background: linear-gradient(180deg, transparent, var(--timber-deep));
+  clip-path: polygon(0 0, 100% 0, 78% 100%, 22% 100%);
+}
+
+.postLeft {
+  inset-inline-start: clamp(-14px, -1.4vw, -4px);
+}
+
+.postRight {
+  inset-inline-end: clamp(-14px, -1.4vw, -4px);
+}
+
+/*
+  The phone.
+
+  §37 keeps the metaphor and drops the millimetres. Posts eighteen pixels wide
+  either side of a 375px viewport are most of the horizontal budget spent on
+  timber, so they go and the rail stays — one board, hung, which is still a
+  board and is still not a card.
+*/
+@media (max-width: 40rem) {
+  .post {
+    display: none;
+  }
+
+  .structure {
+    padding-block-end: var(--space-4);
+  }
+}
+
 /* --- the board ----------------------------------------------------------- */
 
 .board {

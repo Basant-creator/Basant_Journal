@@ -60,6 +60,29 @@
   background: var(--color-ink-deep);
 }
 
+/*
+  §8, step 3 — the paper gets larger on the way off it.
+
+  The camera inside the SVG already walks to the engaged marker. What was
+  missing is the other half of the move: the sheet itself has to come toward
+  the reader, or the transition that follows reads as a page swap rather than
+  as an approach. Two per cent is all it takes — enough that the eye registers
+  travel, little enough that nothing reflows, and it is a compositor transform
+  on a `contain`ed box so it costs nothing.
+
+  It hands off to the MAP_TO_CAMP curtain, which picks up the same gesture and
+  carries the enlargement past the point where the sheet is a sheet at all.
+  Between them the paper never stops growing, which is the whole of §9's
+  "the brain will do the rest".
+*/
+.sheetHolder {
+  transition: transform 620ms var(--ease-cinematic);
+}
+
+[data-camera="active"] .sheetHolder {
+  transform: scale(1.02);
+}
+
 .svg {
   width: 100%;
   height: 100%;
@@ -425,6 +448,19 @@
   .fieldNote,
   .trailhead {
     animation: none !important;
+  }
+
+  /* §45: no camera travel. The approach to a marker is the one thing on this
+     sheet that is purely travel — it carries no information the marker's own
+     active state does not already carry — so it goes rather than shortening.
+     The component's own camera already rests under reduced motion; this is
+     the half of the move that lives in CSS. */
+  .sheetHolder {
+    transition: none;
+  }
+
+  [data-camera="active"] .sheetHolder {
+    transform: none;
   }
 }
 

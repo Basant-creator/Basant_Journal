@@ -97,3 +97,77 @@ a.value:hover {
 .note {
   margin-top: var(--space-2);
 }
+
+/* ==========================================================================
+   THE TERMINUS
+
+   §29: the trail line physically terminates. Not a graphic that means "the
+   end" — the same line, in the same ink, at the same weight as the primary
+   trail on the survey sheet, running in from the left and stopping against a
+   post with a surveyor's strike across it.
+
+   The dashes on the way in are the sheet's own convention for surveyed
+   ground, so the stretch behind the visitor is drawn the way the sheet draws
+   it. That is §40's motif continuity done literally rather than referenced.
+   ========================================================================== */
+
+/* A flex item of `Territory.page`, which is a column with its own gap — so
+   there is no margin here. A margin plus that gap is two spacings doing one
+   job, and the pair of them drifts apart the next time either is tuned. */
+.terminus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.terminusMark {
+  inline-size: min(100%, 26rem);
+  block-size: auto;
+  display: block;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+.terminusTrail {
+  stroke: var(--map-hand);
+  stroke-width: 2;
+  stroke-dasharray: 9 6;
+  opacity: 0.85;
+}
+
+.terminusPost {
+  stroke: var(--color-text-muted);
+  stroke-width: 2;
+}
+
+/* The strike. Red, because closing a chain is the surveyor's mark and red is
+   THE HAND — the one layer allowed to write on the world. */
+.terminusStrike {
+  stroke: var(--map-hand);
+  stroke-width: 2.2;
+  opacity: 0.9;
+}
+
+.terminusGlyph {
+  stroke: var(--color-text-muted);
+  fill: none;
+}
+
+.terminusNote {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* §37: the drawing survives the phone, the caption beside it does not — at
+   375px the two together force the line down to a stub. */
+@media (max-width: 40rem) {
+  .terminusNote {
+    display: none;
+  }
+}

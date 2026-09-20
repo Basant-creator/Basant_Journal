@@ -47,26 +47,31 @@ app/
   layout.tsx              fonts, metadata, pre-paint entry stamp, texture layer
   page.tsx                /            the landing — arrival, two doors
   (survey)/
-    layout.tsx            the shell: persistent navigation
-    frontier/             /frontier    the interactive survey map
-    projects/             /projects    the Journal index
-      [project]/          /projects/*  the three field records
-    about/                /about       Camp
-    skills/               /skills      Gear
-    bounties/             /bounties    Bounties
-    archive/              /archive     Archive
-    contact/              /contact     Trail End
-    professional/         /professional (layer model inverted)
+    layout.tsx            the dark field every page inside the frontier shares
+    (world)/              WORLD SCALE — places on the trail
+      frontier/           /frontier    the interactive survey map
+      about/              /about       Camp
+      bounties/           /bounties    the Board
+      archive/            /archive     the Archive
+      contact/            /contact     Trail End
+      professional/       /professional off-trail (layer model inverted)
+    (book)/               DOCUMENT SCALE — leaves of the field book
+      journey/            /journey     the Journey
+      projects/           /projects    the Journal index
+        [project]/        /projects/*  the three field records
+      skills/             /skills      Gear
+      notes/              /notes       Field Notes
   opengraph-image.tsx     share card, drawn from the same tokens
 
 components/
   map/          FrontierMap, LocationNode, Trail, MapLayer, MapLegend,
-                MapCompass, MobileTrail, symbols
+                MapCompass, MobileTrail, SheetReference, symbols
   journal/      RecordNav — section rail and scroll spy for a field record
   terrain/      TerrainLayer — the sheet, in draughtsman's layer order
   paper/        PaperSurface — the reusable document surface
   annotations/  SurveyAnnotation — THE HAND in the DOM
-  navigation/   Navigation, SkipLink
+  navigation/   FrontierTrail (the world route), TrailOnward, SkipLink
+  book/         BookShell, BookSpread, LeafOnward — the document scale
   metrics/      Metric
   shell/        TextureLayer, Quiet (a boundary for decoration)
   shared/       Button, PageHeader, OnwardNav, Territory styles
@@ -75,8 +80,10 @@ components/
   record/       the field-record document system
   transition/   one owner for route-entry choreography
   boot/         the landing sequence, once per session
-  audio/        the atmosphere control
-  world/        torn paper, stamps, the journal cover, the photograph
+  audio/        the atmosphere control, and CheckpointAudio — one owner for
+                what each place on the trail sounds like
+  world/        Place (the ground the 2D checkpoints stand on), torn paper,
+                stamps, the journal cover, the photograph
   three/        everything that imports three — see its own README
 
 lib/

@@ -49,6 +49,249 @@
   transition-duration: 420ms;
 }
 
+/*
+  §24 — the far end of the trail is quieter.
+
+  The Archive and Trail End darken to warm ink rather than to the void, and
+  they take longer doing it. It is the same curtain with two numbers changed,
+  which is the point: the calm is a property of the destination, carried on
+  the chapter as `tone`, not a second transition system for the back half of
+  the journey.
+*/
+.curtain[data-tone="quiet"] .veil {
+  background: var(--color-ink-deep, var(--scene-night));
+  transition-duration: 420ms;
+}
+
+.curtain[data-tone="quiet"][data-phase="EXIT"] .veil {
+  opacity: 0.8;
+}
+
+.curtain[data-tone="quiet"][data-phase="ENTER"] .veil {
+  transition-duration: 560ms;
+}
+
+/* ==========================================================================
+   THE SURVEY
+
+   Landing to the sheet, and the sheet to the ground. §4's whole argument is
+   that these are one idea seen from two sides — a territory and the survey of
+   that territory — so the transition between them is a field of paper with a
+   survey rule drawn across it, running one way or the other.
+
+   Nothing goes black. The veil is suppressed for both, because darkness would
+   say "somewhere else is loading" when what is happening is that the same
+   place is being redrawn.
+   ========================================================================== */
+
+.curtain[data-type="LANDING_TO_FRONTIER"] .veil,
+.curtain[data-type="MAP_TO_CAMP"] .veil {
+  /* Not `display: none` — the plate still wants something behind it to be
+     legible against, and at 0.34 the chapter reads over paper without the
+     landscape being lost. */
+  background: var(--scene-void);
+  opacity: 0;
+}
+
+.curtain[data-type="LANDING_TO_FRONTIER"][data-phase="CHAPTER"] .veil,
+.curtain[data-type="MAP_TO_CAMP"][data-phase="CHAPTER"] .veil {
+  opacity: 0.34;
+}
+
+.field {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      120% 90% at 50% 40%,
+      var(--paper-aged-light, var(--color-paper-light)) 0%,
+      var(--color-paper) 58%,
+      var(--color-paper-dark) 100%
+    );
+
+  /*
+    Closed to a band on the horizon. The sheet opens from the line the
+    landscape already has, which is what makes it read as the country being
+    drawn rather than as a rectangle sliding in: `scaleY` from a hairline,
+    around the same third of the frame the horizon sits on.
+  */
+  transform-origin: 50% 46%;
+  transform: scaleY(0.004);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--texture-paper-url);
+  background-size: var(--texture-paper-size, 420px);
+  opacity: var(--texture-paper-opacity);
+  mix-blend-mode: multiply;
+}
+
+/* Opening. The paper takes the frame while the route changes behind it. */
+.curtain[data-type="LANDING_TO_FRONTIER"][data-phase="EXIT"] .field,
+.curtain[data-type="LANDING_TO_FRONTIER"][data-phase="LOADER"] .field,
+.curtain[data-type="LANDING_TO_FRONTIER"][data-phase="CHAPTER"] .field {
+  transform: scaleY(1);
+  opacity: 1;
+  transition:
+    transform 460ms var(--ease-cinematic),
+    opacity 200ms var(--ease-standard);
+}
+
+/* And clearing, to leave the sheet itself underneath. */
+.curtain[data-type="LANDING_TO_FRONTIER"][data-phase="ENTER"] .field {
+  transform: scaleY(1) scale(1.05);
+  opacity: 0;
+  transition:
+    transform 520ms var(--ease-cinematic),
+    opacity 420ms var(--ease-standard);
+}
+
+/*
+  The other direction: off the sheet and onto the ground.
+
+  The paper does not open — it is already what the visitor is looking at, so
+  it *enlarges*, past the scale at which it is legible as a sheet, and the
+  place is underneath when it goes. §9 is explicit that this does not need to
+  morph anything; it needs to be continuous, and a scale is continuous.
+*/
+.curtain[data-type="MAP_TO_CAMP"] .field {
+  transform: scale(1.02);
+}
+
+.curtain[data-type="MAP_TO_CAMP"][data-phase="EXIT"] .field,
+.curtain[data-type="MAP_TO_CAMP"][data-phase="LOADER"] .field,
+.curtain[data-type="MAP_TO_CAMP"][data-phase="CHAPTER"] .field {
+  transform: scale(1);
+  opacity: 1;
+  transition:
+    transform 420ms var(--ease-cinematic),
+    opacity 240ms var(--ease-standard);
+}
+
+.curtain[data-type="MAP_TO_CAMP"][data-phase="ENTER"] .field {
+  transform: scale(1.5);
+  opacity: 0;
+  transition:
+    transform 640ms var(--ease-cinematic),
+    opacity 480ms var(--ease-standard);
+}
+
+/* ---- the survey rule --------------------------------------------------- */
+
+.survey {
+  position: relative;
+  inline-size: min(62vw, 34rem);
+  block-size: 2px;
+  opacity: 0;
+  transition: opacity 200ms var(--ease-standard);
+}
+
+.curtain[data-phase="EXIT"] .survey,
+.curtain[data-phase="LOADER"] .survey,
+.curtain[data-phase="CHAPTER"] .survey {
+  opacity: 1;
+}
+
+.curtain[data-phase="ENTER"] .survey {
+  opacity: 0;
+}
+
+.surveyLine {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: 1px;
+  background: var(--map-hand, var(--color-red));
+
+  /* Drawn, not revealed. It scales from its own start, which is the direction
+     a surveyor's chain runs and the direction the trail on the sheet runs. */
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+.curtain[data-phase="EXIT"] .surveyLine,
+.curtain[data-phase="LOADER"] .surveyLine,
+.curtain[data-phase="CHAPTER"] .surveyLine {
+  transform: scaleX(1);
+  transition: transform 520ms var(--ease-cinematic) 120ms;
+}
+
+.surveyTick {
+  position: absolute;
+  inset-block-start: -5px;
+  inline-size: 1px;
+  block-size: 11px;
+  background: var(--map-hand, var(--color-red));
+  opacity: 0;
+}
+
+.surveyTick[data-end="start"] {
+  inset-inline-start: 0;
+}
+
+.surveyTick[data-end="finish"] {
+  inset-inline-end: 0;
+}
+
+.curtain[data-phase="EXIT"] .surveyTick,
+.curtain[data-phase="LOADER"] .surveyTick,
+.curtain[data-phase="CHAPTER"] .surveyTick {
+  opacity: 0.9;
+  transition: opacity 180ms var(--ease-standard) 140ms;
+}
+
+.curtain[data-phase="EXIT"] .surveyTick[data-end="finish"],
+.curtain[data-phase="LOADER"] .surveyTick[data-end="finish"],
+.curtain[data-phase="CHAPTER"] .surveyTick[data-end="finish"] {
+  /* The far tick is struck when the chain reaches it, not before. */
+  transition-delay: 600ms;
+}
+
+/*
+  §45 — reduced motion keeps the paper and loses the travel.
+
+  The field still appears and still clears, because it is what carries the
+  chapter and removing it would leave the card floating over a hard cut. What
+  goes is every transform: no opening, no enlarging, no rule being drawn.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .field,
+  .curtain[data-type="LANDING_TO_FRONTIER"][data-phase="EXIT"] .field,
+  .curtain[data-type="LANDING_TO_FRONTIER"][data-phase="LOADER"] .field,
+  .curtain[data-type="LANDING_TO_FRONTIER"][data-phase="CHAPTER"] .field,
+  .curtain[data-type="LANDING_TO_FRONTIER"][data-phase="ENTER"] .field,
+  .curtain[data-type="MAP_TO_CAMP"] .field,
+  .curtain[data-type="MAP_TO_CAMP"][data-phase="EXIT"] .field,
+  .curtain[data-type="MAP_TO_CAMP"][data-phase="LOADER"] .field,
+  .curtain[data-type="MAP_TO_CAMP"][data-phase="CHAPTER"] .field,
+  .curtain[data-type="MAP_TO_CAMP"][data-phase="ENTER"] .field {
+    transform: none;
+    transition: opacity 140ms linear;
+  }
+
+  .surveyLine,
+  .curtain[data-phase="EXIT"] .surveyLine,
+  .curtain[data-phase="LOADER"] .surveyLine,
+  .curtain[data-phase="CHAPTER"] .surveyLine {
+    transform: scaleX(1);
+    transition: none;
+  }
+
+  .surveyTick {
+    opacity: 0.9;
+    transition: none;
+  }
+}
+
 /* --- the mark ------------------------------------------------------------ */
 
 .mark {
@@ -285,6 +528,41 @@
 .open[data-phase="ENTER"] .openLeaf,
 .open[data-phase="CHAPTER"] .openLeaf {
   transform: translateY(-16%) rotateX(-12deg) scale(1.06);
+  opacity: 0;
+  transition:
+    transform 520ms var(--ease-cinematic),
+    opacity 520ms var(--ease-standard);
+}
+
+/* --------------------------------------------------------------------------
+   AND CLOSING
+
+   §18: the reverse has to be believable, and the only reverse a reader
+   believes is the object they just watched move. Same leaf, same easing, same
+   paper — hinged at the top instead of the bottom, so the cover comes *down*
+   over the spread the way a hand closes a book that is lying open, and then
+   the whole object recedes onto the table as the view pulls back to Camp.
+
+   The scale on the way out is the camera, not the book. A cover that merely
+   slid away would leave the reader at the same distance they were reading
+   from; shrinking it is what says they have stood up.
+   -------------------------------------------------------------------------- */
+
+.open[data-close] .openLeaf {
+  transform-origin: 50% 0%;
+  transform: translateY(-104%) rotateX(-34deg) scale(1.04);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+}
+
+.open[data-close][data-phase="EXIT"] .openLeaf,
+.open[data-close][data-phase="LOADER"] .openLeaf {
+  transform: translateY(0) rotateX(0deg) scale(1);
+  transition: transform 300ms cubic-bezier(0.32, 0, 0.67, 0);
+}
+
+.open[data-close][data-phase="ENTER"] .openLeaf,
+.open[data-close][data-phase="CHAPTER"] .openLeaf {
+  transform: translateY(6%) rotateX(26deg) scale(0.66);
   opacity: 0;
   transition:
     transform 520ms var(--ease-cinematic),

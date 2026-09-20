@@ -61,9 +61,21 @@ export function RouteCurtain({
     — the reader never left the table. No mark, because the Frontier stamp
     announces a journey and this is a hand picking something up.
   */
-  if (type === "CAMP_TO_JOURNAL") {
+  /*
+    ...and closing it again is the same leaf, run the other way. §18 asks for
+    a believable reverse, and the only reverse a reader believes is the object
+    they just watched move. `data-close` flips the origin and the direction;
+    it does not get its own element, its own keyframes or its own file, which
+    is the difference between a mirror and a lookalike.
+  */
+  if (type === "CAMP_TO_JOURNAL" || type === "JOURNAL_TO_CAMP") {
     return (
-      <div className={styles.open} data-phase={phase} aria-hidden="true">
+      <div
+        className={styles.open}
+        data-phase={phase}
+        data-close={type === "JOURNAL_TO_CAMP" || undefined}
+        aria-hidden="true"
+      >
         <span className={styles.openLeaf} />
       </div>
     );
@@ -71,14 +83,43 @@ export function RouteCurtain({
 
   const showMark = phase === "EXIT" || phase === "LOADER";
 
+  /*
+    The two moves that change what the visitor is looking at rather than where
+    they are standing.
+
+    Entering the survey (§5) and stepping off it onto the ground (§8) are the
+    same mechanism in opposite directions, so they are one element with a
+    direction rather than two compositions: a field of paper, and a survey
+    rule drawn across it. On the way in the paper opens from the horizon and
+    the rule is drawn along with it — the landscape is being *surveyed*. On
+    the way out the paper enlarges past the point where it is paper at all,
+    and the place drawn on it is underneath.
+  */
+  const surveying = type === "LANDING_TO_FRONTIER" || type === "MAP_TO_CAMP";
+
   return (
     <div
       className={styles.curtain}
       data-phase={phase}
       data-type={type}
+      data-tone={meta?.tone}
       aria-hidden="true"
     >
       <span className={styles.veil} />
+
+      {surveying ? (
+        <span className={styles.field}>
+          {/* The survey line §5 step 4 asks for: one rule, drawn across the
+              country, with the two end ticks a levelling staff leaves. It is
+              the same red and the same weight as the hand on the sheet, so
+              what appears here is recognisably what is waiting there. */}
+          <span className={styles.survey}>
+            <span className={styles.surveyLine} />
+            <span className={styles.surveyTick} data-end="start" />
+            <span className={styles.surveyTick} data-end="finish" />
+          </span>
+        </span>
+      ) : null}
 
       {showMark ? (
         <span className={styles.mark}>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { OnwardNav } from "@/components/shared/OnwardNav";
+import { TrailOnward } from "@/components/navigation/TrailOnward";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { CampScene } from "@/components/scenes/CampScene";
 import { education, getLocation, person } from "@/lib/content/portfolio";
@@ -50,11 +50,16 @@ export default function AboutPage() {
         The journey timeline used to sit here. It is a leaf of the field book
         now — a record of ground covered is something you turn to, and Camp is
         somewhere you stand. The notebook on the table is how you reach it.
+
+        And the foot of the page no longer decides where the trail goes next.
+        §19 is the case that forced it: closing the book must put the visitor
+        back at Camp with the *trail* continuing to the Board rather than the
+        notebook being offered a second time. That is a fact about the walk,
+        not about this page, so TrailOnward asks the world model — see the
+        note there, including why the caption is derived from the destination
+        rather than written here.
       */}
-      <OnwardNav
-        previous={{ href: routes.frontier, caption: "Back to", label: "The map" }}
-        next={{ href: routes.journey, caption: "Open the book at", label: "The Journey" }}
-      />
+      <TrailOnward />
     </div>
   );
 }

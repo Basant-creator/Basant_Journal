@@ -234,11 +234,12 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    /* The notebook has arrived: the paper clears and the book is open.
-       Handled before the chapter check below, because /projects *has* a
-       chapter and this move deliberately does not use it — reaching for an
-       object on a table is not entering an act. */
-    if (announced && kind === "CAMP_TO_JOURNAL") {
+    /* The notebook has arrived: the paper clears and the book is open — or,
+       going the other way, it settles back onto the table and Camp is
+       underneath it. Handled before the chapter check below, because both
+       ends *have* chapters and neither move uses one: picking an object up
+       and putting it down again are not entries into an act. */
+    if (announced && (kind === "CAMP_TO_JOURNAL" || kind === "JOURNAL_TO_CAMP")) {
       token.current += 1;
       const mine = token.current;
       clearTimers();
@@ -279,8 +280,20 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     // prefetched and arrive in about a hundred milliseconds. Hold in LOADER
     // until the mark has had its minimum showing, rather than cutting it off
     // mid-strike or, worse, never showing it at all.
+    /*
+      Only a move that shows the mark waits for it.
+
+      `hold` exists to stop the Frontier stamp being cut off mid-strike, and
+      it used to be computed for every chapter-bearing move — which meant the
+      two Phase 12 transitions that deliberately have no mark were pushed
+      through LOADER anyway on their way to the chapter, and LOADER is the one
+      phase whose CSS drops a black veil over the view. Entering the survey
+      would have gone landscape, black, paper. A move with no mark has nothing
+      to hold for.
+    */
     const elapsed = announced ? Date.now() - announcedAt.current : Infinity;
-    const hold = announced ? Math.max(0, EXIT_MS + MARK_MIN - elapsed) : 0;
+    const hold =
+      announced && profile.loader ? Math.max(0, EXIT_MS + MARK_MIN - elapsed) : 0;
     if (hold > 0) setPhase("LOADER");
 
     at(hold, () => setPhase("CHAPTER"), mine);

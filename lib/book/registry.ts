@@ -39,21 +39,19 @@ export interface BookLeaf {
 /**
  * The physical index.
  *
- * Front to back, and the order is the composition: the map first because a
- * survey opens with its sheet, the journey next because that is how the
- * surveyor got there, then the working sections, then the records filed in the
- * back. Reordering this array reorders the book — the turns, the bookmarks and
- * the flutter distance all follow.
+ * Front to back, and the order is the composition: the journey first because
+ * that is how the surveyor got here, then the journal that indexes the work,
+ * then the gear that did it, then the notes it left — and the records
+ * themselves filed in the back. Reordering this array reorders the book: the
+ * turns, the bookmarks and the flutter distance all follow.
+ *
+ * The survey sheet is no longer a leaf. It was one while the map was a page of
+ * the notebook; Phase 12 makes the Frontier a place you stand in rather than a
+ * page you turn to, so it left the book along with the Board, the Archive and
+ * Trail End. What remains of it in here is SheetReference — the same trail
+ * geometry, drawn small, as a reference figure printed on a leaf.
  */
 export const BOOK_LEAVES: BookLeaf[] = [
-  {
-    id: "map",
-    route: routes.frontier,
-    tab: "Map",
-    title: "The Survey",
-    hand: "The sheet, and everything mapped on it.",
-    part: "front",
-  },
   {
     id: "journey",
     route: routes.journey,
@@ -71,14 +69,6 @@ export const BOOK_LEAVES: BookLeaf[] = [
     part: "front",
   },
   {
-    id: "bounties",
-    route: routes.bounties,
-    tab: "Bounties",
-    title: "Bounties",
-    hand: "Measured outcomes, each pinned to its record.",
-    part: "front",
-  },
-  {
     id: "gear",
     route: routes.skills,
     tab: "Gear",
@@ -87,19 +77,11 @@ export const BOOK_LEAVES: BookLeaf[] = [
     part: "front",
   },
   {
-    id: "archive",
-    route: routes.archive,
-    tab: "Archive",
-    title: "The Archive",
-    hand: "Degree, training and certifications, as issued.",
-    part: "front",
-  },
-  {
-    id: "trail-end",
-    route: routes.contact,
-    tab: "Trail End",
-    title: "Trail End",
-    hand: "The last stop, and how to reach the surveyor.",
+    id: "notes",
+    route: routes.notes,
+    tab: "Notes",
+    title: "Field Notes",
+    hand: "What the ground taught, copied out of the records.",
     part: "front",
   },
   /* The rear section. Built from the content model, so a fourth project is
@@ -138,24 +120,16 @@ export function isRearLeaf(pathname: string): boolean {
 }
 
 /**
- * Leaves that are reached by turning to them, not by a tab.
+ * The bookmarks: the sections a reader jumps between.
  *
- * The Board, the Archive and Trail End are pages of this book like any other
- * — but they are the *later* pages, and they are deliberately off the
- * bookmark rail. Two reasons, and the second is the one that matters now.
- *
- * Eight tabs is not an index, it is a navbar with a different texture; the
- * rail stays at five and the book stays readable. And the walk is supposed to
- * be sequential: you reach the results by turning past the work, which is the
- * whole difference between a journey and a menu. The page arrows and each
- * page's own onward link carry the reader forward.
+ * Every front leaf, and there are four of them. The rail used to carry a
+ * filter, because the book held eight sections and eight tabs is not an index
+ * — it is a navbar with a different texture. Phase 12 took the Board, the
+ * Archive and Trail End out of the book entirely and gave each one ground of
+ * its own, so the filter has nothing left to hide and the rail is short again
+ * by construction rather than by exception.
  */
-const LATE_LEAVES = new Set(["bounties", "archive", "trail-end"]);
-
-/** The bookmarks: the sections a reader jumps between. Later pages are turned to. */
-export const BOOKMARKS = BOOK_LEAVES.filter(
-  (leaf) => leaf.part === "front" && !LATE_LEAVES.has(leaf.id),
-);
+export const BOOKMARKS = BOOK_LEAVES.filter((leaf) => leaf.part === "front");
 export const FIRST_REAR_LEAF =
   BOOK_LEAVES.find((leaf) => leaf.part === "rear") ?? null;
 

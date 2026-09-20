@@ -98,18 +98,29 @@ export default function LandingPage() {
 
         <div className={styles.doors}>
           {/*
-            Camp, not the survey sheet.
+            The survey sheet.
 
-            The way in used to be the map, and the map is the heaviest page on
-            the site — 177 kB of first-load JavaScript against a 104 kB
-            baseline, a 3D vista, a foreground and a terrain layer, all of it
-            loaded before the visitor had seen anything. It also dropped them
-            straight into the Journal, which is the middle of the story.
+            This has been both, and the argument on each side is worth keeping
+            because it is the same trade every phase re-opens. The map is the
+            heaviest page on the site — a 3D vista, a foreground and a terrain
+            layer — so for one phase the door was Camp, which is cheaper and
+            drops the visitor somewhere with a notebook on the table.
 
-            You arrive at a camp. The notebook is on the table, and everything
-            else is inside it.
+            Phase 12 §4 puts it back, and not for the cinematic. The site's
+            whole argument is that a visitor moves from *looking at* a
+            territory to *examining the survey of* it, and that move is the
+            one the door has to make: you cannot arrive at the camp before you
+            have seen the country the camp is pitched in. The camp is the
+            second checkpoint and it is one click further on, marked on the
+            sheet, with the trail drawn to it.
+
+            The weight is paid for rather than ignored. The map's vista and
+            foreground are already dynamic imports gated at 861px, so a phone
+            fetches neither; and LANDING_TO_FRONTIER covers the move with
+            paper while the route arrives (see RouteCurtain), which is the
+            frame the cost hides in.
           */}
-          <ButtonLink href={routes.about} variant="primary">
+          <ButtonLink href={routes.frontier} variant="primary">
             Enter the frontier
           </ButtonLink>
           <ButtonLink href={routes.professional} variant="secondary">
@@ -118,8 +129,8 @@ export default function LandingPage() {
         </div>
 
         <p className={styles.doorNote}>
-          The frontier is the world. The professional view is everything,
-          plainly, on one page.
+          The frontier is the survey, and the trail runs from it. The
+          professional view is everything, plainly, on one page.
         </p>
       </div>
 

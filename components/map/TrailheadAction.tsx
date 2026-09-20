@@ -14,6 +14,13 @@ interface TrailheadActionProps {
 /**
  * FOLLOW THE TRAIL.
  *
+ * It goes to Camp, and it used to go to the Journal. The difference is Phase
+ * 12 §7: the sheet is now a checkpoint of its own and the first leg of the
+ * route out of it is the camp — so a control on the sheet labelled "follow
+ * the trail" that landed three checkpoints along was not following anything,
+ * it was a shortcut wearing the trail's name. The Journal is still one move
+ * away, off the table, where the notebook is.
+ *
  * One control, two compositions. The sheet and the phone's vertical trail
  * both carry it, and it was previously written out twice — which is how the
  * phone ended up with a trailhead that navigated without the journey.
@@ -33,7 +40,7 @@ export function TrailheadAction({
 }: TrailheadActionProps) {
   return (
     <Link
-      href={routes.projects}
+      href={routes.about}
       className={className}
       onPointerEnter={onPreviewChange ? () => onPreviewChange(true) : undefined}
       onPointerLeave={

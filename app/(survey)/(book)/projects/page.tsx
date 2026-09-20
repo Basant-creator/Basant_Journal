@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { OnwardNav } from "@/components/shared/OnwardNav";
+import { LeafOnward } from "@/components/book/LeafOnward";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ContentsPage } from "@/components/journal/ContentsPage";
 import { BookSpread } from "@/components/book/BookSpread";
@@ -47,10 +47,7 @@ export default function JournalPage() {
 
       <BookSpread left={<ContentsPage />} right={<RecordsIndexPage />} />
 
-      <OnwardNav
-        previous={{ href: routes.skills, caption: "Back along the trail", label: "Gear" }}
-        next={{ href: routes.bounties, caption: "Next on the trail", label: "Bounties" }}
-      />
+      <LeafOnward route={routes.projects} />
     </div>
   );
 }

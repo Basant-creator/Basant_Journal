@@ -6,7 +6,7 @@ import { SceneAtmosphere } from "@/components/scene/SceneAtmosphere";
 import { SceneInteraction } from "@/components/scene/SceneInteraction";
 import { SceneObject } from "@/components/scene/SceneObject";
 import { SceneObjects } from "@/components/scene/SceneObjects";
-import { setMusic, setNearFire } from "@/lib/audio/atmosphere";
+import { setNearFire } from "@/lib/audio/atmosphere";
 import { CAMP_HEIGHT, CAMP_WIDTH, objectBox } from "@/lib/world/camp";
 import {
   CampRecord,
@@ -87,17 +87,17 @@ export function CampScene({
 
     Safe with the air switched off, which is how it almost always is: this
     sets a flag and starts nothing.
+
+    The *music* used to be set here too, and is not any more. Camp's
+    reflective state now comes from CheckpointAudio in the root layout,
+    because a place that sets music on mount and silences it on unmount
+    races the place the visitor is arriving at — Camp's cleanup runs after
+    the destination's effect, so leaving here silenced wherever you went.
+    A fire belongs to a place; a score belongs to the journey.
   */
   useEffect(() => {
     setNearFire(true);
-    /* §23: Camp is more intimate than the landing. It gets the reflective
-       state — the sparest phrase, the longest gaps, the whistle almost never —
-       rather than the landing's loop carried in behind the visitor. */
-    setMusic("reflective");
-    return () => {
-      setNearFire(false);
-      setMusic("silence");
-    };
+    return () => setNearFire(false);
   }, []);
 
   return (

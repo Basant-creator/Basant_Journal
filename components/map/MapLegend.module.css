@@ -113,6 +113,48 @@
   border-color: var(--color-border-strong);
 }
 
+/* ==========================================================================
+   THE WALK, IN THE INDEX
+
+   §32: the sheet's own state, restated in the non-spatial route through it.
+   The vocabulary is the trail indicator's, exactly — red where the visitor is
+   standing, a stamp where they have been, and a place ahead drawn faint. Two
+   drawings of one fact; not two facts.
+   ========================================================================== */
+
+.item[data-checkpoint="here"] {
+  color: var(--color-accent);
+}
+
+.item[data-checkpoint="here"] .glyph,
+.item[data-checkpoint="here"] .name {
+  color: var(--color-accent);
+}
+
+.item[data-checkpoint="here"] .status {
+  color: var(--color-accent);
+  border-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.item[data-checkpoint="behind"] .glyph {
+  color: var(--color-text-muted);
+}
+
+/* Ahead is drawn, not offered as lesser: the link still works, because §34
+   is explicit that a direct route to any checkpoint must keep working. Only
+   the ink is lighter. */
+.item[data-checkpoint="ahead"] .glyph,
+.item[data-checkpoint="ahead"] .status {
+  opacity: 0.6;
+}
+
+.stamp {
+  stroke: var(--color-accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
+}
+
 .key {
   display: flex;
   flex-direction: column;

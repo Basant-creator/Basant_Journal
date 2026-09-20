@@ -1,0 +1,186 @@
+/* ==========================================================================
+   A PLACE IN THE TERRITORY
+
+   The ground the Board, the Archive and Trail End stand on. One composition,
+   three hours — §24 wants the world to get calmer the further the visitor
+   walks, and §40 wants them to recognise the country while it does.
+
+   Everything here is a token. The sky is Camp's sky and the land is Camp's
+   land, which is not a coincidence or a coordination effort: they are the
+   same custom properties, so the palette cannot drift between the place the
+   visitor just left and the one they have arrived at.
+   ========================================================================== */
+
+.place {
+  position: relative;
+  isolation: isolate;
+
+  /*
+    The hour, as three numbers.
+
+    `--place-fade` is how far the sky has gone; `--place-veil` is how much ink
+    is laid over the whole picture; `--place-ridge` is how much the ridges
+    separate from it. A later hour fades more, veils more and separates less,
+    which is what dusk actually does and is also, usefully, quieter.
+  */
+  --place-fade: 0;
+  --place-veil: 0.18;
+  --place-ridge: 1;
+}
+
+.place[data-hour="lamplight"] {
+  --place-fade: 0.45;
+  --place-veil: 0.34;
+  --place-ridge: 0.72;
+}
+
+.place[data-hour="last-light"] {
+  --place-fade: 0.78;
+  --place-veil: 0.46;
+  --place-ridge: 0.5;
+}
+
+/* ---- the country ------------------------------------------------------- */
+
+.country {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  /* Tall enough to stand behind the head of the page and the first of the
+     content, and no taller. A full-height backdrop would put a horizon
+     halfway down a list of certificates. */
+  block-size: clamp(22rem, 46vh, 34rem);
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+
+  /* The picture ends rather than stopping. Without this the country has a
+     hard bottom edge across the page, which reads as a banner image. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+}
+
+.sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--camp-sky-zenith) 0%,
+    var(--camp-sky-high) 34%,
+    var(--camp-sky-mid) 62%,
+    var(--camp-sky-haze) 82%,
+    var(--camp-sky-afterglow) 100%
+  );
+  /* The sun going down is the sky losing its warmth, not the page dimming. */
+  filter: saturate(calc(1 - var(--place-fade) * 0.7));
+}
+
+.ridges {
+  position: absolute;
+  inset-inline: 0;
+  /* The crest sits on the lower third, where a horizon belongs, and the mass
+     below it runs into the ground band. */
+  inset-block-end: 22%;
+  inline-size: 100%;
+  block-size: 62%;
+  display: block;
+}
+
+/*
+  Three bands, three tones, furthest first. The same depth model as every
+  other scene on the site: distance is carried by value, not by blur.
+*/
+.ridges path {
+  stroke: none;
+}
+
+.ridges path[data-band="0"] {
+  fill: color-mix(
+    in srgb,
+    var(--camp-land-far) calc(var(--place-ridge) * 100%),
+    var(--camp-sky-haze)
+  );
+}
+
+.ridges path[data-band="1"] {
+  fill: color-mix(
+    in srgb,
+    var(--camp-land-mid) calc(var(--place-ridge) * 100%),
+    var(--camp-sky-haze)
+  );
+}
+
+.ridges path[data-band="2"] {
+  fill: var(--camp-land-near);
+}
+
+.ground {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 24%;
+  background: linear-gradient(
+    to bottom,
+    var(--camp-land-near) 0%,
+    var(--camp-land-treeline) 100%
+  );
+}
+
+.air {
+  position: absolute;
+  inset: 0;
+}
+
+/* The ink laid over the whole picture. One layer, so the hour changes the
+   place rather than each element in it. */
+.country::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--scene-void);
+  opacity: var(--place-veil);
+}
+
+/* ---- the station mark -------------------------------------------------- */
+
+/*
+  A surveyor's note burned into the corner of the frame, the way the sheet
+  carries its own title block. Decoration: every page's own header states the
+  same facts in real markup.
+*/
+.station {
+  position: absolute;
+  inset-block-start: var(--space-4);
+  inset-inline-end: var(--page-pad, var(--space-5));
+  margin: 0;
+
+  font-family: var(--font-ui);
+  font-size: 9px;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-white-warm) 52%, transparent);
+  white-space: nowrap;
+}
+
+.content {
+  position: relative;
+}
+
+/*
+  The phone.
+
+  §37: the metaphor stays, the scale changes. A 34rem horizon on a 375px
+  screen is most of the first viewport spent on scenery, so the country
+  becomes a band above the content rather than a backdrop behind it — the
+  same ridge, the same palette, the same hour, less of it.
+*/
+@media (max-width: 40rem) {
+  .country {
+    block-size: clamp(11rem, 30vh, 16rem);
+  }
+
+  .station {
+    inset-block-start: var(--space-2);
+    font-size: 8px;
+  }
+}

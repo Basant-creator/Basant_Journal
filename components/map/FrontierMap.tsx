@@ -118,10 +118,12 @@ export function FrontierMap() {
   */
   useSyncExternalStore(subscribeTrail, visitedSnapshot, serverSnapshot);
 
-  /* The sheet is a page of the field book, so a visitor reading it is at the
-     Records checkpoint. It stopped being a checkpoint of its own when the
-     trail was folded from seven marks to three. */
-  const here = indexOfCheckpoint("records");
+  /* The sheet is the Frontier checkpoint — the visitor is standing on the
+     survey, looking at the rest of the route. Every marker's state is
+     computed against that one position, which is what keeps the stamps on the
+     sheet and the stamps on the trail indicator telling the same story
+     (§32, §33). */
+  const here = indexOfCheckpoint("frontier");
   const [engagedId, setEngagedId] = useState<string | null>(null);
   const [focusIndex, setFocusIndex] = useState(0);
   /** The trail control is hovered or focused: the journey, previewed. */
@@ -204,15 +206,22 @@ export function FrontierMap() {
   /* --- following the trail ------------------------------------------------ */
 
   /**
-   * The journey, on the map: Camp takes the emphasis, the primary trail
-   * lights, the camera frames Camp and then walks it to the Journal, and the
-   * world deepens around the move.
+   * Setting off, on the map: the primary trail lights, the camera travels to
+   * Camp, and the world deepens around the move.
+   *
+   * §8, steps 1 to 3. It used to frame Camp and then walk on to the Journal,
+   * which was right while the sheet was a page of the notebook and the
+   * Journal was where "follow the trail" went. The sheet is a checkpoint now
+   * and the next one is Camp, so the camera stops where the visitor is going
+   * — a camera that arrives somewhere the route does not is the map and the
+   * trail disagreeing about the same move.
    *
    * It starts on pointer-down, so the map has begun to move before the
    * browser is asked for anything, and it does not touch navigation — the
    * control is a real link and the route change happens on its own schedule.
-   * The paper wipe that carries the cut is announced separately, on the click
-   * itself, because only a click knows whether it is actually navigating here.
+   * What carries the cut is the MAP_TO_CAMP curtain, announced separately on
+   * the click itself, because only a click knows whether it is actually
+   * navigating here.
    */
   const followTrail = useCallback(() => {
     if (trailTimers.current.length > 0) return;
@@ -222,7 +231,6 @@ export function FrontierMap() {
     setState("location-active");
 
     trailTimers.current.push(
-      window.setTimeout(() => setEngagedId(primaryLocationId), 300),
       // If no navigation follows — a link the browser declined, an offline
       // route — the map does not sit forever in a state that says it is on
       // its way somewhere.
@@ -637,8 +645,9 @@ export function FrontierMap() {
           <div className={styles.trailheadText}>
             <p className={styles.trailheadTag}>Camp · Trailhead</p>
             <p className={styles.trailheadBody}>
-              Begin the survey. The primary trail runs from camp straight to the
-              engineering work.
+              Begin the survey. The trail runs from this sheet to the camp, and
+              the field book — with the engineering work in it — is on the
+              table there.
             </p>
           </div>
           <TrailheadAction
@@ -658,13 +667,14 @@ export function FrontierMap() {
       <aside className={styles.indexColumn}>
         <MapLegend
           activeId={activeId}
+          here={here}
           onHover={(id) => (id ? enter(id) : leave())}
         />
       </aside>
 
       {/* ================= mobile: a different composition ================ */}
       <div className={styles.mobile}>
-        <MobileTrail />
+        <MobileTrail here={here} />
       </div>
     </div>
   );

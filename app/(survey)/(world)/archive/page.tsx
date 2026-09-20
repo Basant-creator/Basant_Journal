@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { SurveyAnnotation } from "@/components/annotations/SurveyAnnotation";
-import { BookSpread } from "@/components/book/BookSpread";
-import { OnwardNav } from "@/components/shared/OnwardNav";
+import { TrailOnward } from "@/components/navigation/TrailOnward";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { PaperSurface } from "@/components/paper/PaperSurface";
+import { Place } from "@/components/world/Place";
 import { ButtonLink } from "@/components/shared/Button";
 import {
   certifications,
@@ -28,22 +28,42 @@ export const metadata: Metadata = {
 /** Only render a résumé link once the file is actually known to exist. */
 const resumeAvailable = links.resumeStatus === "resolved";
 
+/**
+ * The Archive — the record office at the townsite.
+ *
+ * §25 and §26. It was a leaf of the field book, which put the formal record
+ * inside the working notebook that the formal record is supposed to outlast;
+ * now it is a building on the trail, an hour later in the day than the Board
+ * (§24 — the world gets quieter the further the visitor walks) and lit by a
+ * lamp rather than by what is left of the sun.
+ *
+ * The metaphor is a cabinet, not a room. §26 offers a list of possibilities
+ * and the cheapest honest one is the drawer: each section is a drawer front
+ * with a card in its label holder, and the records are what is filed inside
+ * it. No new heavy environment — §26 is explicit — and no renderer at all.
+ *
+ * Every fact is the content model's. Where a certificate is not filed, the
+ * record says so; that was already true and is the reason this place works
+ * as an archive rather than as a wall of claims.
+ */
 export default function ArchivePage() {
   return (
-    <div className={shared.page}>
-      <PageHeader
-        eyebrow="Archive · Records"
-        title="Archive"
-        lede="The record office at the townsite: degree, training and certifications, filed as they were issued."
-        symbol={location?.symbol}
-      />
+    <Place hour="lamplight" station="Station VI · Record Office · Townsite">
+      <div className={shared.page}>
+        <PageHeader
+          eyebrow="Archive · Records"
+          title="Archive"
+          lede="The record office at the townsite: degree, training and certifications, filed as they were issued."
+          symbol={location?.symbol}
+        />
 
-      <BookSpread
-        held
-        right={
-          <>
-          <section className={shared.section} aria-labelledby="education">
-            <h2 id="education" className={shared.sectionHeading}>
+        {/* The cabinet. Each section is a drawer front; the heading sits in the
+            label holder screwed to it, and what the drawer holds is underneath.
+            One object, three drawers — §26's "document cabinet", built out of a
+            border and a label rather than out of a new environment. */}
+        <div className={styles.cabinet}>
+          <section className={`${shared.section} ${styles.drawer}`} aria-labelledby="education">
+            <h2 id="education" className={`${shared.sectionHeading} ${styles.drawerLabel}`}>
               Education
             </h2>
             <ul className={shared.cardsTwo}>
@@ -73,8 +93,8 @@ export default function ArchivePage() {
             </ul>
           </section>
 
-          <section className={shared.section} aria-labelledby="training">
-            <h2 id="training" className={shared.sectionHeading}>
+          <section className={`${shared.section} ${styles.drawer}`} aria-labelledby="training">
+            <h2 id="training" className={`${shared.sectionHeading} ${styles.drawerLabel}`}>
               Training &amp; certifications
             </h2>
             <ul className={shared.cards}>
@@ -113,8 +133,8 @@ export default function ArchivePage() {
             </SurveyAnnotation>
           </section>
 
-          <section className={shared.section} aria-labelledby="resume">
-            <h2 id="resume" className={shared.sectionHeading}>
+          <section className={`${shared.section} ${styles.drawer}`} aria-labelledby="resume">
+            <h2 id="resume" className={`${shared.sectionHeading} ${styles.drawerLabel}`}>
               The record of file
             </h2>
             <p className={shared.prose}>
@@ -137,14 +157,10 @@ export default function ArchivePage() {
               )}
             </div>
           </section>
-          </>
-        }
-      />
+        </div>
 
-      <OnwardNav
-        previous={{ href: routes.bounties, caption: "Back along the trail", label: "Bounties" }}
-        next={{ href: routes.contact, caption: "Next on the trail", label: "Trail End" }}
-      />
-    </div>
+        <TrailOnward />
+      </div>
+    </Place>
   );
 }

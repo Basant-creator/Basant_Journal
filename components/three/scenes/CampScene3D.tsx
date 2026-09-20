@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Group } from "three";
 import { CameraRig } from "../CameraRig";
 import { CampAir } from "../CampAir";
@@ -70,10 +70,49 @@ function CampObject({
   );
 }
 
+/**
+ * The establish.
+ *
+ * §10: arriving at Camp should give the visitor a moment to observe the
+ * place before anything points them at an object in it. The camera comes in
+ * from further back and a little higher — a wide of a fire in front of a
+ * treeline — and settles onto its resting frame over this.
+ *
+ * Long enough to read as an approach and short enough that it is over before
+ * anybody wants to do something. The chapter card is still clearing while it
+ * runs, so in practice the visitor sees the last two thirds of it.
+ */
+const ESTABLISH_MS = 1900;
+
+/**
+ * And how long the camera declines to lean at anything.
+ *
+ * Longer than the arrival on purpose, and the gap is the whole of §10's
+ * second sentence. The notebook is the tablist's initial selection — it has
+ * to be, because the record panel below the scene must not open empty — so
+ * without this the camera had `focus` pointing at it on the very first frame
+ * and the establish resolved *into a lean at the notebook*. The place was
+ * never on screen without something being pointed at.
+ *
+ * It is a plain timer rather than a frame count because it is not
+ * synchronised to the arrival: CameraRig seeds its own clock on the first
+ * drawn frame, which can be later than this component mounting, and the
+ * failure that matters is the hold ending too early. Three hundred
+ * milliseconds of slack costs nothing and cannot expose the bug.
+ */
+const HOLD_MS = ESTABLISH_MS + 300;
+
 function Rig({ activeId, hoverId, anchorTarget }: SceneProps) {
   const embers = useRef<Group | null>(null);
 
   const ids = useMemo(() => Object.keys(OBJECTS) as ObjectId[], []);
+
+  /* False until the establish is over. See HOLD_MS. */
+  const [attending, setAttending] = useState(false);
+  useEffect(() => {
+    const id = window.setTimeout(() => setAttending(true), HOLD_MS);
+    return () => window.clearTimeout(id);
+  }, []);
 
   useFrame((state) => {
     if (!embers.current) return;
@@ -85,7 +124,14 @@ function Rig({ activeId, hoverId, anchorTarget }: SceneProps) {
       <CameraRig
         home={[0, 1.35, 5.6]}
         target={[0, 0.7, 1.6]}
-        focus={activeId && activeId in OBJECTS ? OBJECTS[activeId as ObjectId] : null}
+        /* Back, up, and off to one side, so the move in is not a dolly along
+           the axis the scene is already symmetrical about. */
+        arrival={{ from: [1.1, 2.3, 8.8], ms: ESTABLISH_MS }}
+        focus={
+          attending && activeId && activeId in OBJECTS
+            ? OBJECTS[activeId as ObjectId]
+            : null
+        }
         /* A lean, not a dive. At 0.5 the camera travelled far enough onto the
            chosen object to throw the other three out of frame entirely —
            measured at 166% and 280% across the viewport — which is the

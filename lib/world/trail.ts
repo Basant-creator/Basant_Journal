@@ -43,6 +43,28 @@ export interface Checkpoint {
   ahead: string;
 }
 
+/**
+ * The route, in order. Index is position, and everything downstream reads it.
+ *
+ * Seven marks, and the count is not arbitrary — each one is a place that
+ * answers Phase 12 §1's question, *why does this exist in the territory*:
+ *
+ *   Arrival     you are looking at the country from outside it
+ *   Frontier    the survey of that country — the sheet
+ *   Camp        where the work is done
+ *   Records     the notebook the work is written in
+ *   Board       where findings are posted for other people to read
+ *   Archive     where the formal record is kept
+ *   Trail End   where the survey stops and the correspondence starts
+ *
+ * This list was three marks for one commit, which folded the last four into
+ * the notebook. That was right while the board, the archive and trail end
+ * *were* leaves of the notebook — a table of contents does not belong on the
+ * world route (§4, and it is still true of Gear and the Journey, which are
+ * still leaves). Phase 12 takes them out of the book and gives each one
+ * ground of its own, so they are places again and the marks come back with
+ * them.
+ */
 export const checkpoints: Checkpoint[] = [
   {
     id: "arrival",
@@ -50,6 +72,13 @@ export const checkpoints: Checkpoint[] = [
     route: "/",
     mark: "arrival",
     ahead: "Where the trail begins.",
+  },
+  {
+    id: "frontier",
+    label: "Frontier",
+    route: "/frontier",
+    mark: "compass",
+    ahead: "The survey sheet: the whole territory, drawn.",
   },
   {
     id: "camp",
@@ -63,20 +92,36 @@ export const checkpoints: Checkpoint[] = [
     label: "Records",
     route: "/projects",
     /*
-      Everything the field book holds is *this* checkpoint.
-
-      The trail had seven marks and four of them were pages of one object: the
-      survey sheet, the board, the archive and trail end are all leaves of the
-      notebook, and giving each its own world marker put the book's table of
-      contents along the bottom of every screen. That is the clutter, and it is
-      the same mistake §4 warns about one level up.
-
-      Three marks now: you arrived, you are at the camp, and the records are
-      what the camp is for. Inside the book, the book navigates.
+      Everything the field book holds is *this* checkpoint, and §16 is the
+      reason: a reader who turns to TuneIt has not travelled anywhere. They
+      have turned a page inside the place they were already standing in.
+      Without this list the trail would grow a marker per document and the
+      clutter §2 warns about would come straight back one level down.
     */
-    within: ["/projects/", "/journey", "/skills", "/frontier", "/bounties", "/archive", "/contact"],
+    within: ["/projects/", "/journey", "/skills", "/notes"],
     mark: "book",
-    ahead: "The field book: the survey, the work, the results, the record.",
+    ahead: "The field book: the journey, the work, the gear, the notes.",
+  },
+  {
+    id: "board",
+    label: "Board",
+    route: "/bounties",
+    mark: "board",
+    ahead: "The notice board: measured findings, posted.",
+  },
+  {
+    id: "archive",
+    label: "Archive",
+    route: "/archive",
+    mark: "box",
+    ahead: "The record office: degree, training, certifications.",
+  },
+  {
+    id: "trail-end",
+    label: "Trail End",
+    route: "/contact",
+    mark: "end",
+    ahead: "Where the trail stops and the correspondence starts.",
   },
 ];
 
@@ -195,10 +240,65 @@ export function subscribeTrail(listener: () => void): () => void {
 export const LOCATION_CHECKPOINT: Record<string, string> = {
   camp: "camp",
   journal: "records",
+  bounties: "board",
+  archive: "archive",
+  "trail-end": "trail-end",
 };
 
 export function indexOfCheckpoint(id: string): number {
   return checkpoints.findIndex((point) => point.id === id);
+}
+
+/**
+ * Where the walk goes from here.
+ *
+ * Not simply `checkpoints[current + 1]`, and the difference is the whole of
+ * §19. A visitor standing at Camp who has not opened the notebook should be
+ * pointed at the notebook; one who has just closed it should be pointed on
+ * down the trail to the Board. Both are "the next place", and which one it is
+ * depends on what they have already done rather than on where they are.
+ *
+ * So: the first place ahead of them that they have not been to. If they have
+ * been everywhere ahead — a second lap, or a deep link near the end — it falls
+ * back to the immediate neighbour, because a route that says nothing is worse
+ * than a route that repeats itself.
+ *
+ * Reads session state, so it is only correct on the client. Callers render the
+ * neighbour on the server and let the real answer arrive with hydration; see
+ * TrailOnward, which does exactly that.
+ */
+export function nextCheckpoint(current: number): Checkpoint | null {
+  if (current < 0 || current >= checkpoints.length - 1) return null;
+  for (let i = current + 1; i < checkpoints.length; i += 1) {
+    if (!hasVisited(checkpoints[i].id)) return checkpoints[i];
+  }
+  return checkpoints[current + 1];
+}
+
+/** The place before this one. The route runs both ways; the walk does not. */
+export function previousCheckpoint(current: number): Checkpoint | null {
+  if (current <= 0) return null;
+  return checkpoints[current - 1];
+}
+
+/**
+ * The chapter numeral for a checkpoint, derived rather than written down.
+ *
+ * §33 asks that the map, the trail, the route and the chapter card all agree
+ * about where the visitor is, and a hand-maintained numeral is the one of
+ * those four that drifts — it did, for two phases, while the routes were
+ * renumbered around it. Arrival is not an act, so the count starts at the
+ * Frontier.
+ */
+const NUMERALS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+
+export function chapterNumeralFor(pathname: string): string | undefined {
+  const index = indexOfRoute(pathname);
+  if (index <= 0) return undefined;
+  /* Only the checkpoint's own route is an act. A leaf of the notebook is
+     inside Records, not a chapter of its own (§16). */
+  if (checkpoints[index].route !== pathname) return undefined;
+  return NUMERALS[index - 1];
 }
 
 export type MarkerState = "behind" | "here" | "ahead";

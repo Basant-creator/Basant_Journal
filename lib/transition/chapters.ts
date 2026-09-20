@@ -1,4 +1,5 @@
 import { routes } from "@/lib/routes";
+import { chapterNumeralFor } from "@/lib/world/trail";
 
 /**
  * What a route announces itself as.
@@ -19,6 +20,16 @@ export interface ChapterMeta {
   chapter?: string;
   title: string;
   subtitle: string;
+  /**
+   * How loud the arrival is.
+   *
+   * §24 asks that the further into the journey the visitor gets, the calmer
+   * the environment becomes — current findings give way to historical record,
+   * and the treatment should say so before the content does. `quiet` is that
+   * instruction, carried on the chapter rather than inferred by the curtain,
+   * because "the Archive is a quiet place" is a fact about the place.
+   */
+  tone?: "quiet";
 }
 
 /**
@@ -30,9 +41,23 @@ export interface ChapterMeta {
  * numbering systems using the same word is a bug that looks like a typo, so
  * the records are now Records and the word Chapter means one thing.
  */
+/**
+ * The acts, and only the acts.
+ *
+ * One entry per world checkpoint, which is the invariant §33 turns on: a
+ * chapter card is the loudest statement the site makes about where somebody
+ * is, and it must not be able to disagree with the trail at the foot of the
+ * screen or with the marker on the sheet. The Journey, Gear and the Notes are
+ * gone from this table — they are leaves of the notebook, so a reader turning
+ * to one is still at Records and is told so by the trail rather than by a
+ * card announcing an act they did not enter (§16).
+ *
+ * The numerals are not written here either. They come from the checkpoint's
+ * own position on the route, so renumbering is something that happens by
+ * reordering the world rather than by editing two files and hoping.
+ */
 export const CHAPTERS: Record<string, ChapterMeta> = {
   [routes.frontier]: {
-    chapter: "I",
     title: "The Frontier",
     subtitle: "The Survey",
   },
@@ -48,39 +73,29 @@ export const CHAPTERS: Record<string, ChapterMeta> = {
      that has to shrink to fit a phone. Eighteen does not.
   */
   [routes.about]: {
-    chapter: "II",
     title: "The Camp",
     subtitle: "Basant's Territory",
   },
-  [routes.journey]: {
-    chapter: "III",
-    title: "The Journey",
-    subtitle: "How the ground was covered",
-  },
   [routes.projects]: {
-    chapter: "IV",
-    title: "The Journal",
-    subtitle: "Field Records",
-  },
-  [routes.skills]: {
-    chapter: "V",
-    title: "The Workshop",
-    subtitle: "Tools of the Trade",
+    title: "The Records",
+    subtitle: "Field Journal",
   },
   [routes.bounties]: {
-    chapter: "VI",
     title: "The Board",
     subtitle: "Notable Findings",
   },
+  /* §24: from here the world gets quieter. The Archive and Trail End are
+     where the journey stops being a survey and starts being a record of one,
+     and their arrivals are treated accordingly — see RouteCurtain. */
   [routes.archive]: {
-    chapter: "VII",
     title: "The Archive",
     subtitle: "Records & History",
+    tone: "quiet",
   },
   [routes.contact]: {
-    chapter: "VIII",
     title: "Trail End",
     subtitle: "The Last Stop",
+    tone: "quiet",
   },
   /* The professional view is deliberately not a chapter. It is the same
      material without the world around it, and a recruiter arriving there
@@ -100,7 +115,13 @@ export const CHAPTERS: Record<string, ChapterMeta> = {
  * they have entered Chapter III every time they turn a page.
  */
 export function chapterFor(pathname: string): ChapterMeta | null {
-  return CHAPTERS[pathname] ?? null;
+  const meta = CHAPTERS[pathname];
+  if (!meta) return null;
+  /* The numeral is the checkpoint's index, not a field. A place that is not
+     on the route — the professional view — gets no number, and that falls out
+     of the model rather than being remembered. */
+  const chapter = chapterNumeralFor(pathname);
+  return chapter ? { ...meta, chapter } : meta;
 }
 
 /** Whether a pathname is one of the world's major routes. */

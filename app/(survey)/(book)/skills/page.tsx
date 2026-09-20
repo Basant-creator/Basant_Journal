@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BookSpread } from "@/components/book/BookSpread";
-import { OnwardNav } from "@/components/shared/OnwardNav";
+import { LeafOnward } from "@/components/book/LeafOnward";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { PaperSurface } from "@/components/paper/PaperSurface";
 import { getLocation, getProject, skills } from "@/lib/content/portfolio";
@@ -94,10 +94,7 @@ export default function SkillsPage() {
         }
       />
 
-      <OnwardNav
-        previous={{ href: routes.about, caption: "Back along the trail", label: "Camp" }}
-        next={{ href: routes.projects, caption: "Next on the trail", label: "Journal" }}
-      />
+      <LeafOnward route={routes.skills} />
     </div>
   );
 }
