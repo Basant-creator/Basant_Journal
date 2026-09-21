@@ -71,6 +71,6 @@
   background: radial-gradient(
     ellipse 84% 78% at 50% 50%,
     transparent 55%,
-    rgba(7, 6, 5, 0.22) 100%
+    color-mix(in srgb, var(--scene-void) 22%, transparent) 100%
   );
 }

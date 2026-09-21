@@ -55,8 +55,8 @@
 .hotspot:hover,
 .hotspot:focus-visible,
 .hotspotOn {
-  border-color: rgba(216, 199, 165, 0.55);
-  background: rgba(216, 199, 165, 0.07);
+  border-color: color-mix(in srgb, var(--color-paper) 55%, transparent);
+  background: color-mix(in srgb, var(--color-paper) 7%, transparent);
 }
 
 .hotspot:focus-visible {
@@ -74,7 +74,7 @@
   color: var(--color-paper-light);
   opacity: 0.55;
   transition: opacity var(--duration-normal) var(--ease-standard);
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 1px 6px color-mix(in srgb, var(--shadow-ink) 90%, transparent);
 }
 
 .hotspotNote {
@@ -87,7 +87,7 @@
   transition:
     opacity var(--duration-normal) var(--ease-standard),
     transform var(--duration-normal) var(--ease-standard);
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 1px 6px color-mix(in srgb, var(--shadow-ink) 90%, transparent);
 }
 
 .hotspot:hover .hotspotLabel,
@@ -227,7 +227,7 @@
 
 .recordTag {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   font-weight: 600;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
@@ -299,7 +299,7 @@
   top: 0.62em;
   width: 12px;
   height: 1px;
-  background: rgba(64, 50, 37, 0.6);
+  background: color-mix(in srgb, var(--color-earth-dark) 60%, transparent);
 }
 
 .recordStrong {
@@ -344,14 +344,14 @@
 
   .hotspotLabel {
     opacity: 0.9;
-    font-size: 0.62rem;
+    font-size: var(--text-2xs);
   }
 
   .hotspot {
     justify-content: center;
     align-items: center;
     text-align: center;
-    border-color: rgba(216, 199, 165, 0.28);
+    border-color: color-mix(in srgb, var(--color-paper) 28%, transparent);
   }
 }
 
@@ -449,7 +449,7 @@
 .openJournalHint {
   display: block;
   margin-top: 3px;
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.04em;
   text-transform: none;
   color: var(--color-text-on-paper-soft);

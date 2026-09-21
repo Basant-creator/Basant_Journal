@@ -94,7 +94,7 @@
 
 .coverTag {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-red-dark);
@@ -119,7 +119,7 @@
 
 .underTag {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-red-light);

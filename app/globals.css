@@ -64,8 +64,8 @@
   --color-accent: var(--color-red);
   --color-accent-hover: var(--color-red-hover);
 
-  --color-border-subtle: rgba(216, 199, 165, 0.22);
-  --color-border-strong: rgba(216, 199, 165, 0.48);
+  --color-border-subtle: color-mix(in srgb, var(--color-paper) 22%, transparent);
+  --color-border-strong: color-mix(in srgb, var(--color-paper) 48%, transparent);
 
   /* Focus is surface-scoped: paper-light on paper is 1.19:1 — invisible. */
   --focus-ring-color: var(--color-paper-light);
@@ -73,8 +73,8 @@
   --focus-ring-offset: 3px;
 
   --color-selection-bg: rgba(166, 81, 69, 0.32);
-  --color-scrim: rgba(11, 9, 7, 0.72);
-  --color-hover-wash: rgba(216, 199, 165, 0.06);
+  --color-scrim: color-mix(in srgb, var(--shadow-ink) 72%, transparent);
+  --color-hover-wash: color-mix(in srgb, var(--color-paper) 6%, transparent);
 
   /* --- typography -------------------------------------------------------- */
   /* Faces are supplied by next/font in app/layout.tsx. */
@@ -87,6 +87,20 @@
   --font-ui: var(--font-inter), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
   --font-hand: var(--font-caveat), "Segoe Script", cursive;
 
+  /*
+    The step below the scale.
+
+    --text-xs (0.72rem) was the floor, and the site was not using it as one:
+    0.62rem appeared 26 times across 18 files and a 0.64rem near-twin 9 more,
+    for one job — the small uppercase filing label that sits over almost every
+    surface here. Thirty-five declarations, two sizes two hundredths of a rem
+    apart, and no name for either.
+
+    So the scale gains its real floor rather than the labels being rounded up
+    into a size the design never wanted. §35 asks for a metadata hierarchy;
+    two indistinguishable sizes are noise in one, not a level of it.
+  */
+  --text-2xs: 0.62rem;
   --text-xs: 0.72rem;
   --text-sm: 0.82rem;
   --text-md: 1rem;
@@ -135,12 +149,12 @@
   --content-max: 1180px;
 
   /* --- borders / radius / shadow ----------------------------------------- */
-  --border-paper: 1px solid rgba(64, 50, 37, 0.35);
-  --border-paper-strong: 2px solid rgba(64, 50, 37, 0.55);
-  --border-dark: 1px solid rgba(216, 199, 165, 0.22);
-  --border-dark-strong: 1px solid rgba(216, 199, 165, 0.45);
-  --rule-ink: 1px solid rgba(64, 50, 37, 0.28);
-  --rule-hand: 2px solid rgba(122, 46, 46, 0.55);
+  --border-paper: 1px solid color-mix(in srgb, var(--color-earth-dark) 35%, transparent);
+  --border-paper-strong: 2px solid color-mix(in srgb, var(--color-earth-dark) 55%, transparent);
+  --border-dark: 1px solid color-mix(in srgb, var(--color-paper) 22%, transparent);
+  --border-dark-strong: 1px solid color-mix(in srgb, var(--color-paper) 45%, transparent);
+  --rule-ink: 1px solid color-mix(in srgb, var(--color-earth-dark) 28%, transparent);
+  --rule-hand: 2px solid color-mix(in srgb, var(--color-red) 55%, transparent);
 
   --radius-none: 0px;
   --radius-sm: 2px;
@@ -148,10 +162,25 @@
   --radius-lg: 8px;
   --radius-pill: 999px;
 
-  --shadow-paper: 0 8px 24px rgba(0, 0, 0, 0.2);
-  --shadow-paper-deep: 0 18px 50px rgba(0, 0, 0, 0.32);
-  --shadow-paper-lift: 0 14px 34px rgba(0, 0, 0, 0.28);
-  --shadow-inset: inset 0 0 40px rgba(27, 23, 19, 0.12);
+  /*
+    What a shadow is made of.
+
+    Not black. Every surface in this world is warm — parchment, timber,
+    leather, earth — and a neutral shadow on a warm surface reads as grey
+    plastic, which is most of the difference between a rendered object and a
+    photographed one. The value is the same near-black the scrim has always
+    used, so this is the palette catching up with itself rather than a new
+    colour: 39 shadows across 14 files were pure #000 and are now this.
+
+    It bottoms out in a hex because a token has to bottom out somewhere.
+    Everything downstream derives from it.
+  */
+  --shadow-ink: #0b0907;
+
+  --shadow-paper: 0 8px 24px color-mix(in srgb, var(--shadow-ink) 20%, transparent);
+  --shadow-paper-deep: 0 18px 50px color-mix(in srgb, var(--shadow-ink) 32%, transparent);
+  --shadow-paper-lift: 0 14px 34px color-mix(in srgb, var(--shadow-ink) 28%, transparent);
+  --shadow-inset: inset 0 0 40px color-mix(in srgb, var(--color-ink) 12%, transparent);
 
   /* --- texture ----------------------------------------------------------- */
   --texture-grain-opacity: 0.04;
@@ -356,7 +385,7 @@
   /* --- torn paper --------------------------------------------------------- */
   --paper-tear-amplitude: 0.022;
   --paper-tear-segments: 30;
-  --paper-tear-shadow: 0 10px 22px rgba(0, 0, 0, 0.34);
+  --paper-tear-shadow: 0 10px 22px color-mix(in srgb, var(--shadow-ink) 34%, transparent);
   --paper-fringe-opacity: 0.55;
   /* A sheet darkens where it has been handled. */
   --paper-handled:
@@ -364,6 +393,39 @@
     inset 0 0 140px rgba(64, 50, 37, 0.07);
   --paper-body: #2c2520; /* editorial ink on a paper surface */
   --paper-body-soft: #3a312a;
+  /*
+    THE PAPER LIBRARY.
+
+    §20 asks for a small deterministic set of stocks, reused rather than
+    reinvented. The set existed — Paper.module.css has had six variants for
+    phases — but four of their colours were hexes typed into a component,
+    which is the one thing this project says colour is never allowed to be.
+    A stock is palette: it belongs here, beside the paper it is a variant of.
+
+    The two inks matter more than the two grounds. They are what a figure, a
+    rule, a caption and a stamp all derive from on that stock, and while they
+    were literals every one of those derivations had to re-type the same
+    value — ten times on the blueprint alone. Paper.module.css already knew
+    this was wrong and said so in a comment about its own body text; the rest
+    of the file now follows it.
+  */
+  --stock-case-file:      #cdb98d; /* buff manila, opened many times */
+  --stock-blueprint:      #1f3446; /* cyanotype ground */
+  --stock-blueprint-ink:  #cfe2f0; /* and the line drawn on it */
+  --stock-newspaper:      #d9d2c0; /* newsprint, greyer and thinner */
+  --stock-newspaper-ink:  #241f19;
+
+  /* A blueprint cannot be marked in red — measured at 1.02:1 against the
+     ground, which is not there. It gets marked the way a real one does. */
+  --stock-blueprint-mark: #e8a0a0;
+  --stock-blueprint-figure: #e8b9b9;
+
+  /* The emulsion inside a photographic mount, and the sepia it falls off to. */
+  --print-emulsion-light: #7d6a52;
+  --print-emulsion-mid:   #4d4132;
+  --print-emulsion-dark:  #34291d;
+  --print-shadow:         #241b12;
+
   --paper-rule: #8d7855;
   --paper-edge: #9a8563;
   --paper-mat: #a08a66;
@@ -407,6 +469,19 @@
 
   --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
   --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  /*
+    The weighted curve, and the reason it is here rather than only in
+    design/tokens.css.
+
+    That file is the documented source of truth and is imported by nothing —
+    globals.css restates it — so a token can exist there, be used in a
+    component, and resolve to nothing. This one did: CampScene's record sheet
+    reads `animation: sheetArrives var(--duration-slow) var(--ease-weighted)
+    both`, and an undefined var with no fallback makes the whole shorthand
+    invalid at computed-value time. `animation` is not inherited, so it
+    computed to `none` and the sheet had no arrival at all.
+  */
+  --ease-weighted: cubic-bezier(0.45, 0.05, 0.2, 1);
 
   --stagger: 70ms;
   --lift-sm: 2px;

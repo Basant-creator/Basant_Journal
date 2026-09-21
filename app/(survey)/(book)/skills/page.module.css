@@ -52,7 +52,7 @@
 
 .proofLink {
   font-family: var(--font-ui);
-  font-size: 0.64rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-red-dark);
@@ -104,7 +104,7 @@
 
 .unproven {
   font-family: var(--font-ui);
-  font-size: 0.64rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-earth);

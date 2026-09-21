@@ -17,7 +17,7 @@
 */
 .stationMark {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-text-on-paper-muted);
@@ -52,7 +52,7 @@
 
 .details dt {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-earth);
@@ -73,7 +73,7 @@
 }
 
 a.value {
-  border-bottom: 1px solid rgba(64, 50, 37, 0.4);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-earth-dark) 40%, transparent);
 }
 
 a.value:hover {
@@ -157,7 +157,7 @@ a.value:hover {
 
 .terminusNote {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-text-muted);

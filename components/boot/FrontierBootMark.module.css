@@ -10,7 +10,7 @@
   display: block;
   width: clamp(120px, 22vw, 188px);
   aspect-ratio: 1;
-  color: var(--boot-mark, #e7d9bc);
+  color: var(--boot-mark, var(--color-paper-light));
 }
 
 .plate {
@@ -141,7 +141,12 @@
 
 :global([data-boot-phase="BOOT_READY"]) .pupil,
 :global([data-boot-phase="BOOT_EXIT"]) .pupil {
-  fill: var(--color-red-light, #c06b6b);
+  /* The fallback used to be #c06b6b, which --color-red-light has not been
+     for some time — it is #c96a5b. A fallback that disagrees with the token
+     it stands in for is worse than no fallback: it only ever renders when
+     something has already gone wrong, and then it renders the wrong colour
+     with no way to notice. It stands in for itself now. */
+  fill: var(--color-red-light);
   transition: fill 320ms var(--ease-standard);
 }
 

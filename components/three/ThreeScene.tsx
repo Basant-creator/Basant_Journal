@@ -27,15 +27,11 @@ const SCENES = {
   bench: dynamic(() => import("./scenes/BenchScene").then((m) => m.BenchScene), {
     ssr: false,
   }),
-  /** Camp: the same place the illustrated scene draws, rendered. */
-  camp: dynamic(() => import("./scenes/CampScene3D").then((m) => m.CampScene3D), {
-    ssr: false,
-  }),
   /** The country behind the survey sheet. Scenery, and only scenery. */
   vista: dynamic(() => import("./scenes/VistaScene").then((m) => m.VistaScene), {
     ssr: false,
   }),
-  /** Camp, in production. Built beside the prototype until it replaces it. */
+  /** Camp. The prototype it was built beside is gone; this is the Camp. */
   campWorld: dynamic(() => import("./camp/CampWorld").then((m) => m.CampWorld), {
     ssr: false,
   }),

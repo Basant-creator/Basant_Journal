@@ -26,11 +26,11 @@
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.14) 34%,
-    rgba(0, 0, 0, 0.24) 50%,
-    rgba(0, 0, 0, 0.14) 66%,
-    rgba(0, 0, 0, 0) 100%
+    transparent 0%,
+    color-mix(in srgb, var(--shadow-ink) 14%, transparent) 34%,
+    color-mix(in srgb, var(--shadow-ink) 24%, transparent) 50%,
+    color-mix(in srgb, var(--shadow-ink) 14%, transparent) 66%,
+    transparent 100%
   );
 }
 

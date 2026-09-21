@@ -2,7 +2,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  padding-top: var(--space-7);
+  /* --space-7 is not a step on the scale (4, 8, 12, 16, 20, 24, 32), so this
+     was invalid and computed to zero — the rule above sat hard against the
+     links. Taking the next real step up from the sibling gap, which is what
+     writing "7" beside a 6 was reaching for. */
+  padding-top: var(--space-8);
   border-top: 1px solid var(--color-border-subtle);
 }
 
@@ -37,7 +41,7 @@
 
 .caption {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-text-muted);

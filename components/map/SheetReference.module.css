@@ -66,11 +66,20 @@
   fill: none;
 }
 
+/*
+  --map-ink, not --map-label.
+
+  `--map-label` exists in design/tokens.css and not in the stylesheet that
+  actually ships, so this resolved to nothing and the labels fell back to the
+  initial `fill` — black, on parchment. The survey sheet's own location names
+  use --map-ink (see LocationNode), and §30 wants one symbol vocabulary
+  rather than two that happen to look similar.
+*/
 .label {
   font-family: var(--font-ui);
   font-size: 30px;
   letter-spacing: 3px;
-  fill: var(--map-label);
+  fill: var(--map-ink);
 }
 
 .caption {

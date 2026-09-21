@@ -362,12 +362,12 @@
 
 .lift[data-state="hover"] {
   transform: translateY(-9px);
-  filter: brightness(1.14) drop-shadow(0 12px 12px rgba(0, 0, 0, 0.5));
+  filter: brightness(1.14) drop-shadow(0 12px 12px color-mix(in srgb, var(--shadow-ink) 50%, transparent));
 }
 
 .lift[data-state="active"] {
   transform: translateY(-15px);
-  filter: brightness(1.2) drop-shadow(0 20px 18px rgba(0, 0, 0, 0.55));
+  filter: brightness(1.2) drop-shadow(0 20px 18px color-mix(in srgb, var(--shadow-ink) 55%, transparent));
 }
 
 /* The map's drawn trail brightens with it — the object's own answer to

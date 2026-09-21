@@ -24,7 +24,7 @@
    between a page of a website and a page of a document. */
 .sheetNumber {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-text-muted);

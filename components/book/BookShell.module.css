@@ -203,9 +203,9 @@
   transform: translateX(102%);
   transform-origin: left center;
   background:
-    linear-gradient(100deg, rgba(0, 0, 0, 0.2) 0 2%, transparent 16%),
+    linear-gradient(100deg, color-mix(in srgb, var(--shadow-ink) 20%, transparent) 0 2%, transparent 16%),
     linear-gradient(255deg, var(--color-paper-light), var(--color-paper) 60%, var(--color-paper-dark));
-  box-shadow: -18px 0 46px rgba(0, 0, 0, 0.45);
+  box-shadow: -18px 0 46px color-mix(in srgb, var(--shadow-ink) 45%, transparent);
 }
 
 .turnLeaf::after,
@@ -224,7 +224,7 @@
 .book[data-direction="back"] .turnLeafTwo {
   transform: translateX(-102%);
   transform-origin: right center;
-  box-shadow: 18px 0 46px rgba(0, 0, 0, 0.45);
+  box-shadow: 18px 0 46px color-mix(in srgb, var(--shadow-ink) 45%, transparent);
 }
 
 /*
@@ -321,7 +321,7 @@
   border: 1px solid color-mix(in srgb, var(--color-earth-dark) 34%, transparent);
   border-left: 0;
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 2px 6px color-mix(in srgb, var(--shadow-ink) 30%, transparent);
   white-space: nowrap;
   transition:
     transform var(--duration-fast) var(--ease-standard),
@@ -502,7 +502,7 @@
     border: 1px solid color-mix(in srgb, var(--color-earth-dark) 34%, transparent);
     border-bottom: 0;
     border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.26);
+    box-shadow: 0 -2px 6px color-mix(in srgb, var(--shadow-ink) 26%, transparent);
     min-height: 44px;
     display: flex;
     align-items: center;

@@ -133,6 +133,7 @@ npm run dev          # do NOT run concurrently with build
 npm run build        # stop dev and delete .next first — they clobber each other
 npm run typecheck
 npm run check:3d     # must pass before commit
+npm run check:tokens # var(--x) with no definition and no fallback
 ```
 
 ## Environment notes

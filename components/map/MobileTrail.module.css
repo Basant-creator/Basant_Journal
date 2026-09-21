@@ -63,7 +63,7 @@
 
 .trailheadTag {
   font-family: var(--font-ui);
-  font-size: 0.64rem;
+  font-size: var(--text-2xs);
   font-weight: 600;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
@@ -238,7 +238,7 @@
 
 .cardStatus {
   font-family: var(--font-ui);
-  font-size: 0.64rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-red-dark);
@@ -258,7 +258,7 @@
 
 .cardHere {
   font-family: var(--font-ui);
-  font-size: 0.64rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-red);

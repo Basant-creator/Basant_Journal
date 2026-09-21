@@ -421,9 +421,9 @@
   position: absolute;
   inset: -4% -8%;
   background:
-    linear-gradient(105deg, rgba(0, 0, 0, 0.22) 0 3%, transparent 14%),
+    linear-gradient(105deg, color-mix(in srgb, var(--shadow-ink) 22%, transparent) 0 3%, transparent 14%),
     linear-gradient(258deg, var(--color-paper-light), var(--color-paper) 62%, var(--color-paper-dark));
-  box-shadow: 0 0 70px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 0 70px color-mix(in srgb, var(--shadow-ink) 55%, transparent);
   /* A turning page is not a rigid rectangle. Two degrees is enough to say so
      and little enough that it never reads as a skewed box. */
   transform: translateX(112%) rotate(2deg);
@@ -498,9 +498,9 @@
   position: absolute;
   inset: -6% -6%;
   background:
-    linear-gradient(176deg, rgba(0, 0, 0, 0.26) 0 2%, transparent 12%),
+    linear-gradient(176deg, color-mix(in srgb, var(--shadow-ink) 26%, transparent) 0 2%, transparent 12%),
     linear-gradient(200deg, var(--color-paper-light), var(--color-paper) 58%, var(--color-paper-dark));
-  box-shadow: 0 -30px 90px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 -30px 90px color-mix(in srgb, var(--shadow-ink) 60%, transparent);
   transform-origin: 50% 100%;
   /* Below the fold and tipped away, as a book lying on a table is. */
   transform: translateY(104%) rotateX(38deg) scale(1.04);
@@ -551,7 +551,7 @@
 .open[data-close] .openLeaf {
   transform-origin: 50% 0%;
   transform: translateY(-104%) rotateX(-34deg) scale(1.04);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 30px 90px color-mix(in srgb, var(--shadow-ink) 60%, transparent);
 }
 
 .open[data-close][data-phase="EXIT"] .openLeaf,

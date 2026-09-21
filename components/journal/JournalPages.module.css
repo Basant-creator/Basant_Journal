@@ -207,7 +207,7 @@
 /* The mark the record was struck with — the one red thing on this page. */
 .recordStamp {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--stamp-red);

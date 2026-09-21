@@ -1,6 +1,6 @@
 .panel {
   margin: 0;
-  border: 1px solid rgba(64, 50, 37, 0.4);
+  border: 1px solid color-mix(in srgb, var(--color-earth-dark) 40%, transparent);
   background: var(--paper-mat);
 }
 
@@ -17,8 +17,8 @@
   flex-direction: column;
   gap: 2px;
   padding: var(--space-5) var(--space-5);
-  border-right: 1px solid rgba(64, 50, 37, 0.28);
-  border-bottom: 1px solid rgba(64, 50, 37, 0.28);
+  border-right: 1px solid color-mix(in srgb, var(--color-earth-dark) 28%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-earth-dark) 28%, transparent);
 }
 
 .reading:last-child {
@@ -36,7 +36,7 @@
 
 .unit {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-red-dark);
@@ -62,10 +62,10 @@
 
 .caption {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-ink-soft);
   padding: var(--space-3) var(--space-5);
-  border-top: 1px solid rgba(64, 50, 37, 0.28);
+  border-top: 1px solid color-mix(in srgb, var(--color-earth-dark) 28%, transparent);
 }

@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "check:3d": "node scripts/check-3d-boundary.mjs"
+    "check:3d": "node scripts/check-3d-boundary.mjs",
+    "check:tokens": "node scripts/check-tokens.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.7.0",

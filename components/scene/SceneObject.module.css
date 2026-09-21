@@ -57,7 +57,7 @@
   text-transform: uppercase;
   color: var(--color-paper-light);
   opacity: 0.55;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 1px 6px color-mix(in srgb, var(--shadow-ink) 90%, transparent);
   transition: opacity var(--duration-normal) var(--ease-standard);
 }
 
@@ -68,7 +68,7 @@
   color: var(--ink-annotation);
   opacity: 0;
   transform: translateY(3px);
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 1px 6px color-mix(in srgb, var(--shadow-ink) 90%, transparent);
   transition:
     opacity var(--duration-normal) var(--ease-standard),
     transform var(--duration-normal) var(--ease-standard);
@@ -233,7 +233,7 @@
   border-radius: 50%;
   background: var(--color-paper-light);
   opacity: 0.34;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 1px 5px color-mix(in srgb, var(--shadow-ink) 90%, transparent);
   transition: opacity var(--duration-normal) var(--ease-standard);
 }
 

@@ -82,7 +82,7 @@
 
 .docket {
   font-family: var(--font-ui);
-  font-size: 0.64rem;
+  font-size: var(--text-2xs);
   font-weight: 600;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;

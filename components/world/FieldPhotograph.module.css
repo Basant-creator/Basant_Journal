@@ -9,7 +9,7 @@
   margin: 0;
   padding: 14px 14px 0;
   background: var(--color-paper-light);
-  border: 1px solid rgba(64, 50, 37, 0.32);
+  border: 1px solid color-mix(in srgb, var(--color-earth-dark) 32%, transparent);
   box-shadow: var(--shadow-paper);
   transform: rotate(var(--tilt, -1.2deg));
   max-width: 340px;
@@ -20,7 +20,7 @@
   overflow: hidden;
   background: var(--color-earth-dark);
   /* The print sits slightly proud of its mount, as one does. */
-  box-shadow: inset 0 0 0 1px rgba(36, 27, 18, 0.4);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--print-shadow) 40%, transparent);
 }
 
 .print {
@@ -44,7 +44,7 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(168deg, rgba(216, 199, 165, 0.2), rgba(58, 42, 28, 0.28)),
+    linear-gradient(168deg, color-mix(in srgb, var(--color-paper) 20%, transparent), color-mix(in srgb, var(--timber-light) 28%, transparent)),
     rgba(74, 54, 34, 0.16);
   mix-blend-mode: soft-light;
 }
@@ -66,7 +66,7 @@
   background: radial-gradient(
     ellipse 84% 78% at 50% 42%,
     transparent 54%,
-    rgba(36, 27, 18, 0.34) 100%
+    color-mix(in srgb, var(--print-shadow) 34%, transparent) 100%
   );
 }
 

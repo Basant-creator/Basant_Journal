@@ -13,8 +13,8 @@
   place-items: center;
   /* §5: near-black and a warm parchment mark. Deliberately outside the
      site's palette — the boot screen is not a page of the portfolio. */
-  background: #060505;
-  --boot-mark: #e7d9bc;
+  background: var(--scene-void);
+  --boot-mark: var(--color-paper-light);
   transition: opacity var(--boot-exit, 520ms) var(--ease-standard, ease);
 }
 
@@ -25,7 +25,7 @@
   inset: 0;
   background: radial-gradient(
     ellipse 70% 54% at 50% 62%,
-    rgba(74, 50, 32, 0.34),
+    color-mix(in srgb, var(--scene-ember) 34%, transparent),
     transparent 72%
   );
 }
@@ -54,7 +54,7 @@
   letter-spacing: 0.42em;
   text-indent: 0.42em;
   text-transform: uppercase;
-  color: #e7d9bc;
+  color: var(--color-paper-light);
   opacity: 0;
   margin: 0;
   animation: bootName 620ms var(--ease-cinematic, ease) 420ms both;

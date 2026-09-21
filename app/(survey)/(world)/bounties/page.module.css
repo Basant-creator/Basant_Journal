@@ -33,7 +33,7 @@
     var(--timber) 48%,
     var(--timber-deep)
   );
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--shadow-ink) 50%, transparent);
 }
 
 /* The grain runs along the rail, not across it. */
@@ -59,7 +59,7 @@
     var(--timber) 42%,
     var(--timber-dark)
   );
-  box-shadow: 0 0 18px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--shadow-ink) 50%, transparent);
 }
 
 /* Driven in, not set down: the foot narrows and darkens into the ground. */
@@ -109,7 +109,7 @@
   overflow: hidden;
   box-shadow:
     var(--shadow-paper-deep),
-    inset 0 0 90px rgba(0, 0, 0, 0.45);
+    inset 0 0 90px color-mix(in srgb, var(--shadow-ink) 45%, transparent);
 }
 
 /* Weathered planks: bands of grain over a dark timber ground. */
@@ -120,9 +120,9 @@
   background:
     repeating-linear-gradient(
       180deg,
-      rgba(0, 0, 0, 0.32) 0 2px,
+      color-mix(in srgb, var(--shadow-ink) 32%, transparent) 0 2px,
       transparent 2px 76px,
-      rgba(0, 0, 0, 0.22) 76px 78px,
+      color-mix(in srgb, var(--shadow-ink) 22%, transparent) 76px 78px,
       transparent 78px 152px
     ),
     repeating-linear-gradient(
@@ -142,7 +142,7 @@
   text-align: center;
   margin-bottom: clamp(24px, 3.5vw, 44px);
   opacity: 0.82;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 2px 10px color-mix(in srgb, var(--shadow-ink) 70%, transparent);
 }
 
 /* --- pinned notices ------------------------------------------------------ */
@@ -172,7 +172,7 @@
   transform: translateX(-50%);
   border-radius: var(--radius-pill);
   background: radial-gradient(circle at 34% 30%, var(--nail-head), var(--nail-body) 62%, var(--nail-shadow));
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 2px 5px color-mix(in srgb, var(--shadow-ink) 65%, transparent);
 }
 
 /*
@@ -196,7 +196,7 @@
     rgba(214, 195, 152, 0.74) 48%,
     rgba(226, 209, 168, 0.6)
   );
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--shadow-ink) 40%, transparent);
   /* Torn ends. A clip rather than a border, so the tear is in the shape. */
   clip-path: polygon(
     3% 0%, 16% 8%, 31% 2%, 48% 9%, 66% 1%, 82% 8%, 97% 2%,
@@ -239,7 +239,7 @@
 
 .findingTag {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-earth);
@@ -310,7 +310,7 @@
   gap: clamp(20px, 4vw, 56px);
   margin-top: clamp(30px, 4vw, 52px);
   padding-top: var(--space-6);
-  border-top: 1px solid rgba(216, 199, 165, 0.14);
+  border-top: 1px solid color-mix(in srgb, var(--color-paper) 14%, transparent);
 }
 
 .marks .card {
@@ -369,7 +369,7 @@
     var(--color-red) 58%,
     var(--color-red-dark)
   );
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 2px 5px color-mix(in srgb, var(--shadow-ink) 60%, transparent);
 }
 
 .hand {

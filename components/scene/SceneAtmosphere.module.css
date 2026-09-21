@@ -32,8 +32,8 @@
 
 .far {
   background-image:
-    radial-gradient(circle at 12% 22%, rgba(216, 199, 165, 0.5) 0 0.7px, transparent 1.4px),
-    radial-gradient(circle at 68% 74%, rgba(216, 199, 165, 0.4) 0 0.6px, transparent 1.2px);
+    radial-gradient(circle at 12% 22%, color-mix(in srgb, var(--color-paper) 50%, transparent) 0 0.7px, transparent 1.4px),
+    radial-gradient(circle at 68% 74%, color-mix(in srgb, var(--color-paper) 40%, transparent) 0 0.6px, transparent 1.2px);
   background-size: 320px 280px, 260px 340px;
   opacity: var(--dust-opacity-far);
   animation: driftFar var(--dust-drift-far) linear infinite;
@@ -41,8 +41,8 @@
 
 .mid {
   background-image:
-    radial-gradient(circle at 42% 8%, rgba(231, 217, 188, 0.55) 0 0.9px, transparent 1.8px),
-    radial-gradient(circle at 84% 58%, rgba(216, 199, 165, 0.45) 0 0.8px, transparent 1.6px);
+    radial-gradient(circle at 42% 8%, color-mix(in srgb, var(--color-paper-light) 55%, transparent) 0 0.9px, transparent 1.8px),
+    radial-gradient(circle at 84% 58%, color-mix(in srgb, var(--color-paper) 45%, transparent) 0 0.8px, transparent 1.6px);
   background-size: 420px 380px, 360px 300px;
   opacity: var(--dust-opacity-mid);
   animation: driftMid var(--dust-drift-mid) linear infinite;
@@ -51,7 +51,7 @@
 .near {
   background-image: radial-gradient(
     circle at 28% 62%,
-    rgba(242, 233, 215, 0.5) 0 1.3px,
+    color-mix(in srgb, var(--color-white-warm) 50%, transparent) 0 1.3px,
     transparent 2.4px
   );
   background-size: 560px 520px;

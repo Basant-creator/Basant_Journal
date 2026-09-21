@@ -17,7 +17,7 @@
   top: 0.72em;
   width: 14px;
   height: 1px;
-  background: rgba(64, 50, 37, 0.6);
+  background: color-mix(in srgb, var(--color-earth-dark) 60%, transparent);
 }
 
 @media (max-width: 620px) {

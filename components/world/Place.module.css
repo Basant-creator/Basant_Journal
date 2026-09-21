@@ -75,14 +75,27 @@
   filter: saturate(calc(1 - var(--place-fade) * 0.7));
 }
 
+/*
+  Tall enough that the window never has to crop vertically.
+
+  These two numbers and the viewBox in Place.tsx are one decision written in
+  two places, and they have to be read together. The svg slices to fill, so
+  whichever axis is proportionally short gets cropped — and the crests live
+  at the top, which is the end a bottom-anchored crop eats first.
+
+  The binding case is a wide, short laptop: a 1230px column with the country
+  at its 22rem floor. At 66% that is a 232px band against a 1230px width,
+  which is almost exactly the viewBox's own 1600:300 — so the vertical is
+  shown whole there and over-shown everywhere else. Take this below about 60%
+  and the near ridge starts losing its feet on that machine and nowhere else,
+  which is the worst kind of bug to go looking for.
+*/
 .ridges {
   position: absolute;
   inset-inline: 0;
-  /* The crest sits on the lower third, where a horizon belongs, and the mass
-     below it runs into the ground band. */
-  inset-block-end: 22%;
+  inset-block-end: 14%;
   inline-size: 100%;
-  block-size: 62%;
+  block-size: 66%;
   display: block;
 }
 

@@ -79,12 +79,12 @@
 
 .markLift[data-state="hover"] {
   transform: translateY(-9px);
-  filter: drop-shadow(0 12px 12px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 12px 12px color-mix(in srgb, var(--shadow-ink) 50%, transparent));
 }
 
 .markLift[data-state="active"] {
   transform: translateY(-15px);
-  filter: drop-shadow(0 20px 18px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 20px 18px color-mix(in srgb, var(--shadow-ink) 55%, transparent));
 }
 
 .markLift[data-state="active"] .mark {
@@ -121,7 +121,7 @@
 }
 
 .panelTag {
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-red-light);

@@ -118,7 +118,7 @@
   --paper-print: repeating-linear-gradient(
     180deg,
     transparent 0 27px,
-    rgba(141, 120, 85, 0.34) 27px 28px
+    color-mix(in srgb, var(--paper-rule) 34%, transparent) 27px 28px
   );
   --paper-print-opacity: 0.6;
 }
@@ -132,57 +132,57 @@
      rather than beside it. */
   padding-left: 70px;
   --paper-print:
-    linear-gradient(90deg, transparent 0 46px, rgba(122, 46, 46, 0.42) 46px 47px, transparent 47px),
-    repeating-linear-gradient(180deg, transparent 0 29px, rgba(141, 120, 85, 0.26) 29px 30px);
+    linear-gradient(90deg, transparent 0 46px, color-mix(in srgb, var(--color-red) 42%, transparent) 46px 47px, transparent 47px),
+    repeating-linear-gradient(180deg, transparent 0 29px, color-mix(in srgb, var(--paper-rule) 26%, transparent) 29px 30px);
   --paper-print-opacity: 0.75;
 }
 
 /* Buff manila, a heavy rule at the head, and the tint of a file that has been
    opened many times. */
 .CASE_FILE {
-  --paper-stock: #cdb98d;
+  --paper-stock: var(--stock-case-file);
   --paper-ink: var(--color-earth-dark);
   --paper-voice: var(--font-ui);
-  --paper-border: 1px solid rgba(64, 50, 37, 0.5);
+  --paper-border: 1px solid color-mix(in srgb, var(--color-earth-dark) 50%, transparent);
   --paper-print:
-    linear-gradient(180deg, rgba(84, 32, 32, 0.55) 0 6px, transparent 6px),
-    repeating-linear-gradient(90deg, transparent 0 8px, rgba(64, 50, 37, 0.04) 8px 9px);
+    linear-gradient(180deg, color-mix(in srgb, var(--color-red-dark) 55%, transparent) 0 6px, transparent 6px),
+    repeating-linear-gradient(90deg, transparent 0 8px, color-mix(in srgb, var(--color-earth-dark) 4%, transparent) 8px 9px);
   --paper-fibre: 0.1;
 }
 
 /* Cyanotype: dark ground, light line, a real drawing grid. */
 .BLUEPRINT {
-  --paper-stock: #1f3446;
-  --paper-ink: #cfe2f0;
+  --paper-stock: var(--stock-blueprint);
+  --paper-ink: var(--stock-blueprint-ink);
   --paper-voice: var(--font-ui);
-  --paper-border: 1px solid rgba(207, 226, 240, 0.28);
+  --paper-border: 1px solid color-mix(in srgb, var(--paper-ink) 28%, transparent);
   --paper-print:
-    repeating-linear-gradient(90deg, transparent 0 23px, rgba(207, 226, 240, 0.1) 23px 24px),
-    repeating-linear-gradient(180deg, transparent 0 23px, rgba(207, 226, 240, 0.1) 23px 24px),
-    repeating-linear-gradient(90deg, transparent 0 119px, rgba(207, 226, 240, 0.2) 119px 120px),
-    repeating-linear-gradient(180deg, transparent 0 119px, rgba(207, 226, 240, 0.2) 119px 120px);
+    repeating-linear-gradient(90deg, transparent 0 23px, color-mix(in srgb, var(--paper-ink) 10%, transparent) 23px 24px),
+    repeating-linear-gradient(180deg, transparent 0 23px, color-mix(in srgb, var(--paper-ink) 10%, transparent) 23px 24px),
+    repeating-linear-gradient(90deg, transparent 0 119px, color-mix(in srgb, var(--paper-ink) 20%, transparent) 119px 120px),
+    repeating-linear-gradient(180deg, transparent 0 119px, color-mix(in srgb, var(--paper-ink) 20%, transparent) 119px 120px);
   --paper-print-opacity: 0.5;
   --paper-fibre: 0.05;
 
   /* A figure drawn on cyanotype inverts with it: light line, dark ground. */
-  --figure-ground: rgba(207, 226, 240, 0.05);
-  --figure-rule: rgba(207, 226, 240, 0.3);
-  --figure-rule-fine: rgba(207, 226, 240, 0.08);
-  --figure-rule-major: rgba(207, 226, 240, 0.16);
-  --figure-ink: #cfe2f0;
-  --figure-caption: rgba(207, 226, 240, 0.78);
-  --figure-number: #e8b9b9;
+  --figure-ground: color-mix(in srgb, var(--paper-ink) 5%, transparent);
+  --figure-rule: color-mix(in srgb, var(--paper-ink) 30%, transparent);
+  --figure-rule-fine: color-mix(in srgb, var(--paper-ink) 8%, transparent);
+  --figure-rule-major: color-mix(in srgb, var(--paper-ink) 16%, transparent);
+  --figure-ink: var(--paper-ink);
+  --figure-caption: color-mix(in srgb, var(--paper-ink) 78%, transparent);
+  --figure-number: var(--stock-blueprint-figure);
 
   /* A blueprint does not fox brown. It fades and blooms pale where the light
      and the damp got at it, so the stain is the drawing's own light ink. */
-  --paper-foxing: #cfe2f0;
+  --paper-foxing: var(--paper-ink);
   --paper-foxing-opacity: 0.5;
 
   /* Red ink on cyanotype is one part in a hundred against the ground — the
      stamp measured 1.02:1 and was simply not there. A blueprint gets marked
      in something light, the way a real one gets a wax pencil. */
-  --stamp-red: #e8a0a0;
-  --figure-accent: #e8a0a0;
+  --stamp-red: var(--stock-blueprint-mark);
+  --figure-accent: var(--stock-blueprint-mark);
 }
 
 /* The blueprint inverts the layer model, so its own text tokens invert too.
@@ -200,12 +200,12 @@
 
 /* Newsprint: greyer, thinner, column rules and a halftone tint. */
 .NEWSPAPER {
-  --paper-stock: #d9d2c0;
-  --paper-ink: #241f19;
+  --paper-stock: var(--stock-newspaper);
+  --paper-ink: var(--stock-newspaper-ink);
   --paper-voice: var(--font-editorial);
-  --paper-border: 1px solid rgba(36, 31, 25, 0.28);
+  --paper-border: 1px solid color-mix(in srgb, var(--paper-ink) 28%, transparent);
   --paper-print:
-    radial-gradient(circle at 1px 1px, rgba(36, 31, 25, 0.16) 0 1px, transparent 1.4px);
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--paper-ink) 16%, transparent) 0 1px, transparent 1.4px);
   --paper-print-size: 4px 4px;
   --paper-print-opacity: 0.7;
   --paper-fibre: 0.05;
@@ -215,26 +215,26 @@
 .PHOTOGRAPH {
   --paper-stock: var(--color-paper-light);
   --paper-pad: 14px;
-  --paper-border: 1px solid rgba(64, 50, 37, 0.32);
+  --paper-border: 1px solid color-mix(in srgb, var(--color-earth-dark) 32%, transparent);
   --paper-print: none;
 }
 
 .PHOTOGRAPH .body {
   /* The image area itself: sepia, vignetted, sitting inside the mount. */
   background:
-    radial-gradient(ellipse 120% 100% at 50% 46%, transparent 44%, rgba(36, 27, 18, 0.42) 100%),
-    linear-gradient(180deg, #7d6a52, #4d4132 62%, #34291d);
+    radial-gradient(ellipse 120% 100% at 50% 46%, transparent 44%, color-mix(in srgb, var(--print-shadow) 42%, transparent) 100%),
+    linear-gradient(180deg, var(--print-emulsion-light), var(--print-emulsion-mid) 62%, var(--print-emulsion-dark));
   min-height: 150px;
   display: grid;
   place-items: center;
   padding: var(--space-5);
-  box-shadow: inset 0 0 0 1px rgba(36, 27, 18, 0.35);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--print-shadow) 35%, transparent);
 }
 
 .PHOTOGRAPH .body :global(p) {
   color: var(--color-paper-light);
   text-align: center;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 1px 6px color-mix(in srgb, var(--shadow-ink) 60%, transparent);
 }
 
 .caption {

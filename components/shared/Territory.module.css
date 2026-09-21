@@ -106,8 +106,8 @@
   font-size: var(--text-xs);
   letter-spacing: 0.02em;
   color: var(--color-earth-dark);
-  background: rgba(64, 50, 37, 0.07);
-  border: 1px solid rgba(64, 50, 37, 0.3);
+  background: color-mix(in srgb, var(--color-earth-dark) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-earth-dark) 30%, transparent);
   border-radius: var(--radius-sm);
   padding: 4px 10px;
 }

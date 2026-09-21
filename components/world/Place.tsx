@@ -69,17 +69,27 @@ export function Place({
         {/*
           The same three ridges as the sheet.
 
-          `slice` rather than `meet`, and anchored to the bottom: the crest has
-          to land on the horizon at every width, and a ridge that letterboxes
-          is a picture of a ridge rather than the country behind the place.
-          The window into the sheet's coordinate space is the band the ridges
-          actually occupy — they close down to y=1000, so everything below the
-          crest is solid mass and the ground band takes over from there.
+          The window and the anchor are both measured rather than chosen, and
+          the first cut got both wrong in a way that only arithmetic catches.
+          It was `0 250 1600 420` anchored `YMax` — bottom-aligned, cropping
+          the top — and the three silhouettes crest at y=171, 293 and 411. So
+          on a normal desktop column the visible band started around y=307:
+          below two of the three crests. The far and middle ridges rendered as
+          flat fields of colour and the layered depth was one ridge over two
+          rectangles. Nothing about it looks broken; it just looks cheap.
+
+          `YMin` anchors the top, so the crests are what survives and the crop
+          eats the solid mass at the bottom — which is exactly what the ground
+          band underneath replaces. The window runs from y=150, comfortably
+          above the highest crest, to y=450, comfortably below the lowest. At
+          1600 x 300 the box is wider in aspect than the element at every size
+          this composition reaches, including the short wide laptop that was
+          the worst case, so the vertical never crops at all.
         */}
         <svg
           className={styles.ridges}
-          viewBox="0 250 1600 420"
-          preserveAspectRatio="xMidYMax slice"
+          viewBox="0 150 1600 300"
+          preserveAspectRatio="xMidYMin slice"
         >
           {terrain.mountains.silhouettes.map((d, i) => (
             <path key={`place-ridge-${i}`} d={d} data-band={i} />

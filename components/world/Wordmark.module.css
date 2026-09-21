@@ -24,11 +24,11 @@
 
 /* Pressed into the surface: dark below-right, warm light above-left. */
 .impression {
-  fill: var(--wordmark-impression, rgba(0, 0, 0, 0.62));
+  fill: var(--wordmark-impression, color-mix(in srgb, var(--shadow-ink) 62%, transparent));
 }
 
 .highlight {
-  fill: var(--wordmark-highlight, rgba(242, 233, 215, 0.16));
+  fill: var(--wordmark-highlight, color-mix(in srgb, var(--color-white-warm) 16%, transparent));
 }
 
 .face {
@@ -45,7 +45,7 @@
 /* Struck in ink on paper rather than embossed in the dark. */
 .stamp {
   --wordmark-face: var(--color-red-dark);
-  --wordmark-impression: rgba(84, 32, 32, 0.3);
+  --wordmark-impression: color-mix(in srgb, var(--color-red-dark) 30%, transparent);
   --wordmark-highlight: transparent;
   --wordmark-secondary: var(--color-earth);
 }

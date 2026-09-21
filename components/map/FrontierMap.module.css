@@ -55,7 +55,7 @@
   /* Two shadows: the sheet's own, and the one it throws onto the ground it is
      lying against. The second is what stops it floating. */
   box-shadow:
-    0 30px 64px rgba(0, 0, 0, 0.55),
+    0 30px 64px color-mix(in srgb, var(--shadow-ink) 55%, transparent),
     var(--shadow-paper-deep);
   background: var(--color-ink-deep);
 }
@@ -243,7 +243,7 @@
 
 .trailheadTag {
   font-family: var(--font-ui);
-  font-size: 0.64rem;
+  font-size: var(--text-2xs);
   font-weight: 600;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
@@ -312,7 +312,7 @@
   width: min(240px, 26%);
   padding: var(--space-3) var(--space-4) var(--space-4);
   background: var(--color-paper-light);
-  border: 1px solid rgba(64, 50, 37, 0.45);
+  border: 1px solid color-mix(in srgb, var(--color-earth-dark) 45%, transparent);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-paper);
   pointer-events: none;
@@ -331,7 +331,7 @@
 .fieldNoteTag {
   display: block;
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-red-dark);
@@ -348,7 +348,7 @@
 
 .fieldNoteStatus {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-red-dark);
@@ -378,7 +378,7 @@
   text-transform: uppercase;
   color: var(--color-text-muted);
   pointer-events: none;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
+  text-shadow: 0 1px 8px color-mix(in srgb, var(--shadow-ink) 85%, transparent);
 }
 
 .captionRule {

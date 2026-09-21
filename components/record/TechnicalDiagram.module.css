@@ -15,9 +15,9 @@
   these; this file only says what it needs.
 */
 .frame {
-  --rule: var(--figure-rule, rgba(64, 50, 37, 0.45));
-  --rule-fine: var(--figure-rule-fine, rgba(64, 50, 37, 0.07));
-  --rule-major: var(--figure-rule-major, rgba(64, 50, 37, 0.13));
+  --rule: var(--figure-rule, color-mix(in srgb, var(--color-earth-dark) 45%, transparent));
+  --rule-fine: var(--figure-rule-fine, color-mix(in srgb, var(--color-earth-dark) 7%, transparent));
+  --rule-major: var(--figure-rule-major, color-mix(in srgb, var(--color-earth-dark) 13%, transparent));
 
   position: relative;
   background:
@@ -39,8 +39,8 @@
   width: 18px;
   height: 18px;
   background: var(--paper-stock, var(--color-paper));
-  border-left: 1px solid var(--figure-rule, rgba(64, 50, 37, 0.45));
-  border-top: 1px solid var(--figure-rule, rgba(64, 50, 37, 0.45));
+  border-left: 1px solid var(--figure-rule, color-mix(in srgb, var(--color-earth-dark) 45%, transparent));
+  border-top: 1px solid var(--figure-rule, color-mix(in srgb, var(--color-earth-dark) 45%, transparent));
   transform: rotate(45deg) translate(9px, 0);
   transform-origin: bottom right;
 }
@@ -59,7 +59,7 @@
 
 .number {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   font-weight: 600;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;

@@ -10,8 +10,8 @@
   gap: 2px;
   padding: 10px 12px;
   min-width: 216px;
-  background: rgba(7, 6, 5, 0.86);
-  border: 1px solid rgba(216, 199, 165, 0.24);
+  background: color-mix(in srgb, var(--scene-void) 86%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-paper) 24%, transparent);
   border-left: 2px solid var(--color-red);
   border-radius: 3px;
   font-family: var(--font-ui);

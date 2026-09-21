@@ -55,7 +55,7 @@
 
 .token {
   font-family: var(--font-ui);
-  font-size: 0.62rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.06em;
   color: var(--color-red-light);
   margin-top: var(--space-2);

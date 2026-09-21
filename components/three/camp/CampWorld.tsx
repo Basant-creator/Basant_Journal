@@ -17,7 +17,7 @@ import { CampTerrain } from "./CampTerrain";
 import { CampTreeline } from "./CampTreeline";
 import { SceneCanvas } from "../SceneCanvas";
 import { sky } from "./palette";
-import { Suspense, useLayoutEffect, useRef } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Group, Mesh } from "three";
 import { settingsFor } from "@/lib/three/quality";
 import type { SceneProps } from "../types";
@@ -33,19 +33,21 @@ import {
 } from "./layout";
 
 /**
- * Camp — the production scene.
+ * Camp.
  *
- * A shell. Everything it will contain arrives in the steps after this one, in
- * the order §36 sets: camera, sky and lighting, distant terrain, mountains and
- * trees, the campsite, the fire, the air, the table and its props. The slots
- * below are that order, written down, so each step has one obvious place to
- * go and the composition cannot quietly end up assembled back to front.
+ * The composition is assembled far to near, in §36's order: camera, sky and
+ * lighting, distant terrain, mountains and trees, the campsite, the fire, the
+ * air, the table and its props. The slots below are that order written down,
+ * so each piece has one obvious place to go and the scene cannot quietly end
+ * up built back to front.
  *
- * It is built beside the existing Camp rather than on top of it. `/about`
- * depends on `CampScene3D`, and replacing a working scene with a half-built
- * one for a dozen steps is how a route stays broken for a week. This develops
- * on `/lab/camp` — already outside the sitemap and disallowed in robots.txt —
- * and `/about` switches to it when there is something whole to switch to.
+ * It was developed on `/lab/camp` beside a working prototype, and that
+ * prototype — `scenes/CampScene3D`, with its own `CampAir` and `CampLight` —
+ * is gone. It had been unreferenced since `/about` switched over: registered
+ * in ThreeScene's scene table, reachable by nobody, and quietly collecting
+ * edits meant for this file. Two hundred and fifty lines of 3D that nothing
+ * could render is the most expensive kind of dead code, because it looks
+ * exactly like the live kind.
  *
  * Nothing here knows what Camp *means*. The records behind the objects, the
  * routes they lead to and the labels over them all stay in the DOM, which is
@@ -65,10 +67,48 @@ function World(props: SceneProps) {
   const q = settingsFor(props.tier ?? "medium");
   const shadows = { enabled: q.shadows, mapSize: q.shadowMapSize };
 
-  /* What the camera leans toward, if anything is open. Null when nothing is,
-     which is the resting composition §5 was framed for. */
+  /*
+    The establish, and the reason the lean waits for it.
+
+    The notebook is the tablist's initial selection — it has to be, because
+    the record panel below the canvas must not open empty — so a camera that
+    honours `activeId` from the first frame resolves its whole arrival *into a
+    lean at the notebook*. The place is never once on screen without something
+    being pointed at, which is the one thing an arrival is for.
+
+    A plain timer rather than a frame count, because it is not synchronised to
+    the arrival: CameraRig seeds its own clock on the first drawn frame, which
+    can be later than this component mounting — the scene is deferred to idle.
+    The failure that matters is the hold ending early, so it runs past
+    CAMERA_ARRIVAL.ms by a margin that costs nothing and cannot expose it.
+  */
+  const [attending, setAttending] = useState(false);
+  useEffect(() => {
+    const id = window.setTimeout(() => setAttending(true), CAMERA_ARRIVAL.ms + 300);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  /*
+    What the camera leans toward, if anything is open.
+
+    This was computed and then not used — declared, commented, and passed to
+    nothing, so the camera never acknowledged the object being reached for.
+    It is wired now, and the two numbers around it are the interesting part.
+
+    `pull` is 0.16 because 0.5 was measured on the prototype and was a dive:
+    the camera travelled far enough onto the chosen object to throw the other
+    three out of frame, at 166% and 280% across the viewport. §3 wants one
+    primary focus, not one object; a lean says which of four is being attended
+    to and keeps the other three in the picture.
+
+    And CAMERA_BOUNDS still applies, which is the safety net that makes this
+    cheap. CameraRig clamps the *desired* position rather than the camera's
+    own, so the lean is absorbed by the same box that limits leaning — about
+    a hundred millimetres across and a hundred and thirty down. It cannot take
+    anyone past the edge of what has been built, whatever is selected.
+  */
   const activeFocus =
-    props.activeId && props.activeId in ANCHORS
+    attending && props.activeId && props.activeId in ANCHORS
       ? ANCHORS[props.activeId as CampObject]
       : null;
 
@@ -120,6 +160,8 @@ function World(props: SceneProps) {
         target={CAMERA_TARGET}
         arrival={CAMERA_ARRIVAL}
         bounds={CAMERA_BOUNDS}
+        focus={activeFocus}
+        pull={0.16}
         /* Wider than the vista's, narrower than a game's: the whole
            travel is inside the box §10 defines, so leaning can never take
            anyone past the edge of what has been built. */
