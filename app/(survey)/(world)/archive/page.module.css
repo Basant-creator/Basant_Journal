@@ -5,7 +5,17 @@
   gap: var(--space-3);
 }
 
+/*
+  A stamp, not a banner.
+
+  `align-self: flex-start` was doing nothing: PaperSurface wraps its children
+  in an inner element, so this <p> is not a flex item of `.record` at all and
+  was stretching to the full width of the card — an empty bordered rectangle
+  with the word CURRENT at one end of it. `width: fit-content` shrinks it
+  whatever it happens to be a child of.
+*/
 .stamp {
+  width: fit-content;
   align-self: flex-start;
   font-family: var(--font-ui);
   font-size: var(--text-2xs);

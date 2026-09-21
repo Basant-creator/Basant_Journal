@@ -199,6 +199,10 @@
   width: 100%;
   margin: 0 auto;
   padding-top: var(--space-5);
+  /* The atmosphere toggle and the hour control sit in this band, one at each
+     end of exactly this row. Without the reservation they clip the first and
+     last links — "GitHub" and "Records" — at every width. */
+  padding-bottom: var(--chrome-bottom);
   border-top: 1px solid var(--color-border-subtle);
 }
 

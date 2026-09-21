@@ -1,4 +1,15 @@
+/*
+  `clip`, not `hidden`.
+
+  Place bleeds its country out to the full viewport width with
+  `calc(50% - 50vw)`, and `vw` counts the scrollbar — so without this the
+  page gains a few pixels of horizontal scroll on any desktop with a classic
+  scrollbar. `overflow-x: clip` removes the overflow without turning this
+  into a scroll container, which `hidden` would, taking `position: sticky`
+  with it.
+*/
 .shell {
+  overflow-x: clip;
   display: flex;
   flex-direction: column;
   min-height: 100svh;

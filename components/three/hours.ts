@@ -76,7 +76,7 @@ const dusk: HourEnvironment = {
     Distance now settles onto a tone rather than into nothing, and the far
     plane is out past the last ridge so the range is *hazy* instead of gone.
   */
-  air: { fog: "#2c2119", near: 34, far: 168 },
+  air: { fog: "#3a2c20", near: 40, far: 186 },
   sun: {
     colour: "#e8a862",
     intensity: 1.6,
@@ -89,9 +89,18 @@ const dusk: HourEnvironment = {
     is how much sky each catches, and at 0.5 the unlit faces all bottomed out
     together. This is the single biggest contributor to the geometry reading
     as geometry.
+
+    Raised again, 0.74 -> 0.95, with the bounce lifted to match. Photographed
+    at 1440x900 the sky was carrying the whole frame: the mesas read as
+    silhouette against it, and everything from the mid ground down was one
+    black mass. The sun is low and to the left, so the ground plane catches
+    almost nothing but ambient and bounce — which is why the fix is here and
+    not in the fog, whose work is all at distance and could not have reached
+    the foreground anyway. The near plane moves out with it so the haze starts
+    past the front edge rather than on it.
   */
-  ambient: { colour: "#6a7488", intensity: 0.74 },
-  bounce: "#4c3f30",
+  ambient: { colour: "#6a7488", intensity: 0.95 },
+  bounce: "#5d4c39",
   /*
     The depth ladder, spread.
 

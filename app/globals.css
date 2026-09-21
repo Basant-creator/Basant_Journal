@@ -177,6 +177,27 @@
   */
   --shadow-ink: #0b0907;
 
+  /*
+    THE CHROME BAND.
+
+    Three controls are fixed to the bottom of every viewport: the atmosphere
+    toggle bottom-left, the hour control bottom-right on the landing, and the
+    trail indicator across the middle. Measured, they occupy the bottom 70px
+    and the atmosphere button runs from x=20 to x=151.
+
+    That last number is the one that bites. On a 1440 viewport the content
+    column is 1180 wide and centred, so its left edge is at 130 — twenty-one
+    pixels *inside* the control. Every page whose last element reaches the
+    bottom-left corner collided with it: the landing's footer links had their
+    first and last items clipped on desktop and phone alike, and Camp's
+    "Return to the survey" sat underneath it.
+
+    Persistent chrome owns its corners, so the page reserves the band rather
+    than the controls dodging content. One number, used by the two components
+    that put anything down there.
+  */
+  --chrome-bottom: 4.5rem;
+
   --shadow-paper: 0 8px 24px color-mix(in srgb, var(--shadow-ink) 20%, transparent);
   --shadow-paper-deep: 0 18px 50px color-mix(in srgb, var(--shadow-ink) 32%, transparent);
   --shadow-paper-lift: 0 14px 34px color-mix(in srgb, var(--shadow-ink) 28%, transparent);

@@ -104,6 +104,18 @@
 
 /* --- lettering ---------------------------------------------------------- */
 
+/*
+  Wide, the way a survey sheet letters its country.
+
+  The width used to be typed into the strings themselves — one space between
+  every letter and three between words — and SVG collapses runs of whitespace,
+  so the three became one and every multi-word name ran together on the sheet.
+  `letter-spacing` does the same job and keeps a word space a word space.
+  0.34em is close to what a literal space was giving at these sizes, and the
+  word spacing is set well above it so the gap between words stays obviously
+  larger than the gap between letters — which is the whole reason somebody
+  typed three spaces in the first place.
+*/
 .nameTerrain,
 .nameWater,
 .nameSurvey,
@@ -112,6 +124,8 @@
   fill: var(--map-ink);
   opacity: 0.78;
   user-select: none;
+  letter-spacing: 0.34em;
+  word-spacing: 0.5em;
 }
 
 .nameWater {
@@ -121,10 +135,12 @@
   opacity: 0.95;
 }
 
+/* A station number is a label, not a place name: the UI face, set tighter. */
 .nameSurvey,
 .nameRoad {
   font-family: var(--font-ui);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.18em;
+  word-spacing: 0.3em;
   fill: var(--map-ink-soft);
   opacity: 0.8;
 }

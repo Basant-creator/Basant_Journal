@@ -45,7 +45,22 @@
 .country {
   position: absolute;
   inset-block-start: 0;
-  inset-inline: 0;
+
+  /*
+    Full-bleed, because the edges were visible.
+
+    This was `inset-inline: 0`, which is the content column — 1180px centred
+    in a 1440 viewport. The sky and the ridges therefore stopped dead 130px
+    from each side of the window, with nothing drawn to explain why. A band
+    of picture with two hard vertical edges and no frame does not read as
+    country behind a place; it reads as a banner image pasted onto a page.
+
+    `50% - 50vw` walks each edge back out to the viewport. `vw` includes the
+    scrollbar, so the survey shell clips its own horizontal overflow — with
+    `clip` rather than `hidden`, which would make it a scroll container and
+    break `position: sticky` for anything inside it.
+  */
+  inset-inline: calc(50% - 50vw);
   /* Tall enough to stand behind the head of the page and the first of the
      content, and no taller. A full-height backdrop would put a horizon
      halfway down a list of certificates. */

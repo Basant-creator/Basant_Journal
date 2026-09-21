@@ -42,11 +42,30 @@
   padding: var(--space-2) var(--space-4);
   list-style: none;
 
-  /* The sheet the line is drawn on: just enough to lift it off a busy
-     landscape, never enough to read as a bar. */
-  background: color-mix(in srgb, var(--color-ink) 62%, transparent);
-  backdrop-filter: blur(3px);
-  border-radius: var(--radius-sm);
+  /*
+    The sheet the line is drawn on.
+
+    This used to be a 62%-ink plate with a hard rounded edge. That reads
+    correctly over the landing, which is nearly black anyway — and as a solid
+    bar over every paper page, which is most of the survey. Photographed at
+    1440x900 it sat on the map, the journal spread, the board and the archive
+    as a visible dark rectangle: the one thing the note at the top of this file
+    says it must never become.
+
+    A fade has no edge to notice. The ink is carried by a soft vertical wash
+    that is strongest under the type and gone within a few pixels above it, so
+    the line still lifts off a busy landscape without ever drawing a shape of
+    its own. The blur does the rest of the legibility work.
+  */
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-ink) 58%, transparent) 0%,
+    color-mix(in srgb, var(--color-ink) 34%, transparent) 55%,
+    transparent 100%
+  );
+  backdrop-filter: blur(5px);
+  -webkit-mask-image: linear-gradient(to top, #000 62%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 62%, transparent 100%);
 
   /* Horizontal scroll rather than wrapping: a trail that wraps onto two lines
      stops being a line. */

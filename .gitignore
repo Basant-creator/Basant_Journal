@@ -20,3 +20,7 @@ assets/camp-source/
 # is committed; the source stays out for the same reason the camp packs do.
 # Provenance and licence status: docs/landing-assets.md.
 assets/horse-source/
+# Rendered frames from scripts/visual-baseline.mjs. The script is the
+# baseline; the PNGs are 20MB a run and regenerate in three minutes.
+# Globbed, because comparing two passes means two output directories.
+.visual*/

@@ -1,8 +1,14 @@
+/*
+  The last thing on a checkpoint, and therefore the thing that lands in the
+  fixed controls' band. The return link sits bottom-left, which is precisely
+  where the atmosphere toggle is; see --chrome-bottom for the measurement.
+*/
 .onward {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
   padding-top: var(--space-8);
+  padding-bottom: var(--chrome-bottom);
   border-top: 1px solid var(--color-border-subtle);
 }
 
@@ -46,8 +52,23 @@
   color: var(--color-white-warm);
 }
 
+/*
+  Right, not left.
+
+  It was `flex-start`, which put it in the bottom-left corner of the page —
+  and the atmosphere toggle is fixed in the bottom-left corner of the
+  *viewport*, 131px wide from x=20. On a 1440 screen the content column
+  starts at x=130, so the control overlapped the link by twenty-one pixels
+  and clipped its first letter. Reserving vertical space below it does not
+  help: padding under the last element makes the document taller without
+  moving the element up.
+
+  So it moves across instead. It is a quiet trailing link either way, and on
+  the right it sits under the forward step it belongs with rather than under
+  a control it has nothing to do with.
+*/
 .returnLink {
-  align-self: flex-start;
+  align-self: flex-end;
   display: inline-flex;
   align-items: center;
   min-height: 44px;

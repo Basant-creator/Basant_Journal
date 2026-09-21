@@ -386,15 +386,28 @@ function buildStains(): Stain[] {
    Place names. Generic frontier topography — nothing borrowed from anywhere.
    ------------------------------------------------------------------------- */
 
+/*
+ * Place names, spaced by CSS rather than by hand.
+ *
+ * These were written letter by letter — "S I G N A L   R I D G E" — with
+ * three spaces between words to hold them apart. SVG collapses runs of
+ * whitespace by default, so all three became one, and the sheet rendered
+ * SIGNALRIDGE, BROKENSCARP and THELONGDRAW. It had been doing that for as
+ * long as the labels have existed; nothing in the source looks wrong, and
+ * you cannot see it without rendering the map.
+ *
+ * The letterspacing is a typographic property and lives in the stylesheet
+ * now, where a word space is a word space.
+ */
 const LABELS: MapLabel[] = [
-  { x: 690, y: 196, text: "S I G N A L   R I D G E", kind: "terrain", size: 21, rotate: -3 },
-  { x: 1338, y: 268, text: "B R O K E N   S C A R P", kind: "terrain", size: 18, rotate: 4 },
-  { x: 236, y: 566, text: "T H E   L O N G   D R A W", kind: "terrain", size: 18, rotate: -6, anchor: "start" },
-  { x: 566, y: 348, text: "D R Y   F O R K", kind: "water", size: 17, rotate: 50 },
-  { x: 1146, y: 774, text: "C O L D   S P R I N G", kind: "water", size: 15, rotate: 62 },
-  { x: 1168, y: 736, text: "T O W N S I T E", kind: "terrain", size: 16 },
-  { x: 742, y: 842, text: "T H E   S H A L L O W S", kind: "water", size: 16 },
-  { x: 372, y: 906, text: "O L D   P O S T   R O A D", kind: "road", size: 15, rotate: -2 },
+  { x: 690, y: 196, text: "SIGNAL RIDGE", kind: "terrain", size: 21, rotate: -3 },
+  { x: 1338, y: 268, text: "BROKEN SCARP", kind: "terrain", size: 18, rotate: 4 },
+  { x: 236, y: 566, text: "THE LONG DRAW", kind: "terrain", size: 18, rotate: -6, anchor: "start" },
+  { x: 566, y: 348, text: "DRY FORK", kind: "water", size: 17, rotate: 50 },
+  { x: 1146, y: 774, text: "COLD SPRING", kind: "water", size: 15, rotate: 62 },
+  { x: 1168, y: 736, text: "TOWNSITE", kind: "terrain", size: 16 },
+  { x: 742, y: 842, text: "THE SHALLOWS", kind: "water", size: 16 },
+  { x: 372, y: 906, text: "OLD POST ROAD", kind: "road", size: 15, rotate: -2 },
   { x: 1072, y: 214, text: "EL. 2140", kind: "survey", size: 15 },
   { x: 432, y: 346, text: "STA. 1", kind: "survey", size: 14 },
   { x: 1128, y: 386, text: "STA. 2", kind: "survey", size: 14 },
