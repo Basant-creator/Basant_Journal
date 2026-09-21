@@ -217,7 +217,27 @@ export const FLOOR = {
  * continuous function and can be sampled anywhere.
  */
 export function swellAt(x: number, z: number): number {
-  return round(Math.sin(x * 0.037) * Math.cos(z * 0.029) * 0.55 * FLOOR.relief);
+  /*
+    Two rolls, not one, and five times the amplitude.
+
+    It was a single `sin(x) * cos(z)` at 0.47 units of peak over a 300-unit
+    floor — which is to say it was flat. Photographed at 1440x900 the near
+    half of the frame was one unbroken dark field with no horizon relief and
+    nothing for the light to break against, which is most of what "reads as
+    flat polygons" meant.
+
+    A single sine pair is also a visible grid once it *is* big enough to see,
+    so there are two at unrelated frequencies and out of phase: a long roll
+    that carries the shape of the ground, and a shorter fold over the top of
+    it. Peak is about 2.4 units now.
+
+    Still continuous, still rounded, and still the function anything standing
+    on the plain samples — the scatter moves with the ground rather than
+    floating over the version of it the mesh happens to have.
+  */
+  const roll = Math.sin(x * 0.012 + 2.1) * Math.cos(z * 0.016 - 0.7);
+  const fold = Math.sin(x * 0.037) * Math.cos(z * 0.029);
+  return round((roll + fold * 0.45) * 1.95 * FLOOR.relief);
 }
 
 /**

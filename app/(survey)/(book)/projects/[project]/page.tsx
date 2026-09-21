@@ -96,6 +96,21 @@ export default async function ProjectRecordPage({ params }: PageProps) {
       held
       right={
         <article className={styles.record} data-project={project.id}>
+          {/*
+            The opening, as one block.
+
+            The filing line, the masthead and the note about links were three
+            siblings of `.record`, which puts a 56px gap between each of them
+            on top of their own margins. Photographed at 1440x900 that came to
+            roughly 300px of empty board between "Field record 01" and the
+            first sheet — the masthead floating with nothing under it, and the
+            document starting below the fold.
+
+            They are one thing: the head of a record. Grouped, they get one
+            tight internal rhythm and the 56px gap now separates the head from
+            the sheets, which is the only place it was ever meant to be.
+          */}
+          <header className={styles.opening}>
           <p className={styles.filing}>
             Field record {String(index).padStart(2, "0")} — the back of the
             journal
@@ -157,6 +172,7 @@ export default async function ProjectRecordPage({ params }: PageProps) {
           Repository and demo links are not yet recorded for this system.
         </p>
       )}
+      </header>
 
       {/*
         The record, as a packet of sheets.

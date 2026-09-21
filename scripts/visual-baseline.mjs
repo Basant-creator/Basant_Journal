@@ -38,6 +38,10 @@ const argOf = (name, fallback) => {
 
 const ORIGIN = argOf("--url", "http://localhost:3000");
 const OUT = argOf("--out", ".visual");
+/** Restrict the capture to named frames. Comma-separated; empty means all. */
+const ONLY = (argOf("--only", "") || "").split(",").filter(Boolean);
+/** Which hour to pin. The landing carries both and §7 wants both checked. */
+const HOUR = argOf("--hour", "dusk");
 
 /** The installed browser. No download; no second copy of Chromium. */
 const CHROME = [
@@ -78,7 +82,7 @@ const PRIME = `
   try {
     window.localStorage.setItem("frontier.visited", "1");
     window.sessionStorage.setItem("frontier.booted", "1");
-    window.sessionStorage.setItem("frontier:hour", "dusk");
+    window.sessionStorage.setItem("frontier:hour", "__HOUR__");
     window.localStorage.setItem("frontier:quality", "high");
   } catch (e) {}
 `;
@@ -104,7 +108,7 @@ let shots = 0;
 for (const [label, w, h, dsf] of VIEWPORTS) {
   const page = await browser.newPage();
   await page.setViewport({ width: w, height: h, deviceScaleFactor: dsf });
-  await page.evaluateOnNewDocument(PRIME);
+  await page.evaluateOnNewDocument(PRIME.replace("__HOUR__", HOUR));
 
   for (const [name, route] of ROUTES) {
     /* Mobile only needs the journey's spine; the rest is the same document at
@@ -112,6 +116,11 @@ for (const [label, w, h, dsf] of VIEWPORTS) {
     if (label === "mobile" && !/^(landing|frontier|camp|book-journal|record-tuneit|board)$/.test(name)) {
       continue;
     }
+    /* --only landing,camp  — for iterating on one surface without paying for
+       the whole matrix every time. An empty array is truthy in JS, so this
+       reads its length: `if (ONLY && ...)` skipped every frame when the flag
+       was absent, which is a full matrix producing nothing. */
+    if (ONLY.length > 0 && !ONLY.includes(name)) continue;
     await page.goto(ORIGIN + route, { waitUntil: "networkidle0", timeout: 60000 });
     /* Long enough for a deferred canvas to mount, arrive and settle; the
        Camp's own establish alone is 1.9s. */

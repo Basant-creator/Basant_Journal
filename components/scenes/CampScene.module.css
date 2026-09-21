@@ -6,11 +6,29 @@
    here is the page layout, the objects' hit areas, and the record they open.
    ========================================================================== */
 
+/*
+  The place first, the record under it.
+
+  This was two columns, 1.5fr against 0.85fr, which gave the scene 728px of a
+  1440 viewport — a diorama the size of a thumbnail with the rest of the
+  frame dark around it. §21 asks for the Camp to be large enough to inhabit,
+  and the column could not get there: every pixel it gained came off the
+  record beside it, which is already at its minimum.
+
+  Stacked, the scene takes the whole measure and the record sits beneath it,
+  which is also the truer reading of the interaction — you pick something up
+  off the table, and then you read it.
+
+  Nothing about the interaction geometry moves. The hit areas below are
+  percentages of the Scene's own box and the anchors are projected per frame,
+  so both follow the element wherever it goes; the camera is framed by field
+  of view and does not know how large it is being drawn. §22's list is
+  satisfied by the ratio being preserved, which is Scene's job and unchanged.
+*/
 .camp {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.85fr);
+  display: flex;
+  flex-direction: column;
   gap: clamp(20px, 3vw, 40px);
-  align-items: start;
 }
 
 /* The Scene owns the frame, the ratio and the pointer. The ratio is
@@ -19,6 +37,25 @@
    every width or the controls drift off the things they belong to. */
 .stage {
   min-width: 0;
+
+  /*
+    Bounded by height, not width.
+
+    Full measure at 16:9 is 664px tall, which puts the record entirely below
+    the fold on a 900px screen — and the record is the content. Capping the
+    *height* and letting the width follow keeps the scene as large as the
+    viewport can spare while leaving the head of the record showing, so the
+    page still reads as a place with a document under it rather than as a
+    scene with something rumoured beneath.
+
+    52vh rather than 58: at 58 the record showed seventy pixels of itself
+    below the fold, which is a sliver rather than a beginning. Measured on a
+    1440x900 capture, which is the only way this number can be chosen.
+
+    §24: large enough to inhabit, and deliberately not the whole screen.
+  */
+  inline-size: min(100%, calc(52vh * 1600 / 900));
+  margin-inline: auto;
 }
 
 .air {
@@ -109,9 +146,9 @@
 
 /* --- the open record ------------------------------------------------------ */
 
+/* Stacked under the scene now, so there is nothing to stick beside. */
 .record {
-  position: sticky;
-  top: calc(64px + var(--space-6));
+  position: static;
 }
 
 .record:focus-visible {
@@ -319,10 +356,7 @@
 /* --- responsive ----------------------------------------------------------- */
 
 @media (max-width: 1080px) {
-  .camp {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
+  /* Already a column; only the sticky record needs releasing. */
   .record {
     position: static;
   }

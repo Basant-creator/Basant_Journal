@@ -33,6 +33,18 @@ export interface HourEnvironment {
   /** The ground bounce, which is what keeps terrain off pure black. */
   bounce: string;
   /**
+   * Skylight: sky colour onto up-facing normals, bounce onto down-facing.
+   *
+   * Per hour, because the two hours need very different amounts of it. At
+   * dusk the sun is under the ridge and an up-facing floor is lit by the sky
+   * and almost nothing else, so this is most of the ground's light. At dawn
+   * the sun is up and doing that work, and the same value washes the floor
+   * pale enough that the page's own light-on-dark type stops holding against
+   * it — which is how the footer disappeared the first time this was raised
+   * as a single shared number.
+   */
+  hemisphere: number;
+  /**
    * Surfaces, furthest to nearest. Atmospheric perspective lives here rather
    * than only in the fog: distant rock is *already* closer to the sky colour
    * before any fog is applied (§25).
@@ -101,6 +113,7 @@ const dusk: HourEnvironment = {
   */
   ambient: { colour: "#6a7488", intensity: 0.95 },
   bounce: "#5d4c39",
+  hemisphere: 0.9,
   /*
     The depth ladder, spread.
 
@@ -116,14 +129,35 @@ const dusk: HourEnvironment = {
     visible country in between. Deliberate divergence, recorded here rather
     than silently drifting.
   */
+  /*
+    The ladder, rebuilt for the tone curve it is actually drawn through.
+
+    These were authored as if the pipeline were linear, and it is not: the
+    renderer runs ACES filmic at 1.05 exposure, whose toe compresses hard
+    below about 0.02. Measured off a 1440x900 capture, the lower half of the
+    frame came back at #030202 to #070606 — not dark, *gone*. Lifting the
+    near end by a few points did nothing, because a few points of albedo
+    under that curve is still inside the toe.
+
+    Worked back through it instead. The floor faces up, the sun is low and to
+    the left, so it collects about 0.42 of white between ambient, bounce and
+    a grazing sun; landing the plain at a readable value off that needs an
+    albedo near 0.07 linear, which is this. The whole ladder moves together
+    so the relationships that were tuned — far nearest the haze, plain
+    darkest — survive intact.
+
+    Dusk is still dusk. It reads as evening because the sky is violet, the
+    sun is under the ridge and the air is warm and closing, not because the
+    ground is black. In a photograph of this hour the ground is never black.
+  */
   ground: {
-    far: "#3d3428",
-    ridge: "#2e2720",
-    hill: "#241d16",
-    plain: "#1c150d",
-    rock: "#382c21",
-    scrub: "#262a1c",
-    trail: "#3d3022",
+    far: "#74634c",
+    ridge: "#635443",
+    hill: "#564633",
+    plain: "#4c3d2a",
+    rock: "#83654a",
+    scrub: "#576141",
+    trail: "#8d6e4c",
   },
   creature: "#141b24",
 };
@@ -158,6 +192,7 @@ const dawn: HourEnvironment = {
   },
   ambient: { colour: "#9db0c6", intensity: 0.78 },
   bounce: "#8a7860",
+  hemisphere: 0.3,
   ground: {
     /* Cool and pale: the far range is nearly the haze itself. */
     far: "#9aa3b2",

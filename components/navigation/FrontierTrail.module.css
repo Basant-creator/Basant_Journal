@@ -43,29 +43,47 @@
   list-style: none;
 
   /*
-    The sheet the line is drawn on.
+    No plate at all.
 
-    This used to be a 62%-ink plate with a hard rounded edge. That reads
-    correctly over the landing, which is nearly black anyway — and as a solid
-    bar over every paper page, which is most of the survey. Photographed at
-    1440x900 it sat on the map, the journal spread, the board and the archive
-    as a visible dark rectangle: the one thing the note at the top of this file
-    says it must never become.
+    This has been two things and both were wrong in the same way. It was a
+    62%-ink rectangle with a rounded edge, which read as a bar over every
+    paper page; then a masked vertical wash, which read as a smudge over the
+    same pages. Both were trying to solve legibility by putting a surface
+    *under* the marks — and a surface under an annotation is a panel, which
+    is the one thing §7 of the trail's own brief says it must never become.
 
-    A fade has no edge to notice. The ink is carried by a soft vertical wash
-    that is strongest under the type and gone within a few pixels above it, so
-    the line still lifts off a busy landscape without ever drawing a shape of
-    its own. The blur does the rest of the legibility work.
+    So the marks carry their own legibility instead, the way lettering on a
+    map does: a casing. Two shadows in the ink, tight and soft, drawn around
+    every glyph and label. Over the dark field they are invisible, because
+    nothing there needs separating. Over cream paper they are what holds a
+    pale mark against a pale ground — the same trick, and the same reason,
+    as the halo under a place name on the survey sheet.
+
+    The casing alone was not enough, and it was rendered to find that out:
+    over the Camp's record sheet the labels still washed out, because a soft
+    shadow gives a pale mark an edge and not a contrast. So the page itself
+    is darkened under the marks — `brightness` on the backdrop rather than a
+    colour painted over it. Nothing is added to the page; what is already
+    there is simply in shadow, which is what something lying on a page does.
+
+    The shadow is painted rather than filtered, and that took two attempts to
+    get right. `backdrop-filter: brightness()` darkens the page correctly but
+    its region is the element's border box, and masking that box did not
+    reliably soften it — rendered on a phone the strip still showed square
+    left and right edges, which is the panel again by another route.
+
+    A radial gradient in the shadow ink has no edge by construction. It sits
+    on its own layer under the marks, spreads well past them, and is the same
+    ink as every other shadow on the site, so on the dark field it is
+    invisible and on paper it is a pool.
+
+    And no backdrop blur. It was kept through both earlier attempts and it is
+    the last thing that had to go: blurring the page under the strip smooths
+    the paper grain inside a rectangle and leaves it sharp outside one, so the
+    boundary shows even when nothing is painted on it. On cream stock that
+    edge was the whole remaining tell. The pool is enough.
   */
-  background: linear-gradient(
-    to top,
-    color-mix(in srgb, var(--color-ink) 58%, transparent) 0%,
-    color-mix(in srgb, var(--color-ink) 34%, transparent) 55%,
-    transparent 100%
-  );
-  backdrop-filter: blur(5px);
-  -webkit-mask-image: linear-gradient(to top, #000 62%, transparent 100%);
-  mask-image: linear-gradient(to top, #000 62%, transparent 100%);
+  position: relative;
 
   /* Horizontal scroll rather than wrapping: a trail that wraps onto two lines
      stops being a line. */
@@ -76,6 +94,22 @@
 
 .line::-webkit-scrollbar {
   display: none;
+}
+
+/* The pool the marks lie in. Wider and taller than the strip so its falloff
+   happens off the marks entirely, and behind them so it never tints ink. */
+.line::before {
+  content: "";
+  position: absolute;
+  inset: -60% -14%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    58% 62% at 50% 62%,
+    color-mix(in srgb, var(--shadow-ink) 78%, transparent) 0%,
+    color-mix(in srgb, var(--shadow-ink) 52%, transparent) 46%,
+    transparent 78%
+  );
 }
 
 .stop {
@@ -152,6 +186,13 @@
   padding-block: 2px;
   text-decoration: none;
   color: inherit;
+
+  /* The casing. Tight first, to give the stroke an edge; soft second, to
+     lift it off whatever it is standing on. Both in the shadow ink, so a
+     pale mark holds on pale paper and neither is visible on the dark. */
+  filter:
+    drop-shadow(0 0 1px color-mix(in srgb, var(--shadow-ink) 85%, transparent))
+    drop-shadow(0 1px 3px color-mix(in srgb, var(--shadow-ink) 65%, transparent));
 }
 
 /* ---- the three states ------------------------------------------------- */

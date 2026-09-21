@@ -190,6 +190,7 @@ export function HourRig() {
       c.a.set(dusk.bounce);
       c.b.set(dawn.bounce);
       bounce.current.groundColor.copy(c.bounce.copy(c.a).lerp(c.b, mix));
+      bounce.current.intensity = lerp(dusk.hemisphere, dawn.hemisphere, mix);
     }
 
     /*
@@ -215,9 +216,28 @@ export function HourRig() {
     <>
       <ambientLight ref={ambient} />
       <directionalLight ref={sun} />
+      {/*
+        Skylight, and the one lever that reaches the ground without touching
+        anything else.
+
+        The dusk sun sits 12 degrees above the horizon, so an up-facing floor
+        collects about a fifth of it while a mesa wall facing into it collects
+        nearly all. That is correct, and it is why lifting the ground ladder
+        made the mesas read and left the plain dark: the plain is not lit by
+        the sun in any meaningful sense, it is lit by the sky.
+
+        A hemisphere light is exactly that — sky colour onto up-facing
+        normals, bounce onto down-facing ones — so it reaches the floor and
+        barely touches the vertical rock that was already working. §10 asks
+        for the smallest sufficient adjustment, and the fix for a dark floor
+        is skylight rather than exposure.
+
+        Its intensity is lerped with everything else; see `hemisphere` in
+        hours.ts for why the two hours cannot share one number.
+      */}
       <hemisphereLight
         ref={bounce}
-        args={[hours.dusk.sky.middle, hours.dusk.bounce, 0.35]}
+        args={[hours.dusk.sky.middle, hours.dusk.bounce, hours.dusk.hemisphere]}
       />
     </>
   );

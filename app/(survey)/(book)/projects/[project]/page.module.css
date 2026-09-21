@@ -1,3 +1,6 @@
+/*
+  The record: a head, then the sheets. Two children, one gap between them.
+*/
 .record {
   display: flex;
   flex-direction: column;
@@ -7,11 +10,18 @@
   width: 100%;
 }
 
+/* The head of the record. Its own rhythm, much tighter than the page's:
+   a filing line, a masthead and a footnote belong together. */
+.opening {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
 .externalLinks {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-  margin-top: var(--space-5);
 }
 
 .externalLink {
@@ -39,12 +49,13 @@
   background: var(--color-hover-wash);
 }
 
+/* A footnote about missing links, not a section. The gap above it is the
+   opening block's, which is why it carries no margin of its own. */
 .unresolved {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: 0.02em;
   color: var(--color-text-muted);
-  margin-top: var(--space-5);
 }
 
 /* --- body ---------------------------------------------------------------- */
@@ -77,7 +88,6 @@
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-text-muted);
-  margin-bottom: var(--space-4);
 }
 
 .docket {
