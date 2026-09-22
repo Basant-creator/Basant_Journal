@@ -546,10 +546,18 @@ export interface Tape {
  * absences and starts hearing them as room. Sparse and empty are the same
  * notes with and without this underneath them.
  *
- * Two parts. A filtered hiss, rolled off above 5 kHz so it sits behind
- * everything rather than on top of it, with a slow wobble on the filter so it
- * breathes. And crackle: single-sample pops at a few per second, scattered,
- * which is what makes it read as tape rather than as a broken output.
+ * Two parts. A filtered hiss, rolled off hard so it sits behind everything
+ * rather than on top of it, with a slow wobble on the filter so it breathes.
+ * And crackle: short pops, scattered, which is what makes it read as tape
+ * rather than as a broken output.
+ *
+ * Both are much quieter and duller than the first version, which was reported
+ * as sounding like rain — and was. Broadband transients at a few per second
+ * *are* rain; that is the whole acoustic description of it. The pops are now
+ * roughly one every second and a half at a third of the amplitude, and the
+ * hiss is rolled off at 3 kHz instead of 5.2 so it has no spray in it. A tape
+ * floor is meant to be the thing you notice when it stops, and the previous
+ * settings made it the thing you noticed while it ran.
  *
  * Eight seconds of buffer, looped. Long enough that the loop point is past
  * anybody counting and short enough not to be worth streaming.
@@ -557,7 +565,7 @@ export interface Tape {
 export function tape(
   context: AudioContext,
   destination: AudioNode,
-  { level = 0.06, crackle = 2.4, when }: { level?: number; crackle?: number; when?: number },
+  { level = 0.03, crackle = 0.7, when }: { level?: number; crackle?: number; when?: number },
 ): Tape {
   const t = when ?? context.currentTime;
   const seconds = 8;
@@ -571,17 +579,17 @@ export function tape(
     let last = 0;
     for (let i = 0; i < frames; i += 1) {
       const white = Math.random() * 2 - 1;
-      last = last * 0.86 + white * 0.14;
-      data[i] = last * 2.6;
+      last = last * 0.9 + white * 0.1;
+      data[i] = last * 1.5;
     }
     /* Crackle, on top and much louder than the floor it sits in — a pop is
        brief enough that peak level and perceived level are different things. */
     const pops = Math.round(crackle * seconds);
     for (let n = 0; n < pops; n += 1) {
       const at = Math.floor(Math.random() * (frames - 64));
-      const amp = 0.25 + Math.random() * 0.55;
-      for (let i = 0; i < 40; i += 1) {
-        data[at + i] += amp * Math.exp(-i / 6) * (Math.random() * 2 - 1);
+      const amp = 0.09 + Math.random() * 0.2;
+      for (let i = 0; i < 28; i += 1) {
+        data[at + i] += amp * Math.exp(-i / 4.5) * (Math.random() * 2 - 1);
       }
     }
   }
@@ -592,7 +600,7 @@ export function tape(
 
   const shelf = context.createBiquadFilter();
   shelf.type = "lowpass";
-  shelf.frequency.value = 5200;
+  shelf.frequency.value = 3000;
 
   /* Wow and flutter, on the filter rather than on the pitch: moving the pitch
      of a noise bed does nothing audible, and moving its brightness is what a
@@ -600,7 +608,7 @@ export function tape(
   const lfo = context.createOscillator();
   lfo.frequency.value = 0.07;
   const lfoGain = context.createGain();
-  lfoGain.gain.value = 900;
+  lfoGain.gain.value = 480;
   lfo.connect(lfoGain).connect(shelf.frequency);
 
   const gain = context.createGain();

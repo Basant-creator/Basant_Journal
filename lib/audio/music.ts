@@ -361,20 +361,20 @@ const LOFI_FIGURES: Phrase[] = [
        bar left empty for the chord to sit in. */
     beats: 8,
     notes: [
-      { at: 0.5, note: NOTES.A3, level: 0.34, pan: -0.1 },
-      { at: 2, note: NOTES.D4, level: 0.3, pan: 0.06 },
-      { at: 4, note: NOTES.F4, level: 0.26, pan: -0.04 },
-      { at: 5.5, note: NOTES.E4, level: 0.24, pan: 0.1 },
+      { at: 0.5, note: NOTES.A3, level: 0.5, pan: -0.1 },
+      { at: 2, note: NOTES.D4, level: 0.44, pan: 0.06 },
+      { at: 4, note: NOTES.F4, level: 0.39, pan: -0.04 },
+      { at: 5.5, note: NOTES.E4, level: 0.36, pan: 0.1 },
     ],
   },
   {
     /* The answer: the same descent, started higher and landing a step lower. */
     beats: 8,
     notes: [
-      { at: 0, note: NOTES.F4, level: 0.3, pan: 0.08 },
-      { at: 1.5, note: NOTES.E4, level: 0.26, pan: -0.06 },
-      { at: 3, note: NOTES.D4, level: 0.28, pan: 0.02 },
-      { at: 6, note: NOTES.A3, level: 0.24, pan: -0.12 },
+      { at: 0, note: NOTES.F4, level: 0.45, pan: 0.08 },
+      { at: 1.5, note: NOTES.E4, level: 0.39, pan: -0.06 },
+      { at: 3, note: NOTES.D4, level: 0.42, pan: 0.02 },
+      { at: 6, note: NOTES.A3, level: 0.36, pan: -0.12 },
     ],
   },
   {
@@ -382,10 +382,10 @@ const LOFI_FIGURES: Phrase[] = [
        semitone of grit inside an otherwise warm line. */
     beats: 8,
     notes: [
-      { at: 0.5, note: NOTES.D4, level: 0.3, pan: -0.08 },
-      { at: 2, note: NOTES.F4, level: 0.27, pan: 0.1 },
-      { at: 3, note: NOTES.Eb4, level: 0.22, pan: 0.04 },
-      { at: 4.5, note: NOTES.D4, level: 0.28, pan: -0.02 },
+      { at: 0.5, note: NOTES.D4, level: 0.45, pan: -0.08 },
+      { at: 2, note: NOTES.F4, level: 0.4, pan: 0.1 },
+      { at: 3, note: NOTES.Eb4, level: 0.33, pan: 0.04 },
+      { at: 4.5, note: NOTES.D4, level: 0.42, pan: -0.02 },
     ],
   },
   {
@@ -393,8 +393,8 @@ const LOFI_FIGURES: Phrase[] = [
        Two notes and the room. */
     beats: 8,
     notes: [
-      { at: 1, note: NOTES.A3, level: 0.3, pan: 0 },
-      { at: 4.5, note: NOTES.D4, level: 0.25, pan: 0.06 },
+      { at: 1, note: NOTES.A3, level: 0.45, pan: 0 },
+      { at: 4.5, note: NOTES.D4, level: 0.38, pan: 0.06 },
     ],
   },
 ];
@@ -552,7 +552,7 @@ export const lofiCue: Cue = {
   roll: LOFI_ROLL,
   /* Under the bass rather than beside it: the groove has a walking low end
      now, and a drone at the Frontier cue's level fought it for the register. */
-  drone: { low: NOTES.D2, high: NOTES.A2, level: 0.075, quietLevel: 0.055 },
+  drone: { low: NOTES.D2, high: NOTES.A2, level: 0.055, quietLevel: 0.04 },
   /* More often than the first version, because there is something for the
      whistle to answer over. A voice in a silent room is an event; a voice over
      a bed is somebody in the distance, which is what it is supposed to be. */
@@ -587,21 +587,31 @@ export const lofiCue: Cue = {
     /* An eighth of a beat late on anything off the grid. Enough to feel, not
        enough to count. */
     swing: 0.12,
+    /*
+      The brushes are darker and quieter than they were.
+
+      A brush is a burst of bandpassed noise, and three of them a bar up around
+      3 kHz, over a tape floor that was also spraying, added up to weather. The
+      tone values now put them between 2.1 and 2.5 kHz — a stick on a rim
+      rather than a wire brush — and at two thirds of the level. The kick is
+      untouched: it was never the problem, and it is the only thing in the
+      groove with any body.
+    */
     pulse: [
       { at: 0, kind: "thump", level: 0.16 },
-      { at: 1, kind: "brush", level: 0.075, tone: 0.62, pan: 0.08 },
+      { at: 1, kind: "brush", level: 0.05, tone: 0.34, pan: 0.08 },
       { at: 2.5, kind: "thump", level: 0.115 },
-      { at: 3, kind: "brush", level: 0.075, tone: 0.58, pan: -0.06 },
+      { at: 3, kind: "brush", level: 0.05, tone: 0.3, pan: -0.06 },
       /* The ghost: barely there, and the reason the bar does not stop dead at
          the end of it. */
-      { at: 3.5, kind: "brush", level: 0.032, tone: 0.82, pan: 0.14 },
+      { at: 3.5, kind: "brush", level: 0.02, tone: 0.46, pan: 0.14 },
     ],
     bass: [NOTES.D2, NOTES.D2, NOTES.Bb1, NOTES.C2],
     chords: LOFI_CHORDS,
     /* Bars between phrases. At four bars that is thirteen seconds, and the
        bed is playing through every one of them. */
     every: { silence: [0, 0], sparse: [3, 5], journey: [2, 3], reflective: [4, 7] },
-    tape: { level: 0.055, crackle: 2.6 },
+    tape: { level: 0.028, crackle: 0.7 },
   },
 
   closing: {
@@ -972,8 +982,8 @@ export function conduct(
       guitar(context, desk.bus.music, {
         frequency: g.bass[step],
         decay: barLength * 0.95,
-        attack: 0.22,
-        level: 0.3,
+        attack: 0.2,
+        level: 0.24,
         pan: -0.06,
         when: barCursor + (Math.random() - 0.5) * 0.014,
       });
@@ -987,7 +997,7 @@ export function conduct(
           frequency: chord[i],
           decay: 2.4 + Math.random() * 0.8,
           attack: 0.14 + Math.random() * 0.08,
-          level: (0.13 - i * 0.015) * (0.9 + Math.random() * 0.2),
+          level: (0.1 - i * 0.013) * (0.9 + Math.random() * 0.2),
           pan: 0.1 + (i - 1.5) * 0.05,
           when: barCursor + (1 + i * 0.16) * cue.beat + (Math.random() - 0.5) * 0.02,
         });
