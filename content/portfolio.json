@@ -543,7 +543,11 @@
       "items": [
         {
           "name": "Git",
-          "projects": []
+          "projects": [
+            "tuneit",
+            "onsight",
+            "bobai"
+          ]
         },
         {
           "name": "GitHub",
@@ -552,13 +556,23 @@
           ]
         },
         {
+          "name": "Docker",
+          "projects": [
+            "tuneit"
+          ]
+        },
+        {
           "name": "Render",
-          "projects": []
+          "projects": [
+            "onsight",
+            "bobai"
+          ]
         },
         {
           "name": "Vercel",
           "projects": [
-            "tuneit"
+            "onsight",
+            "bobai"
           ]
         },
         {

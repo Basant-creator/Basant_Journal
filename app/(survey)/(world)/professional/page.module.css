@@ -58,6 +58,38 @@
   margin-top: var(--space-2);
 }
 
+/*
+  The stack, in the masthead.
+
+  A single run of names rather than a grid or a set of chips: this is one fact
+  stated once, and boxing each item would turn a sentence into an inventory
+  the eye has to process piece by piece. The interpunct separators are the same
+  device the records use for their technology line, so the two read as the same
+  document listing the same things at two levels of detail.
+
+  It sits below the contact row because contact is what somebody scrolls back
+  up for and the stack is what they read on the way down.
+*/
+.stackLine {
+  margin-top: var(--space-5);
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: var(--color-ink);
+  max-width: 62ch;
+}
+
+.stackLineLabel {
+  font-family: var(--font-ui);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-earth);
+  margin-right: var(--space-3);
+  /* Never alone on a line above the list it introduces. */
+  white-space: nowrap;
+}
+
 .contact {
   list-style: none;
   display: flex;

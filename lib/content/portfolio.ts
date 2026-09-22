@@ -32,6 +32,30 @@ export function getProject(id: string): Project | undefined {
   return projects.find((p) => p.id === id);
 }
 
+/**
+ * The stack, for somebody who has thirty seconds.
+ *
+ * Derived rather than hand-written, so it cannot drift from the skills list
+ * the rest of the page renders — and derived by *evidence*, which is the one
+ * filter this site is entitled to apply to itself: every name in this line has
+ * a project in the content model standing behind it. C++ and Operating Systems
+ * are absent for that reason and not by judgement. They are real and they are
+ * on the page below, in the rung the professional view keeps for a claim.
+ *
+ * Languages, frameworks and databases only. The tooling groups matter to the
+ * work and not to the question this line answers, which is what somebody
+ * writes code in.
+ */
+export const CORE_STACK_GROUPS = [
+  "Languages",
+  "Frameworks & Libraries",
+  "Databases",
+] as const;
+
+export const coreStack: string[] = skills
+  .filter((group) => (CORE_STACK_GROUPS as readonly string[]).includes(group.group))
+  .flatMap((group) => group.items.filter((item) => item.projects.length).map((i) => i.name));
+
 /** Projects that name this skill in their technology list. */
 export function projectsForSkill(projectIds: string[]): Project[] {
   return projectIds

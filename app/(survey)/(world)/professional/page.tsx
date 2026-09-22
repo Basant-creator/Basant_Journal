@@ -3,6 +3,7 @@ import Link from "next/link";
 import { routes } from "@/lib/routes";
 import {
   certifications,
+  coreStack,
   education,
   links,
   metrics,
@@ -56,6 +57,24 @@ export default function ProfessionalPage() {
           </li>
           <li>{person.location}</li>
         </ul>
+
+        {/*
+          The stack, before anything else asks for scrolling.
+
+          Somebody who arrives here rather than at the landing has decided they
+          want the facts, and the first fact they are looking for is what this
+          person writes code in. Putting it in the masthead is the difference
+          between a document that answers that in three seconds and one that
+          makes them hunt for it past a summary and a project list.
+
+          Derived from the skills model and filtered to what a project actually
+          evidences — see coreStack. It is a summary of the section below, not
+          a second list that can disagree with it.
+        */}
+        <p className={styles.stackLine}>
+          <span className={styles.stackLineLabel}>Works in</span>
+          {coreStack.join(" · ")}
+        </p>
       </header>
 
       <section className={styles.section} aria-labelledby="about">
@@ -72,6 +91,46 @@ export default function ProfessionalPage() {
             </li>
           ))}
         </ul>
+      </section>
+
+      {/*
+        Capabilities before the project detail.
+
+        A recruiter reading this page is answering "can this person do the
+        thing" before "what has this person done", and the order of the
+        document should match the order of the question. The immersive side
+        puts the work first because a reader there is being told a story;
+        this side is being asked one.
+
+        Both sections keep their ids, so /professional#tuneit and
+        /professional#skills still land where they always did.
+      */}
+      <section className={styles.section} aria-labelledby="skills">
+        <h2 id="skills" className={styles.heading}>
+          Skills
+        </h2>
+        <div className={styles.skills}>
+          {skills.map((group) => (
+            <div key={group.group} className={styles.skillGroup}>
+              <h3 className={styles.skillHeading}>{group.group}</h3>
+              <ul className={styles.skillList}>
+                {group.items.map((item) => (
+                  <li
+                    key={item.name}
+                    className={item.projects.length ? styles.skillEvidenced : styles.skillClaimed}
+                  >
+                    {item.name}
+                    {item.projects.length ? (
+                      <span className={styles.skillProof}>
+                        {item.projects.join(", ")}
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className={styles.section} aria-labelledby="projects">
@@ -120,34 +179,6 @@ export default function ProfessionalPage() {
                 </p>
               )}
             </article>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.section} aria-labelledby="skills">
-        <h2 id="skills" className={styles.heading}>
-          Skills
-        </h2>
-        <div className={styles.skills}>
-          {skills.map((group) => (
-            <div key={group.group} className={styles.skillGroup}>
-              <h3 className={styles.skillHeading}>{group.group}</h3>
-              <ul className={styles.skillList}>
-                {group.items.map((item) => (
-                  <li
-                    key={item.name}
-                    className={item.projects.length ? styles.skillEvidenced : styles.skillClaimed}
-                  >
-                    {item.name}
-                    {item.projects.length ? (
-                      <span className={styles.skillProof}>
-                        {item.projects.join(", ")}
-                      </span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            </div>
           ))}
         </div>
       </section>
