@@ -107,6 +107,39 @@
   --color-accent:       var(--color-red);
   --color-accent-hover: var(--color-red-hover);
 
+  /* --- semantic: THE LANDING ---------------------------------------------
+     The landing's background is a rendered territory rather than a surface,
+     and it holds two hours at once. Measured off the canvas, the luminance
+     behind the page's own type splits into two bands and only one of them
+     moves with the hour:
+
+                                    dusk     split     dawn
+       sky     the masthead         0.024    0.024     0.36 .. 0.42
+       ground  everything below     0.001    0.001     0.029 .. 0.031
+
+     So --landing-* is the ground and is constant, --landing-sky-* is the
+     masthead and is the only thing dawn touches. The full derivation lives
+     beside the shipping copy in app/globals.css.
+     --------------------------------------------------------------------- */
+
+  --landing-ink:       var(--color-text-primary);
+  --landing-ink-soft:  var(--color-text-secondary);
+  --landing-ink-muted: var(--color-paper-dark);       /* 8.4:1 dusk, 5.3:1 dawn */
+  --landing-rule:      var(--color-border-subtle);
+  --landing-accent:    var(--color-red-light);        /* the same red at every hour */
+
+  --landing-sky-ink:       var(--color-text-primary);
+  --landing-sky-ink-muted: var(--color-paper-dark);
+  --landing-sky-rule:      var(--color-border-subtle);
+  --landing-sky-shade:     rgba(11, 9, 7, 0.64);      /* holds cream over the dawn wedge */
+  --landing-sky-light:     rgba(231, 217, 188, 0.44); /* holds ink over a ridge */
+  --landing-sky-delay:     1050ms;                    /* when the words notice */
+
+  /* html[data-hour="dawn"] re-points the sky trio only:
+       --landing-sky-ink       -> var(--color-text-on-paper)        6.9:1
+       --landing-sky-ink-muted -> var(--color-text-on-paper-muted)  4.9:1
+       --landing-sky-rule      -> rgba(27, 23, 19, 0.34)            */
+
   --color-border-subtle: rgba(216, 199, 165, 0.22);
   --color-border-strong: rgba(216, 199, 165, 0.48);
 

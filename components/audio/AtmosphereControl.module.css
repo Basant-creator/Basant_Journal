@@ -27,7 +27,15 @@
   text-transform: uppercase;
   color: var(--color-text-muted);
 
-  background: color-mix(in srgb, var(--color-ink) 78%, transparent);
+  /*
+    The chip is the control's own ground, and it has to be ground enough to
+    stand on. At 78% it was still three quarters transparent, so the label's
+    contrast was really a contrast against whatever happened to be behind it —
+    fine over the shell's near-black, 4.37:1 over the landing's lit floor at
+    dawn, which is a miss. 88% is what the hover state already used, and it
+    puts the label back at 5.7:1 wherever the control is standing.
+  */
+  background: color-mix(in srgb, var(--color-ink) 88%, transparent);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
   backdrop-filter: blur(3px);
@@ -52,7 +60,7 @@
 .control:focus-visible,
 .control[data-on] {
   color: var(--color-paper-light);
-  background: color-mix(in srgb, var(--color-ink) 88%, transparent);
+  background: color-mix(in srgb, var(--color-ink) 94%, transparent);
   border-color: color-mix(in srgb, var(--color-paper-light) 34%, transparent);
 }
 

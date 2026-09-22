@@ -131,7 +131,26 @@
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-hero);
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--landing-sky-ink-muted);
+  /*
+    The one line of type the resting composition puts across the boundary.
+
+    At the split the diagonal crosses this line about three quarters of the
+    way along at 1440x900 and earlier than that on a phone, where it wraps and
+    runs nearly the full width — so its last few words have a lit dawn wedge
+    behind them while the rest of it has dusk. Nothing in the palette is
+    4.5:1 against both: the two backgrounds are 0.024 and 0.41, and a tone
+    dark enough for one is invisible on the other. The plate cannot reach it
+    either without becoming a band across the corner of the frame (see
+    --landing-sky-relief).
+
+    So the ground comes with the letters. Invisible at dusk, where it is dark
+    on dark; invisible at dawn, where it is light on light; and doing all of
+    its work in the twenty-five per cent of one line that needs it.
+  */
+  text-shadow:
+    0 0 4px var(--landing-sky-relief),
+    0 0 9px var(--landing-sky-relief);
   margin-bottom: clamp(24px, 5vh, 48px);
   flex-wrap: wrap;
   justify-content: center;
@@ -141,7 +160,7 @@
   flex: none;
   width: clamp(28px, 7vw, 90px);
   height: 1px;
-  background: var(--color-border-subtle);
+  background: var(--landing-sky-rule);
 }
 
 .name {
@@ -149,7 +168,12 @@
   font-size: clamp(0.88rem, 2vw, 1.2rem);
   letter-spacing: 0.5em;
   text-transform: uppercase;
-  color: var(--color-paper-light);
+  color: var(--landing-sky-ink);
+  /* Same reasoning as the eyebrow: this sits high enough in the frame to
+     catch the wedge at a narrow enough window. */
+  text-shadow:
+    0 0 5px var(--landing-sky-relief),
+    0 0 11px var(--landing-sky-relief);
   margin-bottom: clamp(14px, 2.5vh, 26px);
   /* Tracking pushes the line right; pull it back to true centre. */
   text-indent: 0.5em;
@@ -158,13 +182,22 @@
 .wordmark {
   width: min(100%, 860px);
   margin: 0;
+
+  /* The mark reads the sky family like every other thing in this band. Its
+     other two hooks — the impression and the highlight — swap roles rather
+     than values and are set with the hour, below. */
+  --wordmark-face: var(--landing-sky-ink);
+  --wordmark-secondary: var(--landing-sky-ink-muted);
 }
 
 .lede {
   font-family: var(--font-editorial);
   font-size: clamp(1.02rem, 1.5vw, 1.24rem);
   line-height: 1.6;
-  color: var(--color-text-secondary);
+  color: var(--landing-ink-soft);
+  /* The only line of body copy on the page, and the only one the terrain gets
+     behind: at 390x844 the dawn ridge crosses it mid-sentence. */
+  text-shadow: 0 0 6px var(--landing-ink-relief);
   max-width: var(--measure-lede);
   margin-top: clamp(24px, 4vh, 44px);
 }
@@ -180,7 +213,7 @@
 .doorNote {
   font-family: var(--font-editorial);
   font-size: var(--text-sm);
-  color: var(--color-text-muted);
+  color: var(--landing-ink-muted);
   max-width: 48ch;
   margin-top: var(--space-5);
 }
@@ -203,7 +236,7 @@
      end of exactly this row. Without the reservation they clip the first and
      last links — "GitHub" and "Records" — at every width. */
   padding-bottom: var(--chrome-bottom);
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: 1px solid var(--landing-rule);
 }
 
 /* The sheet number and the links share one voice — the foot of the page is
@@ -213,7 +246,7 @@
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--landing-ink-muted);
 }
 
 .footLinks {
@@ -240,8 +273,8 @@
 }
 
 .footLinks a:hover {
-  color: var(--color-text-primary);
-  border-bottom-color: var(--color-red-light);
+  color: var(--landing-ink);
+  border-bottom-color: var(--landing-accent);
 }
 
 /* ========================================================================
@@ -414,74 +447,45 @@
 /* ==========================================================================
    THE HOUR
 
-   §19 is the rule that shapes this whole block: the environment is the event
-   and the interface is not. So nothing here leads — every property waits out
-   most of the sweep before it begins, and then takes its time. Press the
-   control and the land changes; the words notice afterwards, the way a room
-   does when the sun reaches it.
+   Two rules shape this block, and they pull in opposite directions.
 
-   §18 is the constraint: the title has to stay readable the entire way
-   across, including at the half-second when a bright dawn sky has arrived
-   behind text still coloured for dusk. Two things handle that — the scrim
-   below, which is strongest exactly while the boundary is crossing, and the
-   fact that ink and paper are both token families that already carry measured
-   contrast. Nothing here invents a colour.
+   The environment is the event and the interface is not, so the words must
+   never lead the light. And the title has to stay readable the whole way
+   across, including at the moment a lit dawn sky has arrived behind type
+   still coloured for dusk. The first rule wants the foreground to wait; the
+   second says it cannot wait too long.
+
+   What settles them is that most of the page does not participate. Only the
+   masthead stands against the sky, and only the sky changes with the hour —
+   see the measurements beside --landing-* in globals.css. The body copy, the
+   door note, the footer and both corner controls sit on ground that reads
+   0.001 at dusk and 0.031 at dawn, which is dark twice, so they keep one set
+   of values and never cross at all. Two thirds of the landing simply has no
+   transition to get wrong.
+
+   What is left is the masthead, and it cuts rather than fades. See
+   --landing-sky-delay for why a fade is the wrong instrument for an
+   inversion, and where 1050ms comes from.
    ========================================================================== */
 
 /*
-  Dawn remaps the text tokens rather than restating the rules.
+  The mark, inverted.
 
-  `--color-text-on-paper*` is the family the record sheets already use, and it
-  is measured: 10.7:1, 7.4:1 and the soft earth between them. Pointing the
-  landing's own tokens at it means every rule above keeps working and the
-  contrast comes along for free.
+  Measured before any of this existed: the title stayed at --color-white-warm
+  with a --color-paper-dark shadow, which is cream on a pale dawn sky — the
+  one thing that must not happen, on the one element that cannot be allowed to
+  fail. The face and its secondary follow the sky family (see .wordmark); the
+  remaining pair swap roles rather than values. At dusk the letter is light
+  and pressed into darkness; at dawn it is ink, with the light catching the
+  edge it was pressed out of.
+
+  Both of these used to read --color-paper-light, which the old dawn block
+  re-pointed to ink — so the impression meant to be light was as dark as the
+  face, and the mark went flat. Nothing re-points that token now.
 */
-:global(html[data-hour="dawn"]) .scene {
-  --color-text-primary: var(--color-text-on-paper);
-  --color-text-secondary: var(--color-text-on-paper-soft);
-  --color-text-muted: var(--color-text-on-paper-muted);
-  /* The name is set in paper-light for the dark hour; at dawn that is white
-     on cream. Ink, and it becomes the darkest thing on the page. */
-  --color-paper-light: var(--color-ink);
-  --color-border-subtle: color-mix(in srgb, var(--color-ink) 22%, transparent);
-  --color-border: color-mix(in srgb, var(--color-ink) 38%, transparent);
-
-  /*
-    The wordmark, inverted.
-
-    Measured before this existed: the title stayed at --color-white-warm with
-    a --color-paper-dark shadow, which is cream on a pale dawn sky — the one
-    thing §18 says must not happen, and the one element on the page that
-    cannot be allowed to fail it.
-
-    Overriding the four `--wordmark-*` hooks rather than restyling the SVG:
-    the component already exposes them for exactly this, and its `press`
-    variant uses the same mechanism. The face and its shadow swap roles — at
-    dusk the letter is light and pressed into darkness, at dawn it is ink with
-    the light catching the edge it was pressed out of.
-  */
-  --wordmark-face: var(--color-ink);
-  --wordmark-secondary: var(--color-earth-dark);
+:global(html[data-hour="dawn"]) .wordmark {
   --wordmark-impression: color-mix(in srgb, var(--color-paper-light) 72%, transparent);
   --wordmark-highlight: color-mix(in srgb, var(--color-paper-light) 26%, transparent);
-}
-
-/*
-  The UI's own crossing, held back behind the landscape's.
-
-  1.05s of delay against a 1.9s sweep: by the time the words begin to turn,
-  the boundary is past the middle of the screen and the visitor has already
-  understood that the world is what changed. Reversing these two — letting the
-  buttons repaint first — is exactly what §19 forbids, and it makes the
-  landscape look like it is catching up with the interface.
-*/
-.scene,
-.inner,
-.foot {
-  transition:
-    color var(--duration-slow) var(--ease-standard) 1050ms,
-    background-color var(--duration-slow) var(--ease-standard) 1050ms,
-    border-color var(--duration-slow) var(--ease-standard) 1050ms;
 }
 
 /*
@@ -489,8 +493,12 @@
 
   Only ever seen without WebGL — the canvas covers it otherwise — but a
   visitor on a machine that cannot draw the territory still gets the hour they
-  chose, rather than a dark drawing under light text. That is the whole reason
+  chose rather than a dark drawing under light text. That is the whole reason
   the drawing was built to stand on its own.
+
+  The last stop used to be --color-paper-light and resolved to ink, so the
+  fallback dawn faded to black at the foot of the page while the landing's own
+  ink was being turned dark to suit it.
 */
 :global(html[data-hour="dawn"]) .scene {
   background:
@@ -498,43 +506,85 @@
     linear-gradient(180deg, var(--color-paper-dark) 0%, var(--color-paper) 46%, var(--color-paper-light) 100%);
 }
 
-/*
-  §18's contrast-support layer.
+/* ==========================================================================
+   WHAT THE MASTHEAD STANDS ON
 
-  A very soft wash directly under the words, tinted toward whichever hour is
-  arriving. It is not a box and it must never read as one: no edge, no border,
-  and it sits behind the type at a strength that is invisible against open sky
-  and only does work when a mesa or a bright horizon passes behind a line of
-  text.
-*/
-.inner::before {
+   Two plates, one per hour, because their jobs are not mirror images.
+
+   The dusk plate is broad and strong. At the resting split the diagonal runs
+   through this band, so one line of type can have both hours behind it and no
+   ink solves that; only something behind the type does. It has to hold cream
+   over a lit dawn wedge, and it is invisible over dusk's near-black, so it can
+   afford to be heavy.
+
+   The dawn plate is smaller and lighter, and it must not reach the body copy.
+   The sky is already carrying the masthead at 4.9:1 and up; what the plate is
+   for is the lower half of FRONTIER, where a ridge crosses behind the
+   descenders at 0.073 and ink on its own reads 2.0:1. Extended down to the
+   lede it would do the opposite of its job — lift the ground out from under
+   light type that is currently fine, and take the line to 1.4:1.
+
+   Opacity rather than colour, so the swap is one property on two elements,
+   and so neither plate ever has to interpolate toward the other.
+   ========================================================================== */
+
+.inner::before,
+.inner::after {
   content: "";
   position: absolute;
-  inset: -8% -6%;
   z-index: -1;
   pointer-events: none;
+  transition: opacity 1ms linear var(--landing-sky-delay);
+}
+
+/* Dusk and the split. */
+.inner::before {
+  inset: -10% -8%;
   background: radial-gradient(
-    62% 52% at 50% 46%,
-    color-mix(in srgb, var(--color-ink) 46%, transparent) 0%,
-    transparent 72%
+    82% 68% at 50% 28%,
+    var(--landing-sky-shade) 0%,
+    transparent 78%
   );
-  transition: opacity var(--duration-slow) var(--ease-standard) 1050ms;
+}
+
+/* Dawn: the masthead only. */
+.inner::after {
+  inset: -10% -8% auto;
+  block-size: 62%;
+  opacity: 0;
+  background: radial-gradient(
+    72% 74% at 50% 42%,
+    var(--landing-sky-light) 0%,
+    transparent 74%
+  );
 }
 
 :global(html[data-hour="dawn"]) .inner::before {
-  background: radial-gradient(
-    62% 52% at 50% 46%,
-    color-mix(in srgb, var(--color-paper-light) 62%, transparent) 0%,
-    transparent 72%
-  );
+  opacity: 0;
 }
 
-/* §39: reduced motion keeps the two hours and drops the journey between. */
-@media (prefers-reduced-motion: reduce) {
-  .scene,
-  .inner,
-  .foot,
-  .inner::before {
-    transition-delay: 0ms;
-  }
+:global(html[data-hour="dawn"]) .inner::after {
+  opacity: 1;
+}
+
+/*
+  The cut.
+
+  Everything in the sky band changes at one instant, including the mark — the
+  wordmark's hooks are custom properties, which do not transition, so before
+  this the SVG snapped at 0ms while the type around it crossfaded over half a
+  second. The masthead is one object and it should move as one.
+
+  `1ms` is a hard swap with a delay in front of it, not an animation.
+*/
+.eyebrow,
+.eyebrowRule,
+.name,
+.wordmark :global(svg) * {
+  transition:
+    color 1ms linear var(--landing-sky-delay),
+    fill 1ms linear var(--landing-sky-delay),
+    stroke 1ms linear var(--landing-sky-delay),
+    text-shadow 1ms linear var(--landing-sky-delay),
+    background-color 1ms linear var(--landing-sky-delay);
 }

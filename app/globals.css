@@ -522,6 +522,157 @@
 }
 
 /* ==========================================================================
+   THE LANDING
+
+   The landing is the only view whose background is a photograph rather than a
+   surface, and the only one whose background changes while you are looking at
+   it. So its foreground is named here instead of borrowed from the shell.
+
+   It has to be named, because the mechanism this replaces was to re-point the
+   shell's own tokens inside the landing at dawn, and that failed twice over.
+   Re-pointing --color-paper-light to ink for the sake of one line of type
+   silently inverted everything else that read it: the contrast scrim, the
+   no-WebGL fallback gradient and two of the wordmark's four hooks were all
+   written to be light and all came out dark. And it assumed the hour changes
+   the whole frame, which it does not.
+
+   TWO BANDS, NOT TWO THEMES
+
+   Sampled off the rendered canvas at 1440x900 and 390x844, reading the
+   luminance behind every piece of text on the page:
+
+                                    dusk     split     dawn
+     sky     the masthead           0.024    0.024     0.36 .. 0.42
+     ground  everything below it    0.001    0.001     0.029 .. 0.031
+
+   The hour changes the sky. It does not change the ground. At dawn the sun is
+   high and behind the camera, the near floor faces up into it at a grazing
+   angle, and through the renderer's filmic curve the lower half of the frame
+   comes back at 0.03 — three hundredths above dusk, and nowhere near paper.
+   The body copy, the door note, the footer and both corner controls all live
+   down there, in the dark, at every hour of the day.
+
+   Hence two families, of which only one moves. --landing-* is the ground and
+   is constant; --landing-sky-* is the masthead and is the only thing the hour
+   touches. Turning the ground to ink at dawn is what put the door note and
+   the footer at 1.04:1 — not low contrast but none, the ink and the earth it
+   was printed on being within a shade of each other.
+   ========================================================================== */
+
+:root {
+  /* --- the ground band: constant --------------------------------------- */
+  --landing-ink: var(--color-text-primary);
+  --landing-ink-soft: var(--color-text-secondary);
+  /* One step up from --color-text-muted, which is the shell's small-caps tone
+     and is measured against the shell's near-black. The landing's ground is
+     not that: it is lit earth, and at dawn it sits thirty times higher, which
+     takes --color-muted to 4.32:1 — a miss. This reads 8.4:1 at dusk and
+     5.3:1 at dawn, and is warmer, which the landing wants anyway. */
+  --landing-ink-muted: var(--color-paper-dark);
+  --landing-rule: var(--color-border-subtle);
+  /*
+    The ground is dark at every hour, but it is not *flat* at every hour. At
+    dawn a lit mesa crosses behind the opening paragraph on a narrow screen
+    and takes that patch to 0.129, where the reading tone measures 3.03:1.
+
+    Constant, unlike its counterpart in the sky, because the correction is
+    always in the same direction: whatever passes behind this band is lighter
+    than the band, never darker. Invisible over the floor, which is most of
+    the page most of the time, and a ground of its own where a ridge goes by.
+  */
+  --landing-ink-relief: color-mix(in srgb, var(--shadow-ink) 88%, transparent);
+  /* THE HAND does not keep office hours. The red is the same red at dusk, at
+     the split and at dawn: it is the one thing that must never read as a
+     theme having been switched. */
+  --landing-accent: var(--color-red-light);
+
+  /* --- the sky band: the hour's only foreground effect ------------------ */
+  --landing-sky-ink: var(--color-text-primary);
+  --landing-sky-ink-muted: var(--color-paper-dark);
+  --landing-sky-rule: var(--color-border-subtle);
+
+  /*
+    What the masthead stands on.
+
+    Not decoration, and not a panel. At the resting split the diagonal runs
+    straight through this band: the eyebrow spans axis 0.66 to 0.77 against a
+    boundary sitting at 0.72, so one line of small caps has dusk behind its
+    left half and a lit dawn wedge behind its right. Measured at 390x844 that
+    end of the line came back at 1.19:1 and the last letter of FRONTIER at
+    1.72:1. No choice of ink fixes a line that is over both hours at once —
+    only something behind it does.
+  */
+  --landing-sky-shade: color-mix(in srgb, var(--shadow-ink) 64%, transparent);
+  --landing-sky-light: color-mix(in srgb, var(--color-paper-light) 44%, transparent);
+
+  /*
+    And what the two small lines of it stand on, which is not the same thing.
+
+    A plate is a field, and a field strong enough to carry 12px small caps
+    over a lit dawn wedge has to be near-opaque — worked back from the
+    measurement, 0.86 alpha, which over the split's top-right corner is a
+    black band across the one part of the composition the split exists to
+    show. The plate cannot be that and stay invisible.
+
+    What can is the same ink applied per glyph. The relief hugs the strokes
+    and fades within a few pixels, so it is a near-opaque ground exactly where
+    there is a letter and nothing at all anywhere else. It costs the frame
+    nothing and it is the oldest answer to type over a photograph.
+
+    Worth being straight about what it is: the eye reads this, the ratio does
+    not — a shadow is part of the glyph, not part of the background WCAG
+    samples. It is why the eyebrow's far end is legible at the split and still
+    measures 1.63:1 there. See the note in page.module.css.
+  */
+  --landing-sky-relief: color-mix(in srgb, var(--shadow-ink) 92%, transparent);
+
+  /*
+    When the words notice.
+
+    The masthead is the only part of the landing that changes colour, and it
+    changes as a cut rather than a fade. A fade is the wrong instrument here:
+    the two states are an inversion, so a crossfade between them passes
+    through a middle where the type and the ground it sits on are the same
+    grey — the unreadable frame is not an edge case of the animation, it is
+    the centre of it. A cut has no middle.
+
+    1050ms into a 1900ms sweep is where the cut lands, because that is after
+    the boundary has passed the whole masthead: the last corner of it to turn
+    crosses at 779ms at 1440x900 and at 1030ms at 390x844. The light changes
+    the world, and then the words notice — which is the order Phase 10C asked
+    for, arrived at from the other end.
+  */
+  --landing-sky-delay: 1050ms;
+}
+
+/*
+  Dawn: the sky, and only the sky.
+
+  Stamped onto <html> before first paint, so it is present on every route.
+  That is harmless — nothing outside the landing reads a --landing-* token —
+  and it is what lets a control mounted in the root layout share the family.
+
+  --color-text-on-paper* is the ladder the record sheets already use and it is
+  measured: 10.7:1 and 7.4:1 on paper. Against the dawn sky it lands at 6.9:1
+  for the name and 4.9:1 for the eyebrow.
+*/
+html[data-hour="dawn"] {
+  --landing-sky-ink: var(--color-text-on-paper);
+  --landing-sky-ink-muted: var(--color-text-on-paper-muted);
+  --landing-sky-rule: color-mix(in srgb, var(--color-ink) 34%, transparent);
+  --landing-sky-relief: color-mix(in srgb, var(--color-paper-light) 86%, transparent);
+}
+
+/* The crossing is a fifth of the length for somebody who asked for less of
+   it, so the cut moves with it rather than landing after the world has
+   already settled. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --landing-sky-delay: 140ms;
+  }
+}
+
+/* ==========================================================================
    SURFACE SCOPES
    A surface class re-points the contextual tokens so nested components stay
    correct without knowing where they sit.
