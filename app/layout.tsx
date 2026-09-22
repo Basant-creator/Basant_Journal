@@ -3,6 +3,7 @@ import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import type { Metadata, Viewport } from "next";
 import { Caveat, IM_Fell_English_SC, Inter, Rye, Source_Serif_4 } from "next/font/google";
 import { AtmosphereControl } from "@/components/audio/AtmosphereControl";
+import { AudioLabMount } from "@/components/audio/AudioLabMount";
 import { CheckpointAudio } from "@/components/audio/CheckpointAudio";
 import { FrontierTrail } from "@/components/navigation/FrontierTrail";
 import { Quiet } from "@/components/shell/Quiet";
@@ -164,6 +165,9 @@ export default function RootLayout({
           {/* Everywhere the air can play, so it can always be stopped —
               including the landing page, which has no navigation by design. */}
           <Quiet name="AtmosphereControl"><AtmosphereControl /></Quiet>
+          {/* The cue comparison switch. Development only: the module and its
+              stylesheet leave the bundle entirely — see AudioLabMount. */}
+          <Quiet name="AudioLab"><AudioLabMount /></Quiet>
           {/* One owner for the music, above the router, so a place cannot
               silence the place the visitor is arriving at. See
               CheckpointAudio; the landing keeps its own progression. */}

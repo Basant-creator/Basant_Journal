@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
-import { setMusic } from "@/lib/audio/atmosphere";
+import { useEffect, useRef } from "react";
+import { resolveMusic, setMusic } from "@/lib/audio/atmosphere";
 import type { MusicState } from "@/lib/audio/music";
 import { checkpointFor } from "@/lib/world/trail";
 
@@ -55,9 +55,38 @@ const SOUND: Record<string, MusicState> = {
  */
 export function CheckpointAudio() {
   const pathname = usePathname();
+  /*
+    Where the visitor was, so this can tell a move from an arrival.
+
+    A ref rather than state: it is read inside the effect and must never cause
+    one, and it has to survive StrictMode replaying the effect — which is the
+    trap recorded in CLAUDE.md about effects reading state they wrote
+    themselves.
+  */
+  const from = useRef<string | null>(null);
 
   useEffect(() => {
+    const previous = from.current;
+    from.current = pathname;
+
     if (pathname === "/") return;
+
+    /*
+      Leaving the landing for the territory.
+
+      The one departure in the journey — everything after it is a move inside
+      the same world, and the music treats it that way. The cue plays its
+      closing figure and stops rather than being cut off by the next place's
+      state, which is what a resolution is for.
+
+      Guarded on the previous path, so it fires when somebody walks out of the
+      landing and not when they deep-link to the map with a shared URL. A
+      cadence for a place the visitor was never in is a farewell to nobody.
+    */
+    if (previous === "/") {
+      resolveMusic();
+      return;
+    }
 
     const checkpoint = checkpointFor(pathname);
     /* Off the trail — the professional view, the lab. A recruiter reading a

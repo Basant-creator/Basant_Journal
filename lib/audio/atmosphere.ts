@@ -23,7 +23,14 @@
 
 import { type Desk, createDesk, duck } from "./buses";
 import { chirp } from "./instruments";
-import { type Conductor, type MusicState, conduct } from "./music";
+import {
+  CUES,
+  type Conductor,
+  type Cue,
+  type CueName,
+  type MusicState,
+  conduct,
+} from "./music";
 
 /**
  * Master level — and the one number the desk moved.
@@ -235,7 +242,7 @@ export function start(): boolean {
     comes in later, which is §5's progression and the difference between a
     world and a trailer.
   */
-  const music = conduct(desk, musicState);
+  const music = conduct(desk, musicState, cue);
 
   rig = { context, desk, master, running, music, voices: [], ember: null };
   startVoices(rig);
@@ -300,6 +307,48 @@ let musicState: MusicState = "silence";
 export function setMusic(state: MusicState): void {
   musicState = state;
   rig?.music.setState(state);
+}
+
+/**
+ * Which piece of music the landing plays.
+ *
+ * Outside the rig for the same reason the state is: a cue chosen while the
+ * sound is off has to survive until there is something to play it, or the
+ * comparison switch would only work in the order somebody happened to press
+ * the buttons.
+ *
+ * `frontier` is the shipping default. Nothing in production changes it — the
+ * only caller is the development panel, which is compiled out. See AudioLab.
+ */
+let cue: Cue = CUES.frontier;
+let cueName: CueName = "frontier";
+
+export function setCue(name: CueName): void {
+  if (name === cueName) return;
+  cueName = name;
+  cue = CUES[name];
+  rig?.music.setCue(cue);
+}
+
+export function currentCue(): CueName {
+  return cueName;
+}
+
+/**
+ * Play the cue's closing figure, then stop.
+ *
+ * The one place the music is allowed to sound finished. Called when the
+ * visitor leaves the landing for the territory, which is the only moment in
+ * the journey that is a departure rather than a move — everything after it is
+ * inside the same world.
+ *
+ * A no-op with the sound off, like everything else here, and deliberately not
+ * recorded as state: a cadence that replayed itself on the next rig would be
+ * a farewell to somewhere the visitor had already left.
+ */
+export function resolveMusic(): void {
+  musicState = "silence";
+  rig?.music.resolve();
 }
 
 /* -------------------------------------------------------------------------

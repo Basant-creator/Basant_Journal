@@ -276,3 +276,83 @@ of its own.
 The preference is deliberately **not** remembered between visits. A remembered
 "on" resumes on some later unrelated click, which is a surprise to anyone who
 has since opened the site in a library or a meeting.
+
+---
+
+## What the composition system can actually make
+
+Taken from `lib/audio/instruments.ts` and `lib/audio/atmosphere.ts` rather
+than from memory, because the brief that prompted this section is right that
+an instrument you assume exists is the one that turns out not to.
+
+### Melodic
+
+| | what it is |
+| --- | --- |
+| `guitar()` | A plucked string: Karplus-Strong on a shared excitation buffer, resampled for pitch. Dry attack, natural decay, a peaking body around 110 and 215 Hz, and `slideFrom` for a slide into the note. This is the nearest thing to an acoustic guitar here and there is no sampled one. |
+| `whistle()` | A person whistling. One continuous sine per phrase that slides between its pitches, two vibratos at incommensurate rates so it never sounds cyclic, continuous breath noise, and a sag at the end of a held note. |
+| `harmonica()` | A free reed, built with `createPeriodicWave` from twelve measured partials. Bends. |
+| `chirp()` | A bird. Wildlife rather than an instrument, and on the animals bus. |
+
+### Low end
+
+| | what it is |
+| --- | --- |
+| `bow()` | A sustained bowed tone — three sawtooths detuned by −7, 0 and +6 cents — returning a handle with `release()`. Both cues use it as the drone at D2 and A2. |
+
+There is no bass instrument. The low end *is* the drone.
+
+### Rhythmic
+
+**Nothing.** There is no percussion of any kind. `hoof()` existed and was
+deleted with the horses; `triggerSurveyTick()` is an interface tick on the
+interaction bus and `triggerPaperRustle()` is paper. So a cue asking for
+"subtle percussion if required" gets none — not as a restraint but as a fact
+about the palette. Both cues are guitar, whistle, drone, and in the Frontier
+cue a reed.
+
+### Atmospheric
+
+| | what it is |
+| --- | --- |
+| `noiseBed()` + `layer()` | Wind. Two filtered noise layers with slow LFO movement, at 0.6 and 0.17. |
+| `emberBed()` / `lightFire()` | Fire. Camp only, and a fact about a place rather than a musical decision. |
+| `bow()` | Doubling as the bed, above. |
+
+Everything is synthesised at runtime. Nothing here is a sample and there is no
+sample library to audit — which is also the answer to "what soundfont is in
+this project": none, by design, and the licence section below is why.
+
+## Two cues, and what neither of them is
+
+There are now two pieces of music for the landing, compared behind a
+development switch. Only one is selectable in a production build — the
+Frontier cue — and the switch itself is not in that build at all: the panel
+and its stylesheet leave the bundle, verified by searching the output for its
+markup, its labels and its CSS class, all of which return zero files.
+
+**Frontier** — 84 BPM, pedal-and-melody figures on the guitar, a whistle and
+a mouth organ. The original motif, unchanged.
+
+**Standoff** — 66 BPM, three notes in twelve beats, no pedal, no reed, gaps of
+eleven to twenty-four seconds, and an occasional tremolo. Written for a brief
+that names a film and then spends a paragraph forbidding it.
+
+That prohibition is the reason this section exists. The standoff cue was
+written from the situation the brief describes — a wide empty country and
+somebody waiting in it — and not from any recording of it. Concretely, what it
+does instead:
+
+- **The tension is a mode, not a motif.** A flat second, E-flat over a D drone,
+  sounded and left to grind. Phrygian colour. A scale degree belongs to nobody.
+- **No rising third, no octave leap.** The figure the brief is steering around
+  is built on both; there is no such interval anywhere in the cue. Its
+  intervals are falling fourths and fifths and one semitone.
+- **No ostinato.** Nothing in it keeps time. The low string is struck for its
+  resonance and then left, which is the opposite of a driving two-beat.
+- **The whistle is two notes.** Falling, held, and rare — a call across
+  distance rather than a tune anybody could carry away.
+
+Still zero audio files. Both cues are synthesised at runtime from the same
+instruments, and the licence position is unchanged: there is nothing to
+license because there is nothing to ship.
