@@ -332,6 +332,24 @@
   --camp-land-treeline: #101820;
 
   /* --- depth: tone darkens as a layer comes forward ---------------------- */
+  /*
+    Values that were living in component stylesheets.
+
+    Each of these was an ad-hoc rgba() inside a module, which is the one thing
+    the colour rule forbids — not because a literal is ugly but because a
+    colour with no name cannot be found, cannot be audited, and cannot follow
+    a surface when a variant re-points the palette under it. Named here at
+    their exact values rather than approximated from a neighbouring token, so
+    naming them changed nothing on screen.
+  */
+  --scene-sunband: #7a522f; /* the lit band on the vista's horizon */
+  --scene-glow: #7c613e; /* the warmth pooled at the centre of the vista */
+  --scene-tone: #4a3622; /* the wash over a field photograph */
+  --color-ink-raised: #211b15; /* the survey shell's gradient peak */
+  --tape-light: #e2d1a8; /* masking tape, and the fold along it */
+  --tape: #d6c398;
+  --tape-fibre: #786242;
+
   --scene-depth-0: #241e18; /* furthest ridge */
   --scene-depth-1: #1a1511;
   --scene-depth-2: #14100c;
@@ -414,6 +432,11 @@
     inset 0 0 140px rgba(64, 50, 37, 0.07);
   --paper-body: #2c2520; /* editorial ink on a paper surface */
   --paper-body-soft: #3a312a;
+  /* A third rung, and the only one with a meaning rather than a weight: the
+     professional view sets a skill in this when the content model records no
+     project evidencing it. It was a literal in that stylesheet, which made an
+     editorial decision look like a styling accident. */
+  --paper-body-faint: #4d423a;
   /*
     THE PAPER LIBRARY.
 

@@ -45,7 +45,7 @@
   inset: 0;
   background:
     linear-gradient(168deg, color-mix(in srgb, var(--color-paper) 20%, transparent), color-mix(in srgb, var(--timber-light) 28%, transparent)),
-    rgba(74, 54, 34, 0.16);
+    color-mix(in srgb, var(--scene-tone) 16%, transparent);
   mix-blend-mode: soft-light;
 }
 

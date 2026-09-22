@@ -24,7 +24,7 @@
     linear-gradient(
       180deg,
       transparent 0.8%,
-      rgba(122, 82, 47, 0.5) 3.1%,
+      color-mix(in srgb, var(--scene-sunband) 50%, transparent) 3.1%,
       transparent 6.4%
     ),
     linear-gradient(
@@ -100,8 +100,8 @@
   inset: 0;
   background: radial-gradient(
     ellipse 58% 44% at 50% 54%,
-    rgba(124, 97, 62, 0.32),
-    rgba(124, 97, 62, 0.1) 46%,
+    color-mix(in srgb, var(--scene-glow) 32%, transparent),
+    color-mix(in srgb, var(--scene-glow) 10%, transparent) 46%,
     transparent 72%
   );
   transition: opacity var(--scene-transition) var(--ease-cinematic);

@@ -37,14 +37,6 @@ function resolveOrigin(): string {
   if (vercel) return `https://${vercel}`;
 
   /*
-    Server only. This module is imported by client components, so it runs in
-    the browser too — and VERCEL_PROJECT_PRODUCTION_URL is not a NEXT_PUBLIC
-    variable, so on the client it is always undefined. Without this guard a
-    correctly-configured Vercel deployment would print a configuration warning
-    into every visitor's console, on every page, about a variable the browser
-    was never meant to see.
-  */
-  /*
     Server only, and deliberately repetitive.
 
     This module is imported by client components, so it runs in the browser

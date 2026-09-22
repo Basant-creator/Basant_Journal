@@ -14,7 +14,7 @@
   flex-direction: column;
   min-height: 100svh;
   background:
-    radial-gradient(ellipse 120% 70% at 50% 0%, #211b15 0%, transparent 62%),
+    radial-gradient(ellipse 120% 70% at 50% 0%, var(--color-ink-raised) 0%, transparent 62%),
     var(--color-ink);
 }
 

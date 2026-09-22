@@ -110,7 +110,7 @@
       "labelAnchor": "below",
       "weight": 1,
       "status": "mapped",
-      "description": "Measured outcomes — throughput, smoothness, systems shipped."
+      "description": "Measured outcomes — four engines compared, what each keeps, systems shipped."
     },
     {
       "id": "archive",
@@ -203,10 +203,10 @@
           "resolution": "Separated the two concerns into distinct engines and scored candidates on a weighted objective, which let the trade-off be tuned rather than hard-coded."
         }
       ],
-      "lessons": "Caching is an architecture decision, not an optimisation. Deciding where the cache lived — at the analysed-track boundary rather than the request boundary — was what made the throughput number possible at all.",
-      "github": null,
+      "lessons": "Caching is an architecture decision, not an optimisation. Deciding where the cache lived — at the analysed-track boundary rather than the request boundary — is what makes a second look at the same playlist cost nothing instead of a full quota of third-party calls.",
+      "github": "https://github.com/Basant-creator/TuneIt",
       "liveUrl": null,
-      "linksStatus": "unresolved",
+      "linksStatus": "resolved",
       "visualAssets": [],
       "metricsCaption": "Medians of five runs of the repository's own scale benchmark at N=500. The pool is built by duplicating 50 base tracks with jitter, so the absolute smoothness figures are optimistic — the comparison between engines is the result, not any single number. Throughput is deliberately not quoted: across the same five runs one engine measured between 82,000 and 172,000 tracks a second, which is warm-up and garbage collection rather than algorithm.",
       "evidence": {
@@ -304,9 +304,9 @@
         }
       ],
       "lessons": "Anything an LLM produces has to be treated as untrusted input. The schema validator and the fallback path are not defensive extras here — they are the feature that makes the pipeline usable.",
-      "github": null,
-      "liveUrl": null,
-      "linksStatus": "unresolved",
+      "github": "https://github.com/Basant-creator/OnSight",
+      "liveUrl": "https://on-sight-cu4b.vercel.app",
+      "linksStatus": "resolved",
       "visualAssets": [],
       "metricsCaption": "These describe capabilities that exist in the implementation, not measurements. Nothing here has been benchmarked, and the record says so rather than dressing a feature list as a result."
     },
@@ -368,9 +368,9 @@
         }
       ],
       "lessons": "Testing the failure path mattered more than testing the happy path. Most of what made this reliable was deciding what should happen when generation goes wrong.",
-      "github": null,
-      "liveUrl": null,
-      "linksStatus": "unresolved",
+      "github": "https://github.com/Basant-creator/Bob_AI",
+      "liveUrl": "https://bob-ai-ten.vercel.app",
+      "linksStatus": "resolved",
       "visualAssets": [],
       "metricsCaption": "These describe capabilities that exist in the implementation, not measurements. The integration tests assert that generation and deployment behave; they do not produce a number, and none is claimed."
     }

@@ -318,11 +318,24 @@
   color: var(--color-earth);
 }
 
-.skillClaimed {
-  color: #4d423a;
+/*
+  Claimed, against evidenced.
+
+  `.skillList li` sets the colour and is 0,1,1; these modifiers were 0,1,0 and
+  lost to it, so the distinction the content model goes to the trouble of
+  recording — SkillItem.projects, "empty = a claim, not evidence" — has never
+  reached the page. Both rungs rendered as --paper-body.
+
+  Scoped to the list so they outrank the rule they are modifying. Measured on
+  the sheet: claimed 5.84:1, evidenced 9.07:1. The quieter one still clears
+  AA, because a skill without a project behind it is being marked, not being
+  hidden.
+*/
+.skillList li.skillClaimed {
+  color: var(--paper-body-faint);
 }
 
-.skillEvidenced {
+.skillList li.skillEvidenced {
   color: var(--paper-body);
 }
 
