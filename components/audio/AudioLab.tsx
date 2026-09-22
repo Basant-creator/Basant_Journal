@@ -23,8 +23,8 @@ import styles from "./AudioLab.module.css";
  */
 
 const CUES: Array<{ id: CueName; label: string; note: string }> = [
-  { id: "frontier", label: "Frontier", note: "84 BPM · guitar, whistle, reed" },
-  { id: "standoff", label: "Standoff", note: "66 BPM · guitar, whistle, tremolo" },
+  { id: "frontier", label: "Frontier", note: "84 BPM · guitar, whistle, reed · phrase and rest" },
+  { id: "lofi", label: "Lo-fi", note: "72 BPM · pulse, bass, chords, tape · continuous bed" },
 ];
 
 export function AudioLab() {

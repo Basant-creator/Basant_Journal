@@ -304,12 +304,17 @@ There is no bass instrument. The low end *is* the drone.
 
 ### Rhythmic
 
-**Nothing.** There is no percussion of any kind. `hoof()` existed and was
-deleted with the horses; `triggerSurveyTick()` is an interface tick on the
-interaction bus and `triggerPaperRustle()` is paper. So a cue asking for
-"subtle percussion if required" gets none — not as a restraint but as a fact
-about the palette. Both cues are guitar, whistle, drone, and in the Frontier
-cue a reed.
+There was none, and the inventory saying so is what prompted these. `hoof()`
+existed and was deleted with the horses; `triggerSurveyTick()` is an interface
+tick and `triggerPaperRustle()` is paper.
+
+| | what it is |
+| --- | --- |
+| `thump()` | A soft kick: a sine falling from 96 to 46 Hz in fifty milliseconds. A thump with a body rather than a click with a tail, and no transient on purpose. |
+| `brush()` | A brush across a head: bandpassed noise, generated per hit so no two are the same, short enough never to become a cymbal. |
+| `tape()` | The floor. Looped hiss with crackle over it, rolled off above 5 kHz, with the wobble on the filter rather than on the pitch — brightness is what a worn tape actually moves. |
+
+All three are noise, a sine and an envelope, like everything else here.
 
 ### Atmospheric
 
@@ -334,9 +339,17 @@ markup, its labels and its CSS class, all of which return zero files.
 **Frontier** — 84 BPM, pedal-and-melody figures on the guitar, a whistle and
 a mouth organ. The original motif, unchanged.
 
-**Standoff** — 66 BPM, three notes in twelve beats, no pedal, no reed, gaps of
-eleven to twenty-four seconds, and an occasional tremolo. Written for a brief
-that names a film and then spends a paragraph forbidding it.
+**Lo-fi** — 72 BPM felt in half time, a swung pulse, a bass walking four bars,
+a chord a bar, and tape under all of it. The guitar is still sparse; what
+changed is that there is now something underneath it when it stops.
+
+That cue replaced a first attempt which had the same restraint and no floor —
+three notes in twelve beats at 66, with eleven to twenty-four seconds of real
+silence between phrases. The verdict on it was "empty rather than lo-fi", and
+that was right. Silence in a recording is a noise floor, a pulse you stop
+noticing and a bass you would only miss if it left; sparse and empty are the
+same notes with and without those. The notes barely changed. What is under
+them did.
 
 That prohibition is the reason this section exists. The standoff cue was
 written from the situation the brief describes — a wide empty country and
@@ -350,8 +363,20 @@ does instead:
   intervals are falling fourths and fifths and one semitone.
 - **No ostinato.** Nothing in it keeps time. The low string is struck for its
   resonance and then left, which is the opposite of a driving two-beat.
-- **The whistle is two notes.** Falling, held, and rare — a call across
-  distance rather than a tune anybody could carry away.
+- **The whistle is two or three notes.** Falling, held, and rare — a call
+  across distance rather than a tune anybody could carry away.
+- **The pace is the only thing taken from the reference**, which is what was
+  asked for: a half-time western stride at 72. Not the melody, not the
+  harmony, not the arrangement. Asked to "somewhat match the tune", the answer
+  was no — that is the line between an original cue and a derivative one, and
+  it is the project's own standing rule.
+
+**Measured**, off the running scheduler: bars of 3.337 s against 3.333
+expected, the displaced second kick landing at 2.62 beats with the swing
+applied, and 89 scheduled one-shots in thirty seconds against the sparse
+version's sixteen in forty-five. The tape is a single eight-second loop and it
+stops when the cue does — verified by counting looped sources started and
+stopped across a cue switch: one, then one.
 
 Still zero audio files. Both cues are synthesised at runtime from the same
 instruments, and the licence position is unchanged: there is nothing to

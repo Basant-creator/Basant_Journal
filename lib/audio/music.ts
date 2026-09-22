@@ -1,5 +1,15 @@
 import type { Desk } from "./buses";
-import { type Sustained, bow, guitar, harmonica, whistle } from "./instruments";
+import {
+  type Sustained,
+  type Tape,
+  bow,
+  brush,
+  guitar,
+  harmonica,
+  tape,
+  thump,
+  whistle,
+} from "./instruments";
 
 /**
  * The Frontier motif.
@@ -25,9 +35,17 @@ import { type Sustained, bow, guitar, harmonica, whistle } from "./instruments";
 
 /** Hz. D minor pentatonic across two octaves, plus the drone's fifth. */
 const NOTES = {
+  /* The bass register. The lo-fi cue walks a four-bar progression down here
+     while the drone holds above it. */
+  Bb1: 58.27,
+  C2: 65.41,
   /* The drone's two notes, an octave below the guitar's lowest. */
   D2: 73.42,
+  F2: 87.31,
+  G2: 98.0,
   A2: 110.0,
+  Bb2: 116.54,
+  C3: 130.81,
   D3: 146.83,
   F3: 174.61,
   G3: 196.0,
@@ -41,6 +59,9 @@ const NOTES = {
      pentatonic the Frontier cue is built from. */
   Eb4: 311.13,
   D4: 293.66,
+  /* The ninth. Lo-fi harmony is a triad with something warm sitting on it,
+     and this is the note doing that work in every voicing below. */
+  E4: 329.63,
   F4: 349.23,
   G4: 392.0,
   A4: 440.0,
@@ -60,8 +81,8 @@ const NOTES = {
 /** 84 BPM. Walking pace, which is the pace of the thing on screen. */
 const BEAT = 60 / 84;
 
-/** 66 BPM. Slower than a walk: the pace of standing still and watching. */
-const STANDOFF_BEAT = 60 / 66;
+/** 72 BPM, felt in half time. See lofiCue for why that is the pace. */
+const LOFI_BEAT = 60 / 72;
 
 /**
  * What the music is doing.
@@ -286,11 +307,23 @@ const REST: Record<MusicState, [number, number]> = {
    84, with a mouth organ answering. It sounds like somebody playing a guitar
    in a landscape.
 
-   This one is the landscape. Three notes in twelve beats, no pedal, nothing
-   keeping time at all; the low string is struck for its resonance and then
-   left. At 66 the gaps run eleven to twenty-four seconds, which is long
-   enough that the wind is the main voice for most of the cue and the guitar
-   is an interruption of it.
+   This one is the room the landscape is being played in. It has a floor —
+   tape hiss, a slow pulse, a bass walking four bars — and the guitar arrives
+   over it rather than out of nothing.
+
+   THE FIRST VERSION OF THIS WAS EMPTY
+
+   Worth recording, because the mistake is an easy one and it sounded
+   principled. The first cut had three notes in twelve beats at 66 and eleven
+   to twenty-four seconds of actual silence between phrases, on the argument
+   that silence is part of the composition. The verdict was that it felt empty
+   rather than calm, and that was correct: nothing was happening, and an ear
+   given nothing hears an absence rather than a room.
+
+   Silence in a recording is not silence. It is a noise floor, a pulse you
+   stop noticing, and a bass you would only miss if it left. Those are what
+   make a sparse arrangement read as restraint instead of as a gap, and all
+   three were missing. The notes have barely changed; what is under them has.
 
    THE TENSION IS A MODE, NOT A MOTIF
 
@@ -309,42 +342,60 @@ const REST: Record<MusicState, [number, number]> = {
    exists and the Frontier cue still uses it.
    ========================================================================= */
 
-const STANDOFF_FIGURES: Phrase[] = [
+/*
+  The motif, and three ways of not repeating it.
+
+  Eight beats — two bars of the four-bar progression — and it falls. Every
+  phrase here descends or turns back on itself, which is the shape the cue is
+  built on: a rising figure with a leap in it is a fanfare and announces
+  somebody arriving, and nobody is arriving.
+
+  The colour is the ninth. E over a D bass is what makes a minor chord sound
+  warm rather than sad, and it is the note doing the lo-fi work in every
+  phrase and every voicing below. The flat second survives from the first
+  version, in one phrase, as a passing note rather than as the whole argument.
+*/
+const LOFI_FIGURES: Phrase[] = [
   {
-    /* The statement. Three notes across twelve beats, and the third arrives
-       long after the ear has stopped expecting one. */
-    beats: 12,
+    /* The statement. Down from the ninth to the root, with the third of the
+       bar left empty for the chord to sit in. */
+    beats: 8,
     notes: [
-      { at: 0, note: NOTES.D3, level: 0.44, pan: -0.12 },
-      { at: 3.5, note: NOTES.A3, level: 0.3, pan: 0.08 },
-      { at: 7, note: NOTES.D4, level: 0.26, pan: 0 },
+      { at: 0.5, note: NOTES.A3, level: 0.34, pan: -0.1 },
+      { at: 2, note: NOTES.D4, level: 0.3, pan: 0.06 },
+      { at: 4, note: NOTES.F4, level: 0.26, pan: -0.04 },
+      { at: 5.5, note: NOTES.E4, level: 0.24, pan: 0.1 },
     ],
   },
   {
-    /* The one with the grind in it. E-flat against the drone's D, held by the
-       string's own decay rather than resolved. */
-    beats: 12,
+    /* The answer: the same descent, started higher and landing a step lower. */
+    beats: 8,
     notes: [
-      { at: 0, note: NOTES.A3, level: 0.4, pan: -0.1 },
-      { at: 2.5, note: NOTES.Eb4, level: 0.29, pan: 0.12 },
-      { at: 6, note: NOTES.D4, level: 0.27, pan: 0.02 },
+      { at: 0, note: NOTES.F4, level: 0.3, pan: 0.08 },
+      { at: 1.5, note: NOTES.E4, level: 0.26, pan: -0.06 },
+      { at: 3, note: NOTES.D4, level: 0.28, pan: 0.02 },
+      { at: 6, note: NOTES.A3, level: 0.24, pan: -0.12 },
     ],
   },
   {
-    /* Two notes, low and close: an open string struck and answered a fourth
-       above it, both left to ring into the gap. */
-    beats: 10,
+    /* The one that leans. E-flat as a passing note between F and D, a
+       semitone of grit inside an otherwise warm line. */
+    beats: 8,
     notes: [
-      { at: 0, note: NOTES.D3, level: 0.46, pan: -0.15 },
-      { at: 4, note: NOTES.F3, level: 0.24, pan: 0.1 },
+      { at: 0.5, note: NOTES.D4, level: 0.3, pan: -0.08 },
+      { at: 2, note: NOTES.F4, level: 0.27, pan: 0.1 },
+      { at: 3, note: NOTES.Eb4, level: 0.22, pan: 0.04 },
+      { at: 4.5, note: NOTES.D4, level: 0.28, pan: -0.02 },
     ],
   },
   {
-    /* One note. The sparest thing in either cue, and the piece is not poorer
-       for it — silence is the material here and this phrase is mostly made of
-       it. */
-    beats: 10,
-    notes: [{ at: 0, note: NOTES.A3, level: 0.34, pan: 0 }],
+    /* The sparest, and still not silent — the bed is playing underneath it.
+       Two notes and the room. */
+    beats: 8,
+    notes: [
+      { at: 1, note: NOTES.A3, level: 0.3, pan: 0 },
+      { at: 4.5, note: NOTES.D4, level: 0.25, pan: 0.06 },
+    ],
   },
 ];
 
@@ -356,33 +407,44 @@ const STANDOFF_FIGURES: Phrase[] = [
   performing: a call across distance rather than a tune. The last is a single
   held note, and it is the one most often heard.
 */
-const STANDOFF_WHISTLES: Array<Array<{ at: number; note: number; hold: number }>> = [
+const LOFI_WHISTLES: Array<Array<{ at: number; note: number; hold: number }>> = [
   [
-    { at: 0, note: NOTES.A5, hold: 1.6 },
-    { at: 2.6, note: NOTES.D5, hold: 2.8 },
+    { at: 0, note: NOTES.A5, hold: 1.4 },
+    { at: 2.2, note: NOTES.F5, hold: 2.4 },
   ],
   [
-    { at: 0, note: NOTES.D6, hold: 1.3 },
-    { at: 3, note: NOTES.A5, hold: 3 },
+    { at: 0, note: NOTES.D6, hold: 1.2 },
+    { at: 2, note: NOTES.C6, hold: 0.9 },
+    { at: 3, note: NOTES.A5, hold: 2.6 },
   ],
-  [{ at: 0, note: NOTES.F5, hold: 2.4 }],
+  [{ at: 0, note: NOTES.F5, hold: 2.6 }],
 ];
 
 /*
-  Three notes, not four: fifths and one piece of grit.
+  The progression, as four chords.
 
-  The middle voicing is the tension chord — D and A with the flat second on
-  top, which is the same argument the figures make, made once more underneath
-  the silence after them.
+  D minor with a ninth, twice, then the flat sixth and the flat seventh — a
+  modal turn that goes round rather than resolving, which is why it can loop
+  without announcing that it has. Every one of them has either the ninth or
+  the seventh in it, and that is the whole harmonic difference between this
+  cue and the bare fifths of the Frontier one.
 */
-const STANDOFF_VOICINGS: number[][] = [
-  [NOTES.D3, NOTES.A3, NOTES.D4],
-  [NOTES.D3, NOTES.A3, NOTES.Eb4],
+const LOFI_CHORDS: number[][] = [
+  [NOTES.D3, NOTES.A3, NOTES.C4, NOTES.E4],
+  [NOTES.D3, NOTES.A3, NOTES.C4, NOTES.E4],
+  [NOTES.Bb2, NOTES.F3, NOTES.D4, NOTES.A4],
+  [NOTES.C3, NOTES.G3, NOTES.C4, NOTES.E4],
+];
+
+/* The reply voicings, when the guitar answers itself in a gap. */
+const LOFI_VOICINGS: number[][] = [
+  [NOTES.D3, NOTES.A3, NOTES.E4],
+  [NOTES.Bb2, NOTES.F3, NOTES.D4],
   [NOTES.G3, NOTES.D4, NOTES.A4],
 ];
 
 /* Slower than the Frontier roll, and three fingers rather than four. */
-const STANDOFF_ROLL = [0, 0.8, 1.7];
+const LOFI_ROLL = [0, 0.8, 1.7];
 
 /**
  * A cue: one piece of music, described entirely in data.
@@ -407,8 +469,23 @@ export interface Cue {
   rollChance: Record<MusicState, number>;
   reedChance: Record<MusicState, number>;
   tremoloChance: Record<MusicState, number>;
-  /** The gap after each phrase, in beats. */
+  /** The gap after each phrase, in beats. Ignored by a cue with a groove. */
   rest: Record<MusicState, [number, number]>;
+  /**
+   * The bed a cue runs over, if it has one.
+   *
+   * A cue without this is phrase-and-rest: it plays something, then nothing,
+   * and the nothing is real. A cue with one has a bar clock underneath that
+   * never stops — pulse, bass, chord and tape — and the melody is what
+   * arrives over it every few bars.
+   *
+   * That is the whole difference between the two pieces here, and it is the
+   * difference between sparse and empty. The first version of the calm cue
+   * had eleven to twenty-four seconds of actual silence between phrases and
+   * the verdict was that it sounded like nothing was happening, which was
+   * accurate: nothing was.
+   */
+  groove?: Groove;
   /**
    * The way out.
    *
@@ -419,6 +496,29 @@ export interface Cue {
    * sound finished.
    */
   closing: Phrase;
+}
+
+/** One bar of the bed. Times are in beats from the top of the bar. */
+export interface Groove {
+  /** Beats in a bar. */
+  beats: number;
+  /**
+   * How late an off-beat lands, as a fraction of a beat.
+   *
+   * Straight time is a machine and this is meant to sound like a room. The
+   * pulse entries below are written on the grid and this pushes anything
+   * falling off the beat behind it.
+   */
+  swing: number;
+  pulse: Array<{ at: number; kind: "thump" | "brush"; level: number; tone?: number; pan?: number }>;
+  /** One per bar of the progression, and its length sets the progression's. */
+  bass: number[];
+  /** A chord per bar, rolled slowly under everything. */
+  chords: number[][];
+  /** Bars between melodic phrases, per state. */
+  every: Record<MusicState, [number, number]>;
+  /** The tape floor: hiss, and pops per second. */
+  tape: { level: number; crackle: number };
 }
 
 export const frontierCue: Cue = {
@@ -444,37 +544,79 @@ export const frontierCue: Cue = {
   },
 };
 
-export const standoffCue: Cue = {
-  beat: STANDOFF_BEAT,
-  figures: STANDOFF_FIGURES,
-  whistles: STANDOFF_WHISTLES,
-  voicings: STANDOFF_VOICINGS,
-  roll: STANDOFF_ROLL,
-  /* Quieter than the Frontier bed by a third. The wind is the floor of this
-     cue, and a drone at 0.15 was competing with it for the same job. */
-  drone: { low: NOTES.D2, high: NOTES.A2, level: 0.1, quietLevel: 0.075 },
-  /* Rarer than the Frontier cue on every count. A voice that arrives in one
-     gap out of three is a person; one that arrives in two is an accompanist. */
-  whistleChance: { silence: 0, sparse: 0.34, journey: 0.44, reflective: 0.24 },
-  rollChance: { silence: 0, sparse: 0.34, journey: 0.4, reflective: 0.3 },
+export const lofiCue: Cue = {
+  beat: LOFI_BEAT,
+  figures: LOFI_FIGURES,
+  whistles: LOFI_WHISTLES,
+  voicings: LOFI_VOICINGS,
+  roll: LOFI_ROLL,
+  /* Under the bass rather than beside it: the groove has a walking low end
+     now, and a drone at the Frontier cue's level fought it for the register. */
+  drone: { low: NOTES.D2, high: NOTES.A2, level: 0.075, quietLevel: 0.055 },
+  /* More often than the first version, because there is something for the
+     whistle to answer over. A voice in a silent room is an event; a voice over
+     a bed is somebody in the distance, which is what it is supposed to be. */
+  whistleChance: { silence: 0, sparse: 0.4, journey: 0.5, reflective: 0.3 },
+  rollChance: { silence: 0, sparse: 0.38, journey: 0.44, reflective: 0.32 },
   reedChance: { silence: 0, sparse: 0, journey: 0, reflective: 0 },
-  tremoloChance: { silence: 0, sparse: 0.18, journey: 0.24, reflective: 0.12 },
-  /* At 66 BPM these are gaps of eleven to twenty-four seconds. Long enough to
-     look like a mistake on paper and correct in the room: the landscape is the
-     subject and the guitar is what happens to it occasionally. */
-  rest: { silence: [0, 0], sparse: [12, 22], journey: [7, 13], reflective: [16, 26] },
+  tremoloChance: { silence: 0, sparse: 0.2, journey: 0.26, reflective: 0.14 },
+  /* Unused: a cue with a groove counts bars instead. Kept so the type stays
+     one shape and the scheduler needs no optional handling for it. */
+  rest: { silence: [0, 0], sparse: [8, 12], journey: [4, 8], reflective: [12, 16] },
+
+  /*
+    The bed.
+
+    72 BPM, felt in half time, which is the pace the reference sits at once
+    you stop counting its surface and start counting its stride. A bar is
+    3.3 seconds and the progression is four of them — thirteen seconds to go
+    round, slow enough that it never sounds like a loop hurrying.
+
+    The pulse is displaced on purpose. The second thump lands on the "and" of
+    three rather than on the beat, which is the one gesture that separates
+    this from a metronome: a kick on 1 and 3 marches, and a kick on 1 and the
+    "and" of 3 leans. With the swing on the off-beats it is a shuffle played
+    slowly rather than a beat played straight.
+
+    Everything here is quiet. The loudest thing in the groove is the first
+    thump at 0.16, against a guitar phrase that peaks at 0.34 — so the bed is
+    roughly half the melody and a good deal less than the wind.
+  */
+  groove: {
+    beats: 4,
+    /* An eighth of a beat late on anything off the grid. Enough to feel, not
+       enough to count. */
+    swing: 0.12,
+    pulse: [
+      { at: 0, kind: "thump", level: 0.16 },
+      { at: 1, kind: "brush", level: 0.075, tone: 0.62, pan: 0.08 },
+      { at: 2.5, kind: "thump", level: 0.115 },
+      { at: 3, kind: "brush", level: 0.075, tone: 0.58, pan: -0.06 },
+      /* The ghost: barely there, and the reason the bar does not stop dead at
+         the end of it. */
+      { at: 3.5, kind: "brush", level: 0.032, tone: 0.82, pan: 0.14 },
+    ],
+    bass: [NOTES.D2, NOTES.D2, NOTES.Bb1, NOTES.C2],
+    chords: LOFI_CHORDS,
+    /* Bars between phrases. At four bars that is thirteen seconds, and the
+       bed is playing through every one of them. */
+    every: { silence: [0, 0], sparse: [3, 5], journey: [2, 3], reflective: [4, 7] },
+    tape: { level: 0.055, crackle: 2.6 },
+  },
+
   closing: {
     beats: 6,
     notes: [
-      { at: 0, note: NOTES.Bb3, level: 0.36, pan: -0.08 },
-      { at: 1.6, note: NOTES.A3, level: 0.32, pan: 0.05 },
-      { at: 3.2, note: NOTES.D3, level: 0.42, pan: -0.12 },
+      { at: 0, note: NOTES.F4, level: 0.32, pan: 0.06 },
+      { at: 1.5, note: NOTES.E4, level: 0.28, pan: -0.04 },
+      { at: 3, note: NOTES.D4, level: 0.3, pan: 0.02 },
+      { at: 3.6, note: NOTES.D3, level: 0.4, pan: -0.12 },
     ],
   },
 };
 
 /** The two cues, by name. The comparison switch reads this and nothing else. */
-export const CUES = { frontier: frontierCue, standoff: standoffCue } as const;
+export const CUES = { frontier: frontierCue, lofi: lofiCue } as const;
 
 export type CueName = keyof typeof CUES;
 
@@ -518,6 +660,14 @@ export function conduct(
      new phrase over a cadence that is meant to be the last thing heard. */
   let resolving = false;
 
+  /* The bar clock, for a cue with a groove. Separate from the phrase cursor
+     because the bed does not stop when the melody does — that is the whole
+     point of having one. */
+  let barCursor = context.currentTime + 0.4;
+  let bar = 0;
+  let barsUntilPhrase = 0;
+  let deck: Tape | null = null;
+
   /*
     The drone runs on its own clock.
 
@@ -541,12 +691,29 @@ export function conduct(
     drones = [];
   };
 
+  /*
+    The tape goes with them.
+
+    It loops forever by design, so nothing stops it on its own — and a hiss
+    left running under a silent landing is the kind of thing nobody reports
+    and everybody hears. Lifted anywhere the bed is, and the bar clock is
+    reset with it so the groove restarts at the top of a bar rather than
+    wherever it happened to be abandoned.
+  */
+  const liftTape = (seconds = 1.4) => {
+    deck?.stop(seconds);
+    deck = null;
+    bar = 0;
+    barsUntilPhrase = 0;
+  };
+
   const schedule = () => {
     if (state === "silence" || resolving) {
       /* Keep the cursors with the clock, so leaving silence does not dump a
          backlog of phrases into the present all at once. */
       cursor = Math.max(cursor, context.currentTime + 0.4);
       droneCursor = Math.max(droneCursor, context.currentTime + 0.4);
+      barCursor = Math.max(barCursor, context.currentTime + 0.4);
       return;
     }
 
@@ -570,7 +737,28 @@ export function conduct(
       if (drones.length > 3) drones = drones.slice(-3);
     }
 
+    if (cue.groove) {
+      playGroove(cue.groove);
+      return;
+    }
+
     while (cursor < context.currentTime + LOOKAHEAD) {
+      cursor = playPhrase(cursor);
+    }
+  };
+
+  /**
+   * One phrase, and whatever answers it. Returns where the next one may start.
+   *
+   * Lifted out of the scheduler when the second cue needed a bar clock: a cue
+   * with a groove places its phrases on bar lines and a cue without one places
+   * them after a rest, but what a phrase *is* — the figure, the whistle in the
+   * gap, the rolled reply, the tremolo — is the same in both. Writing it twice
+   * would have meant tuning it twice.
+   */
+  function playPhrase(at: number): number {
+    {
+      const cursor = at;
       /* Never the same phrase twice running: the repetition a listener
          notices is adjacency, not recurrence. */
       let next = Math.floor(Math.random() * cue.figures.length);
@@ -733,9 +921,89 @@ export function conduct(
       }
 
       const [restMin, restMax] = cue.rest[state];
-      cursor = phraseEnd + (restMin + Math.random() * (restMax - restMin)) * cue.beat;
+      return phraseEnd + (restMin + Math.random() * (restMax - restMin)) * cue.beat;
     }
-  };
+  }
+
+  /**
+   * The bed, a bar at a time.
+   *
+   * Pulse, bass, chord and tape, running whether or not there is a melody over
+   * them — and a figure dropped in every few bars. The tape starts with the
+   * first bar and is the reason the gaps between phrases sound like a room
+   * rather than like nothing.
+   */
+  function playGroove(g: NonNullable<Cue["groove"]>): void {
+    if (!deck) {
+      deck = tape(context, desk.bus.music, {
+        level: g.tape.level,
+        crackle: g.tape.crackle,
+      });
+    }
+
+    const barLength = g.beats * cue.beat;
+
+    while (barCursor < context.currentTime + LOOKAHEAD) {
+      const step = bar % g.bass.length;
+
+      /* The pulse. Anything off the grid is pushed late by the swing, which is
+         the difference between a shuffle and a metronome. */
+      for (const hit of g.pulse) {
+        const offGrid = Math.abs(hit.at - Math.round(hit.at)) > 0.01;
+        const at =
+          barCursor +
+          (hit.at + (offGrid ? g.swing : 0)) * cue.beat +
+          (Math.random() - 0.5) * 0.016;
+        const level = hit.level * (0.88 + Math.random() * 0.24);
+        if (hit.kind === "thump") {
+          thump(context, desk.bus.music, { level, pan: hit.pan ?? 0, when: at });
+        } else {
+          brush(context, desk.bus.music, {
+            level,
+            tone: hit.tone ?? 0.5,
+            decay: 0.1 + Math.random() * 0.06,
+            pan: hit.pan ?? 0,
+            when: at,
+          });
+        }
+      }
+
+      /* The bass: one note a bar, on the beat, left to ring the whole bar. */
+      guitar(context, desk.bus.music, {
+        frequency: g.bass[step],
+        decay: barLength * 0.95,
+        attack: 0.22,
+        level: 0.3,
+        pan: -0.06,
+        when: barCursor + (Math.random() - 0.5) * 0.014,
+      });
+
+      /* The chord, rolled slowly and quietly enough to be a colour rather than
+         a part. It arrives on the second beat so the bass has the downbeat to
+         itself. */
+      const chord = g.chords[step % g.chords.length];
+      for (let i = 0; i < chord.length; i += 1) {
+        guitar(context, desk.bus.music, {
+          frequency: chord[i],
+          decay: 2.4 + Math.random() * 0.8,
+          attack: 0.14 + Math.random() * 0.08,
+          level: (0.13 - i * 0.015) * (0.9 + Math.random() * 0.2),
+          pan: 0.1 + (i - 1.5) * 0.05,
+          when: barCursor + (1 + i * 0.16) * cue.beat + (Math.random() - 0.5) * 0.02,
+        });
+      }
+
+      if (barsUntilPhrase <= 0) {
+        playPhrase(barCursor);
+        const [min, max] = g.every[state];
+        barsUntilPhrase = min + Math.floor(Math.random() * (max - min + 1));
+      }
+      barsUntilPhrase -= 1;
+
+      barCursor += barLength;
+      bar += 1;
+    }
+  }
 
   schedule();
   const timer = window.setInterval(schedule, 250);
@@ -748,6 +1016,7 @@ export function conduct(
          somewhere else, and the way out of the landing is no longer the last
          thing the music has to say. */
       resolving = false;
+      if (next === "silence") liftTape();
       /* §21: the landing's music has to be gone before the visitor settles
          anywhere else. A drone holds for twenty seconds, so silence has to
          actually take it away rather than just stop scheduling more. */
@@ -771,7 +1040,9 @@ export function conduct(
       }
       /* The bed goes with it, over the length of the figure, so the cadence
          lands on air rather than on a drone that outlives it. */
-      hushDrones(cue.closing.beats * cue.beat);
+      const over = cue.closing.beats * cue.beat;
+      hushDrones(over);
+      liftTape(over);
       state = "silence";
     },
 
@@ -779,9 +1050,11 @@ export function conduct(
       if (next === cue) return;
       cue = next;
       index = 0;
-      /* The old cue's bed is in the old cue's tuning. Let it go rather than
-         crossfade two pieces of music into each other. */
+      /* The old cue's bed is in the old cue's tuning and its tape is its own
+         room. Let both go rather than crossfade two pieces of music into each
+         other. */
       hushDrones(1.2);
+      liftTape(1.2);
       cursor = Math.max(cursor, context.currentTime + 0.4);
       droneCursor = Math.max(droneCursor, context.currentTime + 0.4);
     },
@@ -791,6 +1064,7 @@ export function conduct(
       state = "silence";
       resolving = false;
       hushDrones(0.9);
+      liftTape(0.9);
     },
   };
 }

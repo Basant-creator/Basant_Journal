@@ -424,6 +424,212 @@ export function whistle(
    a jungle is the gaps, which live in the scheduler rather than here.
    ------------------------------------------------------------------------- */
 
+/* =========================================================================
+   THE RHYTHM SECTION
+
+   Added because the inventory said there was not one. Everything in this file
+   before now is something a person holds; these three are the room around
+   them, and a cue that wants to sound warm rather than empty needs the room
+   more than it needs another note.
+
+   Written from the same primitives as the rest — noise, a sine, an envelope —
+   so nothing here is a sample and the licence position is unchanged.
+   ========================================================================= */
+
+/**
+ * A soft kick: a low sine falling fast under its own envelope.
+ *
+ * Not a drum kit kick. The pitch drops from 96 to 46 Hz in fifty
+ * milliseconds, which is a thump with a body rather than a click with a tail,
+ * and at the levels this cue uses it reads as something struck in another
+ * room. There is no click transient on purpose: the attack is four
+ * milliseconds of ramp, so the ear places it without the eye of the mix
+ * turning toward it.
+ */
+export function thump(
+  context: AudioContext,
+  destination: AudioNode,
+  { level = 0.2, pan = 0, when }: { level?: number; pan?: number; when?: number },
+): void {
+  const t = when ?? context.currentTime;
+
+  const osc = context.createOscillator();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(96, t);
+  osc.frequency.exponentialRampToValueAtTime(46, t + 0.05);
+
+  const gain = context.createGain();
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(level, t + 0.004);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+
+  const panner = context.createStereoPanner();
+  panner.pan.value = pan;
+
+  osc.connect(gain).connect(panner).connect(destination);
+  osc.start(t);
+  osc.stop(t + 0.32);
+  osc.onended = () => {
+    osc.disconnect();
+    gain.disconnect();
+    panner.disconnect();
+  };
+}
+
+/**
+ * A brush across a head: filtered noise, short, with no pitch in it.
+ *
+ * `tone` moves the bandpass between roughly 1.2 and 4 kHz — low for a stick
+ * on a rim, high for a wire brush — and the decay is short enough that it
+ * never becomes a cymbal. It is the backbeat, and in this cue it is quieter
+ * than the wind.
+ */
+export function brush(
+  context: AudioContext,
+  destination: AudioNode,
+  {
+    level = 0.12,
+    tone = 0.5,
+    decay = 0.12,
+    pan = 0,
+    when,
+  }: { level?: number; tone?: number; decay?: number; pan?: number; when?: number },
+): void {
+  const t = when ?? context.currentTime;
+
+  /* A tenth of a second of noise, generated per hit. Short enough that the
+     allocation is cheaper than keeping a pool alive, and different every
+     time, which is the point of a brush. */
+  const frames = Math.ceil(context.sampleRate * (decay + 0.05));
+  const buffer = context.createBuffer(1, frames, context.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < frames; i += 1) data[i] = Math.random() * 2 - 1;
+
+  const source = context.createBufferSource();
+  source.buffer = buffer;
+
+  const band = context.createBiquadFilter();
+  band.type = "bandpass";
+  band.frequency.value = 1200 + tone * 2800;
+  band.Q.value = 0.8;
+
+  const gain = context.createGain();
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(level, t + 0.006);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+
+  const panner = context.createStereoPanner();
+  panner.pan.value = pan;
+
+  source.connect(band).connect(gain).connect(panner).connect(destination);
+  source.start(t);
+  source.stop(t + decay + 0.05);
+  source.onended = () => {
+    source.disconnect();
+    band.disconnect();
+    gain.disconnect();
+    panner.disconnect();
+  };
+}
+
+/** A running tape bed. Stop it by calling the returned function. */
+export interface Tape {
+  stop(fade?: number): void;
+}
+
+/**
+ * Hiss and crackle, continuously.
+ *
+ * This is the layer that was missing, and the reason the sparse cue read as
+ * empty rather than as quiet. Silence in a recording is not silence: it is a
+ * noise floor, and an ear that is given one stops hearing the gaps as
+ * absences and starts hearing them as room. Sparse and empty are the same
+ * notes with and without this underneath them.
+ *
+ * Two parts. A filtered hiss, rolled off above 5 kHz so it sits behind
+ * everything rather than on top of it, with a slow wobble on the filter so it
+ * breathes. And crackle: single-sample pops at a few per second, scattered,
+ * which is what makes it read as tape rather than as a broken output.
+ *
+ * Eight seconds of buffer, looped. Long enough that the loop point is past
+ * anybody counting and short enough not to be worth streaming.
+ */
+export function tape(
+  context: AudioContext,
+  destination: AudioNode,
+  { level = 0.06, crackle = 2.4, when }: { level?: number; crackle?: number; when?: number },
+): Tape {
+  const t = when ?? context.currentTime;
+  const seconds = 8;
+  const frames = context.sampleRate * seconds;
+  const buffer = context.createBuffer(2, frames, context.sampleRate);
+
+  for (let channel = 0; channel < 2; channel += 1) {
+    const data = buffer.getChannelData(channel);
+    /* A one-pole low-pass on white noise, which is cheaper than a filter node
+       and gives the hiss its dullness at source. */
+    let last = 0;
+    for (let i = 0; i < frames; i += 1) {
+      const white = Math.random() * 2 - 1;
+      last = last * 0.86 + white * 0.14;
+      data[i] = last * 2.6;
+    }
+    /* Crackle, on top and much louder than the floor it sits in — a pop is
+       brief enough that peak level and perceived level are different things. */
+    const pops = Math.round(crackle * seconds);
+    for (let n = 0; n < pops; n += 1) {
+      const at = Math.floor(Math.random() * (frames - 64));
+      const amp = 0.25 + Math.random() * 0.55;
+      for (let i = 0; i < 40; i += 1) {
+        data[at + i] += amp * Math.exp(-i / 6) * (Math.random() * 2 - 1);
+      }
+    }
+  }
+
+  const source = context.createBufferSource();
+  source.buffer = buffer;
+  source.loop = true;
+
+  const shelf = context.createBiquadFilter();
+  shelf.type = "lowpass";
+  shelf.frequency.value = 5200;
+
+  /* Wow and flutter, on the filter rather than on the pitch: moving the pitch
+     of a noise bed does nothing audible, and moving its brightness is what a
+     worn tape actually does to the top end. */
+  const lfo = context.createOscillator();
+  lfo.frequency.value = 0.07;
+  const lfoGain = context.createGain();
+  lfoGain.gain.value = 900;
+  lfo.connect(lfoGain).connect(shelf.frequency);
+
+  const gain = context.createGain();
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(level, t + 2.2);
+
+  source.connect(shelf).connect(gain).connect(destination);
+  source.start(t);
+  lfo.start(t);
+
+  return {
+    stop(fade = 1.4) {
+      const now = context.currentTime;
+      gain.gain.cancelScheduledValues(now);
+      gain.gain.setValueAtTime(gain.gain.value, now);
+      gain.gain.linearRampToValueAtTime(0.0001, now + fade);
+      source.stop(now + fade + 0.1);
+      lfo.stop(now + fade + 0.1);
+      source.onended = () => {
+        source.disconnect();
+        shelf.disconnect();
+        gain.disconnect();
+        lfo.disconnect();
+        lfoGain.disconnect();
+      };
+    },
+  };
+}
+
 export function chirp(
   context: AudioContext,
   destination: AudioNode,
