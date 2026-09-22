@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BOOK_LEAVES } from "@/lib/book/registry";
-import { getProject } from "@/lib/content/portfolio";
+import { getProject, ongoing } from "@/lib/content/portfolio";
 import { identityFor } from "@/lib/record/identity";
 import styles from "./JournalPages.module.css";
 
@@ -66,6 +66,32 @@ export function RecordsIndexPage() {
           );
         })}
       </ol>
+
+      {/*
+        What is being built, as opposed to what has been filed.
+
+        A name and a sentence, and nothing that looks like a record: no filing
+        number, no stamp, no period, and above all no link. The trail draws the
+        checkpoints ahead of the visitor without offering them, for the same
+        reason — a thing that is not finished should be visible and should not
+        pretend to be somewhere you can go. It earns a filing by being done.
+      */}
+      {ongoing.length > 0 ? (
+        <section className={styles.bench}>
+          <h3 className={styles.benchLabel}>On the bench</h3>
+          <ul className={styles.benchList}>
+            {ongoing.map((work) => (
+              <li key={work.id} className={styles.benchItem}>
+                <p className={styles.benchTitle}>
+                  {work.title}
+                  <span className={styles.benchTag}>{work.label}</span>
+                </p>
+                <p className={styles.benchIdea}>{work.idea}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   );
 }

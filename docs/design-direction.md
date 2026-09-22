@@ -39,7 +39,7 @@ Every consequence falls out of that choice:
 
 | Because the figure is a surveyor | The site therefore |
 |---|---|
-| Surveyors measure | Makes `157K+ tracks/sec` and `99.7%` the emotional climax, not decoration |
+| Surveyors measure | Makes the figures the emotional climax, not decoration — and makes the note saying how they were measured part of the climax rather than a disclaimer under it |
 | Surveyors annotate | Uses handwriting for margins and corrections, never for headlines |
 | Surveyors draw maps | Earns the map as navigation rather than bolting it on as a gimmick |
 | Surveyors keep field journals | Makes long technical write-ups the *native* content type, not an interruption |

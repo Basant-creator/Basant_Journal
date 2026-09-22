@@ -247,3 +247,74 @@
     transform: none;
   }
 }
+
+/* ==========================================================================
+   ON THE BENCH
+
+   Below the filed records and visibly not one of them. The rule above it is
+   the separation: what is above has been written up, what is below has not.
+   Quieter than a record on every axis that matters — no number, no stamp, no
+   arrow — because the whole claim it makes is "this exists and is unfinished".
+   ========================================================================== */
+
+.bench {
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid
+    color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 22%, transparent);
+}
+
+.benchLabel {
+  font-family: var(--font-ui);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 62%, transparent);
+  margin: 0 0 var(--space-3);
+}
+
+.benchList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.benchItem {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.benchTitle {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--paper-ink, var(--color-text-on-paper));
+  margin: 0;
+}
+
+/* THE HAND: the one mark on the page that says "not yet". Ink on paper, so
+   it reads as a stamp struck after the fact rather than as a UI badge. */
+.benchTag {
+  font-family: var(--font-ui);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-red-dark);
+  border: 1px solid color-mix(in srgb, var(--color-red-dark) 42%, transparent);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+
+.benchIdea {
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 78%, transparent);
+  margin: 0;
+  max-width: 54ch;
+}

@@ -59,7 +59,12 @@ const IDENTITIES: Record<string, RecordIdentity> = {
     entry: "PULL",
     stamp: {
       mark: "Measured",
-      note: "Sequencing throughput and smoothness measured against a 500-track benchmark.",
+      /* The stamp used to read "throughput and smoothness measured against a
+         500-track benchmark", which asserted the two figures the metrics sheet
+         has since had to withdraw. A masthead stamp is the first claim a
+         reader meets and the last one anybody checks, so it says what the
+         benchmark actually establishes: four engines, one pool, side by side. */
+      note: "Four sequencing engines run against one 500-track pool and compared side by side.",
     },
     figure: {
       label: "Fig. 1",

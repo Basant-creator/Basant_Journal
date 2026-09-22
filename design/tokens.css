@@ -104,6 +104,11 @@
   --color-text-on-paper-soft:  var(--color-earth);
   --color-text-on-paper-muted: var(--color-earth-dark);
 
+  /* THE HAND on the instrument mat. --color-red-dark is 3.94:1 there — a
+     miss at the 9.9px the unit labels are set at. Weighted toward ink to
+     4.57:1, same hue. See app/globals.css for the full note. */
+  --paper-mat-hand:     rgb(62, 29, 27);
+
   --color-accent:       var(--color-red);
   --color-accent-hover: var(--color-red-hover);
 

@@ -15,7 +15,7 @@ const location = getLocation("bounties");
 export const metadata: Metadata = {
   title: "Bounties — Results",
   description:
-    "Measured engineering outcomes: 157K+ tracks per second, 99.7% smoothness on a 500-track benchmark, four sequencing engines, three systems shipped.",
+    "Measured engineering outcomes: four sequencing engines compared on one 500-track pool, 452 of 500 tracks kept with no broken transitions, three systems shipped.",
   alternates: { canonical: routes.bounties },
 };
 
@@ -137,7 +137,11 @@ export default function BountiesPage() {
                 Surveyed
               </Stamp>
               <Stamp
-                note="Taken on a 500-track benchmark during TuneIt's development, not estimated after."
+                /* Was "not estimated after", which claimed something about
+                   *when* rather than about *how*, and the honest thing to
+                   claim is reproducibility: the harness is committed, so
+                   anybody can take these readings again. */
+                note="Medians of five runs of a benchmark that ships in the repository, not one good run."
                 tone="ink"
                 tilt={3}
               >
@@ -157,7 +161,7 @@ export default function BountiesPage() {
               >
                 <span className={styles.pin} aria-hidden="true" />
                 <p className={styles.hand}>
-                  Taken while the work was running, not written up afterwards.
+                  The caveats are on the records, not hidden under them.
                 </p>
                 <p className={styles.signature}>— B.B., {meta.surveyed}</p>
               </TornPaper>

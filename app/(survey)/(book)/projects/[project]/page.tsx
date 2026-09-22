@@ -7,6 +7,7 @@ import { DocumentStamp } from "@/components/record/DocumentStamp";
 import { FieldNote } from "@/components/record/FieldNote";
 import { FieldRecordHeader } from "@/components/record/FieldRecordHeader";
 import { MetricPanel } from "@/components/record/MetricPanel";
+import { ResultTable } from "@/components/record/ResultTable";
 import { ProjectNavigation } from "@/components/record/ProjectNavigation";
 import { ProjectSheet } from "@/components/record/ProjectSheet";
 import { TechnicalDiagram } from "@/components/record/TechnicalDiagram";
@@ -260,10 +261,20 @@ export default async function ProjectRecordPage({ params }: PageProps) {
             surface="plain"
             sheet="4 of 6"
           >
+            {/*
+              The caption was generated here, from the title and the date, and
+              it read as provenance while carrying none: every project got
+              "Measured on X — dates" whether its figures were measured,
+              asserted, or neither. It belongs to the project, because only the
+              project knows which of those it is.
+            */}
             <MetricPanel
               metrics={project.metrics}
-              caption={`Measured on ${project.title} — ${project.date}`}
+              caption={project.metricsCaption}
             />
+
+            {/* A result that is a comparison, where there is one. */}
+            {project.evidence ? <ResultTable evidence={project.evidence} /> : null}
           </ProjectSheet>
           ) },
 

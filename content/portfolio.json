@@ -159,7 +159,7 @@
       "architecture": "A TypeScript/Express REST API fronts four independent sequencing engines. Track metadata is fetched from the YouTube Data API in batches of 12, rate-limited through Bottleneck, enriched by Google Gemini, and cached in PostgreSQL via Prisma so repeat analyses cost nothing. A Next.js 16 client renders the resulting energy trajectory and previews audio in-browser.",
       "implementation": [
         "Four algorithmic sequencing engines built on Camelot wheel harmonic matching plus regression-based energy optimisation.",
-        "Tested and refined against music-analysis datasets including MusAV and MTG-Jamendo.",
+        "Engine behaviour checked against arousal- and valence-annotated fixtures held in the repository, in the shape of the MusAV and MTG-Jamendo annotation formats. The runs against the published datasets themselves were not recorded, so the fixtures are what the numbers below come from.",
         "Express.js/TypeScript REST API with 12-track batching and Bottleneck rate limiting across the YouTube Data and Gemini APIs.",
         "PostgreSQL + Prisma caching layer for track analysis results.",
         "Next.js 16 frontend with interactive energy-trajectory visualisation and in-browser audio preview.",
@@ -178,19 +178,19 @@
       ],
       "metrics": [
         {
-          "value": "157K+",
-          "unit": "tracks / second",
-          "label": "Sequencing throughput"
-        },
-        {
-          "value": "99.7%",
-          "unit": "smoothness",
-          "label": "500-track benchmark"
-        },
-        {
           "value": "4",
           "unit": "engines",
-          "label": "Sequencing engines"
+          "label": "Measured side by side"
+        },
+        {
+          "value": "452 / 500",
+          "unit": "kept",
+          "label": "Frame engine retention"
+        },
+        {
+          "value": "0",
+          "unit": "jarring jumps",
+          "label": "Frame, Drift and Rise at N=500"
         }
       ],
       "challenges": [
@@ -207,7 +207,45 @@
       "github": null,
       "liveUrl": null,
       "linksStatus": "unresolved",
-      "visualAssets": []
+      "visualAssets": [],
+      "metricsCaption": "Medians of five runs of the repository's own scale benchmark at N=500. The pool is built by duplicating 50 base tracks with jitter, so the absolute smoothness figures are optimistic — the comparison between engines is the result, not any single number. Throughput is deliberately not quoted: across the same five runs one engine measured between 82,000 and 172,000 tracks a second, which is warm-up and garbage collection rather than algorithm.",
+      "evidence": {
+        "caption": "Four engines, one pool, N=500",
+        "columns": [
+          "Engine",
+          "Kept of 500",
+          "Smoothness",
+          "Jarring jumps"
+        ],
+        "rows": [
+          [
+            "Frame",
+            "452",
+            "99.54",
+            "0"
+          ],
+          [
+            "Mental Drift",
+            "321",
+            "98.74",
+            "0"
+          ],
+          [
+            "Unhinged",
+            "389",
+            "92.68",
+            "56"
+          ],
+          [
+            "Rise",
+            "500",
+            "99.75",
+            "0"
+          ]
+        ],
+        "note": "Unhinged's 56 broken transitions are the engine working rather than failing — it is the one allowed to break continuity. Rise keeps every track and scores highest, which is the honest caveat on the whole table: on a pool this uniform, the engine that reorders least wins."
+      },
+      "datasetRunsStatus": "unresolved"
     },
     {
       "id": "onsight",
@@ -269,7 +307,8 @@
       "github": null,
       "liveUrl": null,
       "linksStatus": "unresolved",
-      "visualAssets": []
+      "visualAssets": [],
+      "metricsCaption": "These describe capabilities that exist in the implementation, not measurements. Nothing here has been benchmarked, and the record says so rather than dressing a feature list as a result."
     },
     {
       "id": "bobai",
@@ -332,33 +371,34 @@
       "github": null,
       "liveUrl": null,
       "linksStatus": "unresolved",
-      "visualAssets": []
+      "visualAssets": [],
+      "metricsCaption": "These describe capabilities that exist in the implementation, not measurements. The integration tests assert that generation and deployment behave; they do not produce a number, and none is claimed."
     }
   ],
   "metrics": [
-    {
-      "id": "throughput",
-      "value": "157K+",
-      "unit": "tracks / second",
-      "label": "Sequencing throughput",
-      "project": "tuneit",
-      "context": "Measured across the four sequencing engines."
-    },
-    {
-      "id": "smoothness",
-      "value": "99.7%",
-      "unit": "smoothness",
-      "label": "500-track benchmark",
-      "project": "tuneit",
-      "context": "Harmonic and energy continuity across consecutive tracks."
-    },
     {
       "id": "engines",
       "value": "4",
       "unit": "engines",
       "label": "Sequencing engines",
       "project": "tuneit",
-      "context": "Independent algorithms, weighted against one objective."
+      "context": "Frame, Mental Drift, Unhinged and Rise — independent algorithms, measured side by side."
+    },
+    {
+      "id": "retention",
+      "value": "452 / 500",
+      "unit": "tracks kept",
+      "label": "Frame engine, zero jarring jumps",
+      "project": "tuneit",
+      "context": "Identical across five runs: the engine rejects the same 48 tracks every time."
+    },
+    {
+      "id": "continuity",
+      "value": "92.7 – 99.8",
+      "unit": "smoothness",
+      "label": "The spread across four engines",
+      "project": "tuneit",
+      "context": "The spread is the finding. Each engine trades how much it keeps against how smoothly it runs."
     },
     {
       "id": "systems",
@@ -609,6 +649,14 @@
       "period": "Jan 2025",
       "certificate": null,
       "certificateStatus": "unresolved"
+    }
+  ],
+  "ongoing": [
+    {
+      "id": "strata",
+      "title": "Strata",
+      "idea": "A repository-local provenance framework: keep the reasoning, the dead ends and the constraints that normally evaporate once code is written, and hand an agent the minimum sufficient context instead of the whole history.",
+      "label": "Ongoing"
     }
   ]
 }

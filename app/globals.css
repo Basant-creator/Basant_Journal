@@ -450,6 +450,21 @@
   --paper-rule: #8d7855;
   --paper-edge: #9a8563;
   --paper-mat: #a08a66;
+  /*
+    THE HAND, on the mat.
+
+    --color-red-dark is the annotation ink everywhere else on paper, and on
+    this tan it measures 3.94:1 — a miss, and a miss on the smallest type the
+    instrument panel sets: the units beside the figures, at 9.9px. The mat is
+    much darker than the sheet it sits on, which is what the rest of the
+    palette assumes.
+
+    Weighted toward ink until it clears: 4.57:1, same hue, still legibly red
+    rather than brown. The alternative was dropping red from the panel
+    altogether, and the unit beside a number is exactly the annotation the
+    layer is for.
+  */
+  --paper-mat-hand: color-mix(in srgb, var(--color-red-dark) 62%, var(--color-ink));
   /* The colour age leaves in paper: iron and damp, not dirt. Kept weak —
      foxingLayer scales it down again per mark. */
   --paper-foxing: #6b4a2a;

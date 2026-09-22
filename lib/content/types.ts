@@ -101,6 +101,26 @@ export interface VisualAsset {
   caption?: string;
 }
 
+/**
+ * A measurement, as a table rather than a headline.
+ *
+ * Some results are a comparison and cannot honestly be reduced to one figure.
+ * TuneIt's four engines are the case this exists for: the interesting thing is
+ * not how fast any one of them is, it is that each trades how much of a
+ * playlist it keeps against how smoothly the result runs, and you can only see
+ * that by putting them side by side.
+ *
+ * `note` is where the caveat goes, and it is not optional in spirit. A table
+ * of numbers with no account of what would make them misleading is the same
+ * decoration MetricPanel's caption exists to prevent, laid out in columns.
+ */
+export interface EvidenceTable {
+  caption: string;
+  columns: string[];
+  rows: string[][];
+  note?: string;
+}
+
 export interface Project {
   id: string;
   /**
@@ -125,6 +145,39 @@ export interface Project {
   liveUrl: string | null;
   linksStatus: UnresolvedStatus;
   visualAssets: VisualAsset[];
+  /**
+   * Where the figures above came from, in this project's own terms.
+   *
+   * Optional in the type and mandatory in practice. It replaced a caption the
+   * record page generated from the title and the date, which looked like
+   * provenance and carried none: every project got "Measured on X — dates",
+   * whether the numbers were measured, asserted, or neither.
+   */
+  metricsCaption?: string;
+  /** A side-by-side result, where one number would misrepresent it. */
+  evidence?: EvidenceTable;
+  /**
+   * Whether the runs against the named public datasets were kept.
+   *
+   * "unresolved" means the work happened and the artefact did not survive, so
+   * the record describes the fixtures it can show rather than the datasets it
+   * cannot. Same convention as linksStatus: the gap is recorded, not filled.
+   */
+  datasetRunsStatus?: UnresolvedStatus;
+}
+
+/**
+ * Work in progress: a name and an idea, and deliberately nothing else.
+ *
+ * Not a Project and not a route. A field record is a filing — it has a period,
+ * a stamp and a result — and something still being built has none of those. It
+ * earns a record by being finished, not by being mentioned.
+ */
+export interface OngoingWork {
+  id: string;
+  title: string;
+  idea: string;
+  label: string;
 }
 
 export interface HeadlineMetric {
@@ -188,4 +241,5 @@ export interface Portfolio {
   education: EducationEntry[];
   training: TrainingEntry[];
   certifications: CertificationEntry[];
+  ongoing: OngoingWork[];
 }

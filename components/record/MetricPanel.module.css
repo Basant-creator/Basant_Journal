@@ -39,7 +39,7 @@
   font-size: var(--text-2xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--color-red-dark);
+  color: var(--paper-mat-hand);
 }
 
 /*
@@ -60,12 +60,20 @@
   margin-top: var(--space-2);
 }
 
+/*
+  Sentence case, and editorial rather than UI.
+
+  This was uppercase small caps at --text-2xs, which suited the label it used
+  to hold — "Measured on TuneIt — May 2026". It now holds the account of how
+  the figures above were arrived at and what would make them misleading, and
+  four lines of uppercase tracked text is not something anyone reads. The
+  caption is the part a sceptical reader checks; it has to be legible to them.
+*/
 .caption {
-  font-family: var(--font-ui);
-  font-size: var(--text-2xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  line-height: 1.5;
   color: var(--color-ink-soft);
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-4) var(--space-5);
   border-top: 1px solid color-mix(in srgb, var(--color-earth-dark) 28%, transparent);
 }

@@ -12,7 +12,7 @@ import type { NavigationLocation, Portfolio, Project } from "./types";
 export const portfolio = data as unknown as Portfolio;
 
 export const { meta, person, links, projects, metrics, skills } = portfolio;
-export const { education, training, certifications } = portfolio;
+export const { education, training, certifications, ongoing } = portfolio;
 
 /** Locations in trail order — the order the survey was walked. */
 export const locations: NavigationLocation[] = [...portfolio.navigationLocations].sort(
