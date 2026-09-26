@@ -101,6 +101,20 @@
   position: relative;
 }
 
+/*
+  The sheet's voice for a paragraph.
+
+  A class and an element, so it outranks a lone class on a <p>: a paragraph
+  on a sheet reads in the voice whatever face its own rule names. That is
+  deliberate weight, not an accident to wrap in :where(). Lightening it here
+  changes every paragraph on every sheet at once, including ones whose own
+  rules were written in the knowledge that the voice would win — the docket
+  on a record sheet is one, and set in its own rule it comes out as forced,
+  faked-bold capitals below the label face's smallest size. So the substrate
+  keeps its weight, and a leaf that wants a paragraph in another face asks
+  for it with two classes of its own, the way the notes leaf and the Camp
+  sheet already do against their surfaces.
+*/
 .body :global(p) {
   font-family: var(--paper-voice, var(--font-editorial));
   line-height: var(--leading-relaxed);
@@ -142,7 +156,11 @@
 .CASE_FILE {
   --paper-stock: var(--stock-case-file);
   --paper-ink: var(--color-earth-dark);
-  --paper-voice: var(--font-ui);
+  /* The book face, like every other stock. This read --font-ui while that
+     was a grotesque and passed for a typed file; it is printer's small caps
+     now, and a whole paragraph in small caps is a label nobody can read. The
+     manila, the head rule and the tint are what make this a case file. */
+  --paper-voice: var(--font-editorial);
   --paper-border: 1px solid color-mix(in srgb, var(--color-earth-dark) 50%, transparent);
   --paper-print:
     linear-gradient(180deg, color-mix(in srgb, var(--color-red-dark) 55%, transparent) 0 6px, transparent 6px),
@@ -154,7 +172,9 @@
 .BLUEPRINT {
   --paper-stock: var(--stock-blueprint);
   --paper-ink: var(--stock-blueprint-ink);
-  --paper-voice: var(--font-ui);
+  /* The book face, for the reason given on CASE_FILE. The grid and the
+     inversion are what make this a drawing. */
+  --paper-voice: var(--font-editorial);
   --paper-border: 1px solid color-mix(in srgb, var(--paper-ink) 28%, transparent);
   --paper-print:
     repeating-linear-gradient(90deg, transparent 0 23px, color-mix(in srgb, var(--paper-ink) 10%, transparent) 23px 24px),

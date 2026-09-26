@@ -30,10 +30,15 @@
   animation: headFade var(--duration-slow) var(--ease-standard) both;
 }
 
+/* A label, so it asks for the label face. It never named one: it inherited
+   Inter from the body, and would now inherit the book face — a running-text
+   serif set small and tracked wide, which reads as a stray line of prose.
+   Not uppercased, so the small caps show: the first letter of each word at
+   full height, the rest as printer's small capitals. */
 .eyebrow {
+  font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-hero);
-  text-transform: uppercase;
   color: var(--color-text-muted);
   margin-bottom: var(--space-2);
   animation: eyebrowSet var(--duration-slow) var(--ease-cinematic) both;

@@ -262,12 +262,17 @@
   }
 }
 
-.recordTag {
+/*
+  Under .sheet on purpose. The tag is a <p> on a TornPaper, which sets every
+  paragraph with `.content p` — a class and an element, which outranks a
+  lone class — so as `.recordTag` this line has always come out in the book
+  face whatever it asked for. Two classes win it back without reaching into
+  the sheet.
+*/
+.sheet .recordTag {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
-  font-weight: 600;
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-red-dark);
   margin-bottom: var(--space-4);
 }
@@ -455,7 +460,6 @@
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-on-paper);
   border-top: 1px solid color-mix(in srgb, var(--color-earth-dark) 32%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--color-earth-dark) 32%, transparent);
@@ -480,11 +484,18 @@
     4px 4px 0 -2px var(--color-paper-dark);
 }
 
+/*
+  The line under the instruction is a sentence, not a second label — it
+  always switched the capitals off to say so. Set in the book face, the way
+  each line of the contents page carries a title in one voice and a
+  description under it in this one; two rows of small caps at one size
+  would read as two instructions.
+*/
 .openJournalHint {
   display: block;
   margin-top: 3px;
-  font-size: var(--text-2xs);
-  letter-spacing: 0.04em;
-  text-transform: none;
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  letter-spacing: normal;
   color: var(--color-text-on-paper-soft);
 }

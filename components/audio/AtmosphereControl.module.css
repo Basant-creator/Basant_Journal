@@ -21,38 +21,52 @@
   /* The only control for sound, and on a phone it stood 30px tall. */
   min-height: 44px;
 
+  /* Small caps at the label floor. No uppercase: Fell's lowercase is its
+     small caps, and forcing capitals would set the word as a shout. */
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-
-  /*
-    The chip is the control's own ground, and it has to be ground enough to
-    stand on. At 78% it was still three quarters transparent, so the label's
-    contrast was really a contrast against whatever happened to be behind it —
-    fine over the shell's near-black, 4.37:1 over the landing's lit floor at
-    dawn, which is a miss. 88% is what the hover state already used, and it
-    puts the label back at 5.7:1 wherever the control is standing.
-  */
-  background: color-mix(in srgb, var(--color-ink) 88%, transparent);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
-  backdrop-filter: blur(3px);
-  cursor: pointer;
 
   /*
     Quiet by colour rather than by opacity.
 
     This sat at opacity 0.42, which measured 2.09:1 — and a resting state is
     the state WCAG judges, so "it brightens on hover" is not an answer. The
-    muted token at full strength is 6.0:1 and still reads as background
-    furniture, which is all the faintness was ever for. Nothing about the
-    intent changes; the label is simply legible while it is being ignored.
+    faintness was only ever for keeping it background furniture, and a
+    full-strength tone does that as well as a transparent one.
+
+    Paper-dark rather than the shell's muted tone, because the face it stands
+    on is no longer the shell's near-black: the top of an iron plate is a
+    shade lighter, and --color-text-muted measured 4.32:1 there — a miss.
+    Paper-dark is 5.2:1 at the lightest of the face, and is the same step the
+    landing already took for the same reason.
   */
+  color: var(--color-paper-dark);
+
+  /*
+    A small plate of the same iron as the buttons.
+
+    The chip was the control's own ground and had to be made ground enough to
+    stand on — 78%, then 88% of ink over whatever was behind it, and its
+    contrast still moved with the page. Iron is opaque, so that argument is
+    over: the label is measured against the plate and nothing else, wherever
+    the control is standing, the landing's lit floor at dawn included.
+
+    No rivets. At this size they would either crowd the mark and the word or
+    make the chip wider than the 44px it has to be, and this control's whole
+    brief is to be furniture — cast, but not ornamented.
+  */
+  background: linear-gradient(to bottom, var(--plate-top), var(--plate-bottom));
+  border: 1px solid var(--plate-edge);
+  border-radius: var(--radius-sm);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-white-warm) 12%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--plate-drop) 55%, transparent),
+    0 2px 0 var(--plate-drop);
+  cursor: pointer;
+
   transition:
     color var(--duration-normal) var(--ease-standard),
-    background-color var(--duration-normal) var(--ease-standard),
     border-color var(--duration-normal) var(--ease-standard);
 }
 
@@ -60,13 +74,21 @@
 .control:focus-visible,
 .control[data-on] {
   color: var(--color-paper-light);
-  background: color-mix(in srgb, var(--color-ink) 94%, transparent);
-  border-color: color-mix(in srgb, var(--color-paper-light) 34%, transparent);
+  border-color: var(--brass-dark);
 }
 
+/*
+  Focus is a brass frame let into the plate, the same as on a button.
+
+  The ring used to sit 3px outside the chip in paper-light, which is fine over
+  iron and 1.1:1 over the professional view's paper sheet — and this control
+  is fixed, so it floats over that sheet as often as over anything. Inset, it
+  is measured against its own face instead: 5.7:1 at the lightest of it, and
+  clear of the mark, which starts 9px in.
+*/
 .control:focus-visible {
-  outline: 2px solid var(--color-paper-light);
-  outline-offset: 3px;
+  outline: 2px solid var(--brass-light);
+  outline-offset: -4px;
 }
 
 .mark {

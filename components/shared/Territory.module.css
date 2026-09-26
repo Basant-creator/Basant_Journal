@@ -51,10 +51,12 @@
   max-width: var(--measure-prose);
 }
 
+/* Labels and chips name the label face rather than inheriting the body's,
+   which is the book face now; without uppercase, so the small caps show. */
 .label {
+  font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
@@ -80,11 +82,12 @@
   color: var(--color-ink);
 }
 
+/* Old-style figures are right here: a period in a line of metadata is read,
+   not totted up in a column, so this stays in the label face. */
 .paperMeta {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth);
 }
 
@@ -103,6 +106,7 @@
 }
 
 .tag {
+  font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: 0.02em;
   color: var(--color-earth-dark);

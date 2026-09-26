@@ -13,21 +13,23 @@
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
+/* The index's labels are set in the printer's small caps rather than
+   upper-cased, so the face's own capitals and small capitals show. */
 .eyebrow {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
+/* No opacity under the muted ink: at 0.8 it measured 4.17:1 on iron, under
+   AA at this size. The sheet number is quieter than the eyebrow by sitting
+   at the far end of the rule, not by being fainter. */
 .sheet {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
-  opacity: 0.8;
 }
 
 .list {
@@ -84,7 +86,6 @@
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
@@ -97,9 +98,8 @@
 
 .status {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
@@ -122,18 +122,36 @@
    drawings of one fact; not two facts.
    ========================================================================== */
 
+/* Red-light, not the accent, for the trail's reason (FrontierTrail's here
+   state): the index sits on the dark field, where the accent measured 1.84:1
+   against iron and red-light measures 4.64:1. One red in both drawings. */
 .item[data-checkpoint="here"] {
-  color: var(--color-accent);
+  color: var(--color-red-light);
 }
 
 .item[data-checkpoint="here"] .glyph,
 .item[data-checkpoint="here"] .name {
-  color: var(--color-accent);
+  color: var(--color-red-light);
 }
 
 .item[data-checkpoint="here"] .status {
-  color: var(--color-accent);
-  border-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+  color: var(--color-red-light);
+  border-color: color-mix(in srgb, var(--color-red-light) 55%, transparent);
+}
+
+/* Under the hand the row takes the hover wash, and red-light on the wash is
+   4.10:1 — under AA for the name and the status. So the red brightens a
+   little toward the paper, the way every other row's glyph brightens to
+   paper-light when active: 4.78:1 on the wash, still visibly the same red. */
+.item[data-checkpoint="here"]:hover,
+.item[data-checkpoint="here"]:hover .glyph,
+.item[data-checkpoint="here"]:hover .name,
+.item[data-checkpoint="here"]:hover .status,
+.item[data-checkpoint="here"].active,
+.item[data-checkpoint="here"].active .glyph,
+.item[data-checkpoint="here"].active .name,
+.item[data-checkpoint="here"].active .status {
+  color: color-mix(in srgb, var(--color-red-light) 85%, var(--color-paper-light));
 }
 
 .item[data-checkpoint="behind"] .glyph {
@@ -143,13 +161,29 @@
 /* Ahead is drawn, not offered as lesser: the link still works, because §34
    is explicit that a direct route to any checkpoint must keep working. Only
    the ink is lighter. */
-.item[data-checkpoint="ahead"] .glyph,
-.item[data-checkpoint="ahead"] .status {
+.item[data-checkpoint="ahead"] .glyph {
   opacity: 0.6;
 }
 
+/*
+  The status is lighter by its ink and its frame, not by opacity.
+
+  On a first visit every place on this sheet is ahead, so this is the index's
+  resting state, not an edge case — and the muted status at 0.6 was 2.93:1 on
+  iron, under AA for a label inside a working link. So the words keep the
+  full muted ink (5.77:1), a "Mapped" plate drops from paper-light to it, and
+  the frame goes dashed: the surveyed-but-not-travelled line the trail and
+  the sheet already use for ground ahead.
+*/
+.item[data-checkpoint="ahead"] .status {
+  color: var(--color-text-muted);
+  border-style: dashed;
+}
+
+/* The stamp is a mark that carries meaning inside a working link, so it
+   needs 3:1 against iron; the accent was 1.84:1. Same swap as the here state. */
 .stamp {
-  stroke: var(--color-accent);
+  stroke: var(--color-red-light);
   stroke-linecap: round;
   stroke-linejoin: round;
   opacity: 0.9;

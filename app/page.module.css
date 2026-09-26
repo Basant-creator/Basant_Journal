@@ -128,9 +128,14 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
+  /* The control face, named rather than inherited: the body is the book face
+     now, and a label that asks for nothing would be set as running text. Not
+     transformed to capitals either — the face is cut in small caps, so the
+     copy's own capitals stand full height and the rest sit a size below,
+     which `uppercase` would flatten into one even row. */
+  font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-hero);
-  text-transform: uppercase;
   color: var(--landing-sky-ink-muted);
   /*
     The one line of type the resting composition puts across the boundary.
@@ -188,6 +193,14 @@
      than values and are set with the hour, below. */
   --wordmark-face: var(--landing-sky-ink);
   --wordmark-secondary: var(--landing-sky-ink-muted);
+
+  /* At dusk the impression is rust rather than shadow: wood type inked over a
+     worn block, the old colour showing along the edge the letter was struck
+     from. It is the offset layer beneath the face and never the ground the
+     face is read against, so the mark's contrast is untouched. Dawn's rule
+     below is html[attr] + class, (0,2,1) against this one's (0,1,0), so it
+     takes the hook back at dawn wherever the two land in the sheet. */
+  --wordmark-impression: color-mix(in srgb, var(--rust-deep) 78%, transparent);
 }
 
 .lede {
@@ -220,13 +233,24 @@
 
 /* --- foot ---------------------------------------------------------------- */
 
+/*
+  The foot of the page is a line from a railroad timetable: a double rule
+  over it, the entry on the left, a leader of dots, and the figures it leads
+  to on the right — here the four ways out rather than a departure time.
+*/
 .foot {
   position: relative;
   z-index: var(--z-content);
   display: flex;
-  align-items: center;
+  /* Baseline, not centre, so the leader can sit on the line of type rather
+     than float through the middle of it. For text it is the same row it
+     always was: the mark and the links are one size, and the links' padding
+     is symmetrical. */
+  align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-6);
+  /* Rows stay apart when the line breaks; within a row the leader runs close
+     to the words on either side of it, the way a printed leader does. */
+  gap: var(--space-6) var(--space-3);
   flex-wrap: wrap;
   max-width: var(--content-max);
   width: 100%;
@@ -236,17 +260,37 @@
      end of exactly this row. Without the reservation they clip the first and
      last links — "GitHub" and "Records" — at every width. */
   padding-bottom: var(--chrome-bottom);
-  border-top: 1px solid var(--landing-rule);
+  border-top: 3px double var(--landing-rule);
 }
 
 /* The sheet number and the links share one voice — the foot of the page is
-   one line of small caps, whichever half you are reading. */
+   one line of small caps, whichever half you are reading. Set in the control
+   face by name, since the body is the book face now, and not transformed:
+   the face is cut in small caps and the copy's own capitals stay tall. */
 .footMark,
 .footLinks a {
+  font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--landing-ink-muted);
+}
+
+/*
+  The leader.
+
+  Empty, so it has no baseline of its own and the flex row synthesises one
+  from the bottom of its border box. That puts the dots' lower edge on the
+  text's baseline with no offset to guess at — they sit where a row of full
+  stops would. Same ink as the words and about half of it, because a leader
+  guides the eye across to the figures and should never be read before them.
+
+  flex-basis 0 so it only ever takes what is left over; the floor is there so
+  that it cannot close up to two or three dots and read as a stray mark.
+*/
+.footLeader {
+  flex: 1 1 0;
+  min-width: var(--space-8);
+  border-bottom: 2px dotted color-mix(in srgb, var(--landing-ink-muted) 55%, transparent);
 }
 
 .footLinks {
@@ -427,6 +471,14 @@
 
   .footLinks {
     gap: var(--space-4);
+  }
+
+  /* Below this the row is at or past breaking — at 390 the links alone are
+     most of the measure — and a leader left at the end of the first line
+     would lead nowhere. The two ends sit apart or stack as they did before,
+     the rule over them still double. */
+  .footLeader {
+    display: none;
   }
 }
 

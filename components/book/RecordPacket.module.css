@@ -19,14 +19,42 @@
   min-width: 0;
 }
 
+/*
+  Index tabs, cut from card.
+
+  The index was a row of outlined chips, which is how software marks a tab.
+  A ledger marks one with a divider: a strip of card standing proud of the
+  pages, its shoulders cut off on a bevel so a thumb can find it, and the
+  divider for the sheet being read pulled to the front of the stack.
+
+  Tops align because a stack of dividers does. The one in front is not
+  higher, it is longer — more of it shows, reaching down toward its sheet.
+*/
 .indexList {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: var(--space-2);
 }
 
+/*
+  The card is drawn behind the label rather than being the button.
+
+  A bevel is a clip-path, and a clip-path on the button would clip its focus
+  ring along with its corners — the one part of it a keyboard reader has to
+  see. So the button stays a plain rectangle with its whole hit area, and two
+  layers inside its own stacking context carry the card: ::before is the cut
+  edge, ::after the face, inset a pixel so the edge shows all the way round.
+
+  The colours are the card's own, not the contextual --color-text-* tokens.
+  Those describe the board the tabs stand on; the label is printed on stock.
+*/
 .sheetTab {
+  --tab-bevel: 9px;
+  --tab-face: var(--paper-aged);
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -35,34 +63,93 @@
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
+  color: var(--color-ink);
   background: transparent;
-  transition:
-    color var(--duration-fast) var(--ease-standard),
-    border-color var(--duration-fast) var(--ease-standard),
-    background-color var(--duration-fast) var(--ease-standard);
+  border: 0;
+  border-radius: 0;
+}
+
+.sheetTab::before,
+.sheetTab::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  clip-path: polygon(
+    0 var(--tab-bevel),
+    var(--tab-bevel) 0,
+    calc(100% - var(--tab-bevel)) 0,
+    100% var(--tab-bevel),
+    100% 100%,
+    0 100%
+  );
+}
+
+.sheetTab::before {
+  inset: 0;
+  background: var(--paper-edge);
+}
+
+.sheetTab::after {
+  inset: 1px;
+  background: var(--tab-face);
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .sheetTab:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-border-strong);
-  background: var(--color-hover-wash);
+  --tab-face: var(--paper-aged-light);
 }
 
-/* The open sheet is marked in the hand — a clip on the one being read. */
+/* The global ring rounds its corners; a card cut square should not. */
+.sheetTab:focus-visible {
+  border-radius: 0;
+}
+
+/*
+  The open sheet's divider, in front.
+
+  Lighter stock, and one spacing step longer: the extra is all below the
+  label, so the word sits exactly where its neighbours' words sit and only the
+  card grows. That is what reads as nearer — the same tab, more of it showing.
+*/
 .sheetTabOpen,
 .sheetTabOpen:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-red);
-  background: color-mix(in srgb, var(--color-red) 12%, transparent);
+  --tab-face: var(--color-paper-light);
 }
 
+.sheetTabOpen {
+  min-height: calc(44px + var(--space-3));
+  padding-bottom: calc(var(--space-2) + var(--space-3));
+}
+
+/*
+  The sheet number, written on the tab by hand.
+
+  THE HAND, at the size a clerk's pencil numeral actually is — Caveat sits
+  small on its body, so it is set a step above the label to stand level with
+  it. --color-red rather than the light red: on the card it measures 4.74:1
+  on the aged face, 6.09:1 on hover and 6.67:1 on the open tab.
+*/
 .sheetNo {
-  font-family: var(--font-display);
-  color: var(--color-red-light);
+  display: inline-block;
+  font-family: var(--font-hand);
+  font-size: var(--text-md);
+  line-height: 1;
+  color: var(--color-red);
+  transform: rotate(-4deg);
+}
+
+/* With forced colours the painted card disappears, and with it the only
+   visible edge a tab had. A plain border in the system's own text colour
+   brings the outline back; the open tab's is heavier. */
+@media (forced-colors: active) {
+  .sheetTab {
+    border: 1px solid;
+  }
+
+  .sheetTabOpen {
+    border-width: 2px;
+  }
 }
 
 /* --- the sheet ------------------------------------------------------------ */
@@ -130,39 +217,78 @@
   border-top: 1px solid var(--color-border-subtle);
 }
 
+/*
+  The turn buttons, cast in iron.
+
+  They stand on the board below the sheet, not on the sheet, so they take the
+  plate every control on the dark takes: a face lit from above, a cast edge,
+  and a shadow thrown onto the wood. Square, because a casting this size has
+  no radius worth drawing.
+
+  The colours are the plate's own rather than the contextual --color-text-*
+  tokens. Those re-point on paper, and a plate is iron whatever it is set in.
+*/
 .turnBtn {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   min-height: 44px;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-4);
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-  border-radius: var(--radius-sm);
+  color: var(--color-paper-light);
+  background: linear-gradient(180deg, var(--plate-top), var(--plate-bottom));
+  border: 1px solid var(--plate-edge);
+  border-radius: 0;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--rivet-light) 16%, transparent),
+    inset 0 -2px 0 color-mix(in srgb, var(--plate-drop) 45%, transparent),
+    0 2px 0 var(--plate-drop);
   transition:
     color var(--duration-fast) var(--ease-standard),
-    background-color var(--duration-fast) var(--ease-standard);
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
 }
 
+/* The arrow is the brass let into the plate. 5.69:1 on the face's lit top. */
+.turnBtn > span {
+  color: var(--brass-light);
+}
+
+/* Handled metal: the rim polishes to brass where a hand has been. */
 .turnBtn:hover:not(:disabled) {
-  color: var(--color-text-primary);
-  background: var(--color-hover-wash);
+  color: var(--color-white-warm);
+  border-color: var(--brass-dark);
 }
 
+/* Pressed into the board: the light moves to the lower lip and the plate
+   stops throwing a shadow. Nothing travels, so there is no motion here for
+   prefers-reduced-motion to take away. */
+.turnBtn:active:not(:disabled) {
+  box-shadow:
+    inset 0 2px 0 color-mix(in srgb, var(--plate-drop) 55%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--rivet-light) 10%, transparent);
+}
+
+.turnBtn:focus-visible {
+  border-radius: 0;
+}
+
+/* Not there to press: the plate lies flat, with no light on it and no shadow
+   under it, rather than only fading. */
 .turnBtn:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
+  box-shadow: none;
   cursor: default;
 }
 
-/* §21: small. A page number is not a navigation system. */
+/* §21: small. A page number is not a navigation system. Fell's old-style
+   figures are right for it — nothing here lines up in a column. */
 .folio {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
   text-align: center;
 }

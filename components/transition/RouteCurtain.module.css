@@ -332,11 +332,13 @@
   transition-duration: 380ms;
 }
 
+/* The label face's floor, not a clamp beneath it. This was 0.6–0.7rem when
+   the face was a screen grotesque; a small-caps cut at that size loses its
+   small capitals to the counters closing up. Not uppercased, so they show. */
 .chapter {
   font-family: var(--font-ui);
-  font-size: clamp(0.6rem, 1.4vw, 0.7rem);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-red-light);
 }
 

@@ -48,8 +48,47 @@
   --color-muted: #a49476;
   --color-white-warm: #f2e9d7;
 
+  /* --- materials: iron, rust, brass ------------------------------------- */
+  /*
+    The Old West finish. Everything a visitor reads is printed on paper;
+    everything a visitor presses is cast in iron; rust is the only thing that
+    ages either. Measured against iron:
+
+      cream on iron        14.2:1
+      paper-dark on iron    6.9:1
+      brass on iron         5.1:1   small labels only in brass-light, 7.6:1
+      rust on iron          2.5:1   never text, never a fill behind text
+
+    Rust and brass are materials, not accents. Red stays THE HAND: the one
+    primary action, stamps, and ink in the margins — about 3% of any view.
+  */
+  --iron: #1f1b17;
+  --iron-raised: #29231d;
+  --iron-edge: #3d352c;
+  --rust: #8b4a24;
+  --rust-bloom: #b0612e;
+  --rust-deep: #5a2d16;
+  --brass: #a88745;
+  --brass-light: #c9a95e;
+  --brass-dark: #7d6331;
+
+  /* An iron plate: the face of every control. Top and bottom of the face's
+     gradient, its cast edge, and the shadow it throws onto what it is set in. */
+  --plate-top: #3b3027;
+  --plate-bottom: #221b15;
+  --plate-edge: #4a3e33;
+  --plate-drop: #0d0a08;
+  /* The one plate painted in THE HAND's red: the primary action. */
+  --plate-paint-top: #8a3434;
+  --plate-paint-bottom: #5e2222;
+  --plate-paint-edge: #3a1717;
+  /* A rivet: its highlight, its body and its shadowed side. */
+  --rivet-light: #d9c08a;
+  --rivet: var(--brass-dark);
+  --rivet-dark: #3b2d14;
+
   /* --- semantic: THE DARK ----------------------------------------------- */
-  --color-bg-primary: var(--color-ink);
+  --color-bg-primary: var(--iron);
   --color-bg-secondary: var(--color-ink-soft);
   --color-surface: var(--color-paper);
   --color-surface-muted: var(--color-paper-dark);
@@ -84,7 +123,25 @@
   /* The general display voice: headings, map lettering, document headers. */
   --font-display: var(--font-fell), "IM Fell English SC", Georgia, serif;
   --font-editorial: var(--font-source-serif), Georgia, serif;
-  --font-ui: var(--font-inter), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  /*
+    The voice of every control, and no longer Inter.
+
+    Inter is a 2017 screen grotesque, and it was set on everything a visitor
+    clicks — buttons, sheet tabs, the trail, the footer, the corner chips. It
+    was the single most "software" thing on the page. Printer's small caps are
+    what an 1880s job printer set a label in, and the face is already loaded
+    for the display voice, so the swap costs one line here and removes a font
+    download from every page.
+
+    It has one weight. Anything that asked --font-ui for 500 or 600 now gets a
+    synthetic bold, which on a Fell cut looks like ink that ran — rules that
+    read this token should not set a weight. It has old-style figures too, so
+    numbers that must line up in columns read --font-figures instead.
+  */
+  --font-ui: var(--font-fell), "IM Fell English SC", Georgia, serif;
+  /* Figures that sit in columns: lining and tabular, which Fell's old-style
+     numerals are not. The book face, used only for its digits. */
+  --font-figures: var(--font-source-serif), Georgia, serif;
   --font-hand: var(--font-caveat), "Segoe Script", cursive;
 
   /*
@@ -319,17 +376,17 @@
      Scoped to the camp rather than replacing --scene-*, which MapVista and
      the landing page also read: moving those would move /frontier and / to
      blue hour as a side effect of a decision about one location. */
-  --camp-sky-zenith:    #0c1018;
-  --camp-sky-high:      #131c2b;
-  --camp-sky-mid:       #1e2c3e;
+  --camp-sky-zenith:    #130e15;
+  --camp-sky-high:      #211925;
+  --camp-sky-mid:       #322738;
   --camp-sky-afterglow: #6a5138; /* the last of the sun, and the only warmth
                                     in the sky */
-  --camp-sky-haze:      #243040;
+  --camp-sky-haze:      #352c3a;
 
-  --camp-land-far:      #2b3949;
-  --camp-land-mid:      #1f2a36;
-  --camp-land-near:     #151d26;
-  --camp-land-treeline: #101820;
+  --camp-land-far:      #3e3444;
+  --camp-land-mid:      #2e2632;
+  --camp-land-near:     #201a23;
+  --camp-land-treeline: #1b151d;
 
   /* --- depth: tone darkens as a layer comes forward ---------------------- */
   /*
@@ -746,7 +803,11 @@ body {
   margin: 0;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
-  font-family: var(--font-ui);
+  /* The book face, not the control face. --font-ui used to be the default and
+     was a readable grotesque; now that it is small caps, anything that never
+     asked for a face would be set as a label. Running text is Source Serif
+     everywhere a component does not say otherwise. */
+  font-family: var(--font-editorial);
   font-size: var(--text-md);
   line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
@@ -759,7 +820,15 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
-  font-weight: 600;
+  /*
+    400, because that is the only weight the face has.
+
+    This said 600 for as long as the display face has been Fell, and Fell is
+    cut in one weight — so every heading on the site was a bold the browser
+    invented by smearing the outline. On a period face that reads as ink that
+    ran. Real Fell is what a letterpress proof of it looks like: this.
+  */
+  font-weight: 400;
   line-height: var(--leading-snug);
   text-wrap: balance;
   margin: 0;

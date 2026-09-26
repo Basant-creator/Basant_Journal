@@ -61,12 +61,12 @@
   box-shadow: var(--shadow-paper);
 }
 
+/* Labels here are the printer's small caps: no forced capitals, no weight.
+   The face has one cut, and a synthetic bold of it reads as ink that ran. */
 .trailheadTag {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
-  font-weight: 600;
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-red-dark);
 }
 
@@ -77,21 +77,18 @@
   color: var(--color-ink);
 }
 
+/* The painted plate, full width on a phone. */
 .trailheadAction {
+  composes: painted riveted from "../shared/Plate.module.css";
   display: inline-flex;
   align-items: center;
   justify-content: center;
   align-self: stretch;
   min-height: 48px;
-  padding: 0 var(--space-5);
-  background: var(--color-accent);
-  color: var(--color-white-warm);
-  border-radius: var(--radius-md);
+  padding: 0 var(--space-8);
   font-family: var(--font-ui);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
 }
 
 .trailheadAction:active {
@@ -215,7 +212,7 @@
 
 .cardName {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400; /* Fell has one weight; 600 was a synthetic bold. */
   font-size: var(--text-lg);
   letter-spacing: 0.06em;
   color: var(--color-ink);
@@ -225,7 +222,6 @@
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth);
 }
 
@@ -238,9 +234,8 @@
 
 .cardStatus {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-red-dark);
   margin-top: var(--space-1);
 }
@@ -258,9 +253,8 @@
 
 .cardHere {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-red);
   margin-top: var(--space-1);
 }
@@ -312,14 +306,14 @@
 }
 
 .shortcutLink {
+  composes: plate from "../shared/Plate.module.css";
   display: inline-flex;
   align-items: center;
   min-height: 44px;
   padding: 0 var(--space-4);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  /* Named: it set no face and inherited the old control face from body.
+     Body is the book face now, and this is a control, not a sentence. */
+  font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--color-text-primary);
 }

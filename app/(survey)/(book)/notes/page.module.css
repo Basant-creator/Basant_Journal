@@ -22,11 +22,17 @@
   gap: var(--space-3);
 }
 
-.mark {
+/*
+  Scoped under .note on purpose. The mark is a <p>, and PaperSurface sets
+  every paragraph on its sheet with `.inner p` — one class and an element,
+  which outranks a lone class — so as `.mark` this rule lost its face, its
+  size and its colour, and the filing line came out at 16px in the book
+  face. Two classes win it back without reaching into the surface.
+*/
+.note .mark {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-on-paper-muted);
 }
 
@@ -67,9 +73,7 @@
   align-items: center;
   font-family: var(--font-ui);
   font-size: var(--text-xs);
-  font-weight: 600;
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-red-dark);
   transition: color var(--duration-fast) var(--ease-standard);
 }

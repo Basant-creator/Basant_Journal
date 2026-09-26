@@ -21,15 +21,18 @@
 }
 
 /* Sheets in a survey are numbered. It costs one line and it is the difference
-   between a page of a website and a page of a document. */
+   between a page of a website and a page of a document.
+
+   Set as a label, in Fell's old-style figures. tabular-nums is gone rather
+   than moved to --font-figures: Fell has no tabular digits, so it was asking
+   for nothing, and "Sheet 2 of 6" is a label beside a heading, not a figure in
+   a column — there is nothing below it for its digits to line up with. */
 .sheetNumber {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
 }
 
 .paper {

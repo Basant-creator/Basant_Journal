@@ -4,9 +4,12 @@
   gap: var(--space-1);
 }
 
+/* Figures that are asked to be tabular come from the book face: the display
+   face has old-style numerals and no tabular set to give. No weight: the
+   size carries it. The large variant below keeps its poster face, because a
+   single figure on a wall has nothing to line up with. */
 .value {
-  font-family: var(--font-display);
-  font-weight: 600;
+  font-family: var(--font-figures);
   font-size: var(--text-xl);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-tight);
@@ -19,11 +22,12 @@
   font-size: clamp(2.1rem, 4.4vw, 3.2rem);
 }
 
+/* Small caps, not capitals: uppercase on this face is a row of full-height
+   letters and throws away what the face is for. */
 .unit {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 

@@ -9,10 +9,12 @@
   border: 1px solid var(--color-earth-dark);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-5);
+  /* A control, so the control face — it named none and used to inherit the
+     old one from body. Small caps rather than forced capitals, and no weight:
+     the face has one cut, and a synthetic bold of it reads as ink that ran. */
+  font-family: var(--font-ui);
   font-size: var(--text-sm);
-  font-weight: 600;
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
   transition: transform var(--duration-fast) var(--ease-standard);
 }
 

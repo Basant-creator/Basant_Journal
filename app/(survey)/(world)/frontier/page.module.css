@@ -18,10 +18,13 @@
   max-width: 62ch;
 }
 
+/* The labels on this head named no face and inherited the old control face
+   from body. Body is the book face now, so they name the control face — set
+   as small caps, not forced capitals, so the face's own small capitals show. */
 .eyebrow {
+  font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-hero);
-  text-transform: uppercase;
   color: var(--color-text-muted);
   margin-bottom: var(--space-3);
 }
@@ -57,16 +60,21 @@
 }
 
 .sheetData dt {
-  font-size: var(--text-2xs);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
+/* The figures are the book face's, not the display face's. The display voice
+   is Fell now, and Fell has old-style figures and no tabular set at all — the
+   tabular-nums asked for here was measured to change nothing — so "2026"
+   stood with its 6 rising well above its 0, which sat at small-cap height.
+   Lining figures read as a sheet's data, the way a timetable sets them. */
 .sheetData dd {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-figures);
   font-size: var(--text-lg);
   color: var(--color-paper-light);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
 }

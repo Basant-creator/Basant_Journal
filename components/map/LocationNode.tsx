@@ -118,7 +118,7 @@ export function LocationNode({
       <text className={styles.label} y={labelY} textAnchor="middle" fontSize={labelSize}>
         {location.label.toUpperCase()}
       </text>
-      <text className={styles.section} y={labelY + 17} textAnchor="middle">
+      <text className={styles.section} y={labelY + 19} textAnchor="middle">
         {(unmapped ? "Unmapped" : location.section).toUpperCase()}
       </text>
     </>

@@ -17,11 +17,12 @@
   align-items: flex-end;
 }
 
+/* Small caps, not forced capitals: the face sets the capital at full height
+   and the rest of the word as small capitals, the way a margin is lettered. */
 .tag {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-red-light);
 }
 

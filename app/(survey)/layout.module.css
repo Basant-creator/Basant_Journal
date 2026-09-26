@@ -13,9 +13,81 @@
   display: flex;
   flex-direction: column;
   min-height: 100svh;
-  background:
-    radial-gradient(ellipse 120% 70% at 50% 0%, var(--color-ink-raised) 0%, transparent 62%),
-    var(--color-ink);
+
+  /*
+    Worked iron.
+
+    The ground every survey page stands on, and the one place the grain can
+    reach the iron without reaching the words. TextureLayer's grain is laid
+    over the whole page, type included, and no blend mode it is given gets
+    past its own stacking context — so from there it can only ever be a film.
+    Here it is a background layer under the content, where
+    `background-blend-mode` blends it into this element's own iron and
+    nothing a visitor reads is touched.
+
+    Four layers over a cast base, top first:
+
+      the lit top      The radial this shell always had, now translucent so
+                       the tooth shows through it, and a quarter of the step
+                       from --iron to --iron-raised. That is the ceiling, not
+                       a taste: red-light type measures 4.64:1 on bare iron,
+                       and any brighter peak takes it under 4.5 where the
+                       light is strongest.
+      two rust blooms  Low in the corners, where water stands on a plate.
+                       Different sizes, so they read as weather rather than
+                       as a mirrored ornament. Their peak falls in .main's
+                       bottom padding, where there is no type; by the first
+                       place type can reach they are down to about two
+                       thirds, which red-light on iron survives.
+      the tooth        The same grain TextureLayer uses, soft-lit. Below mid
+                       grey, overlay is a multiply and can only scale a dark
+                       value; soft-light lifts it along a curve, and on
+                       ground this dark shows nearly twice the grain for the
+                       same tile.
+      the cast base    Soft-light raises iron about twelve levels, because
+                       the grain is a light grey. So the colour it acts on
+                       starts darker than --iron — 57% of the way to
+                       --plate-drop, about ten levels down, which is what
+                       the curve lifts a base this dark by — and the tooth
+                       brings it back up to the token.
+
+    The correction sits under the blend, not over it. It used to be a
+    half-strength cast laid on top of the tooth, which put the mean back on
+    --iron but, like any translucent layer, halved the variation under it:
+    2.3 levels of deviation, which at this grain size is dither, not tooth.
+    Underneath, the lift and the darker base cancel and the grain keeps its
+    whole amplitude. Measured on a headless render: the mean lands at
+    31/26/22 against --iron's 31/27/23, deviation rises to 3.4 levels, and
+    red-light on the lit top holds at 4.56:1 — a shade above the 4.55 the
+    cast gave. Go lighter than 57% and the mean climbs over the token, and
+    every contrast figure on the site with it.
+
+    Every stop is a colour-mix of the material tokens; the tile scrolls with
+    the page, as a surface does, where TextureLayer's stays on the glass.
+  */
+  background-color: color-mix(in srgb, var(--plate-drop) 57%, var(--iron));
+  background-image:
+    radial-gradient(
+      ellipse 120% 70% at 50% 0%,
+      color-mix(in srgb, var(--iron-raised) 25%, transparent) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 56vw 46vh at 0% 100%,
+      color-mix(in srgb, var(--rust-deep) 10%, transparent) 0%,
+      color-mix(in srgb, var(--rust-deep) 4%, transparent) 45%,
+      transparent 100%
+    ),
+    radial-gradient(
+      ellipse 42vw 58vh at 100% 100%,
+      color-mix(in srgb, var(--rust-deep) 9%, transparent) 0%,
+      color-mix(in srgb, var(--rust-deep) 3%, transparent) 50%,
+      transparent 100%
+    ),
+    var(--texture-grain-url);
+  background-size: auto, auto, auto, 240px;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+  background-blend-mode: normal, normal, normal, soft-light;
 }
 
 .main {

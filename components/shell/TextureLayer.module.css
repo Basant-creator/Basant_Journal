@@ -1,8 +1,35 @@
 /* Two stacked effects with different jobs, so they need different opacities:
-   the vignette does real work at 0.62, the grain must stay subliminal at 0.04.
-   Putting both on one element would force them to share one opacity. */
+   the vignette does real work at 0.62, the grain is a film at 0.02. Putting
+   both on one element would force them to share one opacity. */
 
 .texture {
+  /*
+    The grain's strength is set here, on the layer, rather than by the global
+    token — because this is the one place that knows what the layer can do.
+
+    It cannot blend with the page, whatever mode it is given. This element is
+    fixed and z-indexed, which makes it a stacking context, and a stacking
+    context is an isolated group: the `::before` below only ever blended with
+    the vignette painted under it, never with the iron or the words. The
+    `overlay` declared there for as long as this file has existed did nothing
+    outside the corners.
+
+    So what reaches the page is plain alpha — a light grey film over the
+    ground and the type alike. Measured on the tile itself, every hundredth
+    of opacity takes about 1% off every text pair on the site, and at the old
+    0.04 the film showed less than one level of deviation on iron: a haze, not
+    a grain. Raised to where it reads as grain (0.1), red-light on iron falls
+    from 4.64:1 to 4.35.
+
+    The iron carries its own tooth now, soft-lit into the survey shell's
+    ground underneath the type — app/(survey)/layout.module.css. This film is
+    halved to leave that ground its contrast budget: at 0.04 the shell's lit
+    top would put red-light type under 4.5:1; at 0.02 it holds. Earth on
+    plain paper starts at 4.55:1 and is under 4.5 with any film at all
+    (4.48 here, 4.41 at the old value) — that pair needs a darker ink, not a
+    thinner film.
+  */
+  --texture-grain-opacity: 0.02;
   position: fixed;
   inset: 0;
   z-index: var(--z-texture);
@@ -17,6 +44,8 @@
   );
 }
 
+/* No blend mode, deliberately. Inside this layer's isolated group one could
+   only blend with the vignette; the page never sees it. See .texture. */
 .texture::before {
   content: "";
   position: absolute;
@@ -25,7 +54,6 @@
   background-size: 240px;
   background-repeat: repeat;
   opacity: var(--texture-grain-opacity);
-  mix-blend-mode: overlay;
 }
 
 /* --- the light off-frame ---------------------------------------------------

@@ -32,7 +32,7 @@
 .inner {
   font-family: var(--font-display);
   font-size: 0.68rem;
-  font-weight: 600;
+  font-weight: 400; /* Fell has one weight; 600 was a synthetic bold. */
   letter-spacing: 0.22em;
   text-transform: uppercase;
   white-space: nowrap;

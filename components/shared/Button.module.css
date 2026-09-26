@@ -1,66 +1,213 @@
-/* Buttons move; they never scale. Phase 1 §6. */
+/* ==========================================================================
+   Buttons move; they never scale. Phase 1 §6.
+
+   Everything a visitor reads is printed; everything a visitor presses is
+   cast. A button is a plate of iron with two brass rivets through it —
+   bare iron for the ordinary way on, and the one plate on a screen that has
+   been painted, in THE HAND's red, for the action that matters.
+
+   The plate brings its own ground. That is what lets the same two variants
+   stand on the shell's iron, on the landing's lit earth and on a paper card
+   at the dispatch desk without re-pointing a single token: the label is
+   measured against the face, and the face goes wherever the button goes.
+   ========================================================================== */
 
 .base {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 46px;
-  padding: 0 var(--space-6);
-  border-radius: var(--radius-md);
+  /* The rivets are 6px across and sit 12px in from each end, so the label
+     starts 32px in: clear of the rivet with a finger's width of iron between,
+     and clear of the rust bloom in the corners, which never reaches that far. */
+  padding: 0 var(--space-8);
+  /* Square, with the cast edge just broken — and radius-sm is also what the
+     global focus rule sets, so the corners do not change shape on focus. */
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+
+  /* Fell has one weight and a synthetic bold on it reads as ink that ran, so
+     no weight is asked for. No uppercase either: small caps are the point,
+     and upper-casing them throws away the one thing the face does. Set a
+     step larger than the old Inter, because a small cap is an x-height tall
+     and --text-sm of one is too slight to press with confidence. */
   font-family: var(--font-ui);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
+  font-size: var(--text-md);
+  font-weight: 400;
+  letter-spacing: 0.1em;
   text-align: center;
+  color: var(--color-white-warm);
+
+  /*
+    The casting, from the inside out: a lit top edge, a shaded bottom edge,
+    and a hard shadow straight down. The shadow is solid rather than blurred
+    because a plate standing 3px proud of a surface throws an edge, not a
+    glow — and it is what the hover lift and the press are measured against.
+  */
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-white-warm) 16%, transparent),
+    inset 0 -2px 0 color-mix(in srgb, var(--plate-drop) 55%, transparent),
+    0 3px 0 var(--plate-drop);
+
   transition:
-    background-color var(--duration-fast) var(--ease-standard),
     border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
     transform var(--duration-fast) var(--ease-standard),
     color var(--duration-fast) var(--ease-standard);
 }
 
+/* The rivets. Absolutely placed, so the flex row never counts them as items
+   and the label centres on the plate rather than between them. */
+.base::before,
+.base::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - 3px);
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    var(--rivet-light) 0,
+    var(--rivet) 55%,
+    var(--rivet-dark) 100%
+  );
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--plate-drop) 70%, transparent);
+  pointer-events: none;
+}
+
+.base::before {
+  inset-inline-start: var(--space-3);
+}
+
+.base::after {
+  inset-inline-end: var(--space-3);
+}
+
 .sm {
   min-height: 38px;
-  padding: 0 var(--space-4);
-  font-size: var(--text-xs);
+  padding: 0 var(--space-6);
+  font-size: var(--text-sm);
+}
+
+/* A smaller plate takes smaller rivets, drawn in closer to the ends so the
+   label still has iron either side of it. */
+.sm::before,
+.sm::after {
+  top: calc(50% - 2.5px);
+  inline-size: 5px;
+  block-size: 5px;
+}
+
+.sm::before {
+  inset-inline-start: var(--space-2);
+}
+
+.sm::after {
+  inset-inline-end: var(--space-2);
 }
 
 .label {
   display: block;
 }
 
-/* THE HAND: red is reserved for the one action that matters on a screen. */
+/*
+  THE HAND: red is reserved for the one action that matters on a screen, and
+  here it is paint on the iron rather than a colour of the interface.
+
+  Worn through at the corners, where a hand has pushed it for years: rust
+  bloom at the top-left, the deeper rust settling into the bottom-right. Both
+  are corner weathering and stop well short of the label's 32px inset, so the
+  words only ever stand on paint — cream on the lightest of it is 6.6:1. The
+  bloom tops out at 30% because the focus frame runs through that corner, and
+  any brighter takes brass under 3:1 against it.
+*/
 .primary {
-  background: var(--color-accent);
-  color: var(--color-white-warm); /* 7.7:1 */
-  border: 1px solid transparent;
+  background:
+    radial-gradient(
+      28px 18px at 0 0,
+      color-mix(in srgb, var(--rust-bloom) 30%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      30px 20px at 100% 100%,
+      color-mix(in srgb, var(--rust-deep) 70%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      14px 10px at 0 100%,
+      color-mix(in srgb, var(--rust-bloom) 24%, transparent),
+      transparent
+    ),
+    linear-gradient(to bottom, var(--plate-paint-top), var(--plate-paint-bottom));
+  border-color: var(--plate-paint-edge);
 }
 
-.primary:hover {
-  background: var(--color-accent-hover); /* 6.2:1 */
-  transform: translateY(calc(-1 * var(--lift-sm)));
-}
-
-.primary:active {
-  transform: translateY(0);
-  background: var(--color-red-dark);
-}
-
+/* Bare iron: the ordinary way on. Cream on the lightest of the face is
+   10.6:1, and the rust is a shade quieter than on the painted plate, because
+   unpainted iron weathers evenly rather than where the paint gave out. */
 .secondary {
-  background: transparent;
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border-strong);
+  background:
+    radial-gradient(
+      26px 16px at 100% 0,
+      color-mix(in srgb, var(--rust-bloom) 26%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      28px 18px at 0 100%,
+      color-mix(in srgb, var(--rust-deep) 60%, transparent),
+      transparent
+    ),
+    linear-gradient(to bottom, var(--plate-top), var(--plate-bottom));
+  border-color: var(--plate-edge);
 }
 
-.secondary:hover {
-  border-color: var(--color-paper-light);
-  background: var(--color-hover-wash);
+/*
+  Lift and press.
+
+  The plate rises by --lift-sm and its shadow lengthens by the same amount,
+  so the foot of the shadow stays where it was on the ground: the thing moved,
+  the surface did not. Pressing sinks it the other way and swaps the lit top
+  edge for a shaded one, which is also the whole of the press under reduced
+  motion — the lift token is 0 there, so nothing travels, but the face still
+  visibly goes down. The edge catching brass on hover is the same signal the
+  corner chips give, and likewise survives with the motion switched off.
+
+  Scoped to live controls, so a disabled plate neither lifts nor catches.
+*/
+.base:hover:not(:disabled) {
   transform: translateY(calc(-1 * var(--lift-sm)));
+  border-color: var(--brass-dark);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-white-warm) 26%, transparent),
+    inset 0 -2px 0 color-mix(in srgb, var(--plate-drop) 55%, transparent),
+    0 calc(3px + var(--lift-sm)) 0 var(--plate-drop);
 }
 
-.secondary:active {
-  transform: translateY(0);
+.base:active:not(:disabled) {
+  transform: translateY(var(--lift-sm));
+  box-shadow:
+    inset 0 2px 0 color-mix(in srgb, var(--plate-drop) 45%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--color-white-warm) 8%, transparent),
+    0 calc(3px - var(--lift-sm)) 0 var(--plate-drop);
+}
+
+/*
+  Focus is drawn on the plate, not around it.
+
+  The usual ring sits outside the control, on whatever the control is
+  standing on — and this one stands on paper at the dispatch desk, where
+  brass is 1.4:1 and a ring would vanish into the card. Inset, it is always
+  measured against its own plate: 5.7:1 on bare iron, 3.6:1 on the lightest
+  of the paint, and no worse than 3.0:1 where it crosses the rusted corner.
+  It reads as a brass frame let into the casting, which is also what a
+  focused plate ought to look like.
+*/
+.base:focus-visible {
+  outline: 2px solid var(--brass-light);
+  outline-offset: -5px;
+  border-radius: var(--radius-sm);
 }
 
 .base:disabled {

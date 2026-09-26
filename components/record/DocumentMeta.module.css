@@ -16,11 +16,12 @@
   min-width: 0;
 }
 
+/* Mixed case, so Fell sets it in its own small caps: a full-height capital
+   and the rest cut small, which forced uppercase flattened into one height. */
 .term {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
@@ -30,7 +31,6 @@
   font-size: var(--text-md);
   letter-spacing: 0.03em;
   color: var(--color-paper-light);
-  font-variant-numeric: tabular-nums;
 }
 
 .link {

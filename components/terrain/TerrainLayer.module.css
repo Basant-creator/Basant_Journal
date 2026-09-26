@@ -139,7 +139,7 @@
 .nameSurvey,
 .nameRoad {
   font-family: var(--font-ui);
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   word-spacing: 0.3em;
   fill: var(--map-ink-soft);
   opacity: 0.8;

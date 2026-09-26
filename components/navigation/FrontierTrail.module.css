@@ -77,6 +77,12 @@
     ink as every other shadow on the site, so on the dark field it is
     invisible and on paper it is a pool.
 
+    It stays shadow ink under the iron finish, and not --iron-raised. A
+    raised-iron pool is *lighter* than the iron field it lies on, so on every
+    dark page it would show as a soft patch under the marks — the panel again,
+    a third way. The trail is drawn on the page, not cast; the controls that
+    are cast in iron are the ones that sit on top of it.
+
     And no backdrop blur. It was kept through both earlier attempts and it is
     the last thing that had to go: blurring the page under the strip smooths
     the paper grain inside a rectangle and leaves it sharp outside one, so the
@@ -201,8 +207,13 @@
   color: var(--color-text-muted);
 }
 
+/* THE HAND's ink on the dark, not the accent. --color-accent is the red for
+   fills and for paper, and as a stroke on the dark field it measured 1.84:1
+   against iron — the one mark that answers "where am I" was the hardest one
+   on the line to see. Red-light is 4.64:1 on iron and 5.26:1 inside the pool,
+   and it is the same red, so the ~3% budget does not move. */
 .stop[data-state="here"] {
-  color: var(--color-accent);
+  color: var(--color-red-light);
 }
 
 .stop[data-state="ahead"] {
@@ -238,11 +249,17 @@
   opacity: 0.85;
 }
 
+/*
+  Set in the printer's small caps, and not upper-cased: the capital stands at
+  full height and the rest of the word sits as small caps, which is how a
+  period sheet letters a marginal note. At 9px that was a 4px small cap, so
+  the size is the scale's floor rather than a pixel figure. The widest label
+  (Trail End, 58px) still clears the 4.2rem stop it is centred in.
+*/
 .label {
   font-family: var(--font-ui);
-  font-size: 9px;
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   white-space: nowrap;
   opacity: 0.9;
 }
@@ -273,8 +290,10 @@ a.stopMark:hover {
   color: var(--color-text-primary);
 }
 
+/* Red-light for the same reason as the here state: the accent ring was
+   1.84:1 on iron, under the 3:1 a focus indicator needs. */
 a.stopMark:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-red-light);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -312,7 +331,33 @@ a.stopMark:focus-visible {
 
   .label[data-near] {
     display: block;
-    font-size: 8px;
+    letter-spacing: var(--tracking-wide);
+  }
+
+  /*
+    Room for the three labels that are shown.
+
+    At the type floor a label is wider than a 2.4rem stop — Frontier is 51px,
+    Trail End 56 — so three of them centred 38px apart ran into one another
+    and read as one phrase. Only the labelled stops widen, to 3.6rem: the
+    worst neighbours (Archive, Trail End) keep 7px of paper between them, and
+    three wide stops and four narrow ones come to 326px, inside a 360px phone
+    with its gutters. The unlabelled marks stay close, which is also right —
+    distance on this line is not information.
+
+    Without :has() the stops simply stay narrow and the labels crowd, which is
+    what they did before; nothing is hidden either way.
+  */
+  .stopMark:has(> .label[data-near]) {
+    inline-size: 3.6rem;
+  }
+
+  /* The stretch of line reaching back into a widened stop is lengthened to
+     match, so it still leaves that mark 0.3rem past its centre — the same
+     point it leaves a narrow one — instead of starting in the air beside it. */
+  .stop:has(> .stopMark > .label[data-near]) + .stop > .link {
+    inset-inline-start: -1.5rem;
+    inline-size: 1.5rem;
   }
 }
 

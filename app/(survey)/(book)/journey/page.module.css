@@ -42,11 +42,13 @@
   padding-bottom: 0;
 }
 
+/* 66%, not 62: at 20px this is still normal text under WCAG, and 62% was
+   4.40:1 on the leaf. The face is unchanged; only the ink. */
 .year {
   font-family: var(--font-display);
   font-size: var(--text-lg);
   letter-spacing: 0.08em;
-  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 62%, transparent);
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 66%, transparent);
 }
 
 .stepBody {
@@ -72,7 +74,15 @@
   max-width: var(--measure-prose);
 }
 
-.lede {
+/*
+  These three are scoped under .page on purpose. Each is a <p> on a Paper
+  leaf, which sets every paragraph in its voice with `.body p` — a class and
+  an element, which outranks a lone class — so as `.sectionLabel` "Standing"
+  came out in the book face beside a "The ground covered" that was an h2 and
+  kept its own, and the closing line lost the hand. Two classes win them
+  back without reaching into the substrate.
+*/
+.page .lede {
   font-family: var(--font-editorial);
   font-size: var(--text-lg);
   line-height: 1.55;
@@ -80,7 +90,7 @@
   max-width: var(--measure-prose);
 }
 
-.sectionLabel {
+.page .sectionLabel {
   font-family: var(--font-display);
   font-size: var(--text-sm);
   letter-spacing: 0.22em;
@@ -89,7 +99,7 @@
   margin: 0;
 }
 
-.hand {
+.page .hand {
   font-family: var(--font-hand);
   font-size: 1.1rem;
   line-height: 1.35;

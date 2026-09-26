@@ -1,7 +1,7 @@
 import { SITE_ORIGIN } from "@/lib/routes";
 import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import type { Metadata, Viewport } from "next";
-import { Caveat, IM_Fell_English_SC, Inter, Rye, Source_Serif_4 } from "next/font/google";
+import { Caveat, IM_Fell_English_SC, Rye, Source_Serif_4 } from "next/font/google";
 import { AtmosphereControl } from "@/components/audio/AtmosphereControl";
 import { AudioLabMount } from "@/components/audio/AudioLabMount";
 import { CheckpointAudio } from "@/components/audio/CheckpointAudio";
@@ -53,13 +53,6 @@ const sourceSerif = Source_Serif_4({
   weight: ["400", "600"],
   style: ["normal", "italic"],
   variable: "--font-source-serif",
-  display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-inter",
   display: "swap",
 });
 
@@ -115,7 +108,7 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const fontVars = [rye, fell, sourceSerif, inter, caveat]
+  const fontVars = [rye, fell, sourceSerif, caveat]
     .map((f) => f.variable)
     .join(" ");
 

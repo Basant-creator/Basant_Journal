@@ -307,7 +307,11 @@
 }
 
 /* A scrap of card glued to the fore-edge: square where it meets the book,
-   rounded where a thumb finds it. */
+   rounded where a thumb finds it.
+
+   None of the book's controls uppercase their labels. The label face is a
+   small-caps cut, and uppercasing it throws away the one thing it does — a
+   capital at full height and the rest of the word in printer's small caps. */
 .mark {
   display: block;
   padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
@@ -315,7 +319,6 @@
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-on-paper-muted);
   background: var(--paper-aged);
   border: 1px solid color-mix(in srgb, var(--color-earth-dark) 34%, transparent);
@@ -335,13 +338,16 @@
   color: var(--color-text-on-paper);
 }
 
+/* No weight change on the open mark. The label face has a single weight,
+   and asking it for 600 got a synthetic bold that smears the small caps
+   like ink that ran. The mark already says it is open four other ways:
+   lighter card, darker ink, pulled further out, and THE HAND's red edge. */
 .markOpen,
 .markOpen:hover {
   background: var(--color-paper-light);
   color: var(--color-text-on-paper);
   transform: translateX(6px);
   border-left: 3px solid var(--color-red);
-  font-weight: 600;
 }
 
 /* The rear marker is a divider, not the last section. */
@@ -380,7 +386,6 @@
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
   border-radius: var(--radius-sm);
   transition:
@@ -417,24 +422,51 @@
   padding-left: clamp(10px, 1.4vw, 20px);
 }
 
+/*
+  The ribbon: the silk marker sewn into the spine, pulled to close the book.
+
+  It was a flat red rectangle with two rounded corners, which is a web button
+  wearing the ribbon's name. A ribbon is woven: the sheen below is a fine
+  run of warp threads across the face, it has no rounded corners, and it lies
+  on the iron rather than standing off it, so its shadow is short. Cream on
+  red-dark is the pair the site already measured for this — well above AA —
+  and the weave is too faint to move it.
+*/
 .ribbon {
   display: inline-flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-5);
   min-height: 44px;
   font-family: var(--font-ui);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
   color: var(--color-white-warm);
-  background: var(--color-red-dark);
-  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-  transition: background-color var(--duration-fast) var(--ease-standard);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-white-warm) 5%, transparent) 0 1px,
+      transparent 1px 3px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-red) 86%, var(--color-red-dark)),
+      var(--color-red-dark)
+    );
+  border-radius: 0;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-white-warm) 12%, transparent),
+    0 2px 0 var(--plate-drop);
+  transition:
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 .ribbon:hover {
-  background: var(--color-red);
+  transform: translateY(calc(-1 * var(--lift-sm)));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-white-warm) 12%, transparent),
+    0 calc(2px + var(--lift-sm)) 0 var(--plate-drop);
 }
 
 .ribbonTail {
@@ -447,26 +479,38 @@
 }
 
 /* A slip tucked into the book: the one destination it does not swallow. */
+/*
+  The slip: a sheet of paper tucked into the back of the book, with the plain
+  version written on it.
+
+  It was a rounded box with a 1px border — the stock web secondary button.
+  The professional view is the one page that is *all* paper, so the way to it
+  is a piece of that paper: aged stock, ink type, square cut, lying on the
+  iron with a short shadow. Ink on paper-aged is 9:1.
+*/
 .slip {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-5);
   font-family: var(--font-ui);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  color: var(--color-ink);
+  background: var(--paper-aged);
+  border: 0;
+  border-radius: 0;
+  box-shadow:
+    inset 0 -1px 0 color-mix(in srgb, var(--color-earth-dark) 30%, transparent),
+    0 2px 0 var(--plate-drop);
   transition:
-    border-color var(--duration-fast) var(--ease-standard),
-    background-color var(--duration-fast) var(--ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 .slip:hover {
-  border-color: var(--color-paper-light);
-  background: var(--color-hover-wash);
+  background: var(--color-paper-light);
+  transform: translateY(calc(-1 * var(--lift-sm)));
 }
 
 /* ==========================================================================

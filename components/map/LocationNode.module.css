@@ -61,7 +61,7 @@
 /* The label is readable at rest — no information is hover-only. */
 .label {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400; /* Fell has one weight; 600 was a synthetic bold. */
   letter-spacing: 0.14em;
   fill: var(--map-ink);
   opacity: 0.88;
@@ -71,7 +71,10 @@
 
 .section {
   font-family: var(--font-ui);
-  font-size: 12px;
+  /* User units in the 1600-wide sheet, not pixels: 12 rendered near 5px on a
+     700px sheet, and small caps are a size smaller again. 15 matches the
+     terrain's own station labels. */
+  font-size: 15px;
   letter-spacing: 0.16em;
   fill: var(--map-ink-soft);
   opacity: 0;

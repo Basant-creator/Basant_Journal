@@ -21,15 +21,33 @@
   border-bottom: 1px solid color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 28%, transparent);
 }
 
-.owner {
+/*
+  The small labels on this leaf are set in the label face's own small caps
+  rather than forced to capitals, so a name keeps its initials and a filing
+  line reads as printed rather than shouted.
+
+  Their ink is heavier than it was. At 62%, 58% and 56% they measured 4.40,
+  3.91 and 3.70:1 on the leaf, all under AA, and that was against a grotesque
+  with even strokes; a Fell cut is thinner in the hairlines and needs more
+  ink, not the same. Each value below clears 4.5:1 even where one of the
+  page's ruled lines runs under the text.
+
+  All three lines of the plate are paragraphs on a Paper leaf, and the
+  leaf sets every paragraph in its voice with `.body p` — a class and an
+  element, which outranks a lone class. As `.owner` the name came out in the
+  book face and "Field Journal" lost its wood type. Scoped under .plate, two
+  classes win them back without reaching into the substrate. The margin
+  note and the bench lines below are scoped the same way, for the same
+  reason.
+*/
+.plate .owner {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-hero);
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 62%, transparent);
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 72%, transparent);
 }
 
-.bookTitle {
+.plate .bookTitle {
   font-family: var(--font-chapter);
   font-size: clamp(1.5rem, 3.4vw, 2.3rem);
   line-height: 1.05;
@@ -38,12 +56,11 @@
   margin-top: var(--space-2);
 }
 
-.bookSub {
+.plate .bookSub {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 58%, transparent);
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 70%, transparent);
   margin-top: var(--space-2);
 }
 
@@ -67,7 +84,7 @@
   margin-top: calc(-1 * var(--space-3));
 }
 
-.marginNote {
+.page .marginNote {
   margin-top: auto;
   font-family: var(--font-hand);
   font-size: 1.05rem;
@@ -195,21 +212,21 @@
   margin-top: var(--space-1);
 }
 
+/* Old-style figures are right here: a period in a filing line is read, not
+   compared down a column, so these stay in the label face's own numerals. */
 .recordDate,
 .recordTech {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 56%, transparent);
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 68%, transparent);
 }
 
 /* The mark the record was struck with — the one red thing on this page. */
 .recordStamp {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--stamp-red);
   border: 1px solid color-mix(in srgb, var(--stamp-red) 45%, transparent);
   border-radius: var(--radius-sm);
@@ -264,12 +281,15 @@
     color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 22%, transparent);
 }
 
+/* An h3, so it arrives carrying the headings' 600. The label face has one
+   weight and a synthetic bold on it looks like ink that ran, so this says
+   400 out loud, the same way .sectionLabel and .recordTitle do. */
 .benchLabel {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-weight: 400;
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 62%, transparent);
+  color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 72%, transparent);
   margin: 0 0 var(--space-3);
 }
 
@@ -286,7 +306,7 @@
   gap: var(--space-2);
 }
 
-.benchTitle {
+.bench .benchTitle {
   display: flex;
   align-items: baseline;
   gap: var(--space-3);
@@ -301,16 +321,15 @@
    it reads as a stamp struck after the fact rather than as a UI badge. */
 .benchTag {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-red-dark);
   border: 1px solid color-mix(in srgb, var(--color-red-dark) 42%, transparent);
   border-radius: var(--radius-sm);
   padding: 2px 6px;
 }
 
-.benchIdea {
+.bench .benchIdea {
   font-family: var(--font-editorial);
   font-size: var(--text-sm);
   line-height: 1.55;

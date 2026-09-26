@@ -57,12 +57,12 @@
   gap: var(--space-3);
 }
 
+/* "Fig. 1" in Fell's small caps, at the one weight it has — the red already
+   sets it apart from the caption beside it. */
 .number {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
-  font-weight: 600;
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--figure-number, var(--color-red-dark));
   white-space: nowrap;
 }

@@ -221,6 +221,32 @@
   transition: transform var(--duration-normal) var(--ease-standard);
 }
 
+/*
+  The printed border.
+
+  A job printer locked a double rule into the forme a little inside the sheet's
+  edge, and that one rule is most of what makes a notice read as a bill that
+  was printed rather than a card that was cut. It is drawn on a layer the size
+  of the whole sheet and clipped with the sheet's own tear, not inset as a box
+  of its own: `--torn-clip` is in objectBoundingBox units, so it only lines up
+  with the face on a box the face's size. Where a notch or the torn corner
+  bites past the rule, the rule goes with the paper — it was printed on it.
+
+  Below the content and above the foxing, so ink sits on the stains and never
+  on the words. No hit area: the layer ignores the pointer, and an outline
+  takes none of its own.
+*/
+.notice::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  clip-path: var(--torn-clip);
+  outline: 3px double color-mix(in srgb, var(--color-earth-dark) 58%, transparent);
+  outline-offset: -12px;
+}
+
 /* The stack lives inside the sheet's content wrapper, not on the sheet
    itself — the sheet's own children are its clip layers. */
 .noticeBody {
@@ -237,30 +263,38 @@
   transform: rotate(var(--tilt, 0deg)) translateY(-4px);
 }
 
+/*
+  The labels on a notice are set in the printer's small caps, and not forced
+  to capitals: uppercase on this face flattens it into a line of full-height
+  letters and throws away the one thing it is for.
+
+  The tag lost its 0.85 opacity on the way. It put --color-earth at 3.5:1 on
+  the paper tone, under AA at the size it is set; at full strength it is the
+  4.55:1 the unit beneath it already reads at.
+*/
 .findingTag {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth);
-  opacity: 0.85;
   margin-bottom: var(--space-1);
 }
 
+/* The poster face stays on the figure rather than taking --font-figures. It is
+   one number to a notice, never a column of them, so lining tabular digits
+   would have nothing here to line up with. */
 .value {
   font-family: var(--font-chapter);
   font-size: clamp(2.1rem, 4.6vw, 3.2rem);
   line-height: 1;
   letter-spacing: -0.01em;
   color: var(--color-earth-dark);
-  font-variant-numeric: tabular-nums;
 }
 
 .unit {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth);
   margin-top: var(--space-2);
 }
@@ -283,9 +317,9 @@
   align-items: flex-end;
   font-family: var(--font-ui);
   font-size: var(--text-xs);
-  font-weight: 600;
+  /* No weight: the face has one, and a synthetic bold on it reads as ink
+     that ran. The red is what marks this as the link. */
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-red-dark);
   transition: color var(--duration-fast) var(--ease-standard);
 }

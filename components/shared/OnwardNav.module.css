@@ -28,15 +28,26 @@
   max-width: 46%;
 }
 
+/* The back step, which OnwardNav.tsx has always named and this file never
+   defined — so the link carried the literal class "undefined". It is the
+   mirror of .forward. */
+.back {
+  text-align: left;
+  align-items: flex-start;
+}
+
 .forward {
   text-align: right;
   align-items: flex-end;
 }
 
+/* A label, so it names the label face. It never did, and was set in Inter by
+   inheritance until the page default became the book face. No uppercase:
+   Fell's lowercase is already its small caps. */
 .caption {
+  font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
@@ -57,7 +68,7 @@
 
   It was `flex-start`, which put it in the bottom-left corner of the page —
   and the atmosphere toggle is fixed in the bottom-left corner of the
-  *viewport*, 131px wide from x=20. On a 1440 screen the content column
+  *viewport*, 131px wide from x=20 (113px since it moved to Fell). On a 1440 screen the content column
   starts at x=130, so the control overlapped the link by twenty-one pixels
   and clipped its first letter. Reserving vertical space below it does not
   help: padding under the last element makes the document taller without
@@ -68,26 +79,18 @@
   a control it has nothing to do with.
 */
 .returnLink {
+  composes: plate riveted from "./Plate.module.css";
   align-self: flex-end;
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding: 0 var(--space-5);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  padding: 0 var(--space-8);
+  /* The same as the caption: a control's words, in the control face. */
+  font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--color-text-primary);
-  transition:
-    border-color var(--duration-fast) var(--ease-standard),
-    background-color var(--duration-fast) var(--ease-standard);
 }
 
-.returnLink:hover {
-  border-color: var(--color-paper-light);
-  background: var(--color-hover-wash);
-}
 
 @media (max-width: 560px) {
   .step {

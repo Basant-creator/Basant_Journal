@@ -13,14 +13,18 @@
   was stretching to the full width of the card — an empty bordered rectangle
   with the word CURRENT at one end of it. `width: fit-content` shrinks it
   whatever it happens to be a child of.
+
+  The labels in this file are the printer's small caps and are not forced to
+  capitals — uppercase on this face is a row of full-height letters and loses
+  the distinction the face exists to draw. They are set no smaller than
+  --text-xs, below which its small caps stop being letters.
 */
 .stamp {
   width: fit-content;
   align-self: flex-start;
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-red-dark);
   border: 1px solid color-mix(in srgb, var(--color-red-dark) 50%, transparent);
   border-radius: var(--radius-sm);
@@ -52,9 +56,8 @@
 
 .facts dt {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth);
 }
 

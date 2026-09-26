@@ -5,13 +5,21 @@
   gap: var(--space-4);
 }
 
+/*
+  400, not merely no weight: this is an h2 and would inherit the headings'
+  600, which the label face can only fake.
+
+  And the darker of the two paper inks. Earth is 4.55:1 here, which the
+  token file already calls legal only from 16px up, and that figure was
+  carried by the synthetic bold. Without it, a thin cut at 11.5px on a
+  fibred sheet needs the 7.4:1 ink.
+*/
 .groupHeading {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--color-earth);
+  color: var(--color-text-on-paper-muted);
   padding-bottom: var(--space-3);
   border-bottom: var(--rule-ink);
 }
@@ -52,9 +60,8 @@
 
 .proofLink {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--color-red-dark);
   border-bottom: 1px solid color-mix(in srgb, var(--color-red-dark) 45%, transparent);
   padding: 2px 0;
@@ -71,10 +78,10 @@
   A finger is not a pointer.
 
   These are the densest links on the site — every evidenced tool carries one
-  or two, packed into a wrapping row — and at 0.64rem they stand 20px tall,
-  which is under half the 44px a touch target wants. The type stays exactly
-  where it is; the tappable box grows around it, so a phone gets a reachable
-  target and a desktop layout is untouched.
+  or two, packed into a wrapping row — and at the label size they stand
+  about 22px tall, which is under half the 44px a touch target wants. The
+  type stays exactly where it is; the tappable box grows around it, so a
+  phone gets a reachable target and a desktop layout is untouched.
 
   Scoped to coarse pointers rather than to a width, because it is the input
   device that has the problem, not the screen: a touchscreen laptop at 1440px
@@ -102,13 +109,15 @@
   opacity: 0.7;
 }
 
+/* Quieter than the proof links beside it, but not by fading. Earth at 0.75
+   opacity came to 2.9:1 on this sheet, so the one honest admission on the
+   page was the one a reader was least able to read. The darker ink at 85%
+   keeps it recessive against the red and the ink and holds 5.3:1. */
 .unproven {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-earth);
-  opacity: 0.75;
+  color: color-mix(in srgb, var(--color-text-on-paper-muted) 85%, transparent);
 }
 
 /* --- the tally ------------------------------------------------------------
@@ -132,7 +141,6 @@
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--color-border-subtle);

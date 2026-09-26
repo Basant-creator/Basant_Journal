@@ -176,6 +176,14 @@
   carries its own title block. Decoration: every page's own header states the
   same facts in real markup.
 */
+/*
+  At the label face's floor, and in small caps rather than uppercase. It was
+  9px — 8px on a phone — which was legible as a grotesque's capitals and is
+  not as a Fell cut, whose small capitals close up below about 11.5px. The
+  small caps are also what pays for the size: measured in the face, "Station
+  V · Notice Board · Bounty Plateau" is 250px at --text-xs, against 252px for
+  the same line uppercased at the old 9px.
+*/
 .station {
   position: absolute;
   inset-block-start: var(--space-4);
@@ -183,9 +191,8 @@
   margin: 0;
 
   font-family: var(--font-ui);
-  font-size: 9px;
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: color-mix(in srgb, var(--color-white-warm) 52%, transparent);
   white-space: nowrap;
 }
@@ -207,8 +214,16 @@
     block-size: clamp(11rem, 30vh, 16rem);
   }
 
+  /*
+    Not on a phone. The note sits level with the page header's eyebrow, and
+    on a 375px screen a line this long reaches back across the eyebrow and
+    the location glyph; it did at 8px too, it was only harder to see. There
+    is no smaller size it may be set at and nowhere else in the band that is
+    not under the header or the lede. It is aria-hidden decoration whose
+    facts the header already states, so it goes, and comes back at 40rem —
+    about where a 250px line first clears the title beside it.
+  */
   .station {
-    inset-block-start: var(--space-2);
-    font-size: 8px;
+    display: none;
   }
 }

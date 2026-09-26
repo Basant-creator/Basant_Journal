@@ -83,10 +83,22 @@
   letter-spacing: 0.12em;
 }
 
+/*
+  The small lettering, at the floor.
+
+  These were 9 and 10 user units. The drawing scales with its sheet — about
+  1.6x on a wide screen, but under 1:1 by a tablet — so below the desktop they
+  printed smaller than the smallest label anywhere else on the site. Raised
+  to --text-xs, and the tracking comes in from 0.14–0.16em to 0.1em to pay
+  for it: at the new size and the old spacing, "PROVISIONED REPO" ran to
+  617 of a sheet that ends at 618, and "HARMONIC MATCH" to within 1.4 units
+  of the wheel's inner ring. At 0.1em they end at 606 and clear the ring by
+  6. Measured in Fell with getBBox, not estimated.
+*/
 .sheetHead,
 .bandText {
-  font-size: 10px;
-  letter-spacing: 0.16em;
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
   opacity: 0.82;
 }
 
@@ -100,8 +112,8 @@
 .tick,
 .axisLabel,
 .small {
-  font-size: 10px;
-  letter-spacing: 0.14em;
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
   opacity: 0.7;
 }
 
@@ -147,14 +159,18 @@
   fill: var(--ink);
   font-family: var(--font-ui);
   font-size: 12px;
-  letter-spacing: 0.2em;
+  /* 0.16em rather than 0.2: wide-set Fell capitals start to read as single
+     letters rather than a word. */
+  letter-spacing: 0.16em;
 }
 
+/* Nearly the size of the word above it now, so the step down is carried by
+   the lighter ink alone. */
 .centreSub {
   fill: var(--ink);
   font-family: var(--font-ui);
-  font-size: 9px;
-  letter-spacing: 0.16em;
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
   opacity: 0.62;
 }
 

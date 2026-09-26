@@ -136,6 +136,10 @@ export default function LandingPage() {
 
       <footer className={styles.foot}>
         <span className={styles.footMark}>{meta.sheet}</span>
+        {/* A timetable's leader: the dots that carry the eye from the entry to
+            its figures. Pure furniture, so it is hidden from assistive tech
+            the way the eyebrow's rule is, and it has no text to announce. */}
+        <span className={styles.footLeader} aria-hidden="true" />
         <nav className={styles.footLinks} aria-label="Elsewhere">
           <a href={links.github} target="_blank" rel="noreferrer noopener">
             GitHub

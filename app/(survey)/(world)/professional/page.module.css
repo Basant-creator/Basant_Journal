@@ -33,11 +33,16 @@
   border-bottom: 3px double color-mix(in srgb, var(--color-earth-dark) 50%, transparent);
 }
 
+/*
+  Labels on this sheet are the printer's small caps and are not forced to
+  capitals. Uppercase on this face is a line of full-height letters and loses
+  the one distinction it carries — and on a page read at a glance, a capital
+  that starts a word is how the eye finds where each label begins.
+*/
 .kicker {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-hero);
-  text-transform: uppercase;
   color: var(--color-earth);
   margin-bottom: var(--space-4);
 }
@@ -81,9 +86,8 @@
 
 .stackLineLabel {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth);
   margin-right: var(--space-3);
   /* Never alone on a line above the list it introduces. */
@@ -156,8 +160,15 @@
   gap: 3px;
 }
 
+/*
+  The figures are the book face's, not the display face's. The display face
+  has old-style numerals and no tabular set, so tabular-nums on it asked for
+  something it could not give, and "452 / 500" wandered above and below the
+  line beside its neighbours. The 600 stays because it is a real cut of this
+  face — the one weight this rule could not keep was the synthetic one.
+*/
 .metricValue {
-  font-family: var(--font-display);
+  font-family: var(--font-figures);
   font-weight: 600;
   font-size: var(--text-2xl);
   line-height: 1;
@@ -165,10 +176,12 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* It named no face and inherited the old grotesque from the body; it is a
+   label, so it says so now rather than falling through to the book face. */
 .metricUnit {
+  font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth);
 }
 
@@ -228,7 +241,6 @@
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth);
   white-space: nowrap;
 }
@@ -283,7 +295,6 @@
 
 .stackLabel {
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth);
 }
 
@@ -315,9 +326,10 @@
 .skillHeading {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
-  font-weight: 600;
+  /* 400, stated rather than dropped: this is an h3, and the base heading rule
+     would hand the face a 600 it does not have. */
+  font-weight: 400;
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth);
   padding-bottom: var(--space-2);
   margin-bottom: var(--space-3);
@@ -344,9 +356,8 @@
    claim, and is shown as such rather than dressed up the same way. */
 .skillProof {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--color-earth);
 }
 
@@ -404,17 +415,19 @@
   padding-top: clamp(28px, 3.6vw, 48px);
 }
 
+/* On paper, a control is printed rather than cast: a square box with a
+   printer's double rule, the way a bill boxed the line you were meant to act
+   on. It was a rounded 1px outline, the stock web secondary button. */
 .backLink {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
   padding: 0 var(--space-5);
-  border: 1px solid color-mix(in srgb, var(--color-earth-dark) 55%, transparent);
-  border-radius: var(--radius-md);
+  border: 3px double color-mix(in srgb, var(--color-earth-dark) 60%, transparent);
+  border-radius: 0;
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
   color: var(--color-ink);
   transition: background-color var(--duration-fast) var(--ease-standard);
 }

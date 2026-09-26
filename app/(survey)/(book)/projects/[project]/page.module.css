@@ -24,19 +24,21 @@
   gap: var(--space-3);
 }
 
+/* A control, so the control face — it set none, and inherited Inter from the
+   body until the body became the book face. */
 .externalLink {
+  /* View source / Live system: the engineering links, as bare iron plates.
+     No rivets, because the arrow is drawn on ::after. composes has to come
+     first in the rule. */
+  composes: plate from "../../../../../components/shared/Plate.module.css";
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   min-height: 44px;
   padding: 0 var(--space-5);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--color-text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
 }
 
 .externalLink::after {
@@ -44,17 +46,17 @@
   color: var(--color-red-light);
 }
 
-.externalLink:hover {
-  border-color: var(--color-paper-light);
-  background: var(--color-hover-wash);
-}
-
 /* A footnote about missing links, not a section. The gap above it is the
-   opening block's, which is why it carries no margin of its own. */
+   opening block's, which is why it carries no margin of its own.
+
+   A sentence, so the book face in italic — a footnote's voice. It was the
+   control face when that was a readable grotesque; set in Fell's small caps
+   the whole line became a label, the one thing a footnote is not. The step
+   up to --text-sm is the book face's own reading floor. */
 .unresolved {
-  font-family: var(--font-ui);
-  font-size: var(--text-xs);
-  letter-spacing: 0.02em;
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
@@ -86,16 +88,15 @@
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
+/* The dockets are written in title case, so Fell gives every word its
+   capital and cuts the rest small — the way a clerk's printed docket reads. */
 .docket {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
-  font-weight: 600;
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   /* Recessive against the lede below it: this says what the document is, the
      lede says what it is about, and the second is the one to read first. */
   color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 78%, transparent);
@@ -127,12 +128,22 @@
   max-width: var(--measure-prose);
 }
 
+/*
+  A heading between paragraphs, so it has to stand at least level with them.
+
+  It did that as bold uppercase at --text-xs. Without either — Fell has no
+  bold, and small caps want mixed case — the same size set "The problem"
+  smaller than the body text under it: small caps 5.2px tall above an 8px
+  x-height. At --text-md they stand 7.2px, level with the body's lowercase,
+  and the capital rises above it, which is what a printed subhead does.
+*/
 .subhead {
   font-family: var(--font-ui);
-  font-size: var(--text-xs);
-  font-weight: 600;
+  font-size: var(--text-md);
+  /* Stated, not omitted: this is an h3, and the global heading rule would
+     otherwise hand Fell a 600 it does not have. */
+  font-weight: 400;
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: color-mix(in srgb, var(--paper-ink, var(--color-ink)) 76%, transparent);
   margin-top: var(--space-4);
   padding-top: var(--space-4);
@@ -161,7 +172,6 @@
   font-family: var(--font-display);
   font-size: var(--text-sm);
   color: var(--figure-accent, var(--color-red));
-  font-variant-numeric: tabular-nums;
   padding-top: 3px;
 }
 

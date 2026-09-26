@@ -26,20 +26,24 @@
   caption-side: top;
   text-align: start;
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--paper-mat-hand);
   padding: var(--space-4) var(--space-5) var(--space-3);
 }
 
+/*
+  Column heads carry no weight. Fell has one, and the bold a browser fakes for
+  it smears; mixed case gives the heads Fell's own small caps instead, which
+  is how a printed table told its heads from its body anyway. `th` is bold by
+  default, so the 400 is stated rather than left out.
+*/
 .headName,
 .headValue {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: 400;
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-ink-soft);
   padding: var(--space-3) var(--space-5);
   border-block: 1px solid color-mix(in srgb, var(--color-earth-dark) 28%, transparent);
@@ -75,12 +79,14 @@
 }
 
 /* Tabular figures, right-aligned: a column of numbers is only a column if the
-   digits sit above each other. */
+   digits sit above each other. The display face's figures are old-style and
+   proportional, so tabular-nums asked it for something it does not have and
+   the digits wandered; the figures face has lining tabular digits. */
 .value {
   text-align: end;
-  font-family: var(--font-display);
+  font-family: var(--font-figures);
   font-size: var(--text-md);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
   color: var(--color-ink);
 }
 

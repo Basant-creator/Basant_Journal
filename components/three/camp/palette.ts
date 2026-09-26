@@ -21,16 +21,29 @@
  *
  * Blue hour is not black. The commonest failure here is a sky so dark it reads
  * as night, which throws away the atmospheric depth the whole composition
- * depends on — so the zenith is a deep blue that is still visibly blue, and
- * every band below it is lighter, not darker.
+ * depends on — so the zenith is a deep violet that is still visibly coloured,
+ * and every band below it is lighter, not darker.
+ *
+ * "Blue hour" names the time, not the hue. Until the Rust, Iron & Wood Type
+ * pass every cool value here was steel blue, around hue 210–220, and beside
+ * the landing's dusk — #171119 over #382d40 in `hours.ts`, a cool violet-plum
+ * — steel blue read as a different project, not as a later hour in the same
+ * country. So the sky, the land, the light and the smoke were turned to that
+ * violet family (hue 275–285) and taken a little greyer, and each kept its
+ * relative luminance to within two per cent. That last part is the rule: the
+ * renderer's ACES toe crushes darks and earlier phases tuned these values
+ * against it, so the hue moved and the value did not. It is still cool —
+ * violet sits on the far side of the wheel from anything the fire is — and
+ * the fire is still the only warm thing in the frame; the afterglow, the
+ * camp's surfaces and everything warm below were left exactly as they were.
  */
 
 export const sky = {
-  /** Straight up. Dark, and still blue. */
-  zenith: "#0c1018",
-  high: "#131c2b",
-  /** The blue that reads as sky rather than as absence. */
-  mid: "#1e2c3e",
+  /** Straight up. Dark, and still violet. */
+  zenith: "#130e15",
+  high: "#211925",
+  /** The violet that reads as sky rather than as absence. */
+  mid: "#322738",
   /** Where the cool meets what the sun left. Muted on purpose: this is an
    *  afterglow, not a sunset, and a saturated band here would put a second
    *  warm light in a frame that is supposed to have one. */
@@ -40,25 +53,25 @@ export const sky = {
    *  darker takes light out of it, cooling slightly as it goes, which is what
    *  distance does to an afterglow. */
   falloffNear: "#e4e2e6",
-  falloffFar: "#b9bfcc",
+  falloffFar: "#c4bcc6",
   /** Below the band, cooling again into the haze the ridges sit in. */
-  haze: "#243040",
+  haze: "#352c3a",
 } as const;
 
 /**
  * The country, cooled.
  *
- * Three bands, each lighter and bluer than the one in front — aerial
- * perspective, which is the only thing that makes flat silhouettes read as
- * distance. The near band is nearly the ground's own colour; the far one is
- * most of the way to the sky.
+ * Three bands, each lighter and nearer the sky's violet than the one in front
+ * — aerial perspective, which is the only thing that makes flat silhouettes
+ * read as distance. The near band is nearly the ground's own colour; the far
+ * one is most of the way to the sky.
  */
 export const land = {
-  far: "#2b3949",
-  mid: "#1f2a36",
-  near: "#151d26",
-  treeline: "#101820",
-  ground: "#131820",
+  far: "#3e3444",
+  mid: "#2e2632",
+  near: "#201a23",
+  treeline: "#1b151d",
+  ground: "#1b161d",
 } as const;
 
 /**
@@ -70,12 +83,13 @@ export const land = {
  * actual lighting: an open sky is a very large soft source.
  */
 export const light = {
-  key: "#5d7392",
+  key: "#7e6b86",
   /** Separation. Colder than the key and far weaker: an edge it catches
-   *  should read as the sky finding it, not as a second sun. */
-  rim: "#7f9ec4",
-  sky: "#3f5570",
-  bounce: "#1a1c1f",
+   *  should read as the sky finding it, not as a second sun. A pale moonlit
+   *  violet, a few degrees bluer than the key. */
+  rim: "#a994b5",
+  sky: "#5d4e66",
+  bounce: "#1d1b1e",
 } as const;
 
 /**
@@ -135,7 +149,7 @@ export const fire = {
  * — a fire's smoke picks up the fire at its base and loses it on the way
  * up, and this sits at the average rather than animating the difference.
  */
-export const smoke = "#6f7684";
+export const smoke = "#7b737e";
 
 /**
  * What is on the table.

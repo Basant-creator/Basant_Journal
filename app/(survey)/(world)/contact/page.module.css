@@ -14,12 +14,16 @@
   surveyor's note at the foot, in THE HAND. So this is struck in filing ink
   like every other piece of document metadata on the site, and the rule under
   it does the separating a box was doing.
+
+  The labels in this file are the printer's small caps and are not forced to
+  capitals — uppercase on this face is a row of full-height letters and loses
+  the distinction the face exists to draw. They are set no smaller than
+  --text-xs, below which its small caps stop being letters.
 */
 .stationMark {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-on-paper-muted);
   align-self: flex-start;
   padding-bottom: var(--space-2);
@@ -30,7 +34,6 @@
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth-dark);
 }
 
@@ -52,9 +55,8 @@
 
 .details dt {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-earth);
 }
 
@@ -157,9 +159,8 @@ a.value:hover {
 
 .terminusNote {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--color-text-muted);
   white-space: nowrap;
 }

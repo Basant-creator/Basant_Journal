@@ -31,14 +31,22 @@
   line-height: 1;
   letter-spacing: 0.01em;
   color: var(--color-ink);
-  font-variant-numeric: tabular-nums;
 }
 
+/*
+  Well above the floor, and the only label here that needs to be.
+
+  Every unit in the content model is lowercase — "engines", "kept", "jarring
+  jumps" — so without forced capitals Fell sets the whole word in small caps,
+  and Fell's small caps stand 0.44em against Inter's 0.73em capitals. The
+  9.9px uppercase this replaced was 7.2px tall; at --text-xs the small caps
+  were 5.1px and at --text-sm 5.8px, a thin red sliver under the reading.
+  --text-md puts them back at 7.0px, which is the size the unit always was.
+*/
 .unit {
   font-family: var(--font-ui);
-  font-size: var(--text-2xs);
+  font-size: var(--text-md);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--paper-mat-hand);
 }
 
