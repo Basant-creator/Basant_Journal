@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { start, stop } from "@/lib/audio/atmosphere";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { isRunning, start, stop, subscribeRunning } from "@/lib/audio/atmosphere";
 import styles from "./AtmosphereControl.module.css";
 
 /**
@@ -21,7 +21,10 @@ import styles from "./AtmosphereControl.module.css";
  * almost everyone.
  */
 export function AtmosphereControl() {
-  const [on, setOn] = useState(false);
+  /* Read from the audio module rather than kept here, so anything else that
+     switches the air on or off — the development audition panel — shows on
+     this control too. Off on the server: nothing plays before hydration. */
+  const on = useSyncExternalStore(subscribeRunning, isRunning, () => false);
   const [unavailable, setUnavailable] = useState(false);
 
   /* Leaving the page leaves nothing running. */
@@ -30,11 +33,9 @@ export function AtmosphereControl() {
   const toggle = useCallback(() => {
     if (on) {
       stop();
-      setOn(false);
       return;
     }
-    if (start()) setOn(true);
-    else setUnavailable(true);
+    if (!start()) setUnavailable(true);
   }, [on]);
 
   if (unavailable) return null;

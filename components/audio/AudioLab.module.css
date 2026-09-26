@@ -1,66 +1,132 @@
 /* ==========================================================================
-   The bench switch for the landing's music.
+   The music audition panel.
 
-   Development only — the component returns null in a production build and
-   none of this is ever served with it. Styled just enough to be usable and
-   no further: it sits above the sound control, out of the corner both real
-   controls occupy, and it does not pretend to be part of the site.
+   Development only — AudioLabMount keeps the component, and therefore this
+   stylesheet, out of the production bundle entirely.
+
+   Top-right, because the bottom corners already hold the sound and hour
+   chips, the Next.js development badge and the render statistics, and the
+   badge was sitting on the sound chip. A dashed red edge marks it as a bench
+   tool rather than part of the site.
    ========================================================================== */
 
 .lab {
   position: fixed;
-  left: var(--space-5);
-  bottom: calc(var(--space-5) + 52px);
-  z-index: var(--z-overlay);
+  top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
+  right: var(--space-4);
+  z-index: var(--z-modal);
 
+  inline-size: min(300px, calc(100vw - 2 * var(--space-4)));
   display: grid;
-  gap: 4px;
-  padding: 6px 8px;
+  gap: var(--space-3);
+  padding: var(--space-4);
 
-  background: color-mix(in srgb, var(--color-ink) 92%, transparent);
-  border: 1px dashed color-mix(in srgb, var(--color-red-light) 55%, transparent);
+  background: color-mix(in srgb, var(--iron) 96%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--color-red-light) 60%, transparent);
   border-radius: var(--radius-sm);
-  backdrop-filter: blur(3px);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--plate-drop) 70%, transparent);
+  color: var(--color-white-warm);
+  font-family: var(--font-ui);
+}
+
+.head {
+  display: grid;
+  gap: 2px;
 }
 
 .label {
   margin: 0;
-  font-family: var(--font-ui);
-  font-size: var(--text-2xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
   color: var(--color-red-light);
+}
+
+.status {
+  margin: 0;
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  color: var(--color-paper-light);
+}
+
+/* The one big control: start the chosen cue, or stop everything. */
+.play {
+  appearance: none;
+  margin: 0;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  font: inherit;
+  font-size: var(--text-md);
+  letter-spacing: 0.08em;
+  color: var(--color-white-warm);
+  background: linear-gradient(to bottom, var(--plate-paint-top), var(--plate-paint-bottom));
+  border: 1px solid var(--plate-paint-edge);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 3px 0 var(--plate-drop);
+  cursor: pointer;
+}
+
+.play[aria-pressed="true"] {
+  background: linear-gradient(to bottom, var(--plate-top), var(--plate-bottom));
+  border-color: var(--plate-edge);
+}
+
+.group {
+  display: grid;
+  gap: 6px;
+}
+
+.groupLabel {
+  margin: 0;
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  color: var(--color-paper-dark);
 }
 
 .row {
   display: flex;
-  gap: 4px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.option {
+.option,
+.release {
   appearance: none;
   margin: 0;
-  padding: 4px 8px;
-  min-height: 28px;
-
-  font-family: var(--font-ui);
-  font-size: var(--text-2xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-
-  color: var(--color-text-muted);
-  background: none;
-  border: 1px solid var(--color-border-subtle);
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  font: inherit;
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  color: var(--color-paper-light);
+  background: var(--iron-raised);
+  border: 1px solid var(--iron-edge);
   border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
-.option[aria-pressed="true"] {
+.option[aria-pressed="true"],
+.release[aria-pressed="true"] {
   color: var(--color-white-warm);
-  border-color: var(--color-red-light);
+  border-color: var(--brass-light);
+  background: color-mix(in srgb, var(--brass) 22%, var(--iron-raised));
 }
 
-.option:focus-visible {
-  outline: 2px solid var(--color-red-light);
+.release {
+  justify-self: start;
+  font-size: var(--text-xs);
+}
+
+.play:focus-visible,
+.option:focus-visible,
+.release:focus-visible {
+  outline: 2px solid var(--brass-light);
   outline-offset: 2px;
+}
+
+.hint {
+  margin: 0;
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--color-paper-dark);
 }

@@ -1,12 +1,9 @@
 import type { Desk } from "./buses";
 import {
   type Sustained,
-  type Tape,
   bow,
-  brush,
   guitar,
   harmonica,
-  tape,
   thump,
   whistle,
 } from "./instruments";
@@ -33,41 +30,26 @@ import {
  * between a phrase and a stumble.
  */
 
-/** Hz. D minor pentatonic across two octaves, plus the drone's fifth. */
+/**
+ * Hz. D minor pentatonic across two octaves, plus the drone's fifth.
+ *
+ * The Frontier cue's table, and only its. The standoff cue is written in
+ * note names and converted by `hz()` below, so nothing it plays is here.
+ */
 const NOTES = {
-  /* The bass register. The lo-fi cue walks a four-bar progression down here
-     while the drone holds above it. */
-  Bb1: 58.27,
-  C2: 65.41,
   /* The drone's two notes, an octave below the guitar's lowest. */
   D2: 73.42,
-  F2: 87.31,
-  G2: 98.0,
   A2: 110.0,
-  Bb2: 116.54,
-  C3: 130.81,
   D3: 146.83,
-  F3: 174.61,
   G3: 196.0,
   A3: 220.0,
-  Bb3: 233.08,
   C4: 261.63,
-  /* The flat second, and the only note in this file that is there to be
-     uncomfortable. Over a D drone an E-flat is a semitone of grinding, which
-     is the standoff cue's whole harmonic argument — see standoffCue. It is a
-     mode, not a melody: Phrygian colour, deliberately not the minor
-     pentatonic the Frontier cue is built from. */
-  Eb4: 311.13,
   D4: 293.66,
-  /* The ninth. Lo-fi harmony is a triad with something warm sitting on it,
-     and this is the note doing that work in every voicing below. */
-  E4: 329.63,
   F4: 349.23,
   G4: 392.0,
   A4: 440.0,
   C5: 523.25,
   D5: 587.33,
-  Eb5: 622.25,
   /* The whistle's octave. People whistle high — roughly 700 Hz to 2 kHz — and
      putting it up here is both the truthful range and the reason it can be
      picked out at all: it is the only voice above the guitar's top string. */
@@ -80,9 +62,6 @@ const NOTES = {
 
 /** 84 BPM. Walking pace, which is the pace of the thing on screen. */
 const BEAT = 60 / 84;
-
-/** 72 BPM, felt in half time. See lofiCue for why that is the pace. */
-const LOFI_BEAT = 60 / 72;
 
 /**
  * What the music is doing.
@@ -291,160 +270,929 @@ const REST: Record<MusicState, [number, number]> = {
 };
 
 /* =========================================================================
-   THE STANDOFF CUE
+   THE STANDOFF CUE — composed, not rolled
 
-   A second piece of music for the same landscape, and an alternative rather
-   than a replacement: the two are compared behind a development switch and
-   only one ever ships. Everything below is original. The brief names a film
-   and then spends a paragraph forbidding it, which is the right instruction
-   and an easy one to honour by working from the situation rather than from
-   any recording — a wide empty country, and somebody waiting in it.
+   The second piece for the landing, and the second attempt at one. The first
+   was a lo-fi bed — pulse, hat, chop, walking bass, tape — with a melody
+   dropped over it every few bars, and the verdict on it was fair: a couple of
+   instruments making noise. That was not a mixing problem, and it is worth
+   being exact about why, because the Frontier cue above is built the same way
+   and only gets away with it by being sparse.
 
-   WHAT MAKES IT DIFFERENT FROM THE FRONTIER CUE
+   Every voice rolled its own dice. The figure was picked at random, the
+   whistle answered on a coin toss, the reply chord and the tremolo each on
+   another, and none of those decisions knew what the others had chosen — or
+   which chord the bed was on. A whistle line written against nothing in
+   particular landed over whatever happened to be there.
 
-   The Frontier cue is a player. Its figures are pedal-and-melody, a thumb
-   keeping time on the low string while the fingers carry a tune, at a walking
-   84, with a mouth organ answering. It sounds like somebody playing a guitar
-   in a landscape.
+   And it landed 0.3 s after the phrase ended: an offset in seconds, not a
+   place in the bar. At 80 BPM that is four tenths of a beat, so the whistle
+   arrived off the grid every single time. That was the "not in sync". Nothing
+   in the scheduler was late; the whistle had simply never been told where the
+   beat was.
 
-   This one is the room the landscape is being played in. It has a floor —
-   tape hiss, a slow pulse, a bass walking four bars — and the guitar arrives
-   over it rather than out of nothing.
+   The register complaint is the same fault from another side. A guitar that
+   chooses between four figures in one octave stays in that octave forever,
+   because nothing is deciding it should go anywhere else. Contour is a
+   decision about the whole piece, and a scheduler that only ever looks one
+   phrase ahead cannot make one.
 
-   THE FIRST VERSION OF THIS WAS EMPTY
+   So this cue is a score. Forty bars are written out, one harmony a bar, and
+   every voice is placed in beats against a single bar clock. The lead climbs
+   from A3 to F5 across the piece and falls back to D3. The low line moves
+   against it, the whistle answers in the gaps the guitar leaves, on the grid,
+   and the strings follow every chord. What randomness is left is on the
+   surface only: a few milliseconds of timing, a tenth of velocity, the last
+   beat of a phrase stretched a little. That is what a player adds to a
+   written part, and none of it is a decision.
 
-   Worth recording, because the mistake is an easy one and it sounded
-   principled. The first cut had three notes in twelve beats at 66 and eleven
-   to twenty-four seconds of actual silence between phrases, on the argument
-   that silence is part of the composition. The verdict was that it felt empty
-   rather than calm, and that was correct: nothing was happening, and an ear
-   given nothing hears an absence rather than a room.
+   THE PIECE — "The Surveyor's Last Light"
 
-   Silence in a recording is not silence. It is a noise floor, a pulse you
-   stop noticing, and a bass you would only miss if it left. Those are what
-   make a sparse arrangement read as restraint instead of as a gap, and all
-   three were missing. The notes have barely changed; what is under them has.
+   70 BPM, 4/4, D minor, 40 bars, about 137 seconds. One man and one distant
+   voice across a very wide valley. The dry guitar is the man: he speaks in
+   short phrases and then stops, and the silence after each is part of it. The
+   whistle is the only other person out there, and it never talks over him. It
+   answers in the gap he leaves, usually half a beat late, like sound arriving
+   from far off. As the piece tightens the exchanges shorten — two bars each
+   way in the statement, one in the build, half-bars in the peak — and near
+   the end the two swap roles: the whistle sings the guitar's motif and the
+   guitar answers it, low and quiet.
 
-   THE TENSION IS A MODE, NOT A MOTIF
+   The arc, bars 0-indexed: wind alone (0), strings (1), a lone low pluck (2),
+   the dominant (3). The statement (4-7) is the motif, answered by the
+   whistle. Two bars of silence (8-9). The answer (10-15) climbs to C5 and
+   falls back to A3, ending on a held breath of strings and one heartbeat. The
+   build (16-24) restarts at A3 and climbs to a long tremolo D5, a 4-3
+   suspension over A resolving to C#5, then a second held breath. The peak
+   (25-30) restates the motif an octave up and climaxes on F5 in bar 29. Bar
+   31 is the standoff: the strings fade out of the peak and then nothing at
+   all, a bar of wind. The release (32-37) runs over a chromatic lament bass,
+   D-C#-C-Bb-A into D, and its strings fade out under the last phrase. Bars
+   38-39 are identical to 8-9 — two bars of wind — and the loop re-enters at
+   bar 10, so the join is one already heard and every return starts
+   mid-story.
 
-   What makes a held western frame feel loaded is harmonic, and the cheapest
-   honest way to get it is the flat second: an E-flat over a D drone, a
-   semitone apart, sounded and then left to grind before anything resolves it.
-   Phrygian colour. It is a scale degree rather than a tune, it belongs to
-   nobody, and it is not the rising-third-and-octave call the brief is
-   steering around — there is no such interval anywhere below.
+   The motif (bars 4-5): a plucked A3, a leap up a minor sixth to F4 in
+   tremolo — slid in from E-flat, a Phrygian bruise — a fall by step E4-D4,
+   and a drop to Bb3, held. One sudden reach and a long, resigned fall that
+   ends lower than it started. The whistle's own figure is a falling semitone
+   sigh, Bb5 to A5, heard from far away.
 
-   NO MOUTH ORGAN
+   ORIGINALITY
 
-   The reed is a third human voice, and this cue wants two people in the
-   country at most: one holding a guitar and one somewhere over a ridge. So
-   the reed chance is zero here rather than lowered. The instrument still
-   exists and the Frontier cue still uses it.
+   The brief is a genre, not a recording, and the score is held to what it
+   rules out: no saloon, no upbeat cowboy, no heroic theme, no harmonica, no
+   busy percussion — the only percussion is a soft heartbeat in eight bars of
+   forty — and no recognisable melody. There is no rising fourth or fifth
+   answered by an octave, no arpeggio run, and no quoted phrase. The pitch set
+   is D natural minor plus C# on the A chords and one bar of E-flat.
+
+   The score is stored below as it was written, with `tremolo` and `slide`
+   left out where they were false, and with one pass for silence after it. The
+   brief asks for huge pauses, and as written only 7 of the loop's 30 bars
+   had neither guitar nor whistle, and every bar but 0, 9 and 39 had strings:
+   something plucked or whistled was ringing 85% of the time. So the strings
+   in bars 8, 31 and 38 were taken out (bars 7, 30 and 37 now fade them), and
+   the whistle's lone held Bb4 in bar 35 was dropped, leaving 8 of 30 loop
+   bars to the strings or the wind and three of them to the wind alone.
    ========================================================================= */
 
-/*
-  The motif, and three ways of not repeating it.
+/** Where a bar sits in the arc. */
+type Section =
+  | "silence"
+  | "intro"
+  | "statement"
+  | "answer"
+  | "build"
+  | "peak"
+  | "release";
 
-  Eight beats — two bars of the four-bar progression — and it falls. Every
-  phrase here descends or turns back on itself, which is the shape the cue is
-  built on: a rising figure with a leap in it is a fanfare and announces
-  somebody arriving, and nobody is arriving.
+/** One written note. `beat` and `dur` are in beats from the top of the bar. */
+export interface ScoreNote {
+  beat: number;
+  /** Scientific pitch — "D2", "C#4", "Bb5" — converted by `hz`. */
+  note: string;
+  dur: number;
+  /** 0..1, relative within its own voice. */
+  vel: number;
+  /** Lead only: the same string struck about 13 times a second throughout. */
+  tremolo?: boolean;
+  /** Lead only: slid up a whole tone into the note. */
+  slide?: boolean;
+}
 
-  The colour is the ninth. E over a D bass is what makes a minor chord sound
-  warm rather than sad, and it is the note doing the lo-fi work in every
-  phrase and every voicing below. The flat second survives from the first
-  version, in one phrase, as a passing note rather than as the whole argument.
-*/
-const LOFI_FIGURES: Phrase[] = [
-  {
-    /* The statement. Down from the ninth to the root, with the third of the
-       bar left empty for the chord to sit in. */
-    beats: 8,
-    notes: [
-      { at: 0.5, note: NOTES.A3, level: 0.5, pan: -0.1 },
-      { at: 2, note: NOTES.D4, level: 0.44, pan: 0.06 },
-      { at: 4, note: NOTES.F4, level: 0.39, pan: -0.04 },
-      { at: 5.5, note: NOTES.E4, level: 0.36, pan: 0.1 },
-    ],
-  },
-  {
-    /* The answer: the same descent, started higher and landing a step lower. */
-    beats: 8,
-    notes: [
-      { at: 0, note: NOTES.F4, level: 0.45, pan: 0.08 },
-      { at: 1.5, note: NOTES.E4, level: 0.39, pan: -0.06 },
-      { at: 3, note: NOTES.D4, level: 0.42, pan: 0.02 },
-      { at: 6, note: NOTES.A3, level: 0.36, pan: -0.12 },
-    ],
-  },
-  {
-    /* The one that leans. E-flat as a passing note between F and D, a
-       semitone of grit inside an otherwise warm line. */
-    beats: 8,
-    notes: [
-      { at: 0.5, note: NOTES.D4, level: 0.45, pan: -0.08 },
-      { at: 2, note: NOTES.F4, level: 0.4, pan: 0.1 },
-      { at: 3, note: NOTES.Eb4, level: 0.33, pan: 0.04 },
-      { at: 4.5, note: NOTES.D4, level: 0.42, pan: -0.02 },
-    ],
-  },
-  {
-    /* The sparest, and still not silent — the bed is playing underneath it.
-       Two notes and the room. */
-    beats: 8,
-    notes: [
-      { at: 1, note: NOTES.A3, level: 0.45, pan: 0 },
-      { at: 4.5, note: NOTES.D4, level: 0.38, pan: 0.06 },
-    ],
-  },
-];
+export interface ScoreBar {
+  section: Section;
+  /** The harmony as written. For a reader: nothing plays these directly. */
+  chord: string;
+  chord_tones: string[];
+  lead: ScoreNote[];
+  low: ScoreNote[];
+  whistle: ScoreNote[];
+  /** The pad: its pitches, a level, and the bar's shape. */
+  strings: {
+    notes: string[];
+    vel: number;
+    swell: "in" | "out" | "hold" | "none";
+  };
+  /** Beats with a heartbeat on them. */
+  pulse: number[];
+}
 
-/*
-  Two notes and a long hold, falling.
+export interface Score {
+  title: string;
+  bpm: number;
+  /** Where the piece re-enters after its last bar. */
+  loop_from_bar: number;
+  bars: ScoreBar[];
+  /** The way out, played once by `resolve()`. */
+  closing: ScoreNote[];
+}
 
-  The Frontier whistles are three-note lines that go somewhere. These drop an
-  interval and stay there, which is what somebody does when they are not
-  performing: a call across distance rather than a tune. The last is a single
-  held note, and it is the one most often heard.
-*/
-const LOFI_WHISTLES: Array<Array<{ at: number; note: number; hold: number }>> = [
-  [
-    { at: 0, note: NOTES.A5, hold: 1.4 },
-    { at: 2.2, note: NOTES.F5, hold: 2.4 },
+const PITCH_CLASS: Record<string, number> = {
+  C: 0,
+  D: 2,
+  E: 4,
+  F: 5,
+  G: 7,
+  A: 9,
+  B: 11,
+};
+
+const FREQUENCIES = new Map<string, number>();
+
+/**
+ * A note name to Hz: equal temperament, A4 = 440.
+ *
+ * The score is written in names, the way it was composed, and converted here
+ * rather than as a hand-typed table. A table is forty-odd numbers to get
+ * wrong, and every one of them looks right.
+ */
+function hz(name: string): number {
+  const known = FREQUENCIES.get(name);
+  if (known !== undefined) return known;
+  const match = /^([A-G])([#b]?)(-?\d)$/.exec(name);
+  if (!match) throw new Error(`Not a note name: ${name}`);
+  const [, letter, accidental, octave] = match;
+  const semitone =
+    PITCH_CLASS[letter] + (accidental === "#" ? 1 : accidental === "b" ? -1 : 0);
+  const midi = (Number(octave) + 1) * 12 + semitone;
+  const frequency = 440 * 2 ** ((midi - 69) / 12);
+  FREQUENCIES.set(name, frequency);
+  return frequency;
+}
+
+const STANDOFF_SCORE: Score = {
+  title: "The Surveyor's Last Light",
+  bpm: 70,
+  loop_from_bar: 10,
+  bars: [
+    /* 0 · silence · Dm */
+    {
+      section: "silence",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [],
+      low: [],
+      whistle: [],
+      strings: { notes: [], vel: 0, swell: "none" },
+      pulse: [],
+    },
+    /* 1 · intro · Dm */
+    {
+      section: "intro",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [],
+      low: [],
+      whistle: [],
+      strings: { notes: ["D2", "A2"], vel: 0.35, swell: "in" },
+      pulse: [],
+    },
+    /* 2 · intro · Dm */
+    {
+      section: "intro",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [],
+      low: [
+        { beat: 0, note: "D2", dur: 3, vel: 0.5 },
+        { beat: 3, note: "F2", dur: 1, vel: 0.38 },
+      ],
+      whistle: [],
+      strings: { notes: ["D2", "A2", "F3"], vel: 0.42, swell: "hold" },
+      pulse: [],
+    },
+    /* 3 · intro · A */
+    {
+      section: "intro",
+      chord: "A",
+      chord_tones: ["A", "C#", "E"],
+      lead: [],
+      low: [
+        { beat: 0, note: "A2", dur: 2.5, vel: 0.5 },
+        { beat: 2.5, note: "C#3", dur: 1.5, vel: 0.4 },
+      ],
+      whistle: [],
+      strings: { notes: ["A2", "E3", "C#4"], vel: 0.45, swell: "hold" },
+      pulse: [],
+    },
+    /* 4 · statement · Dm */
+    {
+      section: "statement",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [
+        { beat: 0, note: "A3", dur: 1, vel: 0.6 },
+        { beat: 1, note: "F4", dur: 2, vel: 0.8, tremolo: true, slide: true },
+        { beat: 3, note: "E4", dur: 0.5, vel: 0.55 },
+        { beat: 3.5, note: "D4", dur: 0.5, vel: 0.6 },
+      ],
+      low: [
+        { beat: 0, note: "D3", dur: 2, vel: 0.55 },
+        { beat: 2, note: "C3", dur: 1, vel: 0.42 },
+        { beat: 3, note: "A2", dur: 1, vel: 0.42 },
+      ],
+      whistle: [],
+      strings: { notes: ["D2", "A2", "F3"], vel: 0.45, swell: "hold" },
+      pulse: [],
+    },
+    /* 5 · statement · Bb */
+    {
+      section: "statement",
+      chord: "Bb",
+      chord_tones: ["Bb", "D", "F"],
+      lead: [
+        { beat: 0, note: "Bb3", dur: 2.5, vel: 0.7, tremolo: true },
+      ],
+      low: [
+        { beat: 0, note: "Bb2", dur: 2, vel: 0.52 },
+        { beat: 2, note: "F2", dur: 2, vel: 0.42 },
+      ],
+      whistle: [],
+      strings: { notes: ["Bb2", "D3", "F3"], vel: 0.48, swell: "hold" },
+      pulse: [],
+    },
+    /* 6 · statement · Gm */
+    {
+      section: "statement",
+      chord: "Gm",
+      chord_tones: ["G", "Bb", "D"],
+      lead: [],
+      low: [
+        { beat: 0, note: "G2", dur: 2, vel: 0.5 },
+        { beat: 2, note: "Bb2", dur: 1, vel: 0.4 },
+        { beat: 3, note: "D3", dur: 1, vel: 0.42 },
+      ],
+      whistle: [
+        { beat: 0.5, note: "Bb5", dur: 1, vel: 0.6 },
+        { beat: 1.5, note: "A5", dur: 0.5, vel: 0.48 },
+        { beat: 2, note: "G5", dur: 1.5, vel: 0.58 },
+        { beat: 3.5, note: "D5", dur: 0.5, vel: 0.52 },
+      ],
+      strings: { notes: ["G2", "D3", "Bb3"], vel: 0.5, swell: "hold" },
+      pulse: [],
+    },
+    /* 7 · statement · A */
+    {
+      section: "statement",
+      chord: "A",
+      chord_tones: ["A", "C#", "E"],
+      lead: [
+        { beat: 2.5, note: "C#4", dur: 0.5, vel: 0.5 },
+        { beat: 3, note: "E4", dur: 1, vel: 0.6, tremolo: true },
+      ],
+      low: [
+        { beat: 0, note: "A2", dur: 2, vel: 0.52 },
+        { beat: 2, note: "E2", dur: 2, vel: 0.4 },
+      ],
+      whistle: [
+        { beat: 0, note: "E5", dur: 2.5, vel: 0.55 },
+      ],
+      strings: { notes: ["A2", "E3", "C#4"], vel: 0.5, swell: "out" },
+      pulse: [],
+    },
+    /* 8 · silence · Dm */
+    {
+      section: "silence",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [],
+      low: [],
+      whistle: [],
+      strings: { notes: [], vel: 0, swell: "none" },
+      pulse: [],
+    },
+    /* 9 · silence · Dm */
+    {
+      section: "silence",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [],
+      low: [],
+      whistle: [],
+      strings: { notes: [], vel: 0, swell: "none" },
+      pulse: [],
+    },
+    /* 10 · answer · Dm */
+    {
+      section: "answer",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [
+        { beat: 0, note: "A3", dur: 1, vel: 0.55 },
+        { beat: 1, note: "F4", dur: 1.5, vel: 0.72, tremolo: true },
+        { beat: 2.5, note: "G4", dur: 0.5, vel: 0.5 },
+        { beat: 3, note: "F4", dur: 1, vel: 0.58 },
+      ],
+      low: [
+        { beat: 0, note: "D3", dur: 1.5, vel: 0.5 },
+        { beat: 1.5, note: "A2", dur: 0.5, vel: 0.38 },
+        { beat: 2, note: "F2", dur: 2, vel: 0.44 },
+      ],
+      whistle: [],
+      strings: { notes: ["D2", "A2"], vel: 0.38, swell: "in" },
+      pulse: [],
+    },
+    /* 11 · answer · C */
+    {
+      section: "answer",
+      chord: "C",
+      chord_tones: ["C", "E", "G"],
+      lead: [
+        { beat: 0, note: "E4", dur: 1, vel: 0.6 },
+        { beat: 1, note: "C5", dur: 1.5, vel: 0.78, tremolo: true },
+        { beat: 2.5, note: "Bb4", dur: 0.5, vel: 0.5 },
+        { beat: 3, note: "A4", dur: 0.5, vel: 0.5 },
+        { beat: 3.5, note: "G4", dur: 0.5, vel: 0.55 },
+      ],
+      low: [
+        { beat: 0, note: "C3", dur: 1, vel: 0.5 },
+        { beat: 1, note: "G2", dur: 1, vel: 0.42 },
+        { beat: 2, note: "E2", dur: 2, vel: 0.44 },
+      ],
+      whistle: [],
+      strings: { notes: ["C3", "E3", "G3"], vel: 0.45, swell: "hold" },
+      pulse: [],
+    },
+    /* 12 · answer · Bb */
+    {
+      section: "answer",
+      chord: "Bb",
+      chord_tones: ["Bb", "D", "F"],
+      lead: [],
+      low: [
+        { beat: 0, note: "Bb2", dur: 3, vel: 0.48 },
+        { beat: 3, note: "G2", dur: 1, vel: 0.4 },
+      ],
+      whistle: [
+        { beat: 0.5, note: "Bb5", dur: 1, vel: 0.55 },
+        { beat: 1.5, note: "A5", dur: 0.5, vel: 0.45 },
+        { beat: 2, note: "F5", dur: 1.5, vel: 0.52 },
+        { beat: 3.5, note: "D5", dur: 0.5, vel: 0.48 },
+      ],
+      strings: { notes: ["Bb2", "D3", "F3"], vel: 0.5, swell: "hold" },
+      pulse: [],
+    },
+    /* 13 · answer · A7 */
+    {
+      section: "answer",
+      chord: "A7",
+      chord_tones: ["A", "C#", "E", "G"],
+      lead: [
+        { beat: 0, note: "E4", dur: 2, vel: 0.68, tremolo: true },
+        { beat: 2, note: "C#4", dur: 1, vel: 0.55 },
+        { beat: 3, note: "A3", dur: 1, vel: 0.5 },
+      ],
+      low: [
+        { beat: 0, note: "A2", dur: 1.5, vel: 0.52 },
+        { beat: 1.5, note: "E2", dur: 0.5, vel: 0.38 },
+        { beat: 2, note: "G2", dur: 2, vel: 0.44 },
+      ],
+      whistle: [],
+      strings: { notes: ["A2", "E3", "G3", "C#4"], vel: 0.52, swell: "hold" },
+      pulse: [],
+    },
+    /* 14 · answer · Dm/F */
+    {
+      section: "answer",
+      chord: "Dm/F",
+      chord_tones: ["D", "F", "A"],
+      lead: [],
+      low: [
+        { beat: 0, note: "F2", dur: 1, vel: 0.5 },
+        { beat: 1, note: "A2", dur: 1, vel: 0.4 },
+        { beat: 2, note: "D3", dur: 2, vel: 0.42 },
+      ],
+      whistle: [
+        { beat: 0.5, note: "F5", dur: 1, vel: 0.55 },
+        { beat: 1.5, note: "E5", dur: 0.5, vel: 0.45 },
+        { beat: 2, note: "D5", dur: 2, vel: 0.5 },
+      ],
+      strings: { notes: ["F2", "A2", "D3"], vel: 0.5, swell: "hold" },
+      pulse: [],
+    },
+    /* 15 · answer · A */
+    {
+      section: "answer",
+      chord: "A",
+      chord_tones: ["A", "C#", "E"],
+      lead: [],
+      low: [],
+      whistle: [],
+      strings: { notes: ["A2", "E3", "C#4"], vel: 0.55, swell: "in" },
+      pulse: [0],
+    },
+    /* 16 · build · Dm */
+    {
+      section: "build",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [
+        { beat: 0, note: "A3", dur: 1, vel: 0.62 },
+        { beat: 1, note: "F4", dur: 1.5, vel: 0.8, tremolo: true, slide: true },
+        { beat: 2.5, note: "G4", dur: 0.5, vel: 0.55 },
+        { beat: 3, note: "A4", dur: 1, vel: 0.68 },
+      ],
+      low: [
+        { beat: 0, note: "D3", dur: 1, vel: 0.55 },
+        { beat: 1, note: "C3", dur: 1, vel: 0.45 },
+        { beat: 2, note: "A2", dur: 1, vel: 0.45 },
+        { beat: 3, note: "F2", dur: 1, vel: 0.45 },
+      ],
+      whistle: [],
+      strings: { notes: ["D2", "A2", "F3"], vel: 0.58, swell: "hold" },
+      pulse: [],
+    },
+    /* 17 · build · Bbmaj7 */
+    {
+      section: "build",
+      chord: "Bbmaj7",
+      chord_tones: ["Bb", "D", "F", "A"],
+      lead: [
+        { beat: 0, note: "Bb4", dur: 1, vel: 0.78, tremolo: true },
+        { beat: 1, note: "A4", dur: 0.5, vel: 0.55 },
+        { beat: 1.5, note: "G4", dur: 0.5, vel: 0.52 },
+        { beat: 2, note: "F4", dur: 1, vel: 0.62 },
+        { beat: 3, note: "D4", dur: 1, vel: 0.58 },
+      ],
+      low: [
+        { beat: 0, note: "Bb2", dur: 2, vel: 0.55 },
+        { beat: 2, note: "C3", dur: 1, vel: 0.45 },
+        { beat: 3, note: "D3", dur: 1, vel: 0.48 },
+      ],
+      whistle: [],
+      strings: { notes: ["Bb2", "D3", "A3"], vel: 0.6, swell: "hold" },
+      pulse: [],
+    },
+    /* 18 · build · Eb */
+    {
+      section: "build",
+      chord: "Eb",
+      chord_tones: ["Eb", "G", "Bb"],
+      lead: [],
+      low: [
+        { beat: 0, note: "Eb3", dur: 2, vel: 0.55 },
+        { beat: 2, note: "Bb2", dur: 1, vel: 0.45 },
+        { beat: 3, note: "G2", dur: 1, vel: 0.45 },
+      ],
+      whistle: [
+        { beat: 0.5, note: "Eb5", dur: 1, vel: 0.55 },
+        { beat: 1.5, note: "F5", dur: 0.5, vel: 0.48 },
+        { beat: 2, note: "G5", dur: 2, vel: 0.6 },
+      ],
+      strings: { notes: ["Eb2", "Bb2", "G3"], vel: 0.66, swell: "in" },
+      pulse: [0],
+    },
+    /* 19 · build · A7 */
+    {
+      section: "build",
+      chord: "A7",
+      chord_tones: ["A", "C#", "E", "G"],
+      lead: [
+        { beat: 0, note: "E4", dur: 1, vel: 0.66 },
+        { beat: 1, note: "C#5", dur: 2, vel: 0.85, tremolo: true },
+        { beat: 3, note: "A4", dur: 1, vel: 0.65 },
+      ],
+      low: [
+        { beat: 0, note: "A2", dur: 1, vel: 0.58 },
+        { beat: 1, note: "G2", dur: 1, vel: 0.45 },
+        { beat: 2, note: "E2", dur: 2, vel: 0.48 },
+      ],
+      whistle: [],
+      strings: { notes: ["A2", "E3", "G3", "C#4"], vel: 0.7, swell: "hold" },
+      pulse: [],
+    },
+    /* 20 · build · Gm */
+    {
+      section: "build",
+      chord: "Gm",
+      chord_tones: ["G", "Bb", "D"],
+      lead: [],
+      low: [
+        { beat: 0, note: "G2", dur: 1.5, vel: 0.58 },
+        { beat: 1.5, note: "D3", dur: 0.5, vel: 0.42 },
+        { beat: 2, note: "Bb2", dur: 1, vel: 0.48 },
+        { beat: 3, note: "G2", dur: 1, vel: 0.45 },
+      ],
+      whistle: [
+        { beat: 0.5, note: "Bb5", dur: 1, vel: 0.62 },
+        { beat: 1.5, note: "A5", dur: 0.5, vel: 0.5 },
+        { beat: 2, note: "G5", dur: 1, vel: 0.6 },
+        { beat: 3, note: "F5", dur: 0.5, vel: 0.5 },
+        { beat: 3.5, note: "D5", dur: 0.5, vel: 0.55 },
+      ],
+      strings: { notes: ["G2", "D3", "Bb3"], vel: 0.72, swell: "hold" },
+      pulse: [],
+    },
+    /* 21 · build · Dm/F */
+    {
+      section: "build",
+      chord: "Dm/F",
+      chord_tones: ["D", "F", "A"],
+      lead: [
+        { beat: 0, note: "D5", dur: 1, vel: 0.8 },
+        { beat: 1, note: "F4", dur: 2, vel: 0.72, tremolo: true },
+        { beat: 3, note: "G4", dur: 0.5, vel: 0.55 },
+        { beat: 3.5, note: "A4", dur: 0.5, vel: 0.62 },
+      ],
+      low: [
+        { beat: 0, note: "F2", dur: 1.5, vel: 0.58 },
+        { beat: 1.5, note: "A2", dur: 0.5, vel: 0.45 },
+        { beat: 2, note: "D3", dur: 1, vel: 0.5 },
+        { beat: 3, note: "C3", dur: 1, vel: 0.48 },
+      ],
+      whistle: [],
+      strings: { notes: ["F2", "A2", "D3"], vel: 0.76, swell: "hold" },
+      pulse: [],
+    },
+    /* 22 · build · Bb */
+    {
+      section: "build",
+      chord: "Bb",
+      chord_tones: ["Bb", "D", "F"],
+      lead: [
+        { beat: 0, note: "Bb4", dur: 1.5, vel: 0.75 },
+        { beat: 1.5, note: "C5", dur: 0.5, vel: 0.6 },
+        { beat: 2, note: "D5", dur: 2, vel: 0.85, tremolo: true },
+      ],
+      low: [
+        { beat: 0, note: "Bb2", dur: 1, vel: 0.6 },
+        { beat: 1, note: "A2", dur: 1, vel: 0.48 },
+        { beat: 2, note: "G2", dur: 1, vel: 0.5 },
+        { beat: 3, note: "F2", dur: 1, vel: 0.5 },
+      ],
+      whistle: [],
+      strings: { notes: ["D3", "F3", "Bb3"], vel: 0.8, swell: "in" },
+      pulse: [],
+    },
+    /* 23 · build · Asus4-A */
+    {
+      section: "build",
+      chord: "Asus4-A",
+      chord_tones: ["A", "D", "E", "C#"],
+      lead: [
+        { beat: 0, note: "D5", dur: 2, vel: 0.88, tremolo: true },
+        { beat: 2, note: "C#5", dur: 2, vel: 0.82, tremolo: true },
+      ],
+      low: [
+        { beat: 0, note: "A2", dur: 2, vel: 0.62 },
+        { beat: 2, note: "E2", dur: 2, vel: 0.52 },
+      ],
+      whistle: [],
+      strings: { notes: ["A2", "E3", "A3"], vel: 0.85, swell: "hold" },
+      pulse: [0],
+    },
+    /* 24 · build · A */
+    {
+      section: "build",
+      chord: "A",
+      chord_tones: ["A", "C#", "E"],
+      lead: [],
+      low: [],
+      whistle: [],
+      strings: { notes: ["A2", "E3", "C#4"], vel: 0.88, swell: "in" },
+      pulse: [0, 2],
+    },
+    /* 25 · peak · Dm */
+    {
+      section: "peak",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [
+        { beat: 0, note: "A4", dur: 1, vel: 0.85 },
+        { beat: 1, note: "F5", dur: 2, vel: 1, tremolo: true, slide: true },
+        { beat: 3, note: "E5", dur: 0.5, vel: 0.72 },
+        { beat: 3.5, note: "D5", dur: 0.5, vel: 0.75 },
+      ],
+      low: [
+        { beat: 0, note: "D2", dur: 1, vel: 0.72 },
+        { beat: 1, note: "A2", dur: 1, vel: 0.58 },
+        { beat: 2, note: "D3", dur: 1, vel: 0.62 },
+        { beat: 3, note: "F3", dur: 1, vel: 0.58 },
+      ],
+      whistle: [],
+      strings: { notes: ["D2", "A2", "D3", "F3"], vel: 0.95, swell: "hold" },
+      pulse: [0],
+    },
+    /* 26 · peak · Bb/D */
+    {
+      section: "peak",
+      chord: "Bb/D",
+      chord_tones: ["Bb", "D", "F"],
+      lead: [
+        { beat: 0, note: "Bb4", dur: 2, vel: 0.85 },
+      ],
+      low: [
+        { beat: 0, note: "D3", dur: 2, vel: 0.65 },
+        { beat: 2, note: "C3", dur: 1, vel: 0.5 },
+        { beat: 3, note: "Bb2", dur: 1, vel: 0.52 },
+      ],
+      whistle: [
+        { beat: 2.5, note: "D6", dur: 1, vel: 0.62 },
+        { beat: 3.5, note: "C6", dur: 0.5, vel: 0.5 },
+      ],
+      strings: { notes: ["D3", "F3", "Bb3"], vel: 0.95, swell: "hold" },
+      pulse: [],
+    },
+    /* 27 · peak · Gm */
+    {
+      section: "peak",
+      chord: "Gm",
+      chord_tones: ["G", "Bb", "D"],
+      lead: [],
+      low: [
+        { beat: 0, note: "G2", dur: 1.5, vel: 0.65 },
+        { beat: 1.5, note: "Bb2", dur: 0.5, vel: 0.5 },
+        { beat: 2, note: "D3", dur: 2, vel: 0.58 },
+      ],
+      whistle: [
+        { beat: 0, note: "Bb5", dur: 1.5, vel: 0.7 },
+        { beat: 1.5, note: "A5", dur: 0.5, vel: 0.55 },
+        { beat: 2, note: "G5", dur: 1.5, vel: 0.65 },
+      ],
+      strings: { notes: ["G2", "D3", "Bb3"], vel: 1, swell: "hold" },
+      pulse: [0],
+    },
+    /* 28 · peak · A/C# */
+    {
+      section: "peak",
+      chord: "A/C#",
+      chord_tones: ["A", "C#", "E"],
+      lead: [
+        { beat: 2.5, note: "C#5", dur: 0.5, vel: 0.72 },
+        { beat: 3, note: "E5", dur: 1, vel: 0.85 },
+      ],
+      low: [
+        { beat: 0, note: "C#3", dur: 1, vel: 0.65 },
+        { beat: 1, note: "A2", dur: 1, vel: 0.55 },
+        { beat: 2, note: "E2", dur: 1, vel: 0.55 },
+        { beat: 3, note: "A2", dur: 1, vel: 0.52 },
+      ],
+      whistle: [
+        { beat: 0, note: "A5", dur: 2, vel: 0.65 },
+      ],
+      strings: { notes: ["A2", "E3", "C#4"], vel: 1, swell: "hold" },
+      pulse: [],
+    },
+    /* 29 · peak · Dm */
+    {
+      section: "peak",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [
+        { beat: 0, note: "F5", dur: 1.5, vel: 1, tremolo: true },
+        { beat: 1.5, note: "E5", dur: 0.5, vel: 0.72 },
+        { beat: 2, note: "D5", dur: 1, vel: 0.85 },
+        { beat: 3, note: "C5", dur: 0.5, vel: 0.62 },
+        { beat: 3.5, note: "A4", dur: 0.5, vel: 0.66 },
+      ],
+      low: [
+        { beat: 0, note: "D3", dur: 2, vel: 0.7 },
+        { beat: 2, note: "C3", dur: 1, vel: 0.55 },
+        { beat: 3, note: "Bb2", dur: 1, vel: 0.55 },
+      ],
+      whistle: [],
+      strings: { notes: ["D2", "D3", "F3", "A3"], vel: 1, swell: "hold" },
+      pulse: [0, 2],
+    },
+    /* 30 · peak · A */
+    {
+      section: "peak",
+      chord: "A",
+      chord_tones: ["A", "C#", "E"],
+      lead: [
+        { beat: 0, note: "E5", dur: 1, vel: 0.82 },
+        { beat: 1, note: "C#5", dur: 1, vel: 0.72 },
+        { beat: 2, note: "A4", dur: 1, vel: 0.75 },
+      ],
+      low: [
+        { beat: 0, note: "A2", dur: 2, vel: 0.62 },
+        { beat: 2, note: "E2", dur: 2, vel: 0.5 },
+      ],
+      whistle: [
+        { beat: 3, note: "A5", dur: 1, vel: 0.55 },
+      ],
+      strings: { notes: ["A2", "E3", "C#4"], vel: 0.85, swell: "out" },
+      pulse: [0],
+    },
+    /* 31 · silence · A */
+    {
+      section: "silence",
+      chord: "A",
+      chord_tones: ["A", "C#", "E"],
+      lead: [],
+      low: [],
+      whistle: [],
+      strings: { notes: [], vel: 0, swell: "none" },
+      pulse: [],
+    },
+    /* 32 · release · Dm */
+    {
+      section: "release",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [
+        { beat: 0, note: "F4", dur: 1.5, vel: 0.55, tremolo: true },
+        { beat: 1.5, note: "E4", dur: 0.5, vel: 0.42 },
+        { beat: 2, note: "D4", dur: 2, vel: 0.48 },
+      ],
+      low: [
+        { beat: 0, note: "D3", dur: 2, vel: 0.45 },
+        { beat: 2, note: "A2", dur: 2, vel: 0.38 },
+      ],
+      whistle: [],
+      strings: { notes: ["D2", "A2", "F3"], vel: 0.45, swell: "in" },
+      pulse: [],
+    },
+    /* 33 · release · A/C# */
+    {
+      section: "release",
+      chord: "A/C#",
+      chord_tones: ["A", "C#", "E"],
+      lead: [],
+      low: [
+        { beat: 0, note: "C#3", dur: 2.5, vel: 0.42 },
+        { beat: 2.5, note: "A2", dur: 1.5, vel: 0.36 },
+      ],
+      whistle: [],
+      strings: { notes: ["A2", "E3", "C#4"], vel: 0.42, swell: "hold" },
+      pulse: [],
+    },
+    /* 34 · release · Dm7/C */
+    {
+      section: "release",
+      chord: "Dm7/C",
+      chord_tones: ["D", "F", "A", "C"],
+      lead: [],
+      low: [
+        { beat: 0, note: "C3", dur: 2.5, vel: 0.42 },
+        { beat: 2.5, note: "F2", dur: 1.5, vel: 0.36 },
+      ],
+      whistle: [
+        { beat: 0, note: "A4", dur: 1, vel: 0.48 },
+        { beat: 1, note: "F5", dur: 2, vel: 0.55 },
+        { beat: 3, note: "E5", dur: 0.5, vel: 0.45 },
+        { beat: 3.5, note: "D5", dur: 0.5, vel: 0.48 },
+      ],
+      strings: { notes: ["C3", "F3", "A3", "D4"], vel: 0.42, swell: "hold" },
+      pulse: [],
+    },
+    /* 35 · release · Bbmaj7 */
+    {
+      section: "release",
+      chord: "Bbmaj7",
+      chord_tones: ["Bb", "D", "F", "A"],
+      lead: [],
+      low: [
+        { beat: 0, note: "Bb2", dur: 3, vel: 0.4 },
+        { beat: 3, note: "F2", dur: 1, vel: 0.34 },
+      ],
+      whistle: [],
+      strings: { notes: ["Bb2", "D3", "A3"], vel: 0.4, swell: "hold" },
+      pulse: [],
+    },
+    /* 36 · release · A */
+    {
+      section: "release",
+      chord: "A",
+      chord_tones: ["A", "C#", "E"],
+      lead: [],
+      low: [
+        { beat: 0, note: "A2", dur: 2, vel: 0.4 },
+        { beat: 2, note: "E2", dur: 2, vel: 0.34 },
+      ],
+      whistle: [],
+      strings: { notes: ["A2", "E3", "C#4"], vel: 0.38, swell: "hold" },
+      pulse: [],
+    },
+    /* 37 · release · Dm */
+    {
+      section: "release",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [
+        { beat: 0, note: "A3", dur: 1, vel: 0.45 },
+        { beat: 1, note: "F3", dur: 1, vel: 0.4 },
+        { beat: 2, note: "D3", dur: 2, vel: 0.42 },
+      ],
+      low: [
+        { beat: 0, note: "D2", dur: 4, vel: 0.42 },
+      ],
+      whistle: [],
+      strings: { notes: ["D2", "A2", "F3"], vel: 0.4, swell: "out" },
+      pulse: [],
+    },
+    /* 38 · silence · Dm */
+    {
+      section: "silence",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [],
+      low: [],
+      whistle: [],
+      strings: { notes: [], vel: 0, swell: "none" },
+      pulse: [],
+    },
+    /* 39 · silence · Dm */
+    {
+      section: "silence",
+      chord: "Dm",
+      chord_tones: ["D", "F", "A"],
+      lead: [],
+      low: [],
+      whistle: [],
+      strings: { notes: [], vel: 0, swell: "none" },
+      pulse: [],
+    },
   ],
-  [
-    { at: 0, note: NOTES.D6, hold: 1.2 },
-    { at: 2, note: NOTES.C6, hold: 0.9 },
-    { at: 3, note: NOTES.A5, hold: 2.6 },
+  closing: [
+    { beat: 0, note: "A2", dur: 2, vel: 0.45 },
+    { beat: 0, note: "F4", dur: 1, vel: 0.55, tremolo: true },
+    { beat: 1, note: "E4", dur: 0.5, vel: 0.45 },
+    { beat: 1.5, note: "C#4", dur: 0.5, vel: 0.45 },
+    { beat: 2, note: "D4", dur: 3, vel: 0.5, tremolo: true },
+    { beat: 2, note: "D2", dur: 4, vel: 0.5 },
   ],
-  [{ at: 0, note: NOTES.F5, hold: 2.6 }],
-];
+};
 
 /*
-  The progression, as four chords.
+  How the score is voiced.
 
-  D minor with a ninth, twice, then the flat sixth and the flat seventh — a
-  modal turn that goes round rather than resolving, which is why it can loop
-  without announcing that it has. Every one of them has either the ninth or
-  the seventh in it, and that is the whole harmonic difference between this
-  cue and the bare fifths of the Frontier one.
+  A `vel` of 1.0 in each voice is this level on the music bus. The lead is
+  the loudest thing and the strings the quietest, and the whistle sits under
+  the lead's peak on purpose: a held sine an octave above a guitar carries
+  further than a pluck at the same number.
+
+  The strings' figure is the whole pad, not each note of it. A chord of three
+  pitches is three bowed voices, and uncorrelated voices add in power, so each
+  is scaled by one over the square root of how many there are — a two-note
+  bar and a four-note bar sit at the level the score gave them.
 */
-const LOFI_CHORDS: number[][] = [
-  [NOTES.D3, NOTES.A3, NOTES.C4, NOTES.E4],
-  [NOTES.D3, NOTES.A3, NOTES.C4, NOTES.E4],
-  [NOTES.Bb2, NOTES.F3, NOTES.D4, NOTES.A4],
-  [NOTES.C3, NOTES.G3, NOTES.C4, NOTES.E4],
-];
+const LEAD = 0.5;
+const LOW = 0.34;
+const WHISTLE = 0.36;
+const STRINGS = 0.12;
+/* The heartbeat: this in the answer and early build, rising to the peak's. */
+const THUMP = 0.1;
+const THUMP_PEAK = 0.16;
+/* Camp and the Board: the same piece, further off, with nobody answering. */
+const REFLECTIVE = 0.8;
 
-/* The reply voicings, when the guitar answers itself in a gap. */
-const LOFI_VOICINGS: number[][] = [
-  [NOTES.D3, NOTES.A3, NOTES.E4],
-  [NOTES.Bb2, NOTES.F3, NOTES.D4],
-  [NOTES.G3, NOTES.D4, NOTES.A4],
-];
+/* Strikes per second in a tremolo — a right hand at speed, not a roll. */
+const TREMOLO_RATE = 13;
+/* A whole tone below, and how long `guitar()` takes to pull it up. The
+   second number is the instrument's, repeated here because a tremolo slides
+   every strike that lands inside it. */
+const SLIDE = 0.891;
+const SLIDE_TIME = 0.13;
 
-/* Slower than the Frontier roll, and three fingers rather than four. */
-const LOFI_ROLL = [0, 0.8, 1.7];
+/* The man a little right of centre, his low strings left of him, and the
+   other voice off to the side and a long way away. */
+const LEAD_PAN = 0.06;
+const LOW_PAN = -0.14;
+const WHISTLE_PAN = 0.3;
+
+/* Beats for a new string to arrive and for a finished one to go, when
+   nothing is changing under it: out of silence, into silence, or joining a
+   chord that is staying. */
+const PAD_SETTLE = 1.2;
+const PAD_RELEASE = 1.2;
+/*
+  A change of chord is quicker, and centred on the barline rather than after
+  it. The low pluck and the lead state the new harmony on the downbeat, so a
+  pitch that is leaving starts to go PAD_LEAVE before the bar ends and is
+  gone PAD_HANDOVER after it, and a pitch that is arriving is at level within
+  PAD_ARRIVE. With the slow pair above, the old chord still outweighed the
+  new one by 13 to 1 a quarter of a beat into the bar and did not cross it
+  until 0.6 of a beat — half a second of the last bar's harmony against this
+  bar's bass, at most of the barlines in the loop. With these, voice for
+  voice, the old is at half its level on the downbeat, crosses the new at
+  0.12 of a beat, and is a fifth of the new one's level by a quarter.
+*/
+const PAD_ARRIVE = 0.35;
+const PAD_LEAVE = 0.35;
+const PAD_HANDOVER = 0.35;
 
 /**
  * A cue: one piece of music, described entirely in data.
@@ -469,23 +1217,18 @@ export interface Cue {
   rollChance: Record<MusicState, number>;
   reedChance: Record<MusicState, number>;
   tremoloChance: Record<MusicState, number>;
-  /** The gap after each phrase, in beats. Ignored by a cue with a groove. */
+  /** The gap after each phrase, in beats. Ignored by a cue with a score. */
   rest: Record<MusicState, [number, number]>;
   /**
-   * The bed a cue runs over, if it has one.
+   * The written piece, if the cue is one.
    *
-   * A cue without this is phrase-and-rest: it plays something, then nothing,
-   * and the nothing is real. A cue with one has a bar clock underneath that
-   * never stops — pulse, bass, chord and tape — and the melody is what
-   * arrives over it every few bars.
-   *
-   * That is the whole difference between the two pieces here, and it is the
-   * difference between sparse and empty. The first version of the calm cue
-   * had eleven to twenty-four seconds of actual silence between phrases and
-   * the verdict was that it sounded like nothing was happening, which was
-   * accurate: nothing was.
+   * A cue without this is phrase-and-rest: the scheduler picks a figure,
+   * rolls for a whistle and a reply, and rests. A cue with one is played as
+   * written, bar by bar, and every field above is ignored — including the
+   * drone, because a score brings its own strings. See the standoff cue for
+   * why the second piece had to be written out rather than rolled.
    */
-  groove?: Groove;
+  score?: Score;
   /**
    * The way out.
    *
@@ -493,32 +1236,9 @@ export interface Cue {
    * cue stops rather than fades — a cadence, not a crossfade. The brief asks
    * that nothing loop forever and for a short resolution on entering the
    * frontier; this is both, and it is the only part of either cue allowed to
-   * sound finished.
+   * sound finished. A cue with a score carries its own, in the score.
    */
   closing: Phrase;
-}
-
-/** One bar of the bed. Times are in beats from the top of the bar. */
-export interface Groove {
-  /** Beats in a bar. */
-  beats: number;
-  /**
-   * How late an off-beat lands, as a fraction of a beat.
-   *
-   * Straight time is a machine and this is meant to sound like a room. The
-   * pulse entries below are written on the grid and this pushes anything
-   * falling off the beat behind it.
-   */
-  swing: number;
-  pulse: Array<{ at: number; kind: "thump" | "brush"; level: number; tone?: number; pan?: number }>;
-  /** One per bar of the progression, and its length sets the progression's. */
-  bass: number[];
-  /** A chord per bar, rolled slowly under everything. */
-  chords: number[][];
-  /** Bars between melodic phrases, per state. */
-  every: Record<MusicState, [number, number]>;
-  /** The tape floor: hiss, and pops per second. */
-  tape: { level: number; crackle: number };
 }
 
 export const frontierCue: Cue = {
@@ -544,89 +1264,38 @@ export const frontierCue: Cue = {
   },
 };
 
-export const lofiCue: Cue = {
-  beat: LOFI_BEAT,
-  figures: LOFI_FIGURES,
-  whistles: LOFI_WHISTLES,
-  voicings: LOFI_VOICINGS,
-  roll: LOFI_ROLL,
-  /* Under the bass rather than beside it: the groove has a walking low end
-     now, and a drone at the Frontier cue's level fought it for the register. */
-  drone: { low: NOTES.D2, high: NOTES.A2, level: 0.055, quietLevel: 0.04 },
-  /* More often than the first version, because there is something for the
-     whistle to answer over. A voice in a silent room is an event; a voice over
-     a bed is somebody in the distance, which is what it is supposed to be. */
-  whistleChance: { silence: 0, sparse: 0.4, journey: 0.5, reflective: 0.3 },
-  rollChance: { silence: 0, sparse: 0.38, journey: 0.44, reflective: 0.32 },
-  reedChance: { silence: 0, sparse: 0, journey: 0, reflective: 0 },
-  tremoloChance: { silence: 0, sparse: 0.2, journey: 0.26, reflective: 0.14 },
-  /* Unused: a cue with a groove counts bars instead. Kept so the type stays
-     one shape and the scheduler needs no optional handling for it. */
-  rest: { silence: [0, 0], sparse: [8, 12], journey: [4, 8], reflective: [12, 16] },
+/* Every chance zero: a cue with a score never rolls for anything. */
+const NEVER: Record<MusicState, number> = {
+  silence: 0,
+  sparse: 0,
+  journey: 0,
+  reflective: 0,
+};
 
-  /*
-    The bed.
-
-    72 BPM, felt in half time, which is the pace the reference sits at once
-    you stop counting its surface and start counting its stride. A bar is
-    3.3 seconds and the progression is four of them — thirteen seconds to go
-    round, slow enough that it never sounds like a loop hurrying.
-
-    The pulse is displaced on purpose. The second thump lands on the "and" of
-    three rather than on the beat, which is the one gesture that separates
-    this from a metronome: a kick on 1 and 3 marches, and a kick on 1 and the
-    "and" of 3 leans. With the swing on the off-beats it is a shuffle played
-    slowly rather than a beat played straight.
-
-    Everything here is quiet. The loudest thing in the groove is the first
-    thump at 0.16, against a guitar phrase that peaks at 0.34 — so the bed is
-    roughly half the melody and a good deal less than the wind.
-  */
-  groove: {
-    beats: 4,
-    /* An eighth of a beat late on anything off the grid. Enough to feel, not
-       enough to count. */
-    swing: 0.12,
-    /*
-      The brushes are darker and quieter than they were.
-
-      A brush is a burst of bandpassed noise, and three of them a bar up around
-      3 kHz, over a tape floor that was also spraying, added up to weather. The
-      tone values now put them between 2.1 and 2.5 kHz — a stick on a rim
-      rather than a wire brush — and at two thirds of the level. The kick is
-      untouched: it was never the problem, and it is the only thing in the
-      groove with any body.
-    */
-    pulse: [
-      { at: 0, kind: "thump", level: 0.16 },
-      { at: 1, kind: "brush", level: 0.05, tone: 0.34, pan: 0.08 },
-      { at: 2.5, kind: "thump", level: 0.115 },
-      { at: 3, kind: "brush", level: 0.05, tone: 0.3, pan: -0.06 },
-      /* The ghost: barely there, and the reason the bar does not stop dead at
-         the end of it. */
-      { at: 3.5, kind: "brush", level: 0.02, tone: 0.46, pan: 0.14 },
-    ],
-    bass: [NOTES.D2, NOTES.D2, NOTES.Bb1, NOTES.C2],
-    chords: LOFI_CHORDS,
-    /* Bars between phrases. At four bars that is thirteen seconds, and the
-       bed is playing through every one of them. */
-    every: { silence: [0, 0], sparse: [3, 5], journey: [2, 3], reflective: [4, 7] },
-    tape: { level: 0.028, crackle: 0.7 },
-  },
-
-  closing: {
-    beats: 6,
-    notes: [
-      { at: 0, note: NOTES.F4, level: 0.32, pan: 0.06 },
-      { at: 1.5, note: NOTES.E4, level: 0.28, pan: -0.04 },
-      { at: 3, note: NOTES.D4, level: 0.3, pan: 0.02 },
-      { at: 3.6, note: NOTES.D3, level: 0.4, pan: -0.12 },
-    ],
-  },
+/*
+  The phrase-and-rest fields are empty here, and never read: a cue with a
+  score is played from the score. They stay rather than become optional so
+  that Cue is one shape and the Frontier path needs no narrowing it has no use
+  for.
+*/
+export const standoffCue: Cue = {
+  beat: 60 / STANDOFF_SCORE.bpm,
+  figures: [],
+  whistles: [],
+  voicings: [],
+  roll: [],
+  drone: { low: 0, high: 0, level: 0, quietLevel: 0 },
+  whistleChance: NEVER,
+  rollChance: NEVER,
+  reedChance: NEVER,
+  tremoloChance: NEVER,
+  rest: { silence: [0, 0], sparse: [0, 0], journey: [0, 0], reflective: [0, 0] },
+  closing: { beats: 0, notes: [] },
+  score: STANDOFF_SCORE,
 };
 
 /** The two cues, by name. The comparison switch reads this and nothing else. */
-export const CUES = { frontier: frontierCue, lofi: lofiCue } as const;
+export const CUES = { frontier: frontierCue, standoff: standoffCue } as const;
 
 export type CueName = keyof typeof CUES;
 
@@ -670,13 +1339,31 @@ export function conduct(
      new phrase over a cadence that is meant to be the last thing heard. */
   let resolving = false;
 
-  /* The bar clock, for a cue with a groove. Separate from the phrase cursor
-     because the bed does not stop when the melody does — that is the whole
-     point of having one. */
+  /*
+    The bar clock, for a cue with a score.
+
+    Separate from the phrase cursor because a score counts bars rather than
+    phrases and rests. `bar` is the index of the next bar to schedule; `step`
+    counts every bar scheduled since the score last began, so a bar heard
+    twice — the loop plays 10 to 39 over and over — is two different steps.
+    The strings and the whistle look ahead by step, never by index.
+  */
   let barCursor = context.currentTime + 0.4;
   let bar = 0;
-  let barsUntilPhrase = 0;
-  let deck: Tape | null = null;
+  let step = 0;
+  /* Set whenever the score has to begin again rather than carry on: at the
+     start, after silence, after the cadence, and on a cue switch. Where it
+     begins depends on the state it begins in. */
+  let fresh = true;
+  /* The strings sounding now, each with the last step it holds through. */
+  let pads: Array<{ note: string; through: number; ends: number; voice: Sustained }> = [];
+  /* Each step's rubato, drawn once: the strings plan whole bars ahead, and
+     they must agree with the bar clock about how long those bars are. */
+  const stretches = new Map<number, number>();
+  /* Whistle notes a breath from the previous bar has already sung. */
+  let carried = { step: -1, count: 0 };
+  /* Where everything the score plays goes, other than its strings. */
+  let take: GainNode | null = null;
 
   /*
     The drone runs on its own clock.
@@ -702,19 +1389,45 @@ export function conduct(
   };
 
   /*
-    The tape goes with them.
+    Letting a score go.
 
-    It loops forever by design, so nothing stops it on its own — and a hiss
-    left running under a silent landing is the kind of thing nobody reports
-    and everybody hears. Lifted anywhere the bed is, and the bar clock is
-    reset with it so the groove restarts at the top of a bar rather than
-    wherever it happened to be abandoned.
+    Nothing a score schedules can be taken back one note at a time. The
+    guitar, the whistle and the heartbeat are fire-and-forget, and the
+    look-ahead always has up to two seconds of them queued. So all of them
+    play into one gain, the take, and letting go means fading the take and
+    dropping it: whatever was still queued plays into a node that is no
+    longer connected to anything. A new take is made the next time the score
+    plays a note.
+
+    The strings are the exception, because they hold for bars at a time and
+    have handles. They go straight to the bus and are released one by one,
+    over their own length — the cadence lets them fade under it rather than
+    cutting them with the notes it has just cancelled.
   */
-  const liftTape = (seconds = 1.4) => {
-    deck?.stop(seconds);
-    deck = null;
-    bar = 0;
-    barsUntilPhrase = 0;
+  const hushScore = (seconds = 1.6, strings = seconds) => {
+    for (const pad of pads) pad.voice.release(strings);
+    pads = [];
+    fresh = true;
+    const old = take;
+    if (!old) return;
+    take = null;
+    const now = context.currentTime;
+    try {
+      old.gain.cancelScheduledValues(now);
+      old.gain.setValueAtTime(old.gain.value, now);
+      old.gain.linearRampToValueAtTime(0, now + seconds);
+    } catch {
+      /* A context that is closing. */
+    }
+    window.setTimeout(() => old.disconnect(), seconds * 1000 + 100);
+  };
+
+  const ensureTake = (): GainNode => {
+    if (!take) {
+      take = context.createGain();
+      take.connect(desk.bus.music);
+    }
+    return take;
   };
 
   const schedule = () => {
@@ -724,6 +1437,12 @@ export function conduct(
       cursor = Math.max(cursor, context.currentTime + 0.4);
       droneCursor = Math.max(droneCursor, context.currentTime + 0.4);
       barCursor = Math.max(barCursor, context.currentTime + 0.4);
+      return;
+    }
+
+    /* A score brings its own strings, so there is no drone under it. */
+    if (cue.score) {
+      playScore(cue.score);
       return;
     }
 
@@ -747,11 +1466,6 @@ export function conduct(
       if (drones.length > 3) drones = drones.slice(-3);
     }
 
-    if (cue.groove) {
-      playGroove(cue.groove);
-      return;
-    }
-
     while (cursor < context.currentTime + LOOKAHEAD) {
       cursor = playPhrase(cursor);
     }
@@ -760,11 +1474,10 @@ export function conduct(
   /**
    * One phrase, and whatever answers it. Returns where the next one may start.
    *
-   * Lifted out of the scheduler when the second cue needed a bar clock: a cue
-   * with a groove places its phrases on bar lines and a cue without one places
-   * them after a rest, but what a phrase *is* — the figure, the whistle in the
-   * gap, the rolled reply, the tremolo — is the same in both. Writing it twice
-   * would have meant tuning it twice.
+   * Only a cue without a score comes through here. The octave double that
+   * used to be an optional second argument went with the lo-fi cue, its only
+   * caller; it defaulted to off and drew no random numbers when off, so the
+   * Frontier cue plays exactly the notes it did.
    */
   function playPhrase(at: number): number {
     {
@@ -909,9 +1622,9 @@ export function conduct(
         softer and fractionally later than even, so it reads as a hand tiring
         rather than a delay line.
 
-        The standoff cue is the only one that uses it. It is the one gesture in
-        the palette that sustains, and a piece with this much silence in it
-        needs somewhere to hold a note without adding an instrument to do it.
+        No cue that comes through here uses it now: the Frontier cue's chance
+        is zero, and the standoff cue's tremolo is written into its score and
+        played by `tremolo()` below, on the notes the score marks.
       */
       if (Math.random() < cue.tremoloChance[state]) {
         const top = chosen.notes[chosen.notes.length - 1];
@@ -935,83 +1648,506 @@ export function conduct(
     }
   }
 
+  /* =======================================================================
+     THE SCORE PLAYER
+
+     Everything below is for a cue with a score, and it has one rule: the
+     structure is the score's and the surface is the player's. Which note, in
+     which bar, on which beat, for how long and how loud is read from the
+     page. What is left to chance is only what a person playing that page
+     would vary without meaning to — a few milliseconds either side of the
+     beat, a tenth either side of the written dynamic, a phrase's last beat
+     held a little long.
+     ======================================================================= */
+
+  /** Uniformly within `amount` either side of zero. */
+  const rough = (amount: number) => (Math.random() * 2 - 1) * amount;
+
+  /** A dynamic, varied by up to `amount` of itself. */
+  const vary = (amount: number) => 1 + rough(amount);
+
+  const nextBar = (score: Score, i: number) =>
+    i + 1 < score.bars.length ? i + 1 : score.loop_from_bar;
+
+  /*
+    A bar that closes a phrase: something was said in it, and after it either
+    the section changes or nobody speaks. Its last beat may stretch, and its
+    last notes are let ring.
+  */
+  const endsPhrase = (score: Score, i: number) => {
+    const here = score.bars[i];
+    if (here.lead.length === 0 && here.whistle.length === 0) return false;
+    const next = score.bars[nextBar(score, i)];
+    return (
+      next.section !== here.section ||
+      (next.lead.length === 0 && next.whistle.length === 0)
+    );
+  };
+
+  /* The rubato: two to four percent on the last beat of a phrase-ending bar,
+     none anywhere else. Drawn once per step and remembered. */
+  const stretchAt = (score: Score, s: number, i: number) => {
+    let stretch = stretches.get(s);
+    if (stretch === undefined) {
+      stretch = endsPhrase(score, i) ? 1.02 + Math.random() * 0.02 : 1;
+      stretches.set(s, stretch);
+    }
+    return stretch;
+  };
+
+  /** Beats from the top of a bar to seconds, with its last beat stretched. */
+  const seconds = (beat: number, stretch: number, B: number) =>
+    (beat <= 3 ? beat : 3 + (beat - 3) * stretch) * B;
+
+  /* The heartbeat's level: quiet through the answer, rising across the build,
+     loudest in the peak. It follows the section, never the bar number, so it
+     stays right if the score is edited. */
+  const pulseLevel = (score: Score, i: number) => {
+    const section = score.bars[i].section;
+    if (section === "peak") return THUMP_PEAK;
+    if (section !== "build") return THUMP;
+    const first = score.bars.findIndex((b) => b.section === "build");
+    let last = first;
+    while (score.bars[last + 1]?.section === "build") last += 1;
+    const along = (i - first) / Math.max(1, last - first);
+    return THUMP + (THUMP_PEAK - THUMP) * 0.75 * along;
+  };
+
   /**
-   * The bed, a bar at a time.
+   * The score's bar clock: every bar that starts inside the look-ahead.
    *
-   * Pulse, bass, chord and tape, running whether or not there is a melody over
-   * them — and a figure dropped in every few bars. The tape starts with the
-   * first bar and is the reason the gaps between phrases sound like a room
-   * rather than like nothing.
+   * Where it starts is the state's business. Sparse, and anything else
+   * arriving from silence, begins at the top — the wind, then the strings,
+   * then one low note. Journey arriving from silence begins at the build,
+   * because a visitor who is already moving should not have to sit through
+   * the introduction. Any state reached from another playing state carries on
+   * from wherever the piece has got to.
    */
-  function playGroove(g: NonNullable<Cue["groove"]>): void {
-    if (!deck) {
-      deck = tape(context, desk.bus.music, {
-        level: g.tape.level,
-        crackle: g.tape.crackle,
+  function playScore(score: Score): void {
+    const B = 60 / score.bpm;
+    const now = context.currentTime;
+    if (fresh) {
+      fresh = false;
+      const build = score.bars.findIndex((b) => b.section === "build");
+      bar = state === "journey" && build >= 0 ? build : 0;
+      step = 0;
+      stretches.clear();
+      carried = { step: -1, count: 0 };
+      barCursor = now + 0.4;
+    }
+    /* A throttled tab can wake the timer late. Better to lose a moment than to
+       play every overdue note at once. */
+    if (barCursor < now) barCursor = now + 0.1;
+    pads = pads.filter((pad) => pad.ends > now);
+
+    while (barCursor < now + LOOKAHEAD) {
+      const stretch = stretchAt(score, step, bar);
+      playBar(score, bar, step, barCursor, stretch, B);
+      stretches.delete(step - 1);
+      barCursor += seconds(4, stretch, B);
+      bar = nextBar(score, bar);
+      step += 1;
+    }
+  }
+
+  function playBar(
+    score: Score,
+    i: number,
+    s: number,
+    start: number,
+    stretch: number,
+    B: number,
+  ): void {
+    const b = score.bars[i];
+    const out = ensureTake();
+    /* Camp and the Board: lead, low and strings, further off. Nobody answers
+       and there is no heartbeat — the fire is the only pulse there. */
+    const reflective = state === "reflective";
+    const scale = reflective ? REFLECTIVE : 1;
+    const closes = endsPhrase(score, i);
+    const at = (beat: number) => start + seconds(beat, stretch, B);
+
+    /* The man. */
+    b.lead.forEach((n, k) => {
+      let lean = rough(0.012);
+      /* A held tremolo after the downbeat lands a hair late, as if he
+         hesitates before committing to it. */
+      if (n.tremolo && n.dur >= 1.5 && n.beat > 0) lean += 0.01 + Math.random() * 0.012;
+      /* The climax is the opposite: the loudest downbeat of the peak comes a
+         hair early, as if he cannot wait for it. */
+      if (b.section === "peak" && n.beat === 0 && n.vel >= 0.95) lean -= 0.014;
+      playLead(out, n, {
+        when: at(n.beat) + lean,
+        length: at(n.beat + n.dur) - at(n.beat),
+        level: LEAD * n.vel * vary(0.1) * scale,
+        final: closes && k === b.lead.length - 1,
+      });
+    });
+
+    /* The low plucks: the thumb, warmer than the lead because it is picked
+       softer. The two weak beats of the bar are softer again and a little
+       less even, which is where a thumb that is not counting drifts. */
+    for (const n of b.low) {
+      const weak = n.beat >= 2;
+      guitar(context, out, {
+        frequency: hz(n.note),
+        decay: at(n.beat + n.dur) - at(n.beat) + 0.25,
+        attack: 0.12 + n.vel * 0.26,
+        level: LOW * n.vel * (weak ? 0.9 : 1) * vary(weak ? 0.14 : 0.1) * scale,
+        pan: LOW_PAN + rough(0.03),
+        when: at(n.beat) + rough(weak ? 0.012 : 0.008),
       });
     }
 
-    const barLength = g.beats * cue.beat;
+    if (!reflective) {
+      playWhistle(score, i, s, start, stretch, B, out, closes);
+      /* The heartbeat. The second of a pair is the softer, so two in a bar
+         are one heart and not a drum part. */
+      b.pulse.forEach((beat, k) => {
+        thump(context, out, {
+          level: pulseLevel(score, i) * (k > 0 ? 0.8 : 1) * vary(0.08),
+          pan: 0,
+          when: at(beat) + rough(0.006),
+        });
+      });
+    }
 
-    while (barCursor < context.currentTime + LOOKAHEAD) {
-      const step = bar % g.bass.length;
+    playStrings(score, i, s, start, B, scale);
+  }
 
-      /* The pulse. Anything off the grid is pushed late by the swing, which is
-         the difference between a shuffle and a metronome. */
-      for (const hit of g.pulse) {
-        const offGrid = Math.abs(hit.at - Math.round(hit.at)) > 0.01;
-        const at =
-          barCursor +
-          (hit.at + (offGrid ? g.swing : 0)) * cue.beat +
-          (Math.random() - 0.5) * 0.016;
-        const level = hit.level * (0.88 + Math.random() * 0.24);
-        if (hit.kind === "thump") {
-          thump(context, desk.bus.music, { level, pan: hit.pan ?? 0, when: at });
+  /*
+    A lead note: one pluck, or a tremolo.
+
+    A pluck rings for its written length and a short tail, not the two or
+    three seconds the Frontier cue lets its notes ring. The whistle answers
+    into the gaps the guitar leaves, and a gap full of the last note's decay
+    is not a gap. The last note of a phrase is the exception: it is allowed to
+    linger, because nothing follows it.
+  */
+  function playLead(
+    out: AudioNode,
+    n: ScoreNote,
+    {
+      when,
+      length,
+      level,
+      final,
+    }: { when: number; length: number; level: number; final: boolean },
+  ): void {
+    const frequency = hz(n.note);
+    if (n.tremolo) {
+      tremolo(out, {
+        frequency,
+        length,
+        level,
+        vel: n.vel,
+        when,
+        slide: n.slide === true,
+        tail: final ? 0.6 : 0.25,
+        thin: 0.3,
+      });
+      return;
+    }
+    guitar(context, out, {
+      frequency,
+      slideFrom: n.slide ? SLIDE : undefined,
+      decay: length + (final ? 0.7 : 0.3),
+      attack: Math.min(1, (0.3 + n.vel * 0.45) * vary(0.08)),
+      level,
+      pan: LEAD_PAN + rough(0.04),
+      when,
+    });
+  }
+
+  /*
+    Tremolo, as written: one string struck about thirteen times a second for
+    exactly the note's length.
+
+    The strike rate is fitted to the length rather than fixed, so the last
+    strike lands inside the note and never over the next one. Each strike is
+    a fresh pluck with a short ring, so the note is made of attacks the way a
+    real tremolo is, and it thins as it goes — quieter and darker, the
+    upstrokes lighter than the downstrokes, as a hand at speed is.
+
+    A slide belongs to the note, not to its first strike. Every strike that
+    lands while the finger is still moving starts from wherever the finger
+    has got to, so the pitch rises once through the strikes rather than
+    restarting at each.
+  */
+  function tremolo(
+    out: AudioNode,
+    {
+      frequency,
+      length,
+      level,
+      vel,
+      when,
+      slide,
+      tail,
+      thin,
+    }: {
+      frequency: number;
+      length: number;
+      level: number;
+      vel: number;
+      when: number;
+      slide: boolean;
+      tail: number;
+      thin: number;
+    },
+  ): void {
+    const strikes = Math.max(2, Math.round(length * TREMOLO_RATE));
+    const gap = length / strikes;
+    for (let i = 0; i < strikes; i += 1) {
+      const into = i * gap;
+      const fade = 1 - thin * (i / strikes);
+      const up = i % 2 === 1;
+      const last = i === strikes - 1;
+      guitar(context, out, {
+        frequency,
+        slideFrom:
+          slide && into < SLIDE_TIME ? SLIDE ** (1 - into / SLIDE_TIME) : undefined,
+        decay: last ? gap + tail : gap * 2.6,
+        attack: Math.min(1, (0.25 + vel * 0.45) * fade * (up ? 0.85 : 1)),
+        /* The first strike carries the accent; the rest ring over one
+           another, so each sits well under the note's written level. */
+        level: level * (i === 0 ? 0.78 : 0.62) * fade * (up ? 0.88 : 1) * vary(0.06),
+        pan: LEAD_PAN + rough(0.02),
+        when: when + into + (i === 0 ? 0 : rough(0.004)),
+      });
+    }
+  }
+
+  /*
+    The whistle: one breath per phrase, placed in beats.
+
+    This is the sync fix. A breath is every note up to a rest of half a beat
+    or more, sung as one whistle() call so the pitch slides between them the
+    way a person's does — and every one of its notes is at a written beat,
+    converted through the same bar clock as the guitar. The only thing added
+    is a lean behind the grid of up to thirty milliseconds, because the
+    whistler is a long way off and sound takes time to cross a valley.
+
+    A breath still going at the barline carries on into the next bar: the
+    score's whistle sings across the bar twice, and two calls there would be
+    somebody drawing breath in the middle of a line. The notes it takes from
+    the next bar are counted, and that bar skips them.
+  */
+  function playWhistle(
+    score: Score,
+    i: number,
+    s: number,
+    start: number,
+    stretch: number,
+    B: number,
+    out: AudioNode,
+    closes: boolean,
+  ): void {
+    const skip = carried.step === s ? carried.count : 0;
+    const own = score.bars[i].whistle.slice(skip);
+    if (own.length === 0) return;
+
+    type Sung = { from: number; to: number; note: number; vel: number };
+    const breaths: Sung[][] = [];
+    let edge = -Infinity;
+    for (const n of own) {
+      if (n.beat - edge >= 0.5) breaths.push([]);
+      breaths[breaths.length - 1].push({
+        from: seconds(n.beat, stretch, B),
+        to: seconds(n.beat + n.dur, stretch, B),
+        note: hz(n.note),
+        vel: n.vel,
+      });
+      edge = n.beat + n.dur;
+    }
+
+    if (edge >= 4) {
+      const j = nextBar(score, i);
+      const length = seconds(4, stretch, B);
+      const onward = stretchAt(score, s + 1, j);
+      let reach = 0;
+      let count = 0;
+      for (const n of score.bars[j].whistle) {
+        if (n.beat - reach >= 0.5) break;
+        breaths[breaths.length - 1].push({
+          from: length + seconds(n.beat, onward, B),
+          to: length + seconds(n.beat + n.dur, onward, B),
+          note: hz(n.note),
+          vel: n.vel,
+        });
+        reach = n.beat + n.dur;
+        count += 1;
+      }
+      if (count > 0) carried = { step: s + 1, count };
+    }
+
+    breaths.forEach((line, k) => {
+      const first = line[0].from;
+      const tail = line.length - 1;
+      const linger = closes && k === breaths.length - 1 ? 1.12 : 1;
+      const mean = line.reduce((sum, n) => sum + n.vel, 0) / line.length;
+      whistle(context, out, {
+        notes: line.map((n, idx) => ({
+          at: idx === 0 ? 0 : n.from - first + rough(0.008),
+          note: n.note,
+          hold: (n.to - n.from) * (idx === tail ? linger : 1),
+        })),
+        level: WHISTLE * mean * vary(0.1),
+        pan: WHISTLE_PAN + rough(0.08),
+        when: start + first + 0.015 + rough(0.015),
+        /* The strings under it are tuned exactly and often hold the very
+           pitch the whistle lands on, so a quarter-tone of drift reads as
+           out of tune rather than human. Within 6 cents, and a sag of about
+           a sixth of a semitone at the end of a breath. */
+        offPitch: 6,
+        sag: 0.99,
+      });
+    });
+  }
+
+  /*
+    The strings: one bowed voice per pitch, held for as long as the score
+    keeps that pitch.
+
+    A pitch that carries into the next bar is not bowed again. When a pitch
+    first appears, the score is read forward, bar by bar, for as long as the
+    pitch stays in the chord, and one bow() covers the whole run with its
+    level drawn bar by bar: `in` rises to the bar's level at the barline,
+    `hold` settles on it within a beat and stays, `out` falls to half of
+    wherever it started. At a change of chord, a pitch that leaves starts to
+    fade a third of a beat before the barline and is gone a third after it,
+    while the new chord's pitches reach their level within a third of a beat
+    — so the change is a crossfade centred on the downbeat, where the bass
+    and the lead change, and never a gap. Out of silence and into it the
+    strings take a beat and more, because nothing is changing under them.
+
+    Every voice is kept with the last step it covers, so the bars it spans
+    know it is already sounding, and so silence, a cue switch or the cadence
+    can release it.
+  */
+  function playStrings(
+    score: Score,
+    i: number,
+    s: number,
+    start: number,
+    B: number,
+    scale: number,
+  ): void {
+    const pitches = score.bars[i].strings.notes;
+    /* A pitch held through the last step and not this one is leaving at this
+       barline, so whatever arrives here is taking over from a chord. */
+    const changing = pads.some((pad) => pad.through === s - 1);
+    pitches.forEach((pitch, j) => {
+      if (pads.some((pad) => pad.note === pitch && pad.through >= s)) return;
+
+      const contour: Array<{ at: number; level: number }> = [];
+      let idx = i;
+      let st = s;
+      let offset = 0;
+      let level = 0;
+      let bars = 0;
+      while (bars < score.bars.length && score.bars[idx].strings.notes.includes(pitch)) {
+        const { strings } = score.bars[idx];
+        const length = seconds(4, stretchAt(score, st, idx), B);
+        const target = (STRINGS * strings.vel * scale) / Math.sqrt(strings.notes.length);
+        const settle =
+          bars === 0 && changing
+            ? PAD_ARRIVE * B
+            : Math.min(length * 0.5, PAD_SETTLE * B);
+        if (strings.swell === "in") {
+          contour.push({ at: offset + length, level: target });
+          level = target;
+        } else if (strings.swell === "out") {
+          /* Never rising into a fade: a bar marked out that follows a
+             quieter one starts from where that one left off. */
+          const head = level > 0 ? Math.min(target, level) : target;
+          contour.push({ at: offset + settle, level: head });
+          contour.push({ at: offset + length, level: head * 0.5 });
+          level = head * 0.5;
         } else {
-          brush(context, desk.bus.music, {
-            level,
-            tone: hit.tone ?? 0.5,
-            decay: 0.1 + Math.random() * 0.06,
-            pan: hit.pan ?? 0,
-            when: at,
-          });
+          contour.push({ at: offset + settle, level: target });
+          contour.push({ at: offset + length, level: target });
+          level = target;
         }
+        offset += length;
+        idx = nextBar(score, idx);
+        st += 1;
+        bars += 1;
       }
 
-      /* The bass: one note a bar, on the beat, left to ring the whole bar. */
-      guitar(context, desk.bus.music, {
-        frequency: g.bass[step],
-        decay: barLength * 0.95,
-        attack: 0.2,
-        level: 0.24,
-        pan: -0.06,
-        when: barCursor + (Math.random() - 0.5) * 0.014,
+      /* Where the run ends. Into another chord, the pitch starts to go just
+         before the barline and is gone just after it; into silence, it takes
+         its time. */
+      let duration = offset + PAD_RELEASE * B;
+      if (score.bars[idx].strings.notes.length > 0) {
+        const last = contour[contour.length - 1];
+        const before = contour.length > 1 ? contour[contour.length - 2].at : 0;
+        last.at = Math.max(before + 0.05, offset - PAD_LEAVE * B);
+        duration = offset + PAD_HANDOVER * B;
+      }
+      pads.push({
+        note: pitch,
+        through: s + bars - 1,
+        ends: start + duration,
+        voice: bow(context, desk.bus.music, {
+          frequency: hz(pitch),
+          duration,
+          contour,
+          /* Open-voiced, and spread: the lowest pitch left, the highest right. */
+          pan: (j - (pitches.length - 1) / 2) * 0.22,
+          when: start,
+        }),
       });
+    });
+  }
 
-      /* The chord, rolled slowly and quietly enough to be a colour rather than
-         a part. It arrives on the second beat so the bass has the downbeat to
-         itself. */
-      const chord = g.chords[step % g.chords.length];
-      for (let i = 0; i < chord.length; i += 1) {
-        guitar(context, desk.bus.music, {
-          frequency: chord[i],
-          decay: 2.4 + Math.random() * 0.8,
-          attack: 0.14 + Math.random() * 0.08,
-          level: (0.1 - i * 0.013) * (0.9 + Math.random() * 0.2),
-          pan: 0.1 + (i - 1.5) * 0.05,
-          when: barCursor + (1 + i * 0.16) * cue.beat + (Math.random() - 0.5) * 0.02,
+  /*
+    The score's way out.
+
+    Notes below D3 are low plucks and everything else is the lead, as the
+    score's conventions say. Longer tails than anywhere in the piece — this is
+    the one place it is allowed to sound finished — and the closing tremolo
+    thins much further than the piece's own, so the last held note dies away
+    rather than stopping.
+  */
+  function playClosing(score: Score, at: number): void {
+    const B = 60 / score.bpm;
+    const out = ensureTake();
+    const floor = hz("D3");
+    for (const n of score.closing) {
+      const frequency = hz(n.note);
+      const when = at + n.beat * B + rough(0.01);
+      const length = n.dur * B;
+      if (frequency < floor) {
+        guitar(context, out, {
+          frequency,
+          decay: length + 0.8,
+          attack: 0.12 + n.vel * 0.26,
+          level: LOW * n.vel,
+          pan: LOW_PAN,
+          when,
+        });
+      } else if (n.tremolo) {
+        tremolo(out, {
+          frequency,
+          length,
+          level: LEAD * n.vel,
+          vel: n.vel,
+          when,
+          slide: false,
+          tail: 0.8,
+          thin: 0.55,
+        });
+      } else {
+        guitar(context, out, {
+          frequency,
+          decay: length + 0.5,
+          attack: 0.3 + n.vel * 0.45,
+          level: LEAD * n.vel,
+          pan: LEAD_PAN,
+          when,
         });
       }
-
-      if (barsUntilPhrase <= 0) {
-        playPhrase(barCursor);
-        const [min, max] = g.every[state];
-        barsUntilPhrase = min + Math.floor(Math.random() * (max - min + 1));
-      }
-      barsUntilPhrase -= 1;
-
-      barCursor += barLength;
-      bar += 1;
     }
   }
 
@@ -1026,33 +2162,51 @@ export function conduct(
          somewhere else, and the way out of the landing is no longer the last
          thing the music has to say. */
       resolving = false;
-      if (next === "silence") liftTape();
       /* §21: the landing's music has to be gone before the visitor settles
-         anywhere else. A drone holds for twenty seconds, so silence has to
-         actually take it away rather than just stop scheduling more. */
-      if (next === "silence") hushDrones();
+         anywhere else. A drone holds for twenty seconds and a score's strings
+         for bars at a time, so silence has to actually take them away rather
+         than just stop scheduling more. */
+      if (next === "silence") {
+        hushDrones();
+        hushScore();
+      }
     },
     resolve() {
       if (state === "silence" || resolving) return;
       resolving = true;
       const at = context.currentTime + 0.12;
-      for (const n of cue.closing.notes) {
-        guitar(context, desk.bus.music, {
-          frequency: n.note,
-          /* Longer than any phrase note. The last thing heard should still be
-             ringing when the next place arrives. */
-          decay: 3.4 + Math.random() * 0.6,
-          attack: n.level * 0.6,
-          level: n.level,
-          pan: n.pan,
-          when: at + n.at * cue.beat,
-        });
+      if (cue.score) {
+        /*
+          The score has up to two seconds of its next bar already queued, and
+          a cadence played over the first notes of a phrase is not a cadence.
+          So the queue goes quickly — in under half a second — and the
+          closing plays into a fresh take. The strings are let go over the
+          length of the closing instead, so it lands on a chord that is
+          leaving rather than on nothing.
+        */
+        const score = cue.score;
+        const over =
+          Math.max(...score.closing.map((n) => n.beat + n.dur)) * (60 / score.bpm);
+        hushScore(0.4, over);
+        playClosing(score, at);
+      } else {
+        for (const n of cue.closing.notes) {
+          guitar(context, desk.bus.music, {
+            frequency: n.note,
+            /* Longer than any phrase note. The last thing heard should still be
+               ringing when the next place arrives. */
+            decay: 3.4 + Math.random() * 0.6,
+            attack: n.level * 0.6,
+            level: n.level,
+            pan: n.pan,
+            when: at + n.at * cue.beat,
+          });
+        }
+        /* The bed goes with it, over the length of the figure, so the cadence
+           lands on air rather than on a drone that outlives it. */
+        const over = cue.closing.beats * cue.beat;
+        hushDrones(over);
       }
-      /* The bed goes with it, over the length of the figure, so the cadence
-         lands on air rather than on a drone that outlives it. */
-      const over = cue.closing.beats * cue.beat;
-      hushDrones(over);
-      liftTape(over);
       state = "silence";
     },
 
@@ -1060,11 +2214,12 @@ export function conduct(
       if (next === cue) return;
       cue = next;
       index = 0;
-      /* The old cue's bed is in the old cue's tuning and its tape is its own
-         room. Let both go rather than crossfade two pieces of music into each
-         other. */
+      /* The old cue's bed is in the old cue's tuning, and a score's strings
+         and queued bar are its own. Let them go rather than crossfade two
+         pieces of music into each other; a score switched to begins again
+         from wherever the state says it should. */
       hushDrones(1.2);
-      liftTape(1.2);
+      hushScore(1.2);
       cursor = Math.max(cursor, context.currentTime + 0.4);
       droneCursor = Math.max(droneCursor, context.currentTime + 0.4);
     },
@@ -1074,7 +2229,7 @@ export function conduct(
       state = "silence";
       resolving = false;
       hushDrones(0.9);
-      liftTape(0.9);
+      hushScore(0.9);
     },
   };
 }

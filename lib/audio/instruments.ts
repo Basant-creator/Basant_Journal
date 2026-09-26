@@ -247,12 +247,18 @@ export interface WhistleOptions {
   level?: number;
   pan?: number;
   when?: number;
+  /* How far off concert pitch a phrase may start, in cents either side, and
+     how far its last note sags as the air runs out (a frequency ratio). The
+     defaults suit a whistle heard alone. Over held strings, both have to come
+     in or the whistle simply sounds out of tune with the pad. */
+  offPitch?: number;
+  sag?: number;
 }
 
 export function whistle(
   context: AudioContext,
   destination: AudioNode,
-  { notes, level = 0.3, pan = 0, when }: WhistleOptions,
+  { notes, level = 0.3, pan = 0, when, offPitch = 25, sag = 0.975 }: WhistleOptions,
 ): void {
   if (notes.length === 0) return;
 
@@ -261,8 +267,9 @@ export function whistle(
   const duration = tail.at + tail.hold;
   const mean = notes.reduce((sum, n) => sum + n.note, 0) / notes.length;
 
-  /* Nobody whistles at concert pitch. Up to a quarter tone out, per phrase. */
-  const offset = (Math.random() - 0.5) * 50;
+  /* Nobody whistles at concert pitch. By default up to a quarter tone out,
+     per phrase. */
+  const offset = (Math.random() - 0.5) * 2 * offPitch;
 
   const panner = context.createStereoPanner();
   panner.pan.value = pan;
@@ -305,7 +312,7 @@ export function whistle(
       );
     }
     /* Running out of air: the last note sags rather than holding. */
-    param.exponentialRampToValueAtTime(tail.note * 0.975 * multiple, t + duration);
+    param.exponentialRampToValueAtTime(tail.note * sag * multiple, t + duration);
   };
   contour(osc.frequency, 1);
   contour(harmonic.frequency, 2);
@@ -428,7 +435,7 @@ export function whistle(
    THE RHYTHM SECTION
 
    Added because the inventory said there was not one. Everything in this file
-   before now is something a person holds; these three are the room around
+   before now is something a person holds; these four are the room around
    them, and a cue that wants to sound warm rather than empty needs the room
    more than it needs another note.
 
@@ -527,6 +534,77 @@ export function brush(
   source.onended = () => {
     source.disconnect();
     band.disconnect();
+    gain.disconnect();
+    panner.disconnect();
+  };
+}
+
+/**
+ * A closed hat: a few tens of milliseconds of noise with everything below the
+ * cymbal taken out.
+ *
+ * High-passed at 7 kHz, which puts it above everything else in the cue — the
+ * guitar's wood rolls off at 3.2 kHz, the tape at 3, the brushes sit near 2.3
+ * — so it can be very quiet and still be placed, and it is. It is rolled off
+ * again above 11 kHz, because the top octave of a noise burst is spray, and
+ * spray a few times a second is exactly what the first tape floor was
+ * reported for: rain.
+ *
+ * What keeps eight of these a bar from being rain is the grid. Rain is
+ * broadband transients at random times; this is a narrow band of them on the
+ * beat, and the ear hears the regularity as somebody keeping time. The decay
+ * is 30 to 45 ms — a stick closing on the cymbal, never the cymbal ringing.
+ */
+export function hat(
+  context: AudioContext,
+  destination: AudioNode,
+  {
+    level = 0.02,
+    decay = 0.038,
+    pan = 0,
+    when,
+  }: { level?: number; decay?: number; pan?: number; when?: number },
+): void {
+  const t = when ?? context.currentTime;
+
+  /* Generated per hit, like the brush and for the same reason: two identical
+     hats in a row is a sample being retriggered, and at eight a bar the ear
+     would catch it within one. */
+  const frames = Math.ceil(context.sampleRate * (decay + 0.02));
+  const buffer = context.createBuffer(1, frames, context.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < frames; i += 1) data[i] = Math.random() * 2 - 1;
+
+  const source = context.createBufferSource();
+  source.buffer = buffer;
+
+  const cymbal = context.createBiquadFilter();
+  cymbal.type = "highpass";
+  cymbal.frequency.value = 7000;
+  cymbal.Q.value = 0.7;
+
+  const shade = context.createBiquadFilter();
+  shade.type = "lowpass";
+  shade.frequency.value = 11000;
+  shade.Q.value = 0.7;
+
+  const gain = context.createGain();
+  gain.gain.setValueAtTime(0, t);
+  /* Two milliseconds rather than the brush's six: a hat is all attack, and a
+     softer onset than this turns it into a breath. */
+  gain.gain.linearRampToValueAtTime(level, t + 0.002);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+
+  const panner = context.createStereoPanner();
+  panner.pan.value = pan;
+
+  source.connect(cymbal).connect(shade).connect(gain).connect(panner).connect(destination);
+  source.start(t);
+  source.stop(t + decay + 0.02);
+  source.onended = () => {
+    source.disconnect();
+    cymbal.disconnect();
+    shade.disconnect();
     gain.disconnect();
     panner.disconnect();
   };
@@ -710,24 +788,53 @@ export interface BowOptions {
   level?: number;
   pan?: number;
   when?: number;
+  /**
+   * A level drawn over the note, in place of the built-in swell.
+   *
+   * Points in seconds from `when`, in order, each reached by a linear ramp
+   * from the one before: the note starts from silence, passes through every
+   * point, and ramps to silence again at `duration`. `level` is ignored.
+   *
+   * The drone needs none of this — it arrives, holds and leaves. A pad under
+   * a written score does not: it swells into one bar and fades out of
+   * another while the same pitch is held across both, and re-bowing it at
+   * each barline to change its level is two players where the score has one.
+   * The first point's time is the attack, for the filter as well as the
+   * gain.
+   */
+  contour?: Array<{ at: number; level: number }>;
 }
 
 export function bow(
   context: AudioContext,
   destination: AudioNode,
-  { frequency, duration, level = 0.15, pan = 0, when }: BowOptions,
+  { frequency, duration, level = 0.15, pan = 0, when, contour }: BowOptions,
 ): Sustained {
   const t = when ?? context.currentTime;
+  const drawn = contour !== undefined && contour.length > 0;
 
   /* Slow both ends. A drone that arrives is an event; a drone that was
      already there is a place. */
-  const attack = Math.min(2.4, duration * 0.3);
+  const attack = drawn
+    ? Math.max(0.05, Math.min(contour[0].at, duration))
+    : Math.min(2.4, duration * 0.3);
   const release = Math.min(3.2, duration * 0.35);
 
   const gain = context.createGain();
+  /* Silent until it starts. An automation timeline reports the gain's
+     default — 1 — until its first event, and release() reads the current
+     value to fade from; releasing a note scheduled a moment ahead would
+     otherwise fade from full scale, not from nothing. */
+  gain.gain.value = 0;
   gain.gain.setValueAtTime(0, t);
-  gain.gain.linearRampToValueAtTime(level, t + attack);
-  gain.gain.setValueAtTime(level, t + duration - release);
+  if (drawn) {
+    for (const point of contour) {
+      gain.gain.linearRampToValueAtTime(point.level, t + point.at);
+    }
+  } else {
+    gain.gain.linearRampToValueAtTime(level, t + attack);
+    gain.gain.setValueAtTime(level, t + duration - release);
+  }
   gain.gain.linearRampToValueAtTime(0, t + duration);
 
   /*

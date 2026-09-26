@@ -20,13 +20,13 @@ find public -type f \( -name '*.mp3' -o -name '*.wav' -o -name '*.ogg' \
 
 Returns nothing. There is no `public/audio` directory, no `<audio>` element
 anywhere in the tree, and no `fetch` of a media file. The whole soundscape is
-four source files and 1,228 lines:
+four source files:
 
 | file | what it makes |
 | --- | --- |
 | `lib/audio/atmosphere.ts` | wind bed, campfire embers, paper rustle, survey tick, the rig's lifetime |
-| `lib/audio/instruments.ts` | the string, the guitar body, mouth organ, whistle, bowed drone, birds |
-| `lib/audio/music.ts` | the Frontier motif — phrases, rests, states |
+| `lib/audio/instruments.ts` | the string, the guitar body, mouth organ, whistle, bowed strings, birds, kick, brush, hat, tape |
+| `lib/audio/music.ts` | both cues: the Frontier motif's phrases and rests, the standoff cue's written score, and the states |
 | `lib/audio/buses.ts` | the mixing desk |
 
 Network cost of the audio: **zero bytes.**
@@ -58,8 +58,11 @@ models the physics rather than imitating the result.
 
 ## The music
 
-`lib/audio/music.ts` is an original composition, written to §42's brief and to
-nothing else: a sparse plucked lead, an occasional human whistle, 84 BPM,
+This section is about the Frontier cue, the one that ships. The standoff cue,
+the second piece in the same file, is described under "Two cues" below.
+
+The Frontier cue in `lib/audio/music.ts` is an original composition, written
+to §42's brief and to nothing else: a sparse plucked lead, an occasional human whistle, 84 BPM,
 open fifths, and real silence between phrases. The brief said banjo; the owner
 asked for guitar instead, and the figures transferred without a note changing
 — clawhammer and fingerstyle are the same right hand, and the difference
@@ -298,23 +301,28 @@ an instrument you assume exists is the one that turns out not to.
 
 | | what it is |
 | --- | --- |
-| `bow()` | A sustained bowed tone — three sawtooths detuned by −7, 0 and +6 cents — returning a handle with `release()`. Both cues use it as the drone at D2 and A2. |
+| `bow()` | A sustained bowed tone — three sawtooths detuned by −7, 0 and +6 cents — returning a handle with `release()`. The Frontier cue uses it as the drone at D2 and A2. The standoff cue uses it for its low strings, one voice per pitch, with the level drawn through the optional `contour`. |
 
-There is no bass instrument. The low end *is* the drone.
+There is no bass instrument. In the Frontier cue the low end *is* the drone.
+In the standoff cue it is `guitar()` played in the low register and picked
+softer, over the strings.
 
 ### Rhythmic
 
 There was none, and the inventory saying so is what prompted these. `hoof()`
 existed and was deleted with the horses; `triggerSurveyTick()` is an interface
-tick and `triggerPaperRustle()` is paper.
+tick and `triggerPaperRustle()` is paper. `hat()` came later, for the lo-fi
+cue, which has since been removed. Only `thump()` is used now, as the standoff
+cue's heartbeat; the other three are kept as inventory.
 
 | | what it is |
 | --- | --- |
 | `thump()` | A soft kick: a sine falling from 96 to 46 Hz in fifty milliseconds. A thump with a body rather than a click with a tail, and no transient on purpose. |
 | `brush()` | A brush across a head: bandpassed noise, generated per hit so no two are the same, short enough never to become a cymbal. |
-| `tape()` | The floor. Looped hiss with crackle over it, rolled off above 5 kHz, with the wobble on the filter rather than on the pitch — brightness is what a worn tape actually moves. |
+| `hat()` | A closed hat: 30–45 ms of noise, generated per hit, high-passed at 7 kHz and rolled off again above 11 kHz so it ticks rather than sprays. The only voice written above 7 kHz, which is why it can sit as quietly as it does. |
+| `tape()` | The floor. Looped hiss with crackle over it, rolled off above 3 kHz, with the wobble on the filter rather than on the pitch — brightness is what a worn tape actually moves. |
 
-All three are noise, a sine and an envelope, like everything else here.
+All four are noise, a sine and an envelope, like everything else here.
 
 ### Atmospheric
 
@@ -330,54 +338,129 @@ this project": none, by design, and the licence section below is why.
 
 ## Two cues, and what neither of them is
 
-There are now two pieces of music for the landing, compared behind a
-development switch. Only one is selectable in a production build — the
-Frontier cue — and the switch itself is not in that build at all: the panel
-and its stylesheet leave the bundle, verified by searching the output for its
-markup, its labels and its CSS class, all of which return zero files.
+There are two pieces of music for the landing, compared behind a development
+switch. Only the Frontier cue can be heard in a production build. The switch
+is not in that build at all: the panel and its stylesheet leave the bundle,
+checked by searching the output for its markup, its labels and its CSS class,
+all of which return zero files.
 
-**Frontier** — 84 BPM, pedal-and-melody figures on the guitar, a whistle and
-a mouth organ. The original motif, unchanged.
+**Frontier**: 84 BPM, pedal-and-melody figures on the guitar, a whistle and a
+mouth organ, phrase and rest. This is the original motif, unchanged.
 
-**Lo-fi** — 72 BPM felt in half time, a swung pulse, a bass walking four bars,
-a chord a bar, and tape under all of it. The guitar is still sparse; what
-changed is that there is now something underneath it when it stops.
+**Standoff**: 70 BPM, dry tremolo guitar, low acoustic plucks, a distant
+whistle and subtle low strings. This is a written score, not a generator.
 
-That cue replaced a first attempt which had the same restraint and no floor —
-three notes in twelve beats at 66, with eleven to twenty-four seconds of real
-silence between phrases. The verdict on it was "empty rather than lo-fi", and
-that was right. Silence in a recording is a noise floor, a pulse you stop
-noticing and a bass you would only miss if it left; sparse and empty are the
-same notes with and without those. The notes barely changed. What is under
-them did.
+### Why the standoff cue is a score
 
-That prohibition is the reason this section exists. The standoff cue was
-written from the situation the brief describes — a wide empty country and
-somebody waiting in it — and not from any recording of it. Concretely, what it
-does instead:
+The cue it replaced was a lo-fi groove: a swung pulse with a hat on every
+eighth, a muted chop, a walking bass and tape hiss, with a guitar phrase
+dropped over it every few bars. The verdict was that it sounded like a couple
+of instruments making noise. That was accurate, and not because of the mix:
 
-- **The tension is a mode, not a motif.** A flat second, E-flat over a D drone,
-  sounded and left to grind. Phrygian colour. A scale degree belongs to nobody.
-- **No rising third, no octave leap.** The figure the brief is steering around
-  is built on both; there is no such interval anywhere in the cue. Its
-  intervals are falling fourths and fifths and one semitone.
-- **No ostinato.** Nothing in it keeps time. The low string is struck for its
-  resonance and then left, which is the opposite of a driving two-beat.
-- **The whistle is two or three notes.** Falling, held, and rare — a call
-  across distance rather than a tune anybody could carry away.
-- **The pace is the only thing taken from the reference**, which is what was
-  asked for: a half-time western stride at 72. Not the melody, not the
-  harmony, not the arrangement. Asked to "somewhat match the tune", the answer
-  was no — that is the line between an original cue and a derivative one, and
-  it is the project's own standing rule.
+- **Every voice rolled its own dice.** The figure was picked at random, and
+  the whistle, the reply chord and the tremolo each decided on their own coin
+  toss whether to play. None of them knew what the others had chosen, or
+  which chord the bed was on.
+- **The whistle was off the beat by construction.** It entered 0.3 s after
+  the phrase ended, an offset in seconds instead of a position in the bar. At
+  80 BPM that is four tenths of a beat, so it missed the grid every time.
+  That is what "not in sync" was describing.
+- **The guitar had no contour.** Four figures in one octave, chosen one at a
+  time, stay in that octave forever. A contour is a decision about the whole
+  piece, and a scheduler that only looks one phrase ahead cannot make it.
 
-**Measured**, off the running scheduler: bars of 3.337 s against 3.333
-expected, the displaced second kick landing at 2.62 beats with the swing
-applied, and 89 scheduled one-shots in thirty seconds against the sparse
-version's sixteen in forty-five. The tape is a single eight-second loop and it
-stops when the cue does — verified by counting looped sources started and
-stopped across a cue switch: one, then one.
+So the replacement is composed. **"The Surveyor's Last Light"** is forty bars
+in D minor, about 137 seconds, with one harmony a bar. Every note is written
+out in `STANDOFF_SCORE` in `lib/audio/music.ts`, as note names converted to
+equal temperament (A4 = 440) by a helper, so no frequency is typed by hand.
+
+- **The shape.** Wind alone, then strings, one low note, and the dominant.
+  The guitar states the motif and the whistle answers. Two bars of silence.
+  The answer climbs to C5 and falls back. The build climbs from A3 to a long
+  tremolo D5, held over A as a 4-3 suspension. The peak restates the motif an
+  octave up and climaxes on F5. The standoff is a bar of nothing: the
+  strings fade out of the peak and only the wind is left. The release runs
+  over a chromatic lament bass, D-C#-C-Bb-A into D, with its strings fading
+  under the last phrase. The loop re-enters at bar 10, and bars 38-39 are
+  identical to 8-9, two bars of wind, so the join is one already heard.
+- **Two people.** The guitar speaks and then stops. The whistle answers in
+  the gap it leaves, never over it: no whistle note overlaps a lead note
+  anywhere in the score. As the piece tightens the exchanges shorten. Near
+  the end they swap roles, and the whistle sings the guitar's motif.
+- **Voices.** The lead is `guitar()`. A tremolo note is the same string
+  struck about 13 times a second for exactly its written length, thinning as
+  it goes, and a slide is carried through every strike that lands inside it.
+  The low line is `guitar()` again, picked softer. Each whistle breath is one
+  `whistle()` call placed in beats on the same bar clock as the guitar. A
+  breath runs until a rest of half a beat, so two of them carry across a
+  barline. The strings are one `bow()` per pitch, held for as long as the
+  score keeps that pitch, with the level drawn bar by bar through a new
+  optional `contour` on `bow()`. A pitch that stays in the next chord is not
+  bowed again. At a change of chord the crossfade is centred on the
+  downbeat, where the bass and the lead change: a leaving pitch starts to go
+  0.35 beat before the barline and is gone 0.35 after it, and an arriving
+  one reaches its level in 0.35. The first version faded the old chord over
+  1.2 beats after the barline and brought the new one in over the same, so
+  the old harmony outweighed the new bass for about half a second at 24 of
+  the loop's 30 barlines. Out of silence and into it the strings still take
+  1.2 beats. The only
+  percussion is `thump()`: a heartbeat in 8 bars of 40, 10 beats in all.
+- **Human surface, fixed structure.** Randomness is limited to what a player
+  would vary without meaning to: ±12 ms on the lead, ±8 on the low line (±12
+  on its weak beats, which are also softer), and a lean of up to 30 ms behind
+  the grid on the whistle. Velocities vary by ±10%. The last beat of a bar
+  that ends a phrase stretches by 2–4%. Held tremolos after the downbeat land
+  a hair late, and the climax's downbeat lands a hair early.
+- **States.** `sparse` starts at bar 0. `journey` arriving from silence starts
+  at the build (bar 16); from any other state it carries on. `reflective`
+  (Camp and the Board) plays lead, low line and strings at 0.8, with no
+  whistle and no heartbeat. `silence`, a cue switch and `stop()` release
+  every string and drop the take. The take is the one gain node all queued
+  notes play into, so nothing already queued sounds afterwards. `resolve()`
+  drops the queue, plays the score's closing, and lets the strings fade under
+  it.
+
+### What it is not
+
+The brief names a genre and rules out its clichés. The score respects that:
+no saloon, no upbeat cowboy, no heroic theme, no harmonica (the mouth organ is
+not used), no busy percussion, no trailer bombast. It uses no rising fourth or
+fifth answered by an octave, no arpeggio runs and no quoted phrase. The pitch
+set is D natural minor plus C# on the A chords and one bar of E-flat. The cue
+is **not a transcription, arrangement or imitation of any existing work**.
+
+### What was removed
+
+The lo-fi cue and the groove engine that only it used: the `Groove` type, the
+bar-clock player for it, its figures, chords and whistle lines, and the
+octave-double option on the phrase player. That option defaulted to off and
+drew no random numbers when off, so the Frontier cue plays exactly the notes
+it did. `brush()`, `hat()` and `tape()` remain in `lib/audio/instruments.ts`
+as inventory; no cue calls them now.
+
+**Silence.** The brief asks for huge pauses, and as first written the loop
+had few: 7 of its 30 bars with neither guitar nor whistle, strings in every
+bar but 0, 9 and 39, and something plucked or whistled ringing about 85% of
+the time. So the strings came out of bars 8, 31 and 38 (bars 7, 30 and 37
+fade them instead), and the whistle's lone held Bb4 in bar 35 was dropped.
+The loop now has 8 of 30 bars without guitar or whistle, three of them with
+nothing but wind, and bars 38-39 are two whole bars of it.
+
+**The audition panel** passes through silence when a section is chosen while
+a written cue is playing. The score only reads the section on the way in from
+silence, so Sparse and Journey were otherwise the same button once the
+Standoff cue was running. The landing still carries on between states, as
+specified.
+
+**Checked** by driving the conductor with a mocked clock rather than by ear:
+8 whistle breaths per pass (9 before bar 35 lost its Bb4), all exactly on their written beats plus the lean;
+no pitch bowed again while held; 10 heartbeats rising from 0.10 to 0.16; a
+tremolo at 12.8 strikes a second; `journey` from silence opening on bar 16;
+no whistle or heartbeat in `reflective`; and nothing scheduled after
+`stop()` or after the cadence. Nothing has been listened to or measured in a
+running build yet, so these describe what the scheduler does, not what an
+analyser has heard.
 
 Still zero audio files. Both cues are synthesised at runtime from the same
-instruments, and the licence position is unchanged: there is nothing to
-license because there is nothing to ship.
+instruments, and the licence position has not changed: there is nothing to
+license because nothing ships.

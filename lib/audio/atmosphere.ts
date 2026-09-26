@@ -242,13 +242,14 @@ export function start(): boolean {
     comes in later, which is §5's progression and the difference between a
     world and a trailer.
   */
-  const music = conduct(desk, musicState, cue);
+  const music = conduct(desk, held ?? musicState, cue);
 
   rig = { context, desk, master, running, music, voices: [], ember: null };
   startVoices(rig);
   if (nearFire) lightFire(rig);
   /* After the rig exists, so a subscriber may call straight back in. */
   for (const fn of starters) fn();
+  announce();
   return true;
 }
 
@@ -306,7 +307,48 @@ let musicState: MusicState = "silence";
  */
 export function setMusic(state: MusicState): void {
   musicState = state;
-  rig?.music.setState(state);
+  if (held === null) rig?.music.setState(state);
+}
+
+/* -------------------------------------------------------------------------
+   AUDITION
+
+   Two things the development audition panel needs and nothing in the shipping
+   site calls.
+
+   A hold: while one is set, the music stays in that state whatever the page
+   asks for. The landing steps from wind to sparse at fourteen seconds and to
+   journey at forty-six, and Camp and the Board set their own — which is the
+   right behaviour for a visitor and useless for somebody trying to judge one
+   section of one cue. Pages still record what they want (musicState), so
+   releasing the hold drops straight back to where the page would be.
+
+   And a running signal, so more than one control can show whether the air is
+   on. The sound chip used to keep that in its own component state, which was
+   fine while it was the only thing that could switch the air on or off.
+   ------------------------------------------------------------------------- */
+
+let held: MusicState | null = null;
+
+export function holdMusic(state: MusicState | null): void {
+  held = state;
+  rig?.music.setState(state ?? musicState);
+}
+
+export function heldMusic(): MusicState | null {
+  return held;
+}
+
+const watchers = new Set<() => void>();
+
+function announce(): void {
+  for (const fn of watchers) fn();
+}
+
+/** For useSyncExternalStore: notified whenever the air starts or stops. */
+export function subscribeRunning(fn: () => void): () => void {
+  watchers.add(fn);
+  return () => watchers.delete(fn);
 }
 
 /**
@@ -492,6 +534,7 @@ export function stop(): void {
   for (const id of rig.voices) window.clearTimeout(id);
   const { context, master, running, desk } = rig;
   rig = null;
+  announce();
 
   const end = context.currentTime + FADE;
   try {
