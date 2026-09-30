@@ -7,7 +7,7 @@
  * its answer decides whether the expensive side loads at all.
  */
 
-import { detectQualityTier, probeGpu } from "./quality";
+import { detectQualityTier, probeGpu, qualityOverride, sceneStruggled } from "./quality";
 
 export type SceneCapability = "ready" | "unsupported" | "reduced" | "pending";
 
@@ -112,11 +112,14 @@ export type SceneReason =
   | "ready"
   | "no-webgl"
   | "reduced-motion"
-  | "tier-fallback";
+  | "tier-fallback"
+  /* A scene this visit could not hold its pace; see sceneStruggled. */
+  | "struggled";
 
 export function sceneCapabilityReason(): SceneReason {
   if (!hasWebGL()) return "no-webgl";
   if (prefersReducedMotion()) return "reduced-motion";
+  if (qualityOverride() === null && sceneStruggled()) return "struggled";
   if (detectQualityTier() === "fallback") return "tier-fallback";
   return "ready";
 }

@@ -7,6 +7,7 @@ import { AudioLabMount } from "@/components/audio/AudioLabMount";
 import { CheckpointAudio } from "@/components/audio/CheckpointAudio";
 import { FrontierTrail } from "@/components/navigation/FrontierTrail";
 import { Quiet } from "@/components/shell/Quiet";
+import { MotionBudget } from "@/components/shell/MotionBudget";
 import { SmoothScroll } from "@/components/shell/SmoothScroll";
 import { TextureLayer } from "@/components/shell/TextureLayer";
 import { SkipLink } from "@/components/navigation/SkipLink";
@@ -174,6 +175,9 @@ export default function RootLayout({
               boundary like the rest — if it throws, the page scrolls the way
               every other page does. See SmoothScroll. */}
           <Quiet name="SmoothScroll"><SmoothScroll /></Quiet>
+          {/* How much this machine may move: the still composition for a
+              machine that has shown it is weak. See lib/motion/budget. */}
+          <Quiet name="MotionBudget"><MotionBudget /></Quiet>
           {/* Everywhere the air can play, so it can always be stopped —
               including the landing page, which has no navigation by design. */}
           <Quiet name="AtmosphereControl"><AtmosphereControl /></Quiet>

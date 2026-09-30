@@ -11,6 +11,7 @@ npm run start      # serve the production build
 npm run typecheck  # tsc --noEmit
 npm run check:3d   # guards the 3D import boundary — must pass before commit
 npm run check:tokens  # catches var(--x) that resolves to nothing
+npm run perf          # frame timing per place, against `npm run start`
 ```
 
 `CLAUDE.md` carries the invariants that are not visible in any single file,

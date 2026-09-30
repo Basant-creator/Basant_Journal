@@ -3,6 +3,7 @@
 import Lenis from "lenis";
 import { usePathname } from "next/navigation";
 import { useEffect, useSyncExternalStore } from "react";
+import { chooseNativeScroll, nativeScrollChosen } from "@/lib/motion/budget";
 import { isOffTrail } from "@/lib/world/trail";
 
 /**
@@ -24,6 +25,37 @@ import { isOffTrail } from "@/lib/world/trail";
 const PACE = 0.13;
 
 const REDUCED = "(prefers-reduced-motion: reduce)";
+
+/**
+ * When native scrolling is the smoother choice.
+ *
+ * Lenis moves the page from the main thread, one frame at a time. The
+ * browser's own scrolling runs on the compositor and keeps moving when the
+ * main thread is busy — which is exactly when a weak machine needs it to. So
+ * the glide is only for machines that can carry it:
+ *
+ *   - not on a constrained device: four cores or fewer, or 4 GB or less —
+ *     the same test lib/three/quality.ts uses before it will draw a scene;
+ *   - not after it has been seen to stutter: if a quarter of a glide's frames
+ *     come in under 30fps, the glide is handed back to the browser for the
+ *     rest of the visit. The frames are measured, not guessed, so a machine
+ *     the heuristic misjudges still ends up with the smoother of the two.
+ *
+ * The session's answer lives in lib/motion/budget.ts, because a stuttering
+ * glide is also evidence about the machine for everything else that moves.
+ */
+const GLIDE_SAMPLE = 90;
+const GLIDE_SLOW_MS = 34;
+const GLIDE_SLOW_SHARE = 0.25;
+
+function constrainedDevice(): boolean {
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  return (
+    (typeof nav.deviceMemory === "number" && nav.deviceMemory <= 4) ||
+    (typeof nav.hardwareConcurrency === "number" && nav.hardwareConcurrency <= 4)
+  );
+}
+
 
 function subscribeReduced(onChange: () => void): () => void {
   const query = window.matchMedia(REDUCED);
@@ -48,7 +80,7 @@ function prefersReduced(): boolean {
  * rest, and the scroll-driven depth in each place (see Place.module.css) runs
  * on that smoothed position, so the country glides with it instead of
  * stepping. It stays native, and so stays exactly what the visitor's device
- * does, in four cases:
+ * does, in five cases:
  *
  *   - touch, always: Lenis leaves touch alone unless asked, and a phone's own
  *     momentum is better than anything that could replace it;
@@ -57,7 +89,8 @@ function prefersReduced(): boolean {
  *   - off the trail: the professional view is the facts without the walk, and
  *     a recruiter's scroll wheel should behave like everybody else's;
  *   - keyboard: Lenis only ever sees wheels, so Space, Page Down and the
- *     arrows scroll the way the browser scrolls them.
+ *     arrows scroll the way the browser scrolls them;
+ *   - a machine that cannot carry it — see constrainedDevice above.
  *
  * Two things it has to be told, both about leaving. A glide still carrying
  * the page when the visitor steps to the next checkpoint would go on carrying
@@ -76,7 +109,7 @@ export function SmoothScroll() {
   const reduced = useSyncExternalStore(subscribeReduced, prefersReduced, () => true);
 
   useEffect(() => {
-    if (offTrail || reduced) return;
+    if (offTrail || reduced || constrainedDevice() || nativeScrollChosen()) return;
 
     const lenis = new Lenis({
       autoRaf: true,
@@ -84,17 +117,51 @@ export function SmoothScroll() {
       stopInertiaOnNavigate: true,
     });
 
+    /* The glide's own health: frame gaps during Lenis's smoothing only, not
+       during native scrolls it merely observes. */
+    let destroyed = false;
+    let last = 0;
+    let frames = 0;
+    let slow = 0;
+    lenis.on("scroll", (instance: Lenis) => {
+      if (destroyed) return;
+      if (instance.isScrolling !== "smooth") {
+        last = 0;
+        return;
+      }
+      const now = performance.now();
+      if (last !== 0) {
+        const gap = now - last;
+        /* A resume after a hidden tab is not a slow frame. */
+        if (gap < 250) {
+          frames += 1;
+          if (gap > GLIDE_SLOW_MS) slow += 1;
+        }
+      }
+      last = now;
+      if (frames < GLIDE_SAMPLE) return;
+      const stuttering = slow / frames > GLIDE_SLOW_SHARE;
+      frames = 0;
+      slow = 0;
+      if (!stuttering) return;
+      /* Handed back mid-glide: the page stays exactly where it is and the
+         browser scrolls it from here. Deferred out of Lenis's own emit. */
+      destroyed = true;
+      chooseNativeScroll();
+      window.setTimeout(() => lenis.destroy(), 0);
+    });
+
     /* Back and Forward. An immediate scroll to where the page already is
        ends any glide in progress without moving anything, and the router's
        restoration then lands on a page that is standing still. */
     const onPop = () => {
-      lenis.scrollTo(window.scrollY, { immediate: true, force: true });
+      if (!destroyed) lenis.scrollTo(window.scrollY, { immediate: true, force: true });
     };
     window.addEventListener("popstate", onPop);
 
     return () => {
       window.removeEventListener("popstate", onPop);
-      lenis.destroy();
+      if (!destroyed) lenis.destroy();
     };
   }, [offTrail, reduced]);
 

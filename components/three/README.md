@@ -134,6 +134,22 @@ does not reliably fire again when it returns.
 Scene's stage, which outlives the canvas. Left behind, they strand the
 controls where the camera last put them, over a drawing that never moved.
 
+**A scene is paced and budgeted, and it can lose.** `SceneCanvas` draws on
+"demand", invalidated by `FramePacer` on every Nth vsync so the scene runs at
+about 60fps on any display — every other frame at 120 or 144 Hz, where
+"always" was twice the work for scenery. It times the scene's own main-thread
+cost between R3F's before- and after-frame effects and weighs it against the
+gap between frames: over half the thread, and the scene drops to 30fps; over
+half again, and it reports `onStruggle`. With the thread inside its share, a
+slow frame is the GPU's, and the pixel ratio steps down a fifth at a time to
+0.75 before it gives up. `ThreeScene` answers a struggle with the drawing for
+the rest of the visit (`markSceneStruggled`), on every scene. The ratio the
+pacer settles on is held in `SceneCanvas` state and passed as the Canvas prop,
+because R3F re-applies the `dpr` prop on every render and would undo a ratio
+set on the renderer directly. Every scene takes its pixel budget from
+`settingsFor(tier).dpr` — the landing and the vista used to ignore it and
+render at up to 2× on every machine.
+
 **The drawing stays until the render has drawn.** Mounting a scene used to
 replace the illustration outright, which left the stage empty for as long as
 the chunk, the shaders and the textures took — about five seconds of black on

@@ -10,7 +10,7 @@ import {
   sceneCapabilityReason,
 } from "@/lib/three/capability";
 import { markScene } from "@/lib/three/profile";
-import { type QualityTier, detectQualityTier } from "@/lib/three/quality";
+import { type QualityTier, detectQualityTier, markSceneStruggled } from "@/lib/three/quality";
 import type { SceneProps } from "./types";
 import styles from "./ThreeScene.module.css";
 
@@ -126,6 +126,21 @@ export function ThreeScene({
   */
   const handleContextLost = useCallback(() => {
     setCapability("unsupported");
+  }, []);
+
+  /*
+    A scene that cannot keep up is taken at its word, for the whole visit.
+
+    SceneCanvas only reports this after lowering its own pixel ratio as far
+    as it will go, so by the time it arrives the machine has already been
+    given every chance. Remembered for the session (markSceneStruggled), so
+    the next place does not spend another few seconds finding out the same
+    thing.
+  */
+  const handleStruggle = useCallback(() => {
+    markSceneStruggled();
+    setCapability("reduced");
+    setReason("struggled");
   }, []);
 
   /*
@@ -280,6 +295,7 @@ export function ThreeScene({
               tier={tier ?? "medium"}
               onContextLost={handleContextLost}
               onDrawn={handleDrawn}
+              onStruggle={handleStruggle}
             />
           </div>
         ) : null}

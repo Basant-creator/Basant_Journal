@@ -102,9 +102,18 @@
    drift that says which way the route runs. It is deliberately below the
    threshold of noticing — 9 seconds for one dash period — and it is the first
    thing switched off under reduced motion.
+
+   Stepped, a unit at a time. `stroke-dashoffset` is not something the
+   compositor can animate, and a path inside an SVG is not something it can
+   move, so a smooth drift repainted the whole survey sheet — every ridge,
+   hachure and stipple mark — on every frame: 60 to 120 times a second, for a
+   motion nobody is meant to notice. At 35 steps over the 35-unit period the
+   dash moves one unit (about half a pixel on screen) four times a second.
+   At this speed that reads the same as continuous, and the sheet is
+   repainted four times a second instead of a hundred and twenty.
    ------------------------------------------------------------------------ */
 .primary {
-  animation: trailDrift 9s linear infinite;
+  animation: trailDrift 9s steps(35) infinite;
 }
 
 @keyframes trailDrift {
@@ -122,4 +131,11 @@
     animation: none !important;
     stroke-dashoffset: 0 !important;
   }
+}
+
+/* The still composition, for a machine that has shown it is weak — the same
+   one reduced motion gets. See lib/motion/budget.ts. */
+:global(html[data-motion="still"]) .primary {
+  animation: none;
+  stroke-dashoffset: 0;
 }

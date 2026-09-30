@@ -42,4 +42,10 @@ export interface SceneProps {
    * the renderer's chunk arrives and its shaders compile.
    */
   onDrawn?: () => void;
+  /**
+   * Called when the scene cannot hold its pace even at its lowest pixel
+   * ratio. Supplied by ThreeScene, which puts the drawing back for the rest
+   * of the visit — see FramePacer in SceneCanvas.
+   */
+  onStruggle?: () => void;
 }

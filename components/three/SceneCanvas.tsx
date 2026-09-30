@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, addAfterEffect, addEffect, useFrame, useThree } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
@@ -164,6 +164,193 @@ function FirstFrame({ onDrawn }: { onDrawn?: () => void }) {
   return null;
 }
 
+/*
+  The pace and the budget. See FramePacer.
+*/
+/** The most of the main thread's time the scene may take: its cost per
+ *  frame over the gap between its frames. The page — a scroll, a hover, the
+ *  trail — needs the rest. */
+const SCENE_SHARE = 0.5;
+/** Mean gap between renders above which the scene is not keeping up: ~45fps.
+ *  With the main thread inside its share, a slow gap is the GPU's. */
+const STRUGGLE_MS = 22;
+/** Renders per verdict: about half a second at 60fps, a second at 30. */
+const VERDICT = 30;
+/** Renders ignored after mounting — shader compiles and texture uploads are
+ *  not the steady state — and after each change. Kept short: every render
+ *  spent deciding is one the page may be paying for. */
+const SETTLE_MOUNT = 30;
+const SETTLE_CHANGE = 12;
+/** Each step keeps 80% of the pixel ratio, so 64% of the pixels. */
+const DPR_STEP = 0.8;
+const DPR_FLOOR = 0.75;
+
+/**
+ * When the scene is drawn, and at what cost.
+ *
+ * Three jobs, all about the machines this was not built on.
+ *
+ * **The pace.** R3F's "always" draws on every vsync, and on a 120 or 144 Hz
+ * display that is twice the work of 60 for a scene that is a campfire and a
+ * ridge line — scenery, not a game. So the canvas runs on "demand" and this
+ * invalidates it on every Nth vsync, N read from the display's own refresh:
+ * every frame at 60, 75 or 90 Hz, every other at 120 or 144, every fourth at
+ * 240. R3F still measures each frame's delta itself, so every damped motion in
+ * the scenes keeps its speed whatever the pace.
+ *
+ * **The main thread.** The scene and the page share one thread, and the page
+ * is what a visitor is actually using. Measured at a quarter of this machine's
+ * CPU on a high-DPI screen, the Camp cost 11ms of main thread a frame and held
+ * its own 58fps — while the page around it scrolled at 51fps with the thread
+ * 99% busy. A frame-rate check alone could not see that: the scene was on
+ * time and everything else was late. So this times the scene itself, between
+ * R3F's before- and after-frame effects, and weighs that against the gap
+ * between its frames: its share of the thread. Over half, and it is drawn
+ * half as often — 30fps is still a fire; a scroll that stutters is not still a
+ * page. Over half even then, and it gives up.
+ *
+ * **The GPU.** With the thread inside its share, a scene that still cannot
+ * hold ~45fps is filling more pixels than the GPU can: the pixel ratio comes
+ * down a fifth at a time to 0.75, and past that it gives up too.
+ *
+ * Giving up means `onStruggle`, and ThreeScene puts the drawing back for the
+ * rest of the visit. A scene that stutters is worse than the illustration in
+ * every way that matters (lib/three/quality.ts), so it only stays on screen
+ * if the machine can carry it.
+ *
+ * Nothing is allocated per frame: the sums are running totals, and the one
+ * sort runs once, over the first two dozen vsyncs.
+ */
+function FramePacer({
+  active,
+  onLower,
+  onStruggle,
+}: {
+  active: boolean;
+  onLower: (next: number) => void;
+  onStruggle?: () => void;
+}) {
+  const invalidate = useThree((s) => s.invalidate);
+  const dpr = useThree((s) => s.viewport.dpr);
+  /* 1 at the display's pace, 2 at half of it. Read by the loop below
+     without restarting it. */
+  const halve = useRef(1);
+
+  useEffect(() => {
+    if (!active) return;
+    let raf = 0;
+    let last = 0;
+    let tick = 0;
+    let every = 1;
+    const vsync: number[] = [];
+
+    const loop = (t: number) => {
+      if (last !== 0 && vsync.length < 24) {
+        const dt = t - last;
+        if (dt > 0 && dt < 100) vsync.push(dt);
+        if (vsync.length === 24) {
+          const median = [...vsync].sort((a, b) => a - b)[12];
+          every = Math.max(1, Math.floor(1000 / median / 60 + 0.05));
+        }
+      }
+      last = t;
+      if (tick % (every * halve.current) === 0) invalidate();
+      tick += 1;
+      raf = requestAnimationFrame(loop);
+    };
+
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [active, invalidate]);
+
+  /* The verdict's running totals. */
+  const began = useRef(0);
+  const previous = useRef(0);
+  const settle = useRef(SETTLE_MOUNT);
+  const count = useRef(0);
+  const gapSum = useRef(0);
+  const costSum = useRef(0);
+  const strikes = useRef(0);
+  const done = useRef(false);
+
+  /* Held in a ref so the effects below subscribe once. */
+  const verdict = useRef<(cost: number, gap: number) => void>(() => {});
+  verdict.current = (cost, gap) => {
+    if (done.current) return;
+    if (settle.current > 0) {
+      settle.current -= 1;
+      return;
+    }
+    /* A resume after being off screen or hidden is not a slow frame. */
+    if (gap === 0 || gap > 250) return;
+
+    count.current += 1;
+    gapSum.current += gap;
+    costSum.current += cost;
+    if (count.current < VERDICT) return;
+
+    const meanCost = costSum.current / count.current;
+    const meanGap = gapSum.current / count.current;
+    count.current = 0;
+    gapSum.current = 0;
+    costSum.current = 0;
+
+    /* The thread first: a scene over its share is the page's problem too,
+       whatever its frame rate says. Half pace once; past that, the drawing.
+       One verdict is enough evidence for the second step — the cost of a
+       frame does not change with how often it is drawn. */
+    const share = meanCost / meanGap;
+    if (share > SCENE_SHARE) {
+      if (halve.current === 1) {
+        halve.current = 2;
+        settle.current = SETTLE_CHANGE;
+        return;
+      }
+      done.current = true;
+      onStruggle?.();
+      return;
+    }
+
+    /* Inside its share and still slow: the GPU is filling too many pixels.
+       A fifth less pixel ratio at a time, then the drawing — two slow
+       verdicts running at the floor, because a GPU gap is the noisier
+       signal. */
+    if (meanGap > STRUGGLE_MS) {
+      const next = Math.round(dpr * DPR_STEP * 100) / 100;
+      if (next >= DPR_FLOOR) {
+        settle.current = SETTLE_CHANGE;
+        onLower(next);
+        return;
+      }
+      strikes.current += 1;
+      if (strikes.current >= 2) {
+        done.current = true;
+        onStruggle?.();
+      }
+      return;
+    }
+    strikes.current = 0;
+  };
+
+  useEffect(() => {
+    const before = addEffect(() => {
+      began.current = performance.now();
+    });
+    const after = addAfterEffect(() => {
+      const now = performance.now();
+      const gap = previous.current === 0 ? 0 : now - previous.current;
+      previous.current = now;
+      verdict.current(now - began.current, gap);
+    });
+    return () => {
+      before();
+      after();
+    };
+  }, []);
+
+  return null;
+}
+
 interface SceneCanvasProps {
   children: ReactNode;
   /** Scene-space colour the renderer clears to, behind everything. */
@@ -192,6 +379,8 @@ interface SceneCanvasProps {
   onContextLost?: () => void;
   /** The first real frame is on the canvas. See FirstFrame. */
   onDrawn?: () => void;
+  /** Even the lowest pixel ratio cannot hold the pace. See FramePacer. */
+  onStruggle?: () => void;
 }
 
 /**
@@ -202,9 +391,12 @@ interface SceneCanvasProps {
  *   1. `dpr` is capped at 2. Uncapped, a 3x phone or a 4K display renders
  *      four to nine times the pixels for a scene that is deliberately soft —
  *      all cost, no visible gain.
- *   2. `frameloop="demand"` by default is *not* used, because this scene has
- *      a fire in it; but the loop is stopped the moment the canvas leaves the
- *      viewport, so a scene behind a scrolled page draws nothing.
+ *   2. The scene draws continuously — it has a fire in it — but on
+ *      "demand", paced by FramePacer: about 60fps on any display rather than
+ *      one frame per vsync, a lower pixel ratio when the machine cannot keep
+ *      up, and the drawing back if even that fails. The loop stops the moment
+ *      the canvas leaves the viewport, so a scene behind a scrolled page
+ *      draws nothing.
  *   3. Everything is disposed on unmount. R3F unmounts its own tree, but the
  *      renderer holds GPU memory until told otherwise, and a portfolio that
  *      leaks a context per visit will eventually fail to create one.
@@ -220,6 +412,7 @@ export function SceneCanvas({
   shadows = { enabled: false, mapSize: 512 },
   onContextLost,
   onDrawn,
+  onStruggle,
 }: SceneCanvasProps) {
   const holder = useRef<HTMLDivElement | null>(null);
   const renderer = useRef<WebGLRenderer | null>(null);
@@ -227,6 +420,18 @@ export function SceneCanvas({
   const world = useRef<Scene | null>(null);
   const [onScreen, setOnScreen] = useState(true);
   const [awake, setAwake] = useState(true);
+  /*
+    The pixel ratio the pacer has settled on, if it has lowered it.
+
+    Held here and handed to the Canvas as its prop, not set on the renderer
+    directly: R3F re-applies the `dpr` prop every time the Canvas renders, so
+    a ratio set behind its back is quietly put back the next time this
+    component does anything at all.
+  */
+  const [ceiling, setCeiling] = useState<number | null>(null);
+  const ratio: [number, number] =
+    ceiling === null ? dpr : [Math.min(dpr[0], ceiling), Math.min(dpr[1], ceiling)];
+  const drawing = onScreen && awake;
 
   /*
     Stable, because it is added as a listener inside onCreated and has to be
@@ -353,8 +558,8 @@ export function SceneCanvas({
   return (
     <div ref={holder} style={{ width: "100%", height: "100%" }}>
       <Canvas
-        frameloop={onScreen && awake ? "always" : "never"}
-        dpr={dpr}
+        frameloop={drawing ? "demand" : "never"}
+        dpr={ratio}
         camera={{ position: camera.position, fov: camera.fov ?? 42, near: 0.1, far: 200 }}
         shadows={shadows.enabled ? { type: PCFShadowMap } : false}
         gl={{
@@ -386,6 +591,7 @@ export function SceneCanvas({
       >
         {children}
         <FirstFrame onDrawn={onDrawn} />
+        <FramePacer active={drawing} onLower={setCeiling} onStruggle={onStruggle} />
         <StatsProbe />
       </Canvas>
       <StatsPanel />

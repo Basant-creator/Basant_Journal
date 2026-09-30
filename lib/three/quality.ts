@@ -18,6 +18,8 @@
  * that is supposed to look effortless. When the evidence is thin, come down.
  */
 
+import { announceWeakMachine } from "@/lib/motion/budget";
+
 export type QualityTier = "high" | "medium" | "low" | "fallback";
 
 export interface QualityProbe {
@@ -341,8 +343,49 @@ export function qualityOverride(): QualityTier | null {
 }
 
 /** The single decision every caller needs. */
+/**
+ * A scene that could not keep up, remembered for the rest of the visit.
+ *
+ * The tier is a guess made from what the browser admits about the machine,
+ * before a single frame is drawn — and §32 is right that it should come down
+ * when the evidence is thin, but some machines lie in the other direction: a
+ * GPU that reports everything and cannot fill the pixels, a laptop on
+ * battery, a CPU busy with something else. SceneCanvas watches the frames
+ * that actually happen, and when even its lowest pixel ratio cannot hold the
+ * pace it says so. From then on, for this session, every scene is the
+ * drawing: the landing and the survey sheet as well as the Camp, because a
+ * machine that could not draw one of them is not going to enjoy the others.
+ *
+ * Session, not local: a visit on battery should not decide the next one.
+ */
+const STRUGGLED_KEY = "frontier:scene-struggled";
+
+export function markSceneStruggled(): void {
+  try {
+    window.sessionStorage.setItem(STRUGGLED_KEY, "1");
+  } catch {
+    /* Storage refused: this visit still falls back; the next scene retries. */
+  }
+  /* And the rest of the site's motion hears about it: see lib/motion/budget. */
+  announceWeakMachine();
+}
+
+export function sceneStruggled(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.sessionStorage.getItem(STRUGGLED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** An explicit choice wins over everything, including a struggle — it is how
+ *  a scene is measured on purpose. */
 export function detectQualityTier(): QualityTier {
-  return qualityOverride() ?? tierFor(probeQuality());
+  const chosen = qualityOverride();
+  if (chosen) return chosen;
+  if (sceneStruggled()) return "fallback";
+  return tierFor(probeQuality());
 }
 
 export function settingsFor(tier: QualityTier): QualitySettings {

@@ -263,6 +263,7 @@ export function CampWorld(props: SceneProps) {
       camera={{ position: CAMERA_HOME, fov: CAMERA_FOV }}
       onContextLost={props.onContextLost}
       onDrawn={props.onDrawn}
+      onStruggle={props.onStruggle}
     >
       <World {...props} />
     </SceneCanvas>

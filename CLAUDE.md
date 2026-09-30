@@ -54,7 +54,10 @@ predates SCENE and TERRAIN and lists only three; README is authoritative.)
   `docs/phase-5.1-transition-notes.md`.)
 - **One owner for scroll, too.** `components/shell/SmoothScroll.tsx` makes the
   only Lenis instance: weighted wheel scrolling on the trail, native on touch,
-  none at all under reduced motion or off the trail (`/professional`, `/lab`).
+  none at all under reduced motion or off the trail (`/professional`, `/lab`),
+  and native on any machine that cannot carry it — a constrained device, or a
+  glide measured stuttering, which hands scroll back to the browser for the
+  visit.
   Scroll-linked effects read the real scroll position through CSS scroll
   timelines and get the smoothing for free — do not make a second instance,
   and do not listen to Lenis to drive layout.
@@ -89,6 +92,19 @@ predates SCENE and TERRAIN and lists only three; README is authoritative.)
   neighbours' clicks — measured at 12 of 36 for the Camp's notebook. Test hit
   areas with `elementFromPoint` on a grid, never by looking; `getBoundingClientRect`
   on the control alone does not include the overhang.
+- **An animation inside an SVG repaints all of it.** A flicker, a rising
+  plume, a stepping dash — anything that moves inside an `<svg>` re-records
+  and re-rasterises the whole drawing, every gradient and filter in it, every
+  frame. Measured on the Camp's drawing at 4× CPU: 69% of the main thread, for
+  a picture that had not changed. Moving parts go in their own small overlay
+  `<svg>` (see `CampArt`), or on an outer `<svg>` a CSS transform can move
+  (see the ridges in `Place`).
+- **A loop on a property the compositor cannot animate never stops costing.**
+  `background-position`, `stroke-dashoffset`, anything but `transform` and
+  `opacity` repaints on the main thread for as long as it runs. The book's
+  dust and the map's trail drift both did it on every frame of every visit.
+  Loop on transform/opacity, or step the loop (`steps(n)`) so it repaints a
+  few times a second. `npm run perf` shows it as `busy` at rest.
 - **Never read storage during render.** Session or local state that render
   depends on goes through `useSyncExternalStore` with an empty server
   snapshot, and render reads only the snapshot (see `visitedFrom` in
@@ -135,6 +151,11 @@ predates SCENE and TERRAIN and lists only three; README is authoritative.)
   Anything whose finished state is wrong needs its own guard, which is why
   `CampArt` sets the flame's resting opacity by hand — one 1ms iteration of an
   alternating flicker lands on whichever keyframe happens to be last.
+- **A weak machine gets the still composition too.** `lib/motion/budget.ts`
+  decides it from evidence — no GPU, a scene that struggled, a glide that
+  stuttered — and `MotionBudget` stamps `html[data-motion="still"]`. Every
+  ambient loop mirrors its `prefers-reduced-motion` block under that
+  selector, so a new loop needs both, and the two must say the same thing.
 - **Replay per subject, not once per session.** Keying arrival on a session flag
   means walking between sibling records shows nothing.
 
@@ -146,6 +167,9 @@ npm run build        # stop dev and delete .next first — they clobber each oth
 npm run typecheck
 npm run check:3d     # must pass before commit
 npm run check:tokens # var(--x) with no definition and no fallback
+npm run perf         # frame timing per place, against a running production
+                     # server: --cpu 4 --dsf 2 is a weaker laptop, --gpu
+                     # software a machine with no GPU (see the script's head)
 ```
 
 ## Environment notes

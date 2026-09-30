@@ -79,7 +79,9 @@
 */
 .far {
   height: 54%;
-  animation: drift 74s ease-in-out infinite alternate;
+  /* Stepped four times a second: a full-width band over 74 seconds moves
+     well under a pixel a step, and is recomposited four times a second. */
+  animation: drift 74s steps(296) infinite alternate;
 }
 
 .far path {
@@ -89,7 +91,7 @@
 
 .mid {
   height: 40%;
-  animation: drift 74s ease-in-out infinite alternate;
+  animation: drift 74s steps(296) infinite alternate;
   animation-delay: -6s;
   --shift: 10px;
 }
@@ -102,7 +104,7 @@
    thing the rider and the herd pass behind. */
 .near {
   height: 22%;
-  animation: drift 74s ease-in-out infinite alternate;
+  animation: drift 74s steps(296) infinite alternate;
   animation-delay: -12s;
   --shift: 18px;
 }
@@ -225,7 +227,10 @@
     transparent 68%
   );
   mix-blend-mode: screen;
-  animation: sun 88s ease-in-out infinite alternate;
+  /* Stepped, for the same reason as the bands: 0.28 of opacity over 88
+     seconds is invisible four steps a second, and this layer is the size of
+     the window. */
+  animation: sun 88s steps(352) infinite alternate;
 }
 
 @keyframes sun {
@@ -284,6 +289,20 @@
   .dust {
     display: none;
   }
+}
+
+/* The still composition, for a machine that has shown it is weak — the same
+   one reduced motion gets. See lib/motion/budget.ts. */
+:global(html[data-motion="still"]) .far,
+:global(html[data-motion="still"]) .mid,
+:global(html[data-motion="still"]) .near,
+:global(html[data-motion="still"]) .light,
+:global(html[data-motion="still"]) .smoke path {
+  animation: none;
+}
+
+:global(html[data-motion="still"]) .dust {
+  display: none;
 }
 
 /* ==========================================================================

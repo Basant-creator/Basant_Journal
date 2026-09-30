@@ -5,6 +5,7 @@ import { SceneCanvas } from "../SceneCanvas";
 import { Terrain } from "../Terrain";
 import { light, scene } from "../palette";
 import type { SceneProps } from "../types";
+import { settingsFor } from "@/lib/three/quality";
 
 /**
  * The country the survey sheet is held against.
@@ -61,12 +62,15 @@ function Rig() {
   );
 }
 
-export function VistaScene({ onContextLost, onDrawn }: SceneProps) {
+export function VistaScene({ tier, onContextLost, onDrawn, onStruggle }: SceneProps) {
   return (
     <SceneCanvas
-      /* Both handed down, for the same reason as LandingWorld's. */
+      /* The tier's pixel budget and all three callbacks, for the same
+         reasons as LandingWorld's. */
+      dpr={settingsFor(tier ?? "medium").dpr}
       onContextLost={onContextLost}
       onDrawn={onDrawn}
+      onStruggle={onStruggle}
       background={scene.night}
       fog={{ color: scene.night, near: 18, far: 70 }}
       camera={{ position: [0, 1.2, 15], fov: 40 }}

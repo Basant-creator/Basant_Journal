@@ -234,8 +234,20 @@
   );
 }
 
+/*
+  Each notice on a layer of its own.
+
+  A notice is the most expensive thing on the site to paint: a torn clip, two
+  multiplied paper textures and a drop-shadow that follows the tear. Its lift
+  on hover moved it inside the board's own painting, so the GPU repainted it
+  — measured at 80ms on the GPU's raster thread, which is a dropped frame. It
+  happened mostly mid-scroll, because a gliding page slides notices under a
+  pointer that is standing still and every one of them lifts in turn. On its
+  own layer the notice is painted once and the lift only moves it.
+*/
 .notice {
   height: 100%;
+  will-change: transform;
   transition: transform var(--duration-normal) var(--ease-standard);
 }
 

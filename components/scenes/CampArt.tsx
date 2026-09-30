@@ -72,6 +72,7 @@ function CampObject({
  */
 export function CampArt() {
   return (
+    <>
     <svg
       className={styles.art}
       viewBox={`0 0 ${CAMP_WIDTH} ${CAMP_HEIGHT}`}
@@ -102,10 +103,6 @@ export function CampArt() {
           <stop offset="0%" stopColor="var(--timber-light)" />
           <stop offset="100%" stopColor="var(--timber-deep)" />
         </linearGradient>
-
-        <filter id="smokeBlur">
-          <feGaussianBlur stdDeviation="9" />
-        </filter>
 
         <filter id="nearBlur">
           <feGaussianBlur stdDeviation="5" />
@@ -230,23 +227,11 @@ export function CampArt() {
           <path className={styles.chairFrame} d="M -46 -96 L -38 -184 M 46 -96 L 38 -184" />
         </g>
 
-        <g className={styles.smoke} filter="url(#smokeBlur)">
-          {SMOKE_PLUMES.map((d, i) => (
-            <path key={`smoke-${i}`} d={d} className={styles[`plume${i}` as "plume0"]} />
-          ))}
-        </g>
-
+        {/* The embers and the logs. The flames and the smoke over them are
+            in the overlay below — see the note there. */}
         <g className={styles.fire}>
           <ellipse className={styles.embers} cx="650" cy="586" rx="62" ry="16" />
           <path className={styles.log} d="M 596 590 l 108 -16 M 600 578 l 100 18" />
-          <path
-            className={styles.flameOuter}
-            d="M 650 582 q -34 -40 -8 -78 q 10 30 26 36 q -8 -44 16 -72 q 2 42 24 62 q 16 24 -2 52 Z"
-          />
-          <path
-            className={styles.flameInner}
-            d="M 650 580 q -18 -26 -2 -52 q 6 20 16 24 q -4 -26 12 -44 q 0 28 12 42 q 10 16 -2 30 Z"
-          />
         </g>
       </SceneLayer>
 
@@ -385,5 +370,54 @@ export function CampArt() {
       <rect className={styles.nearShadow} x="0" y={CAMP_HEIGHT - 110} width={CAMP_WIDTH} height="110" />
       <rect className={styles.haze} x="0" y="0" width={CAMP_WIDTH} height={CAMP_HEIGHT} />
     </svg>
+
+    {/*
+      Everything in the camp that moves on its own: the flames and the smoke.
+
+      A second <svg>, laid exactly over the first — same window, same slice,
+      same depth-5 layer, so the same parallax — because an animation inside
+      an SVG repaints all of it. With the flames and the smoke in the drawing,
+      every frame repainted the whole camp: every gradient, both blurs, the
+      photograph's colour filter and the vignette. Measured at a quarter of
+      this machine's CPU on a high-DPI screen, that was 69% of the main
+      thread, spent on a picture that had not changed; this is the picture
+      the weakest machines are shown instead of the rendered camp, so it is
+      the one that most has to be cheap. Now the drawing is painted once and
+      this small overlay is all that moves.
+
+      Nothing in the drawing is painted over the fire — the table starts
+      below it, the chair and the mug are to either side — so drawing the
+      flames on top is the same picture. The glow stays in the drawing,
+      because it runs under the table's edge, and holds still.
+    */}
+    <svg
+      className={styles.motion}
+      viewBox={`0 0 ${CAMP_WIDTH} ${CAMP_HEIGHT}`}
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <filter id="smokeBlur">
+          <feGaussianBlur stdDeviation="9" />
+        </filter>
+      </defs>
+      <SceneLayer depth={5} name="fire-motion" verticalRatio={0.32}>
+        <g className={styles.smoke} filter="url(#smokeBlur)">
+          {SMOKE_PLUMES.map((d, i) => (
+            <path key={`smoke-${i}`} d={d} className={styles[`plume${i}` as "plume0"]} />
+          ))}
+        </g>
+        <path
+          className={styles.flameOuter}
+          d="M 650 582 q -34 -40 -8 -78 q 10 30 26 36 q -8 -44 16 -72 q 2 42 24 62 q 16 24 -2 52 Z"
+        />
+        <path
+          className={styles.flameInner}
+          d="M 650 580 q -18 -26 -2 -52 q 6 20 16 24 q -4 -26 12 -44 q 0 28 12 42 q 10 16 -2 30 Z"
+        />
+      </SceneLayer>
+    </svg>
+    </>
   );
 }

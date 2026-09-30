@@ -15,7 +15,10 @@
     var(--haze-tint),
     transparent 70%
   );
-  animation: hazeDrift var(--haze-drift) ease-in-out infinite alternate;
+  /* Stepped four times a second: the haze is a full-width band drifting
+     over 46 seconds, so each step is well under a pixel and nobody sees it —
+     but the band is recomposited four times a second, not on every frame. */
+  animation: hazeDrift var(--haze-drift) steps(184) infinite alternate;
 }
 
 /*
@@ -112,4 +115,14 @@
   .haze {
     animation: none;
   }
+}
+
+/* The still composition, for a machine that has shown it is weak — the same
+   one reduced motion gets. See lib/motion/budget.ts. */
+:global(html[data-motion="still"]) .motes {
+  display: none;
+}
+
+:global(html[data-motion="still"]) .haze {
+  animation: none;
 }

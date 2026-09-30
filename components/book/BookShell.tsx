@@ -87,6 +87,13 @@ export function BookShell({ children }: { children: ReactNode }) {
     >
       <BookKeys pathname={pathname} />
 
+      {/* Dust in the lamp's beam. Decoration, behind the boards, taking no
+          pointer; see .air in BookShell.module.css. */}
+      <span className={styles.air} aria-hidden="true">
+        <span className={styles.motesFar} />
+        <span className={styles.motesNear} />
+      </span>
+
       <div className={styles.board}>
         {/*
           §43: no navbar inside the book. The bookmarks *are* the navigation,

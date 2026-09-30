@@ -7,6 +7,7 @@ import { Sky } from "../landing/Sky";
 import { Territory } from "../landing/Territory";
 import { hours } from "../hours";
 import type { SceneProps } from "../types";
+import { settingsFor } from "@/lib/three/quality";
 
 /**
  * The split frontier: one territory at two hours.
@@ -68,13 +69,19 @@ function Rig() {
   );
 }
 
-export function LandingWorld({ onContextLost, onDrawn }: SceneProps) {
+export function LandingWorld({ tier, onContextLost, onDrawn, onStruggle }: SceneProps) {
   return (
     <SceneCanvas
-      /* Both handed down: a lost context has to reach ThreeScene to fall
-         back, and it did not — this scene took the props and dropped them. */
+      /* The tier's pixel budget. This read the renderer's default of up to 2
+         on every machine — the whole viewport, full density, whatever the
+         tier said — which on a high-DPI screen is four times the pixels a
+         "low" or "medium" machine was judged able to fill. */
+      dpr={settingsFor(tier ?? "medium").dpr}
+      /* All three handed down: a lost context or a struggle has to reach
+         ThreeScene to fall back, and this scene used to drop them. */
       onContextLost={onContextLost}
       onDrawn={onDrawn}
+      onStruggle={onStruggle}
       /* The sky sphere covers the frame, so this is only ever seen for the
          frame before it draws. Dusk, to match the server's own hour. */
       background={hours.dusk.air.fog}

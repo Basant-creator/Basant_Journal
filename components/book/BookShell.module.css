@@ -73,40 +73,74 @@
 /*
   Dust in the beam.
 
-  Three sizes on one layer, drifting up and across at different rates, so the
-  motes never line up into a pattern. Drawn as radial gradients rather than
-  elements: one painted layer instead of forty nodes, which is the difference
-  between air and a particle system nobody asked to pay for.
+  Two layers of motes, rising at two rates so they never line up into a
+  pattern. Drawn as radial gradients rather than elements: a painted layer
+  instead of forty nodes, which is the difference between air and a particle
+  system nobody asked to pay for.
+
+  And moved, not repainted. This was one layer animated by
+  `background-position`, which is the one way of moving a background the
+  compositor cannot do: every frame of every visit to the field book, the
+  whole book's width of dust was repainted on the main thread — for seven
+  dots at 16% opacity. Each layer is now one tile taller than the book and
+  slides up exactly one tile per loop, so the pattern meets itself and the
+  loop has no seam; the GPU moves it and the main thread does nothing.
+  `.air` clips it, because the book itself does not.
 */
-.book::after {
-  content: "";
+.air {
   position: absolute;
   inset: 0;
   z-index: -1;
+  overflow: hidden;
   pointer-events: none;
   opacity: var(--dust-opacity-near);
+}
+
+.motesNear,
+.motesFar {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0;
+  will-change: transform;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Tile 340px, so taller by 340 and risen by 340. */
+.motesNear {
+  inset-block-end: -340px;
   background-image:
     radial-gradient(1.5px 1.5px at 18% 24%, var(--color-paper-light) 50%, transparent 55%),
     radial-gradient(1px 1px at 63% 12%, var(--color-paper-light) 50%, transparent 55%),
-    radial-gradient(1.5px 1.5px at 81% 58%, var(--color-paper-light) 50%, transparent 55%),
-    radial-gradient(1px 1px at 34% 71%, var(--color-paper-light) 50%, transparent 55%),
     radial-gradient(2px 2px at 52% 44%, var(--color-paper-light) 50%, transparent 55%),
-    radial-gradient(1px 1px at 9% 88%, var(--color-paper-light) 50%, transparent 55%),
-    radial-gradient(1.5px 1.5px at 72% 91%, var(--color-paper-light) 50%, transparent 55%);
-  background-size: 340px 340px, 260px 260px, 420px 420px, 300px 300px, 500px 500px, 240px 240px, 380px 380px;
-  animation: motes var(--dust-drift-near) linear infinite;
+    radial-gradient(1.5px 1.5px at 81% 58%, var(--color-paper-light) 50%, transparent 55%);
+  background-size: 340px 340px;
+  animation-name: motesNear;
+  animation-duration: var(--dust-drift-near);
 }
 
-@keyframes motes {
-  from {
-    background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-  }
+/* Tile 420px, and a little over half again as slow: further off, in the
+   same beam. */
+.motesFar {
+  inset-block-end: -420px;
+  background-image:
+    radial-gradient(1px 1px at 34% 71%, var(--color-paper-light) 50%, transparent 55%),
+    radial-gradient(1px 1px at 9% 88%, var(--color-paper-light) 50%, transparent 55%),
+    radial-gradient(1.5px 1.5px at 72% 91%, var(--color-paper-light) 50%, transparent 55%);
+  background-size: 420px 420px;
+  animation-name: motesFar;
+  animation-duration: calc(var(--dust-drift-near) * 1.6);
+}
+
+@keyframes motesNear {
   to {
-    /* Up and slightly across, at seven different rates. Nothing divides into
-       anything else, so the field never repeats inside a visit. */
-    background-position:
-      26px -340px, -18px -260px, 34px -420px, -12px -300px,
-      20px -500px, -26px -240px, 14px -380px;
+    transform: translate3d(0, -340px, 0);
+  }
+}
+
+@keyframes motesFar {
+  to {
+    transform: translate3d(0, -420px, 0);
   }
 }
 
@@ -121,9 +155,20 @@
     opacity: 0.9;
   }
 
-  .book::after {
+  .air {
     display: none;
   }
+}
+
+/* The still composition, for a machine that has shown it is weak — the same
+   one reduced motion gets. See lib/motion/budget.ts. */
+:global(html[data-motion="still"]) .book::before {
+  animation: none;
+  opacity: 0.9;
+}
+
+:global(html[data-motion="still"]) .air {
+  display: none;
 }
 
 .board {

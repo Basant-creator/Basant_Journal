@@ -81,7 +81,15 @@
     var(--light-tint),
     transparent 68%
   );
-  animation: lightShift var(--light-shift) ease-in-out infinite alternate;
+  /*
+    Stepped, four times a second. The light crosses a tenth of the window in
+    112 seconds — a third of a pixel per step — so nobody can see the steps,
+    and the layer is recomposited four times a second instead of on every
+    frame. It is the size of the whole window: on a machine with no GPU, where
+    the browser composites in software, a full-window layer that changes
+    every frame was most of what the page cost standing still.
+  */
+  animation: lightShift var(--light-shift) steps(448) infinite alternate;
 }
 
 @keyframes lightShift {
@@ -103,4 +111,11 @@
     animation: none;
     transform: translate3d(1%, 0, 0) scale(1.09);
   }
+}
+
+/* The still composition, for a machine that has shown it is weak — the same
+   one reduced motion gets. See lib/motion/budget.ts. */
+:global(html[data-motion="still"]) .light {
+  animation: none;
+  transform: translate3d(1%, 0, 0) scale(1.09);
 }

@@ -110,7 +110,7 @@ function Rig({ framed }: { framed: boolean }) {
  * tested by moving a mouse across a WebGL surface is a camera nobody can
  * verify, here or in CI.
  */
-export function BenchScene({ onContextLost, onDrawn }: SceneProps) {
+export function BenchScene({ onContextLost, onDrawn, onStruggle }: SceneProps) {
   const [framed, setFramed] = useState(false);
 
   return (
@@ -121,6 +121,7 @@ export function BenchScene({ onContextLost, onDrawn }: SceneProps) {
         camera={{ position: [0, 1.3, 5.4], fov: 44 }}
         onContextLost={onContextLost}
         onDrawn={onDrawn}
+        onStruggle={onStruggle}
       >
         <Rig framed={framed} />
       </SceneCanvas>
