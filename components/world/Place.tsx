@@ -86,15 +86,28 @@ export function Place({
           this composition reaches, including the short wide laptop that was
           the worst case, so the vertical never crops at all.
         */}
-        <svg
-          className={styles.ridges}
-          viewBox="0 150 1600 300"
-          preserveAspectRatio="xMidYMin slice"
-        >
-          {terrain.mountains.silhouettes.map((d, i) => (
-            <path key={`place-ridge-${i}`} d={d} data-band={i} />
-          ))}
-        </svg>
+        {/*
+          One <svg> per band rather than three paths in one.
+
+          The depth in Place.module.css moves each band on its own as the page
+          scrolls, and a path inside an SVG cannot be moved by the compositor:
+          a transform on it repaints the whole drawing, every frame of a
+          scroll, under a mask and a filter. An outer <svg> is a box like any
+          other, so three of them — identical window, identical anchor,
+          stacked in the order the paths were drawn — are the same picture,
+          and each one slides on the GPU.
+        */}
+        {terrain.mountains.silhouettes.map((d, i) => (
+          <svg
+            key={`place-ridge-${i}`}
+            className={styles.ridges}
+            data-band={i}
+            viewBox="0 150 1600 300"
+            preserveAspectRatio="xMidYMin slice"
+          >
+            <path d={d} />
+          </svg>
+        ))}
 
         <div className={styles.ground} />
 

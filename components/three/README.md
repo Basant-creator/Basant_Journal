@@ -134,6 +134,15 @@ does not reliably fire again when it returns.
 Scene's stage, which outlives the canvas. Left behind, they strand the
 controls where the camera last put them, over a drawing that never moved.
 
+**The drawing stays until the render has drawn.** Mounting a scene used to
+replace the illustration outright, which left the stage empty for as long as
+the chunk, the shaders and the textures took — about five seconds of black on
+Camp in development. `ThreeScene` now lays the scene over the drawing,
+invisible, and fades it in only when `SceneCanvas` reports a first real frame
+(`onDrawn`); the drawing is removed once it is covered. Every scene passes
+both `onDrawn` and `onContextLost` through to its canvas — two of them used to
+drop the props.
+
 **The fallback is a picture and nothing else.** Both branches wrap it in
 `role="img"` with the same label, which makes it a leaf in the accessibility
 tree. Controls go in `children`, which render in both branches.

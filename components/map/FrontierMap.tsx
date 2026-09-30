@@ -72,6 +72,7 @@ import {
   markerState,
   serverSnapshot,
   subscribeTrail,
+  visitedFrom,
   visitedSnapshot,
 } from "@/lib/world/trail";
 import { LocationNode, type NodeRef } from "./LocationNode";
@@ -116,7 +117,10 @@ export function FrontierMap() {
     has nothing stamped on it, the client re-renders once with the session's
     real history, and there is no hydration mismatch to explain away later.
   */
-  useSyncExternalStore(subscribeTrail, visitedSnapshot, serverSnapshot);
+  const walked = useSyncExternalStore(subscribeTrail, visitedSnapshot, serverSnapshot);
+  /* The snapshot is the only thing render may read the walk from — it is what
+     keeps this promise. markerState used to go around it to storage. */
+  const visited = useMemo(() => visitedFrom(walked), [walked]);
 
   /* The sheet is the Frontier checkpoint — the visitor is standing on the
      survey, looking at the rest of the route. Every marker's state is
@@ -563,7 +567,7 @@ export function FrontierMap() {
                           checkpointState={(() => {
                             const id = LOCATION_CHECKPOINT[location.id];
                             if (!id) return null;
-                            return markerState(indexOfCheckpoint(id), here);
+                            return markerState(indexOfCheckpoint(id), here, visited);
                           })()}
                           hovered={
                             activeId === location.id ||
@@ -668,13 +672,14 @@ export function FrontierMap() {
         <MapLegend
           activeId={activeId}
           here={here}
+          visited={visited}
           onHover={(id) => (id ? enter(id) : leave())}
         />
       </aside>
 
       {/* ================= mobile: a different composition ================ */}
       <div className={styles.mobile}>
-        <MobileTrail here={here} />
+        <MobileTrail here={here} visited={visited} />
       </div>
     </div>
   );

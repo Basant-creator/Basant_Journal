@@ -35,4 +35,11 @@ export interface SceneProps {
    * just lost its GPU context is the last thing that should be making it.
    */
   onContextLost?: () => void;
+  /**
+   * Called when the renderer has drawn its first real frame. Supplied by
+   * ThreeScene, like onContextLost: until it fires, the illustrated scene
+   * stays on screen under the canvas, so nobody looks at an empty stage while
+   * the renderer's chunk arrives and its shaders compile.
+   */
+  onDrawn?: () => void;
 }

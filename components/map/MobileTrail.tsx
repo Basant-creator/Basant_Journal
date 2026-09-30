@@ -15,6 +15,8 @@ import { routes } from "@/lib/routes";
 interface MobileTrailProps {
   /** Which checkpoint the reader is standing on, as an index on the route. */
   here: number;
+  /** The walk so far, from the trail store's snapshot — see visitedFrom. */
+  visited: ReadonlySet<string>;
 }
 
 /**
@@ -28,7 +30,7 @@ interface MobileTrailProps {
  * The ridge at the top is the same generated terrain as the desktop sheet,
  * cropped — so the two compositions are visibly the same territory.
  */
-export function MobileTrail({ here }: MobileTrailProps) {
+export function MobileTrail({ here, visited }: MobileTrailProps) {
   return (
     <div className={styles.wrap}>
       <div className={styles.banner} aria-hidden="true">
@@ -67,7 +69,7 @@ export function MobileTrail({ here }: MobileTrailProps) {
              world model does not. */
           const checkpoint = LOCATION_CHECKPOINT[location.id];
           const state: MarkerState | null = checkpoint
-            ? markerState(indexOfCheckpoint(checkpoint), here)
+            ? markerState(indexOfCheckpoint(checkpoint), here, visited)
             : null;
           return (
             <li

@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
@@ -145,6 +145,25 @@ function releaseScene(scene: Scene | null): number {
   return released;
 }
 
+/**
+ * Reports the first frame, once one has actually been drawn.
+ *
+ * Inside the Canvas and beside the scene, so it mounts in the same suspense
+ * boundary as everything the scene loads: it cannot report a frame of bare
+ * clear colour while something the scene waits on is still on its way.
+ * `useFrame` runs before the render it belongs to, so the report is made on
+ * the second callback — by then one whole frame is on the canvas.
+ */
+function FirstFrame({ onDrawn }: { onDrawn?: () => void }) {
+  const frames = useRef(0);
+  useFrame(() => {
+    if (frames.current > 1) return;
+    frames.current += 1;
+    if (frames.current === 2) onDrawn?.();
+  });
+  return null;
+}
+
 interface SceneCanvasProps {
   children: ReactNode;
   /** Scene-space colour the renderer clears to, behind everything. */
@@ -171,6 +190,8 @@ interface SceneCanvasProps {
    */
   shadows?: { enabled: boolean; mapSize: number };
   onContextLost?: () => void;
+  /** The first real frame is on the canvas. See FirstFrame. */
+  onDrawn?: () => void;
 }
 
 /**
@@ -198,6 +219,7 @@ export function SceneCanvas({
   dpr = [1, 2],
   shadows = { enabled: false, mapSize: 512 },
   onContextLost,
+  onDrawn,
 }: SceneCanvasProps) {
   const holder = useRef<HTMLDivElement | null>(null);
   const renderer = useRef<WebGLRenderer | null>(null);
@@ -363,6 +385,7 @@ export function SceneCanvas({
         }}
       >
         {children}
+        <FirstFrame onDrawn={onDrawn} />
         <StatsProbe />
       </Canvas>
       <StatsPanel />

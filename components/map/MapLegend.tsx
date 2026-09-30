@@ -14,6 +14,8 @@ interface MapLegendProps {
   onHover?: (id: string | null) => void;
   /** Which checkpoint the reader is standing on, as an index on the route. */
   here: number;
+  /** The walk so far, from the trail store's snapshot — see visitedFrom. */
+  visited: ReadonlySet<string>;
 }
 
 /**
@@ -44,7 +46,7 @@ const STATE_LABEL: Record<MarkerState, string> = {
  * rather than a visible legend plus a hidden skip-list. Everything reachable
  * by pointing at the map is reachable here by tabbing a normal list of links.
  */
-export function MapLegend({ activeId, onHover, here }: MapLegendProps) {
+export function MapLegend({ activeId, onHover, here, visited }: MapLegendProps) {
   return (
     <div className={styles.legend}>
       <div className={styles.head}>
@@ -57,7 +59,7 @@ export function MapLegend({ activeId, onHover, here }: MapLegendProps) {
           const active = activeId === location.id;
           const checkpoint = LOCATION_CHECKPOINT[location.id];
           const state: MarkerState | null = checkpoint
-            ? markerState(indexOfCheckpoint(checkpoint), here)
+            ? markerState(indexOfCheckpoint(checkpoint), here, visited)
             : null;
           return (
             <li key={location.id}>

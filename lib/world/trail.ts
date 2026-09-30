@@ -202,8 +202,20 @@ export function serverSnapshot(): string {
   return "";
 }
 
-export function hasVisited(id: string): boolean {
-  return load().has(id);
+/**
+ * The places a snapshot says have been walked.
+ *
+ * Render reads the walk through this and nothing else. The snapshot comes
+ * from `useSyncExternalStore`, which hands the server's empty one to the
+ * hydration render and the session's real one straight after — so the markup
+ * the client hydrates always matches the markup the server sent. Reading
+ * storage directly during render, which `markerState` used to do, gave the
+ * hydration render the real history instead: a reload after walking ahead
+ * came back "behind" where the server had said "ahead", React discarded the
+ * page and rebuilt it on the client, and Camp's arrival played twice.
+ */
+export function visitedFrom(snapshot: string): ReadonlySet<string> {
+  return new Set(snapshot ? snapshot.split(",") : []);
 }
 
 export function markVisited(id: string): void {
@@ -263,14 +275,17 @@ export function indexOfCheckpoint(id: string): number {
  * back to the immediate neighbour, because a route that says nothing is worse
  * than a route that repeats itself.
  *
- * Reads session state, so it is only correct on the client. Callers render the
- * neighbour on the server and let the real answer arrive with hydration; see
- * TrailOnward, which does exactly that.
+ * The walk arrives as `visited`, from the store's snapshot (see visitedFrom):
+ * empty on the server and during hydration, so both render the plain
+ * neighbour, and the real answer follows once the client has hydrated.
  */
-export function nextCheckpoint(current: number): Checkpoint | null {
+export function nextCheckpoint(
+  current: number,
+  visited: ReadonlySet<string>,
+): Checkpoint | null {
   if (current < 0 || current >= checkpoints.length - 1) return null;
   for (let i = current + 1; i < checkpoints.length; i += 1) {
-    if (!hasVisited(checkpoints[i].id)) return checkpoints[i];
+    if (!visited.has(checkpoints[i].id)) return checkpoints[i];
   }
   return checkpoints[current + 1];
 }
@@ -317,13 +332,18 @@ export type MarkerState = "behind" | "here" | "ahead";
  * rather than six dead markers and no way back. They arrived by another road;
  * the territory between here and the start is still established ground.
  */
-export function markerState(index: number, current: number): MarkerState {
+export function markerState(
+  index: number,
+  current: number,
+  /* From the store's snapshot, never from storage: see visitedFrom. */
+  visited: ReadonlySet<string>,
+): MarkerState {
   if (current === -1) {
     /* Off-trail — the professional view. Nothing is "here", and only places
        actually walked are offered. */
-    return hasVisited(checkpoints[index].id) ? "behind" : "ahead";
+    return visited.has(checkpoints[index].id) ? "behind" : "ahead";
   }
   if (index === current) return "here";
   if (index < current) return "behind";
-  return hasVisited(checkpoints[index].id) ? "behind" : "ahead";
+  return visited.has(checkpoints[index].id) ? "behind" : "ahead";
 }

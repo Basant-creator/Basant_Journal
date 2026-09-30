@@ -135,7 +135,7 @@
   stroke: none;
 }
 
-.ridges path[data-band="0"] {
+.ridges[data-band="0"] path {
   fill: color-mix(
     in srgb,
     var(--camp-land-far) calc(var(--place-ridge) * 100%),
@@ -143,7 +143,7 @@
   );
 }
 
-.ridges path[data-band="1"] {
+.ridges[data-band="1"] path {
   fill: color-mix(
     in srgb,
     var(--camp-land-mid) calc(var(--place-ridge) * 100%),
@@ -151,7 +151,7 @@
   );
 }
 
-.ridges path[data-band="2"] {
+.ridges[data-band="2"] path {
   fill: var(--camp-land-near);
 }
 
@@ -191,18 +191,25 @@
   and then holds: the ground the visitor is walking on keeps pace, and the
   far ridge and the sky fall behind.
 
-  Scroll-driven, so it is a transform per band on the compositor and no
-  script at all — and the scroll it is driven by is the one SmoothScroll
-  carries, so the depth glides rather than stepping with each detent of a
-  wheel. The resting state is the drawn one: a browser without scroll
-  timelines, or a visitor who asked for less motion, sees the country exactly
-  as it always was. The paths carry no transform attribute of their own, so a
+  Scroll-driven, and compositor-only: each band is its own <svg> (see
+  Place.tsx) and its own layer, so a scroll frame moves four textures and
+  repaints nothing. It was a transform on the paths inside one SVG for a
+  while, which the compositor cannot do — every frame of a glide repainted
+  the whole masked, filtered drawing on the main thread, the thread the
+  smoothed scroll itself runs on.
+
+  The scroll it follows is the one SmoothScroll carries, so the depth glides
+  rather than stepping with each detent of a wheel. The resting state is the
+  drawn one: a browser without scroll timelines, or a visitor who asked for
+  less motion, sees the country exactly as it always was, and gets no layers
+  it does not need. The bands carry no transform attribute of their own, so a
   CSS transform replaces nothing.
 */
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: scroll()) {
     .sky,
-    .ridges path {
+    .ridges {
+      will-change: transform;
       animation-duration: 1ms;
       animation-timing-function: linear;
       animation-fill-mode: both;
@@ -214,15 +221,15 @@
       animation-name: placeDepthSky;
     }
 
-    .ridges path[data-band="0"] {
+    .ridges[data-band="0"] {
       animation-name: placeDepthFar;
     }
 
-    .ridges path[data-band="1"] {
+    .ridges[data-band="1"] {
       animation-name: placeDepthMid;
     }
 
-    .ridges path[data-band="2"] {
+    .ridges[data-band="2"] {
       animation-name: placeDepthNear;
     }
   }

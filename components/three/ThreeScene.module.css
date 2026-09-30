@@ -18,16 +18,33 @@
   pointer-events: none;
 }
 
+/* The two renderings of one place, stacked: the drawing, and the render laid
+   over it. */
+.drawing,
+.render {
+  position: absolute;
+  inset: 0;
+}
+
 /*
   The rendered scene arrives, it does not appear.
 
-  Deferring the mount to idle means the illustrated camp is on screen first
-  and is then replaced, which without this reads as a snap: the same place,
-  suddenly drawn by something else. A short fade turns that into the scene
-  resolving. Compositor-only, and the resting state is the visible one, so a
-  browser that never runs it shows the scene rather than nothing.
+  It is laid over the drawing and kept out of sight until SceneCanvas reports
+  a frame that has really been drawn — before that the canvas holds nothing
+  but its clear colour, and showing it would put a blank where the drawing
+  is. Then a short fade, so the same place resolves rather than snapping to
+  something else. Compositor-only.
+
+  The hidden state is a state rather than an animation's first frame: if the
+  report never comes — a canvas that never gets to draw — the drawing stays
+  on screen, which is the right way for this to fail.
 */
-.arrives {
+.render {
+  opacity: 0;
+}
+
+.render[data-drawn] {
+  opacity: 1;
   animation: sceneArrive 420ms var(--ease-standard) both;
 }
 
@@ -41,7 +58,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .arrives {
+  .render[data-drawn] {
     animation: none;
   }
 }

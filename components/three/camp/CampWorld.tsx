@@ -262,6 +262,7 @@ export function CampWorld(props: SceneProps) {
       fog={{ color: sky.haze, near: 16, far: 96 }}
       camera={{ position: CAMERA_HOME, fov: CAMERA_FOV }}
       onContextLost={props.onContextLost}
+      onDrawn={props.onDrawn}
     >
       <World {...props} />
     </SceneCanvas>

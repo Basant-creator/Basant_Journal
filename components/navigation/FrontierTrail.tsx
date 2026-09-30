@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import {
   type Checkpoint,
   type MarkerState,
@@ -13,6 +13,7 @@ import {
   markerState,
   serverSnapshot,
   subscribeTrail,
+  visitedFrom,
   visitedSnapshot,
 } from "@/lib/world/trail";
 import styles from "./FrontierTrail.module.css";
@@ -124,8 +125,10 @@ function useVisited(): string {
 export function FrontierTrail() {
   const pathname = usePathname();
   const current = indexOfRoute(pathname);
-  /* Subscribed so the stamps appear as the walk happens, not on reload. */
-  useVisited();
+  /* Subscribed so the stamps appear as the walk happens, and read through the
+     snapshot so the hydration render matches the server's (visitedFrom). */
+  const snapshot = useVisited();
+  const visited = useMemo(() => visitedFrom(snapshot), [snapshot]);
 
   /*
     Arriving somewhere marks it.
@@ -147,7 +150,7 @@ export function FrontierTrail() {
     <nav className={styles.trail} aria-label="The frontier trail">
       <ol className={styles.line}>
         {checkpoints.map((point, index) => {
-          const state: MarkerState = markerState(index, current);
+          const state: MarkerState = markerState(index, current, visited);
           const near = Math.abs(index - current) <= 1;
 
           const glyph = (

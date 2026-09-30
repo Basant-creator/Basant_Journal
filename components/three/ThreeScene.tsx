@@ -161,11 +161,11 @@ export function ThreeScene({
     missing.
   */
   const transition = useTransition();
-  const covered = transition !== null && transition.phase !== "IDLE";
+  const curtained = transition !== null && transition.phase !== "IDLE";
 
   const [settled, setSettled] = useState(false);
   useEffect(() => {
-    if (capability !== "ready" || covered) return;
+    if (capability !== "ready" || curtained) return;
 
     if (typeof window.requestIdleCallback === "function") {
       const id = window.requestIdleCallback(() => setSettled(true), { timeout: 1400 });
@@ -174,7 +174,7 @@ export function ThreeScene({
 
     const id = window.setTimeout(() => setSettled(true), 700);
     return () => window.clearTimeout(id);
-  }, [capability, covered]);
+  }, [capability, curtained]);
 
   /*
     The starting gun for §38's two timings.
@@ -222,30 +222,67 @@ export function ThreeScene({
     };
   }, []);
 
-  /* Not ready, or ready and still letting the page arrive: either way the
-     illustrated scene is what is on screen, and it is the same scene. */
-  if (capability !== "ready" || !settled) {
-    return (
-      <div
-        className={[styles.stage, className].filter(Boolean).join(" ")}
-        data-scene-mode={capability}
-        data-scene-reason={reason ?? undefined}
-      >
-        <div className={styles.picture} {...pictureRole}>
-          {fallback}
-        </div>
-        {children}
-      </div>
-    );
-  }
+  /*
+    The drawing stays until the render has something to show.
+
+    Mounting the scene used to replace the illustration outright, and that
+    left the stage empty for as long as the renderer took to arrive: the chunk
+    over the network, then every shader and texture built on the main thread
+    before a first frame. Measured on Camp in development that was about five
+    seconds of a black rectangle where a finished drawing had just been; in a
+    production build it is shorter and it is still a hole. That is the failure
+    this component's fallback contract exists to rule out, happening on the
+    happy path.
+
+    So the render is laid over the drawing, invisible, and only fades in once
+    SceneCanvas reports a frame that has actually been drawn. A little after
+    the fade the drawing is taken out: it is animated (the camp's flame, its
+    smoke), and an animation nobody can see under an opaque canvas is still
+    painted.
+  */
+  const live = capability === "ready" && settled;
+  const [drawn, setDrawn] = useState(false);
+  const [covered, setCovered] = useState(false);
+  const handleDrawn = useCallback(() => setDrawn(true), []);
+
+  useEffect(() => {
+    if (!live) {
+      /* A lost context, or a capability recheck: the drawing comes back and
+         the next render has to earn its place again. */
+      setDrawn(false);
+      setCovered(false);
+      return;
+    }
+    if (!drawn) return;
+    /* Past the 420ms arrival, with room for a slow frame. */
+    const id = window.setTimeout(() => setCovered(true), 600);
+    return () => window.clearTimeout(id);
+  }, [live, drawn]);
 
   const Scene = SCENES[scene];
 
+  /* One structure for every state, so the drawing is never remounted when the
+     render arrives beside it — only removed once it is covered. */
   return (
-    <div className={[styles.stage, className].filter(Boolean).join(" ")} data-scene-mode="ready">
-      <div className={`${styles.picture} ${styles.arrives}`} {...pictureRole}>
-        {/* The handler goes last so a caller cannot replace it. */}
-        <Scene {...state} tier={tier ?? "medium"} onContextLost={handleContextLost} />
+    <div
+      className={[styles.stage, className].filter(Boolean).join(" ")}
+      data-scene-mode={capability}
+      data-scene-reason={live ? undefined : reason ?? undefined}
+      data-scene-drawn={live && drawn ? "true" : undefined}
+    >
+      <div className={styles.picture} {...pictureRole}>
+        {live && covered ? null : <div className={styles.drawing}>{fallback}</div>}
+        {live ? (
+          <div className={styles.render} data-drawn={drawn ? "true" : undefined}>
+            {/* The handlers go last so a caller cannot replace them. */}
+            <Scene
+              {...state}
+              tier={tier ?? "medium"}
+              onContextLost={handleContextLost}
+              onDrawn={handleDrawn}
+            />
+          </div>
+        ) : null}
       </div>
       {/* The DOM layer over the canvas: labels, controls, records. The canvas
           carries atmosphere; everything readable stays here. */}

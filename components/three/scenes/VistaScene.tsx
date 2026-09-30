@@ -61,9 +61,12 @@ function Rig() {
   );
 }
 
-export function VistaScene(_props: SceneProps) {
+export function VistaScene({ onContextLost, onDrawn }: SceneProps) {
   return (
     <SceneCanvas
+      /* Both handed down, for the same reason as LandingWorld's. */
+      onContextLost={onContextLost}
+      onDrawn={onDrawn}
       background={scene.night}
       fog={{ color: scene.night, near: 18, far: 70 }}
       camera={{ position: [0, 1.2, 15], fov: 40 }}

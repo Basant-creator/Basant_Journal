@@ -89,6 +89,12 @@ predates SCENE and TERRAIN and lists only three; README is authoritative.)
   neighbours' clicks — measured at 12 of 36 for the Camp's notebook. Test hit
   areas with `elementFromPoint` on a grid, never by looking; `getBoundingClientRect`
   on the control alone does not include the overhang.
+- **Never read storage during render.** Session or local state that render
+  depends on goes through `useSyncExternalStore` with an empty server
+  snapshot, and render reads only the snapshot (see `visitedFrom` in
+  `lib/world/trail.ts`). Reading storage directly handed the hydration render
+  the real history: a reload after walking the trail ahead mismatched, React
+  discarded the page and rebuilt it on the client, and Camp loaded twice.
 - **StrictMode double-invokes effects.** An effect that reads state it wrote
   itself (a "seen" flag) will bail on the second run. Use a ref for the decision
   and hang cleanup off state, not mount.

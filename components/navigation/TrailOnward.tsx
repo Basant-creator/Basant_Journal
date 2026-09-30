@@ -10,6 +10,7 @@ import {
   previousCheckpoint,
   serverSnapshot,
   subscribeTrail,
+  visitedFrom,
   visitedSnapshot,
 } from "@/lib/world/trail";
 
@@ -52,13 +53,13 @@ function captionFor(id: string): string {
  */
 export function TrailOnward() {
   const pathname = usePathname();
-  useSyncExternalStore(subscribeTrail, visitedSnapshot, serverSnapshot);
+  const snapshot = useSyncExternalStore(subscribeTrail, visitedSnapshot, serverSnapshot);
 
   const here = indexOfRoute(pathname);
   if (here === -1) return null;
 
   const back = previousCheckpoint(here);
-  const forward = nextCheckpoint(here);
+  const forward = nextCheckpoint(here, visitedFrom(snapshot));
 
   return (
     <OnwardNav

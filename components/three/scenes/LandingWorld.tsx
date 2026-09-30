@@ -68,9 +68,13 @@ function Rig() {
   );
 }
 
-export function LandingWorld(_props: SceneProps) {
+export function LandingWorld({ onContextLost, onDrawn }: SceneProps) {
   return (
     <SceneCanvas
+      /* Both handed down: a lost context has to reach ThreeScene to fall
+         back, and it did not — this scene took the props and dropped them. */
+      onContextLost={onContextLost}
+      onDrawn={onDrawn}
       /* The sky sphere covers the frame, so this is only ever seen for the
          frame before it draws. Dusk, to match the server's own hour. */
       background={hours.dusk.air.fog}

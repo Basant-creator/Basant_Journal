@@ -8,13 +8,20 @@ import { isOffTrail } from "@/lib/world/trail";
 /**
  * Walking pace, as a damping factor.
  *
- * Lenis eases the page toward where the wheel has sent it by this fraction of
- * the remaining distance per 60th of a second — and it does it through
- * `1 - exp(-λ·dt)`, so the pace is the same at 60 Hz and at 120. The default
- * is 0.1, which feels like a website. A little under it has weight without
- * lag: the page is carried, not dragged.
+ * Lenis eases the page toward where the wheel has sent it through
+ * `1 - exp(-λ·dt)` with λ = PACE × 60, so the pace is the same at 60 Hz and
+ * at 120. What the number decides is how long the page trails the hand.
+ *
+ * It was 0.085, under Lenis's own 0.1, on the idea that heavier reads as
+ * more cinematic. It read as lag: 90% of a wheel notch arrived after 0.45s
+ * and the page was still settling at 0.9s, so every stop landed late and a
+ * trackpad — which brings its own momentum — floated on top of it. "Smooth
+ * and laggy at the same time" was the report, and it was exactly this.
+ *
+ * At 0.13 the same notch is 90% of the way in 0.30s and at rest by 0.6s:
+ * still a glide, but one that follows the wheel rather than chasing it.
  */
-const PACE = 0.085;
+const PACE = 0.13;
 
 const REDUCED = "(prefers-reduced-motion: reduce)";
 
