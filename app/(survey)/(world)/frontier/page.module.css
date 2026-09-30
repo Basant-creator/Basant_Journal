@@ -18,11 +18,12 @@
   max-width: 62ch;
 }
 
-/* The labels on this head named no face and inherited the old control face
-   from body. Body is the book face now, so they name the control face — set
-   as small caps, not forced capitals, so the face's own small capitals show. */
+/* The labels on this head name the margin face: body is the book face, and a
+   label that asks for nothing is set as running text. */
 .eyebrow {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-hero);
   color: var(--color-text-muted);
@@ -61,6 +62,8 @@
 
 .sheetData dt {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);

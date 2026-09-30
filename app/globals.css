@@ -115,30 +115,51 @@
   --color-scrim: color-mix(in srgb, var(--shadow-ink) 72%, transparent);
   --color-hover-wash: color-mix(in srgb, var(--color-paper) 6%, transparent);
 
+  /*
+    A ruled control's ground and edge, which change with the surface it is on
+    rather than with the control (see Button.module.css). On the dark it
+    stands on a veil of ink — enough to hold warm-white at AA over the
+    landing's landscape — and its rule is paper-light at a little under half;
+    .surfacePaper below takes the veil away and draws the rule in ink.
+  */
+  --control-ground: color-mix(in srgb, var(--color-ink) 58%, transparent);
+  --control-ground-hover: color-mix(in srgb, var(--color-ink) 74%, transparent);
+  --control-edge: color-mix(in srgb, var(--color-paper-light) 46%, transparent);
+  --control-edge-hover: var(--color-paper-light);
+
   /* --- typography -------------------------------------------------------- */
   /* Faces are supplied by next/font in app/layout.tsx. */
-  /* Chapter cards, location reveals and the wordmark only — the loudest
-     voice, kept rare so it stays dramatic instead of becoming kitsch. */
-  --font-chapter: var(--font-rye), "Rye", Georgia, serif;
+  /* Chapter cards, location reveals and the wordmark. The display face, set
+     spaced and large rather than swapped for a louder one: it was Rye, a
+     saloon bill's wood type, and that one choice made every arrival on the
+     site read as a western theme. See the note in app/layout.tsx. */
+  --font-chapter: var(--font-fell), "IM Fell English SC", Georgia, serif;
   /* The general display voice: headings, map lettering, document headers. */
   --font-display: var(--font-fell), "IM Fell English SC", Georgia, serif;
   --font-editorial: var(--font-source-serif), Georgia, serif;
   /*
-    The voice of every control, and no longer Inter.
+    The margin: every label, date, unit and control.
 
-    Inter is a 2017 screen grotesque, and it was set on everything a visitor
-    clicks — buttons, sheet tabs, the trail, the footer, the corner chips. It
-    was the single most "software" thing on the page. Printer's small caps are
-    what an 1880s job printer set a label in, and the face is already loaded
-    for the display voice, so the swap costs one line here and removes a font
-    download from every page.
+    It has been two wrong things. Inter was a screen grotesque and the most
+    "software" thing on the page; Fell's small caps replaced it and put the
+    whole interface in period costume, a single 17th-century voice for names,
+    labels and buttons alike, which is most of why the site read as a theme.
 
-    It has one weight. Anything that asked --font-ui for 500 or 600 now gets a
-    synthetic bold, which on a Fell cut looks like ink that ran — rules that
-    read this token should not set a weight. It has old-style figures too, so
-    numbers that must line up in columns read --font-figures instead.
+    A survey sheet does not letter its margin the way it letters its places.
+    Names are roman; the neatline, the scale, the sheet number and the date
+    are plain gothic capitals, spaced out. Archivo is that gothic — drawn from
+    late-19th-century American grotesques — and the distinction is the point:
+    Fell says what a place is called, this says how it was measured.
+
+    Rules that read it set their labels in capitals at --weight-ui and let the
+    tracking tokens space them. It is used a little condensed, and the width
+    is set once on <html> below rather than on every rule — font-stretch
+    inherits, and it is inert on the other three faces, none of which is cut
+    in more than one width.
   */
-  --font-ui: var(--font-fell), "IM Fell English SC", Georgia, serif;
+  --font-ui: var(--font-archivo), "Archivo", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+  --weight-ui: 500;
+  --stretch-ui: 88%;
   /* Figures that sit in columns: lining and tabular, which Fell's old-style
      numerals are not. The book face, used only for its digits. */
   --font-figures: var(--font-source-serif), Georgia, serif;
@@ -174,9 +195,11 @@
   --leading-relaxed: 1.68;
 
   --tracking-tight: -0.02em;
-  --tracking-wide: 0.06em;
-  --tracking-label: 0.08em;
-  --tracking-hero: 0.14em;
+  /* Spaced for capitals. These were set for Fell's small caps, which carry
+     their own looseness; a gothic in capitals closes up without the room. */
+  --tracking-wide: 0.1em;
+  --tracking-label: 0.12em;
+  --tracking-hero: 0.2em;
 
   --measure-prose: 66ch;
   --measure-lede: 54ch;
@@ -658,7 +681,7 @@
   /* --- the ground band: constant --------------------------------------- */
   --landing-ink: var(--color-text-primary);
   --landing-ink-soft: var(--color-text-secondary);
-  /* One step up from --color-text-muted, which is the shell's small-caps tone
+  /* One step up from --color-text-muted, which is the shell's label tone
      and is measured against the shell's near-black. The landing's ground is
      not that: it is lit earth, and at dawn it sits thirty times higher, which
      takes --color-muted to 4.32:1 — a miss. This reads 8.4:1 at dusk and
@@ -691,7 +714,7 @@
 
     Not decoration, and not a panel. At the resting split the diagonal runs
     straight through this band: the eyebrow spans axis 0.66 to 0.77 against a
-    boundary sitting at 0.72, so one line of small caps has dusk behind its
+    boundary sitting at 0.72, so one line of capitals has dusk behind its
     left half and a lit dawn wedge behind its right. Measured at 390x844 that
     end of the line came back at 1.19:1 and the last letter of FRONTIER at
     1.72:1. No choice of ink fixes a line that is over both hours at once —
@@ -703,7 +726,7 @@
   /*
     And what the two small lines of it stand on, which is not the same thing.
 
-    A plate is a field, and a field strong enough to carry 12px small caps
+    A plate is a field, and a field strong enough to carry 12px capitals
     over a lit dawn wedge has to be near-opaque — worked back from the
     measurement, 0.86 alpha, which over the split's top-right corner is a
     black band across the one part of the composition the split exists to
@@ -782,6 +805,10 @@ html[data-hour="dawn"] {
   --color-border-strong: rgba(64, 50, 37, 0.55);
   --focus-ring-color: var(--color-ink);
   --color-hover-wash: rgba(64, 50, 37, 0.05);
+  --control-ground: transparent;
+  --control-ground-hover: var(--color-hover-wash);
+  --control-edge: var(--color-border-strong);
+  --control-edge-hover: var(--color-earth-dark);
 }
 
 /* ==========================================================================
@@ -797,16 +824,17 @@ html[data-hour="dawn"] {
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* The margin face's width, once, for the whole document: see --font-ui. */
+  font-stretch: var(--stretch-ui);
 }
 
 body {
   margin: 0;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
-  /* The book face, not the control face. --font-ui used to be the default and
-     was a readable grotesque; now that it is small caps, anything that never
-     asked for a face would be set as a label. Running text is Source Serif
-     everywhere a component does not say otherwise. */
+  /* The book face, not the margin face. Anything that never asked for a face
+     is running text, so it is Source Serif everywhere a component does not
+     say otherwise — a label has to ask for --font-ui by name. */
   font-family: var(--font-editorial);
   font-size: var(--text-md);
   line-height: var(--leading-normal);

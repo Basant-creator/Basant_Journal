@@ -133,16 +133,34 @@
     linear-gradient(180deg, var(--timber-light), var(--timber) 62%, var(--timber-dark));
 }
 
+/*
+  The board's heading, lettered the way a station posts its notices: the
+  margin's capitals on the left, and a rule run out from them to the edge.
+
+  It was Rye, centred and spaced across the top of the planks — which with the
+  torn notices under it was a wanted-bill wall in all but the word. A posted
+  finding is a measurement somebody filed; it wants the voice a sheet's
+  margin is lettered in, not a saloon's.
+*/
 .boardHead {
-  font-family: var(--font-chapter);
-  font-size: clamp(1.1rem, 2.6vw, 1.7rem);
-  letter-spacing: 0.2em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-hero);
   text-transform: uppercase;
   color: var(--color-paper-dark);
-  text-align: center;
   margin-bottom: clamp(24px, 3.5vw, 44px);
-  opacity: 0.82;
-  text-shadow: 0 2px 10px color-mix(in srgb, var(--shadow-ink) 70%, transparent);
+  text-shadow: 0 1px 6px color-mix(in srgb, var(--shadow-ink) 70%, transparent);
+}
+
+.boardHead::after {
+  content: "";
+  flex: 1;
+  block-size: 1px;
+  background: color-mix(in srgb, var(--color-paper-dark) 40%, transparent);
 }
 
 /* --- pinned notices ------------------------------------------------------ */
@@ -264,9 +282,7 @@
 }
 
 /*
-  The labels on a notice are set in the printer's small caps, and not forced
-  to capitals: uppercase on this face flattens it into a line of full-height
-  letters and throws away the one thing it is for.
+  The labels on a notice are the margin's capitals: printed, not written.
 
   The tag lost its 0.85 opacity on the way. It put --color-earth at 3.5:1 on
   the paper tone, under AA at the size it is set; at full strength it is the
@@ -274,25 +290,36 @@
 */
 .findingTag {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth);
   margin-bottom: var(--space-1);
 }
 
-/* The poster face stays on the figure rather than taking --font-figures. It is
-   one number to a notice, never a column of them, so lining tabular digits
-   would have nothing here to line up with. */
+/*
+  The reading: the book face's lining figures, large.
+
+  It was Rye, the poster face, on the argument that one number to a notice has
+  nothing to line up with. That was true and beside the point — the face is
+  what made each notice read as a bounty on a wanted bill rather than as a
+  result. These are measurements, and a survey prints a measurement the way
+  it prints every other one: plain figures, set true.
+*/
 .value {
-  font-family: var(--font-chapter);
-  font-size: clamp(2.1rem, 4.6vw, 3.2rem);
+  font-family: var(--font-figures);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-size: clamp(2.2rem, 4.6vw, 3.3rem);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   color: var(--color-earth-dark);
 }
 
 .unit {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth);
@@ -316,6 +343,8 @@
   display: inline-flex;
   align-items: flex-end;
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   /* No weight: the face has one, and a synthetic bold on it reads as ink
      that ran. The red is what marks this as the link. */

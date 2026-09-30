@@ -16,8 +16,9 @@
 */
 .groupHeading {
   font-family: var(--font-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
-  font-weight: 400;
+  font-weight: var(--weight-ui);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-on-paper-muted);
   padding-bottom: var(--space-3);
@@ -60,6 +61,8 @@
 
 .proofLink {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: 0.08em;
   color: var(--color-red-dark);
@@ -115,6 +118,8 @@
    keeps it recessive against the red and the ink and holds 5.3:1. */
 .unproven {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: 0.08em;
   color: color-mix(in srgb, var(--color-text-on-paper-muted) 85%, transparent);
@@ -139,6 +144,8 @@
   align-items: baseline;
   gap: var(--space-2);
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);

@@ -31,6 +31,8 @@
 */
 .note .mark {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-on-paper-muted);
@@ -72,6 +74,8 @@
   display: inline-flex;
   align-items: center;
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-red-dark);

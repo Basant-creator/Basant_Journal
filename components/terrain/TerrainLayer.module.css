@@ -139,6 +139,8 @@
 .nameSurvey,
 .nameRoad {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   letter-spacing: 0.16em;
   word-spacing: 0.3em;
   fill: var(--map-ink-soft);
@@ -159,6 +161,8 @@
 .scaleCaption,
 .sheetMark {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: 12px;
   letter-spacing: 0.1em;
   fill: var(--map-ink-soft);

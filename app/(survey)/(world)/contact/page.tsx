@@ -27,7 +27,7 @@ export const metadata: Metadata = {
  * flourish: the hour is the latest of the three places (see Place), and the
  * terminus below is the same red survey line that runs across the sheet,
  * arriving at the same signpost glyph the sheet draws at this location, and
- * stopping — struck through, the way a surveyor closes a chain.
+ * closing on a triangulation station — the mark a surveyed traverse ends on.
  *
  * §28 is the constraint that keeps it honest: the cinematic treatment
  * supports the content rather than hiding it. Everything a visitor came here
@@ -63,9 +63,13 @@ export default function ContactPage() {
                 visitor and solid into the post, which is the sheet's own
                 convention for travelled ground. */}
             <path className={styles.terminusTrail} d="M 4 46 Q 96 30 168 40 T 300 44" />
-            {/* And stopping. A post, and the struck cross that closes a chain. */}
+            {/* And stopping. A post, and the station the traverse closes on:
+                the triangle-and-point every topographic sheet uses for a
+                triangulation station. It was a red cross, which is also a
+                surveyor's mark, and which everyone else reads as treasure. */}
             <path className={styles.terminusPost} d="M 318 12 v 42 M 300 54 h 36" />
-            <path className={styles.terminusStrike} d="M 344 24 l 22 20 M 366 24 l -22 20" />
+            <path className={styles.terminusStation} d="M 355 22 L 368.5 46 L 341.5 46 Z" />
+            <circle className={styles.terminusPoint} cx="355" cy="38" r="2.4" />
             <g className={styles.terminusGlyph} transform="translate(318 14) scale(0.62)">
               <LocationGlyph symbol="signpost" scale={0.8} strokeWidth={2} />
             </g>

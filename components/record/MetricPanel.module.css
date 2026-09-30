@@ -25,8 +25,11 @@
   border-right: 0;
 }
 
+/* The book face's lining figures: in Fell, a reading of "0.01" sets its
+   zeros at small-cap height and reads as letters. */
 .value {
-  font-family: var(--font-display);
+  font-family: var(--font-figures);
+  font-variant-numeric: lining-nums tabular-nums;
   font-size: clamp(1.6rem, 3.4vw, 2.3rem);
   line-height: 1;
   letter-spacing: 0.01em;
@@ -34,18 +37,18 @@
 }
 
 /*
-  Well above the floor, and the only label here that needs to be.
+  At the label floor, in the margin's capitals.
 
   Every unit in the content model is lowercase — "engines", "kept", "jarring
-  jumps" — so without forced capitals Fell sets the whole word in small caps,
-  and Fell's small caps stand 0.44em against Inter's 0.73em capitals. The
-  9.9px uppercase this replaced was 7.2px tall; at --text-xs the small caps
-  were 5.1px and at --text-sm 5.8px, a thin red sliver under the reading.
-  --text-md puts them back at 7.0px, which is the size the unit always was.
+  jumps" — and for a phase this was --text-md, because Fell's small caps
+  stand 0.44em and needed that size to reach the 7px the unit had always
+  been. Capitals reach it again at --text-xs.
 */
 .unit {
   font-family: var(--font-ui);
-  font-size: var(--text-md);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--paper-mat-hand);
 }

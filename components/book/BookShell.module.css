@@ -309,14 +309,14 @@
 /* A scrap of card glued to the fore-edge: square where it meets the book,
    rounded where a thumb finds it.
 
-   None of the book's controls uppercase their labels. The label face is a
-   small-caps cut, and uppercasing it throws away the one thing it does — a
-   capital at full height and the rest of the word in printer's small caps. */
+   Its label is the margin's capitals, like every control in the book. */
 .mark {
   display: block;
   padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
   min-height: 36px;
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-on-paper-muted);
@@ -338,9 +338,8 @@
   color: var(--color-text-on-paper);
 }
 
-/* No weight change on the open mark. The label face has a single weight,
-   and asking it for 600 got a synthetic bold that smears the small caps
-   like ink that ran. The mark already says it is open four other ways:
+/* No weight change on the open mark: a heavier label is a wider one, and it
+   would shift the stack. The mark already says it is open four other ways:
    lighter card, darker ink, pulled further out, and THE HAND's red edge. */
 .markOpen,
 .markOpen:hover {
@@ -384,6 +383,8 @@
   min-height: 44px;
   padding: var(--space-2) var(--space-3);
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);
@@ -439,6 +440,8 @@
   padding: var(--space-2) var(--space-5);
   min-height: 44px;
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-sm);
   letter-spacing: 0.08em;
   color: var(--color-white-warm);
@@ -494,6 +497,8 @@
   min-height: 44px;
   padding: var(--space-2) var(--space-5);
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-sm);
   letter-spacing: 0.08em;
   color: var(--color-ink);

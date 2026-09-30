@@ -15,13 +15,13 @@
   like every other piece of document metadata on the site, and the rule under
   it does the separating a box was doing.
 
-  The labels in this file are the printer's small caps and are not forced to
-  capitals — uppercase on this face is a row of full-height letters and loses
-  the distinction the face exists to draw. They are set no smaller than
-  --text-xs, below which its small caps stop being letters.
+  The labels in this file are the margin's capitals, set no smaller than
+  --text-xs.
 */
 .stationMark {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-on-paper-muted);
@@ -32,6 +32,8 @@
 
 .availability {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth-dark);
@@ -55,6 +57,8 @@
 
 .details dt {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth);
@@ -144,11 +148,17 @@ a.value:hover {
   stroke-width: 2;
 }
 
-/* The strike. Red, because closing a chain is the surveyor's mark and red is
-   THE HAND — the one layer allowed to write on the world. */
-.terminusStrike {
+/* The station. Red, because closing a traverse is the surveyor's own mark
+   and red is THE HAND — the one layer allowed to write on the world. */
+.terminusStation {
   stroke: var(--map-hand);
-  stroke-width: 2.2;
+  stroke-width: 2;
+  opacity: 0.9;
+}
+
+.terminusPoint {
+  fill: var(--map-hand);
+  stroke: none;
   opacity: 0.9;
 }
 
@@ -159,6 +169,8 @@ a.value:hover {
 
 .terminusNote {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);

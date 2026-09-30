@@ -156,10 +156,10 @@
 .CASE_FILE {
   --paper-stock: var(--stock-case-file);
   --paper-ink: var(--color-earth-dark);
-  /* The book face, like every other stock. This read --font-ui while that
-     was a grotesque and passed for a typed file; it is printer's small caps
-     now, and a whole paragraph in small caps is a label nobody can read. The
-     manila, the head rule and the tint are what make this a case file. */
+  /* The book face, like every other stock. This read --font-ui once and
+     passed for a typed file, but that is the margin face, and a paragraph set
+     in it is a label nobody reads. The manila, the head rule and the tint are
+     what make this a case file. */
   --paper-voice: var(--font-editorial);
   --paper-border: 1px solid color-mix(in srgb, var(--color-earth-dark) 50%, transparent);
   --paper-print:

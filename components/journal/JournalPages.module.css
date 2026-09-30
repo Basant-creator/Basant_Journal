@@ -22,26 +22,25 @@
 }
 
 /*
-  The small labels on this leaf are set in the label face's own small caps
-  rather than forced to capitals, so a name keeps its initials and a filing
-  line reads as printed rather than shouted.
+  The small labels on this leaf are the margin's capitals, so a filing line
+  reads as printed rather than written.
 
   Their ink is heavier than it was. At 62%, 58% and 56% they measured 4.40,
-  3.91 and 3.70:1 on the leaf, all under AA, and that was against a grotesque
-  with even strokes; a Fell cut is thinner in the hairlines and needs more
-  ink, not the same. Each value below clears 4.5:1 even where one of the
-  page's ruled lines runs under the text.
+  3.91 and 3.70:1 on the leaf, all under AA. Each value below clears 4.5:1
+  even where one of the page's ruled lines runs under the text.
 
   All three lines of the plate are paragraphs on a Paper leaf, and the
   leaf sets every paragraph in its voice with `.body p` — a class and an
   element, which outranks a lone class. As `.owner` the name came out in the
-  book face and "Field Journal" lost its wood type. Scoped under .plate, two
+  book face and "Field Journal" lost its chapter face. Scoped under .plate, two
   classes win them back without reaching into the substrate. The margin
   note and the bench lines below are scoped the same way, for the same
   reason.
 */
 .plate .owner {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-hero);
   color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 72%, transparent);
@@ -51,13 +50,15 @@
   font-family: var(--font-chapter);
   font-size: clamp(1.5rem, 3.4vw, 2.3rem);
   line-height: 1.05;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.06em;
   color: var(--paper-ink, var(--color-text-on-paper));
   margin-top: var(--space-2);
 }
 
 .plate .bookSub {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 70%, transparent);
@@ -117,9 +118,12 @@
   background: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 6%, transparent);
 }
 
+/* Lining figures, like the filing numbers: in Fell a contents list's "01"
+   reads as "oi". */
 .contentsNo {
   flex: none;
-  font-family: var(--font-display);
+  font-family: var(--font-figures);
+  font-variant-numeric: lining-nums tabular-nums;
   font-size: var(--text-sm);
   color: var(--ink-annotation-paper);
   min-width: 2ch;
@@ -173,9 +177,12 @@
   transform: translateX(3px);
 }
 
-/* The filing number, struck large the way a clerk writes it. */
+/* The filing number, struck large the way a clerk writes it — in the book
+   face's lining figures, because Fell cuts its digits old-style and "01" in
+   it reads as "oi". */
 .recordFiling {
-  font-family: var(--font-chapter);
+  font-family: var(--font-figures);
+  font-variant-numeric: lining-nums tabular-nums;
   font-size: clamp(1.4rem, 2.6vw, 1.9rem);
   line-height: 0.9;
   color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 34%, transparent);
@@ -217,14 +224,25 @@
 .recordDate,
 .recordTech {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 68%, transparent);
 }
 
 /* The mark the record was struck with — the one red thing on this page. */
+/* The date is a label and the stack is a list of names, and names keep
+   the case they are written in: TypeScript is not TYPESCRIPT. */
+.recordTech {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
 .recordStamp {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--stamp-red);
@@ -286,7 +304,8 @@
    400 out loud, the same way .sectionLabel and .recordTitle do. */
 .benchLabel {
   font-family: var(--font-ui);
-  font-weight: 400;
+  text-transform: uppercase;
+  font-weight: var(--weight-ui);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 72%, transparent);
@@ -321,6 +340,8 @@
    it reads as a stamp struck after the fact rather than as a UI badge. */
 .benchTag {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-red-dark);

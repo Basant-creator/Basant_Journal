@@ -132,8 +132,8 @@
   --rivet:         var(--brass-dark);
   --rivet-dark:    #3b2d14;
 
-  /* --font-ui is IM Fell English SC now, not Inter; --font-figures is the book
-     face used for its lining tabular digits. */
+  /* --font-ui is Archivo, the margin's gothic capitals; --font-figures is the
+     book face used for its lining tabular digits. */
 
   --color-accent:       var(--color-red);
   --color-accent-hover: var(--color-red-hover);
@@ -201,9 +201,16 @@
      biography. This carries the bulk of the technical content. */
   --font-editorial: "Source Serif 4", "Source Serif Pro", Georgia, serif;
 
-  /* Interface — every control, tab, label and footer link. Printer's small
-     caps, one weight (400), old-style figures. Was Inter. */
-  --font-ui:        "IM Fell English SC", Georgia, serif;
+  /* Chapter — cards, location reveals, the wordmark. Fell, set spaced. Was
+     Rye, which is saloon-bill wood type; see app/layout.tsx. */
+  --font-chapter:   "IM Fell English SC", Georgia, serif;
+
+  /* Interface — the margin: every control, tab, label and footer link, in
+     spaced gothic capitals at --weight-ui and 88% width. Was Inter, then
+     Fell's small caps; see the note on --font-ui in globals.css. */
+  --font-ui:        "Archivo", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+  --weight-ui:      500;
+  --stretch-ui:     88%;
 
   /* Figures that sit in columns: the book face's lining tabular digits. */
   --font-figures:   "Source Serif 4", "Source Serif Pro", Georgia, serif;
@@ -237,9 +244,9 @@
 
   --tracking-tight:  -0.02em;  /* large display */
   --tracking-normal: 0;
-  --tracking-wide:   0.06em;   /* small-caps UI labels, buttons */
-  --tracking-label:  0.08em;   /* metadata labels */
-  --tracking-hero:   0.14em;   /* eyebrow text, map labels */
+  --tracking-wide:   0.1em;    /* buttons, controls */
+  --tracking-label:  0.12em;   /* metadata labels, in capitals */
+  --tracking-hero:   0.2em;    /* eyebrow text, map labels */
 
   --measure-prose: 66ch;   /* editorial column on paper */
   --measure-lede:  54ch;   /* hero paragraph, section intros */

@@ -51,10 +51,13 @@
   max-width: var(--measure-prose);
 }
 
-/* Labels and chips name the label face rather than inheriting the body's,
-   which is the book face now; without uppercase, so the small caps show. */
+/* Labels and chips name the margin face rather than inheriting the body's,
+   which is the book face. Labels are capitals; chips keep the case their names
+   are written in, because TypeScript is not TYPESCRIPT. */
 .label {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);
@@ -86,6 +89,8 @@
    not totted up in a column, so this stays in the label face. */
 .paperMeta {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth);

@@ -34,13 +34,13 @@
 }
 
 /*
-  Labels on this sheet are the printer's small caps and are not forced to
-  capitals. Uppercase on this face is a line of full-height letters and loses
-  the one distinction it carries — and on a page read at a glance, a capital
-  that starts a word is how the eye finds where each label begins.
+  Labels on this sheet are the margin's capitals, as everywhere else on the
+  site: the professional view is the same publication, set plainer.
 */
 .kicker {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-hero);
   color: var(--color-earth);
@@ -86,6 +86,8 @@
 
 .stackLineLabel {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth);
@@ -180,6 +182,8 @@
    label, so it says so now rather than falling through to the book face. */
 .metricUnit {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth);
@@ -239,6 +243,8 @@
 
 .projectDate {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth);
@@ -325,10 +331,11 @@
 
 .skillHeading {
   font-family: var(--font-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   /* 400, stated rather than dropped: this is an h3, and the base heading rule
      would hand the face a 600 it does not have. */
-  font-weight: 400;
+  font-weight: var(--weight-ui);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth);
   padding-bottom: var(--space-2);
@@ -356,6 +363,8 @@
    claim, and is shown as such rather than dressed up the same way. */
 .skillProof {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: 0.06em;
   color: var(--color-earth);
@@ -426,6 +435,8 @@
   border: 3px double color-mix(in srgb, var(--color-earth-dark) 60%, transparent);
   border-radius: 0;
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wide);
   color: var(--color-ink);

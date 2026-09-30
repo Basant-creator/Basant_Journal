@@ -55,7 +55,7 @@ for (const file of files) {
   for (const m of src.matchAll(/["'](--[a-zA-Z0-9-]+)["']\s*:/g)) defined.add(m[1]);
 
   /* Defined by next/font, which emits a class carrying the property rather
-     than writing it into any file here: `Rye({ variable: "--font-rye" })`. */
+     than writing it into any file here: `Archivo({ variable: "--font-archivo" })`. */
   for (const m of src.matchAll(/variable:\s*["'](--[a-zA-Z0-9-]+)["']/g))
     defined.add(m[1]);
 

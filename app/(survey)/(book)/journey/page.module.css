@@ -43,9 +43,14 @@
 }
 
 /* 66%, not 62: at 20px this is still normal text under WCAG, and 62% was
-   4.40:1 on the leaf. The face is unchanged; only the ink. */
+   4.40:1 on the leaf.
+
+   The book face's lining figures, as design-direction §9 asks of a
+   timeline's years: in Fell, "2024" sets its 0 at x-height and reads as
+   "2o24". */
 .year {
-  font-family: var(--font-display);
+  font-family: var(--font-figures);
+  font-variant-numeric: lining-nums tabular-nums;
   font-size: var(--text-lg);
   letter-spacing: 0.08em;
   color: color-mix(in srgb, var(--paper-ink, var(--color-text-on-paper)) 66%, transparent);

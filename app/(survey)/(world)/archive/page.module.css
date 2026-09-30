@@ -14,15 +14,15 @@
   with the word CURRENT at one end of it. `width: fit-content` shrinks it
   whatever it happens to be a child of.
 
-  The labels in this file are the printer's small caps and are not forced to
-  capitals — uppercase on this face is a row of full-height letters and loses
-  the distinction the face exists to draw. They are set no smaller than
-  --text-xs, below which its small caps stop being letters.
+  The labels in this file are the margin's capitals, set no smaller than
+  --text-xs.
 */
 .stamp {
   width: fit-content;
   align-self: flex-start;
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-red-dark);
@@ -56,6 +56,8 @@
 
 .facts dt {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth);
@@ -134,11 +136,17 @@
 }
 
 /*
-  The label holder.
+  The label.
 
-  A brass frame with a card in it, which is the one detail that says "record
-  office" without a caption saying so. It overhangs the drawer's top edge by
-  design — a holder is screwed *to* the front, not printed on it.
+  A filing card slipped into the front of the drawer, which is the one detail
+  that says "record office" without a caption saying so. It overhangs the
+  drawer's top edge by design — the card stands proud of the front rather
+  than being printed on it.
+
+  It had a screw either side for one phase, and so did every button on the
+  site: the same brass heads, which is what turned a card index into a
+  saloon's brass plaque. A card is ruled, not fixed — the double rule just
+  inside its edge is the one a filing card was printed with.
 */
 /*
   Written as `.drawer .drawerLabel` rather than `.drawerLabel`, and both halves
@@ -173,30 +181,13 @@
   box-shadow: 0 3px 10px color-mix(in srgb, var(--shadow-ink) 42%, transparent);
 }
 
-/* The two screws that hold it on. */
-.drawerLabel::before,
-.drawerLabel::after {
+/* The card's printed rule, just inside its edge. */
+.drawer .drawerLabel::before {
   content: "";
   position: absolute;
-  inset-block-start: 50%;
-  inline-size: 5px;
-  block-size: 5px;
-  border-radius: var(--radius-pill);
-  transform: translateY(-50%);
-  background: radial-gradient(
-    circle at 34% 30%,
-    var(--nail-head),
-    var(--nail-body) 62%,
-    var(--nail-shadow)
-  );
-}
-
-.drawerLabel::before {
-  inset-inline-start: 6px;
-}
-
-.drawerLabel::after {
-  inset-inline-end: 6px;
+  inset: 3px;
+  border: 1px solid color-mix(in srgb, var(--color-earth) 34%, transparent);
+  pointer-events: none;
 }
 
 @media (max-width: 40rem) {

@@ -10,11 +10,12 @@
   margin: 0 auto;
 }
 
-/* Both labels on this page name the control face rather than inheriting the
-   book face from the body, and neither is transformed: the face is cut in
-   small caps, so the copy's capitals stand full height over the rest. */
+/* Both labels on this page name the margin face rather than inheriting the
+   book face from the body, and set it in spaced capitals. */
 .eyebrow {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-hero);
   color: var(--color-text-muted);
@@ -44,6 +45,8 @@
 
 .home {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);

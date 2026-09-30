@@ -241,11 +241,11 @@
   min-width: 0;
 }
 
-/* The --font-ui labels on this page are the printer's small caps: no forced
-   capitals, so the face's own small capitals show, and no weight, because
-   the face has one cut and a synthetic bold of it reads as ink that ran. */
+/* The --font-ui labels on this page are the margin's capitals. */
 .trailheadTag {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-red-dark);
@@ -261,18 +261,20 @@
   max-width: 58ch;
 }
 
-/* The one action on the sheet, as the painted plate: THE HAND's red over
-   iron, with rivets, lying on the trailhead card's paper. */
+/* The one action on the sheet, as the painted control: THE HAND's red,
+   ruled, lying on the trailhead card's paper. */
 .trailheadAction {
-  composes: painted riveted from "../shared/Plate.module.css";
+  composes: painted from "../shared/Plate.module.css";
   display: inline-flex;
   align-items: center;
   flex: none;
   min-height: 46px;
-  padding: 0 var(--space-8);
+  padding: 0 var(--space-6);
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-sm);
-  letter-spacing: 0.08em;
+  letter-spacing: var(--tracking-wide);
   white-space: nowrap;
 }
 
@@ -322,6 +324,8 @@
 .fieldNoteTag {
   display: block;
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-red-dark);
@@ -338,6 +342,8 @@
 
 .fieldNoteStatus {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-red-dark);
@@ -362,8 +368,10 @@
   gap: clamp(8px, 1vw, 14px);
   margin: 0;
   font-family: var(--font-ui);
-  /* Floored at the scale's smallest step: the old 0.52rem floor was a 3.6px
-     small cap in this face. It already ran past the stretch of ground the
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
+  /* Floored at the scale's smallest step: the old 0.52rem floor was under
+     four pixels of capital. It already ran past the stretch of ground the
      scrub is kept short under; the z-index and the shadow are what keep it
      clear of the grass, and they do not care how long it is. */
   font-size: clamp(var(--text-xs), 0.8vw, var(--text-sm));

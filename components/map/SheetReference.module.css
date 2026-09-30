@@ -77,8 +77,10 @@
 */
 .label {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   /* User units in a 1600-wide sheet shown about 500px wide in the Notes leaf:
-     30 came out near 9px, under the small-caps floor. 36 is about 11px. */
+     30 came out near 9px, under the label floor. 36 is about 11px. */
   font-size: 36px;
   letter-spacing: 3px;
   fill: var(--map-ink);

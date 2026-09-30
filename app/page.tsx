@@ -82,17 +82,22 @@ export default function LandingPage() {
       </div>
 
       <div className={styles.inner}>
-        <p className={styles.eyebrow}>
-          <span>{meta.volume}</span>
-          <span className={styles.eyebrowRule} aria-hidden="true" />
-          <span>{meta.conceptSubtitle}</span>
-        </p>
+        {/* The masthead as one box, so the plate that carries it at dawn can
+            be measured against the title itself rather than against the whole
+            column — which is taller in proportion on a phone. */}
+        <div className={styles.masthead}>
+          <p className={styles.eyebrow}>
+            <span>{meta.volume}</span>
+            <span className={styles.eyebrowRule} aria-hidden="true" />
+            <span>{meta.conceptSubtitle}</span>
+          </p>
 
-        <p className={styles.name}>{person.name}</p>
+          <p className={styles.name}>{person.name}</p>
 
-        <h1 className={styles.wordmark}>
-          <Wordmark title="The Frontier" />
-        </h1>
+          <h1 className={styles.wordmark}>
+            <Wordmark title="The Frontier" />
+          </h1>
+        </div>
 
         <p className={styles.lede}>{person.tagline}</p>
 

@@ -13,10 +13,11 @@
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
-/* The index's labels are set in the printer's small caps rather than
-   upper-cased, so the face's own capitals and small capitals show. */
+/* The index's labels are the margin's capitals, like the sheet's own. */
 .eyebrow {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);
@@ -27,6 +28,8 @@
    at the far end of the rule, not by being fainter. */
 .sheet {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);
@@ -84,6 +87,8 @@
 
 .section {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);
@@ -98,6 +103,8 @@
 
 .status {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);

@@ -21,9 +21,10 @@
   /* The only control for sound, and on a phone it stood 30px tall. */
   min-height: 44px;
 
-  /* Small caps at the label floor. No uppercase: Fell's lowercase is its
-     small caps, and forcing capitals would set the word as a shout. */
+  /* The margin's capitals, at the label floor. */
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
 
@@ -44,7 +45,7 @@
   color: var(--color-paper-dark);
 
   /*
-    A small plate of the same iron as the buttons.
+    A small opaque plate of iron.
 
     The chip was the control's own ground and had to be made ground enough to
     stand on — 78%, then 88% of ink over whatever was behind it, and its
@@ -52,9 +53,10 @@
     over: the label is measured against the plate and nothing else, wherever
     the control is standing, the landing's lit floor at dawn included.
 
-    No rivets. At this size they would either crowd the mark and the word or
-    make the chip wider than the 44px it has to be, and this control's whole
-    brief is to be furniture — cast, but not ornamented.
+    Plain, and deliberately: this control's whole brief is to be furniture.
+    The buttons are ruled boxes that take their ground from the surface; the
+    two corner chips cannot, because they float over paper as often as over
+    the dark, so they keep a ground of their own.
   */
   background: linear-gradient(to bottom, var(--plate-top), var(--plate-bottom));
   border: 1px solid var(--plate-edge);
@@ -78,7 +80,7 @@
 }
 
 /*
-  Focus is a brass frame let into the plate, the same as on a button.
+  Focus is a brass frame let into the plate.
 
   The ring used to sit 3px outside the chip in paper-light, which is fine over
   iron and 1.1:1 over the professional view's paper sheet — and this control

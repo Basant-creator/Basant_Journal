@@ -10,10 +10,11 @@
   max-width: var(--measure-prose);
 }
 
-/* The floor, not 0.58rem: Fell's small caps are cut smaller than its
-   capitals, and at 9px the lowercase of a tag stopped being letters. */
+/* The floor, not 0.58rem: at 9px the capitals of a tag stop being letters. */
 .tag {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: color-mix(in srgb, var(--paper-ink, var(--color-ink)) 70%, transparent);

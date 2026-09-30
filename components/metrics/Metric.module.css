@@ -4,10 +4,8 @@
   gap: var(--space-1);
 }
 
-/* Figures that are asked to be tabular come from the book face: the display
-   face has old-style numerals and no tabular set to give. No weight: the
-   size carries it. The large variant below keeps its poster face, because a
-   single figure on a wall has nothing to line up with. */
+/* Figures come from the book face: the display face has old-style numerals
+   and no tabular set to give. No weight: the size carries it. */
 .value {
   font-family: var(--font-figures);
   font-size: var(--text-xl);
@@ -17,15 +15,19 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The large figure is the same digits, larger — a reading, not a poster. It
+   used to change face here, to Rye's wood type, and it was the one place a
+   measurement looked like a bounty on a wanted bill. */
 .lg .value {
-  font-family: var(--font-chapter);
   font-size: clamp(2.1rem, 4.4vw, 3.2rem);
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
-/* Small caps, not capitals: uppercase on this face is a row of full-height
-   letters and throws away what the face is for. */
+/* The margin's capitals: the unit says what the figure measured. */
 .unit {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);

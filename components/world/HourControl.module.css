@@ -19,9 +19,10 @@
   gap: var(--space-2);
   padding: 0 10px;
 
-  /* Small caps at the label floor, and no uppercase: "Dusk" and "Dawn" set in
-     Fell's own small caps, not forced into capitals the face would fake. */
+  /* The margin's capitals, at the label floor. */
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
 
@@ -39,8 +40,7 @@
     Now the ground is cast iron, the same plate as the sound control opposite,
     and opaque — so the words are measured against the plate alone: the
     unchosen hour is 5.2:1 at the lightest of the face, the chosen one 10.6:1.
-    No rivets, for the same reason as its sibling: there is no room for them
-    at this size that would not come out of a touch target.
+    Plain, for the same reason as its sibling: it is furniture.
   */
   background: linear-gradient(to bottom, var(--plate-top), var(--plate-bottom));
   border: 1px solid var(--plate-edge);

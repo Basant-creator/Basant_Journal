@@ -5,20 +5,22 @@
   overflow: visible;
 }
 
+/* The title's own face. No letter-spacing: `textLength` fits the word to the
+   neatline, and a tracking figure on top of it would only be undone. */
 .face,
 .impression,
 .highlight {
   font-family: var(--font-chapter);
-  font-size: 108px;
-  letter-spacing: 0.06em;
+  font-size: 132px;
 }
 
+/* The article, in the margin's capitals: the survey's small line over its
+   title, set flush with the neatline's left end. */
 .the {
-  font-family: var(--font-display);
-  font-size: 30px;
-  letter-spacing: 0.62em;
-  /* The tracking pushes the word right; pull it back to true centre. */
-  transform: translateX(-0.31em);
+  font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  font-size: 22px;
+  letter-spacing: 0.42em;
   fill: var(--wordmark-secondary, var(--color-paper-dark));
 }
 
@@ -36,10 +38,10 @@
 }
 
 .rule {
-  fill: var(--wordmark-secondary, var(--color-paper-dark));
+  fill: none;
   stroke: var(--wordmark-secondary, var(--color-paper-dark));
-  stroke-width: 1.6;
-  opacity: 0.75;
+  stroke-width: 1.4;
+  opacity: 0.8;
 }
 
 /* Struck in ink on paper rather than embossed in the dark. */

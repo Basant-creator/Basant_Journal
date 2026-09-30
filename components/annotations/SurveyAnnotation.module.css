@@ -17,10 +17,11 @@
   align-items: flex-end;
 }
 
-/* Small caps, not forced capitals: the face sets the capital at full height
-   and the rest of the word as small capitals, the way a margin is lettered. */
+/* The margin's capitals: the tag names the note, and THE HAND writes it. */
 .tag {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-red-light);

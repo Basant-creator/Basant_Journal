@@ -1,12 +1,13 @@
 import { SITE_ORIGIN } from "@/lib/routes";
 import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import type { Metadata, Viewport } from "next";
-import { Caveat, IM_Fell_English_SC, Rye, Source_Serif_4 } from "next/font/google";
+import { Archivo, Caveat, IM_Fell_English_SC, Source_Serif_4 } from "next/font/google";
 import { AtmosphereControl } from "@/components/audio/AtmosphereControl";
 import { AudioLabMount } from "@/components/audio/AudioLabMount";
 import { CheckpointAudio } from "@/components/audio/CheckpointAudio";
 import { FrontierTrail } from "@/components/navigation/FrontierTrail";
 import { Quiet } from "@/components/shell/Quiet";
+import { SmoothScroll } from "@/components/shell/SmoothScroll";
 import { TextureLayer } from "@/components/shell/TextureLayer";
 import { SkipLink } from "@/components/navigation/SkipLink";
 import { person } from "@/lib/content/portfolio";
@@ -15,29 +16,42 @@ import { BOOT_STAMP_SCRIPT } from "@/lib/boot/boot";
 import { HOUR_STAMP_SCRIPT } from "@/lib/world/hour";
 import { BootScreen } from "@/components/boot/BootScreen";
 import "./globals.css";
+/* After the site's own: Lenis's few rules (height, the stopped state, nested
+   scrollers) are about the scroll root and are meant to have the last word. */
+import "lenis/dist/lenis.css";
 
 /**
- * Five voices, self-hosted through next/font: no render-blocking third-party
+ * Four voices, self-hosted through next/font: no render-blocking third-party
  * request, no layout shift, each face subsetted rather than shipped whole.
  *
- * Cinzel is gone. Phase 1 flagged it as a placeholder — it reads classical and
- * luxurious, closer to a perfume campaign than a frontier survey — and this
- * pass finally spends the decision:
+ * Each has the job a survey sheet gives it:
  *
- *   Rye          19th-century wood type. Reserved for chapter cards, location
- *                reveals and the wordmark. Rare on purpose: it is the loudest
- *                thing on the site and would turn kitsch if used freely.
- *   IM Fell      17th-century Fell types, with the ink spread the concept
- *                wants. The general display face: section headings, map
- *                lettering, document headers, large numbers.
+ *   IM Fell        17th-century Fell types, with the ink spread the concept
+ *                  wants. Names — the wordmark, chapters, places, headings.
+ *   Source Serif   The book face. Everything read at length, and the digits
+ *                  of anything measured, which Fell cuts old-style.
+ *   Archivo        A grotesque drawn from late-19th-century American gothics.
+ *                  The margin: labels, dates, units and controls, in the plain
+ *                  spaced capitals an engraver lettered around a map rather
+ *                  than on it.
+ *   Caveat         THE HAND. It annotates; it never carries information.
+ *
+ * Rye is gone. It was saloon-bill wood type, set on the wordmark and every
+ * chapter card, and it was the loudest reason the site read as a cowboy theme
+ * rather than a survey — docs/design-direction.md §2 rules out "saloon-font
+ * display type" by name. Chapters are Fell now, spaced the way an atlas
+ * letters a title.
  *
  * Nothing reads a family name directly; every component goes through a token,
- * so either can be swapped in one line here.
+ * so any of these can be swapped in one line here.
  */
-const rye = Rye({
+
+/* Variable in width as well as weight. The margin is lettered a little
+   condensed — see --font-ui in globals.css, which sets the width once. */
+const archivo = Archivo({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-rye",
+  axes: ["wdth"],
+  variable: "--font-archivo",
   display: "swap",
 });
 
@@ -108,7 +122,7 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const fontVars = [rye, fell, sourceSerif, caveat]
+  const fontVars = [fell, sourceSerif, archivo, caveat]
     .map((f) => f.variable)
     .join(" ");
 
@@ -155,6 +169,11 @@ export default function RootLayout({
               survives every navigation and sees the landing page too. */}
           <TransitionProvider>{children}</TransitionProvider>
           <Quiet name="TextureLayer"><TextureLayer /></Quiet>
+          {/* One owner for scroll: the weighted, native-on-touch glide the
+              trail is walked at. Enhancement only, so it sits inside a Quiet
+              boundary like the rest — if it throws, the page scrolls the way
+              every other page does. See SmoothScroll. */}
+          <Quiet name="SmoothScroll"><SmoothScroll /></Quiet>
           {/* Everywhere the air can play, so it can always be stopped —
               including the landing page, which has no navigation by design. */}
           <Quiet name="AtmosphereControl"><AtmosphereControl /></Quiet>

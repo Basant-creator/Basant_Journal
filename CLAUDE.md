@@ -52,6 +52,12 @@ predates SCENE and TERRAIN and lists only three; README is authoritative.)
   `lib/transition/chapters.ts` — do **not** add a `useEffect` to the page.
   (This exact mistake produced the chapter bug fixed in Phase 5.1; see
   `docs/phase-5.1-transition-notes.md`.)
+- **One owner for scroll, too.** `components/shell/SmoothScroll.tsx` makes the
+  only Lenis instance: weighted wheel scrolling on the trail, native on touch,
+  none at all under reduced motion or off the trail (`/professional`, `/lab`).
+  Scroll-linked effects read the real scroll position through CSS scroll
+  timelines and get the smoothing for free — do not make a second instance,
+  and do not listen to Lenis to drive layout.
 - **Boot ≠ transition.** The boot sequence (`lib/boot/boot.ts`) runs once, on
   `/` only, before first paint. Route transitions are a separate system. Never
   conflate them; the boot loader must never reappear on navigation.

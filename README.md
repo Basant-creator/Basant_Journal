@@ -74,7 +74,8 @@ components/
   navigation/   FrontierTrail (the world route), TrailOnward, SkipLink
   book/         BookShell, BookSpread, LeafOnward — the document scale
   metrics/      Metric
-  shell/        TextureLayer, Quiet (a boundary for decoration)
+  shell/        TextureLayer, Quiet (a boundary for decoration),
+                SmoothScroll — the one owner for scroll (Lenis)
   shared/       Button, PageHeader, OnwardNav, Territory styles
   scene/        the scene engine: Scene, layers, depth, objects, camera
   scenes/       the places themselves — Camp's art, controls and stage

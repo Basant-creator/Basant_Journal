@@ -158,6 +158,8 @@
 .centre {
   fill: var(--ink);
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: 12px;
   /* 0.16em rather than 0.2: wide-set Fell capitals start to read as single
      letters rather than a word. */

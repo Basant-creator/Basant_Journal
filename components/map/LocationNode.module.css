@@ -71,9 +71,10 @@
 
 .section {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   /* User units in the 1600-wide sheet, not pixels: 12 rendered near 5px on a
-     700px sheet, and small caps are a size smaller again. 15 matches the
-     terrain's own station labels. */
+     700px sheet. 15 matches the terrain's own station labels. */
   font-size: 15px;
   letter-spacing: 0.16em;
   fill: var(--map-ink-soft);

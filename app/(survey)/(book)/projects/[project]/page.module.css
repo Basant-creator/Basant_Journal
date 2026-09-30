@@ -24,12 +24,12 @@
   gap: var(--space-3);
 }
 
-/* A control, so the control face — it set none, and inherited Inter from the
-   body until the body became the book face. */
+/* A control, so the margin face, named: inherited, it would be the book face
+   the body is set in. */
 .externalLink {
-  /* View source / Live system: the engineering links, as bare iron plates.
-     No rivets, because the arrow is drawn on ::after. composes has to come
-     first in the rule. */
+  /* View source / Live system: the engineering links, as ruled controls. The
+     control's inner rule is on ::before and the arrow on ::after, so the two
+     never compete. composes has to come first in the rule. */
   composes: plate from "../../../../../components/shared/Plate.module.css";
   display: inline-flex;
   align-items: center;
@@ -37,8 +37,10 @@
   min-height: 44px;
   padding: 0 var(--space-5);
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-sm);
-  letter-spacing: 0.08em;
+  letter-spacing: var(--tracking-wide);
 }
 
 .externalLink::after {
@@ -50,9 +52,9 @@
    opening block's, which is why it carries no margin of its own.
 
    A sentence, so the book face in italic — a footnote's voice. It was the
-   control face when that was a readable grotesque; set in Fell's small caps
-   the whole line became a label, the one thing a footnote is not. The step
-   up to --text-sm is the book face's own reading floor. */
+   margin face once, and set as a label the whole line read as one, the one
+   thing a footnote is not. The step up to --text-sm is the book face's own
+   reading floor. */
 .unresolved {
   font-family: var(--font-editorial);
   font-style: italic;
@@ -86,6 +88,8 @@
    so, in the clerk's voice rather than a breadcrumb's. */
 .filing {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);
@@ -95,6 +99,8 @@
    capital and cuts the rest small — the way a clerk's printed docket reads. */
 .docket {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   /* Recessive against the lede below it: this says what the document is, the
@@ -131,18 +137,18 @@
 /*
   A heading between paragraphs, so it has to stand at least level with them.
 
-  It did that as bold uppercase at --text-xs. Without either — Fell has no
-  bold, and small caps want mixed case — the same size set "The problem"
-  smaller than the body text under it: small caps 5.2px tall above an 8px
-  x-height. At --text-md they stand 7.2px, level with the body's lowercase,
-  and the capital rises above it, which is what a printed subhead does.
+  Capitals in the margin face, a step under the body and a weight over it:
+  at --text-sm they stand about 10px, above the body's 8px x-height, which is
+  what a printed subhead does. It spent a phase at --text-md, the size Fell's
+  small caps needed to reach the same height; in capitals that would shout.
 */
 .subhead {
   font-family: var(--font-ui);
-  font-size: var(--text-md);
-  /* Stated, not omitted: this is an h3, and the global heading rule would
-     otherwise hand Fell a 600 it does not have. */
-  font-weight: 400;
+  text-transform: uppercase;
+  font-size: var(--text-sm);
+  /* Stated, not omitted: this is an h3, and it would otherwise take the
+     heading rule's weight, which is set for Fell. */
+  font-weight: 600;
   letter-spacing: var(--tracking-label);
   color: color-mix(in srgb, var(--paper-ink, var(--color-ink)) 76%, transparent);
   margin-top: var(--space-4);

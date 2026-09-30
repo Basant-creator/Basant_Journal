@@ -20,7 +20,8 @@
   font-family: var(--font-chapter);
   font-size: clamp(1.8rem, 5vw, 3.4rem);
   line-height: 1;
-  letter-spacing: 0.04em;
+  /* Spaced, the way an atlas letters a title. */
+  letter-spacing: 0.1em;
   color: var(--color-white-warm);
   margin: 0;
   text-wrap: balance;

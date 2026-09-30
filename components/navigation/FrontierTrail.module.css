@@ -250,16 +250,17 @@
 }
 
 /*
-  Set in the printer's small caps, and not upper-cased: the capital stands at
-  full height and the rest of the word sits as small caps, which is how a
-  period sheet letters a marginal note. At 9px that was a 4px small cap, so
-  the size is the scale's floor rather than a pixel figure. The widest label
-  (Trail End, 58px) still clears the 4.2rem stop it is centred in.
+  The margin's capitals, which is how a sheet letters a marginal note, at the
+  scale's floor rather than a pixel figure. Spaced at --tracking-wide rather
+  than the label tracking, so the widest label (Trail End) still clears the
+  4.2rem stop it is centred in.
 */
 .label {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
-  letter-spacing: var(--tracking-label);
+  letter-spacing: var(--tracking-wide);
   white-space: nowrap;
   opacity: 0.9;
 }

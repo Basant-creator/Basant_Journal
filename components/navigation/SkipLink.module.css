@@ -9,10 +9,11 @@
   border: 1px solid var(--color-earth-dark);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-5);
-  /* A control, so the control face — it named none and used to inherit the
-     old one from body. Small caps rather than forced capitals, and no weight:
-     the face has one cut, and a synthetic bold of it reads as ink that ran. */
+  /* A control, so the margin face, named: inherited, it would be the book
+     face the body is set in. */
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-sm);
   letter-spacing: var(--tracking-wide);
   transition: transform var(--duration-fast) var(--ease-standard);

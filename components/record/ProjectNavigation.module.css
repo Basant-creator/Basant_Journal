@@ -41,6 +41,8 @@
 
 .caption {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);
@@ -63,20 +65,20 @@
 }
 
 /*
-  The way out of a record, as the painted plate — the same action the
-  landing's primary door takes, in the same red and the same metal. It was a
-  flat red field with a 4px radius.
+  The way out of a record, as the painted control — the same action the
+  landing's primary door takes, in the same red and the same rule.
 */
 .exit {
-  composes: painted riveted from "../shared/Plate.module.css";
+  composes: painted from "../shared/Plate.module.css";
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding: 0 var(--space-8);
-  /* No weight: Fell has one. */
+  padding: 0 var(--space-6);
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-sm);
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-wide);
 }
 
 .exitQuiet {
@@ -84,6 +86,8 @@
   align-items: center;
   min-height: 44px;
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);

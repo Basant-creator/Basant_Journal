@@ -61,6 +61,8 @@
   min-height: 44px;
   padding: var(--space-2) var(--space-4);
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-ink);
@@ -235,6 +237,8 @@
   min-height: 44px;
   padding: var(--space-2) var(--space-4);
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-paper-light);
@@ -287,6 +291,8 @@
    figures are right for it — nothing here lines up in a column. */
 .folio {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);

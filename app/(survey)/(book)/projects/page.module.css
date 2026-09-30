@@ -49,6 +49,8 @@
 
 .stamp {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth-dark);
@@ -105,6 +107,8 @@
   display: inline-flex;
   align-items: flex-end;
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wide);
   color: var(--color-red-dark);

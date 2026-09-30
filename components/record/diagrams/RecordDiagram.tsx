@@ -10,7 +10,7 @@ import styles from "./RecordDiagram.module.css";
  * a nicer picture.
  *
  * They share a drawing language — same weights, same station marks, same
- * arrowheads, same small caps — so three different figures still read as
+ * arrowheads, same lettering — so three different figures still read as
  * three sheets out of one drawing office. The stock underneath them changes;
  * the hand does not.
  */

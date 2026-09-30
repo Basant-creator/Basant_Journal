@@ -271,6 +271,8 @@
 */
 .sheet .recordTag {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-red-dark);
@@ -458,6 +460,8 @@
   padding: var(--space-3) var(--space-4);
   min-height: 44px;
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-on-paper);
@@ -488,7 +492,7 @@
   The line under the instruction is a sentence, not a second label — it
   always switched the capitals off to say so. Set in the book face, the way
   each line of the contents page carries a title in one voice and a
-  description under it in this one; two rows of small caps at one size
+  description under it in this one; two rows of capitals at one size
   would read as two instructions.
 */
 .openJournalHint {

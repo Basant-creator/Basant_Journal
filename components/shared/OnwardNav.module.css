@@ -41,11 +41,12 @@
   align-items: flex-end;
 }
 
-/* A label, so it names the label face. It never did, and was set in Inter by
-   inheritance until the page default became the book face. No uppercase:
-   Fell's lowercase is already its small caps. */
+/* A label, so it names the margin face rather than inheriting the book face
+   from the page. */
 .caption {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);
@@ -79,14 +80,16 @@
   a control it has nothing to do with.
 */
 .returnLink {
-  composes: plate riveted from "./Plate.module.css";
+  composes: plate from "./Plate.module.css";
   align-self: flex-end;
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding: 0 var(--space-8);
-  /* The same as the caption: a control's words, in the control face. */
+  padding: 0 var(--space-5);
+  /* The same as the caption: a control's words, in the margin face. */
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wide);
 }

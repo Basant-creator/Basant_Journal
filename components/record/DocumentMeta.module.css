@@ -16,10 +16,11 @@
   min-width: 0;
 }
 
-/* Mixed case, so Fell sets it in its own small caps: a full-height capital
-   and the rest cut small, which forced uppercase flattened into one height. */
+/* The margin's capitals: the term names the field, and the value is read. */
 .term {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-muted);

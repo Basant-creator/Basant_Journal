@@ -61,10 +61,11 @@
   box-shadow: var(--shadow-paper);
 }
 
-/* Labels here are the printer's small caps: no forced capitals, no weight.
-   The face has one cut, and a synthetic bold of it reads as ink that ran. */
+/* Labels here are the margin's capitals, as on the sheet they stand in for. */
 .trailheadTag {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-red-dark);
@@ -77,18 +78,20 @@
   color: var(--color-ink);
 }
 
-/* The painted plate, full width on a phone. */
+/* The painted control, full width on a phone. */
 .trailheadAction {
-  composes: painted riveted from "../shared/Plate.module.css";
+  composes: painted from "../shared/Plate.module.css";
   display: inline-flex;
   align-items: center;
   justify-content: center;
   align-self: stretch;
   min-height: 48px;
-  padding: 0 var(--space-8);
+  padding: 0 var(--space-6);
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-sm);
-  letter-spacing: 0.08em;
+  letter-spacing: var(--tracking-wide);
 }
 
 .trailheadAction:active {
@@ -220,6 +223,8 @@
 
 .cardSection {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-earth);
@@ -234,6 +239,8 @@
 
 .cardStatus {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-red-dark);
@@ -253,6 +260,8 @@
 
 .cardHere {
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   color: var(--color-red);
@@ -311,9 +320,11 @@
   align-items: center;
   min-height: 44px;
   padding: 0 var(--space-4);
-  /* Named: it set no face and inherited the old control face from body.
-     Body is the book face now, and this is a control, not a sentence. */
+  /* Named: inherited, it would be the book face, and this is a control,
+     not a sentence. */
   font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wide);
 }
