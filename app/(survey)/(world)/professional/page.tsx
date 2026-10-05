@@ -55,6 +55,16 @@ export default function ProfessionalPage() {
               LinkedIn
             </a>
           </li>
+          {/* The CV, on the contact line, because this is the page somebody
+              comes to for it. Only when the file is filed — the same rule
+              the Archive follows. */}
+          {links.resumeStatus === "resolved" ? (
+            <li>
+              <a href={links.resume} target="_blank" rel="noreferrer noopener">
+                Résumé (PDF)
+              </a>
+            </li>
+          ) : null}
           <li>{person.location}</li>
         </ul>
 

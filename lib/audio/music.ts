@@ -1325,7 +1325,7 @@ export interface Conductor {
 export function conduct(
   desk: Desk,
   initial: MusicState = "silence",
-  initialCue: Cue = frontierCue,
+  initialCue: Cue = standoffCue,
 ): Conductor {
   const { context } = desk;
   let state: MusicState = initial;

@@ -58,8 +58,9 @@ models the physics rather than imitating the result.
 
 ## The music
 
-This section is about the Frontier cue, the one that ships. The standoff cue,
-the second piece in the same file, is described under "Two cues" below.
+This section is about the Frontier cue, the first piece written. It no longer
+ships: the standoff cue, the second piece in the same file, is the only music
+the site plays, and is described under "Two cues" below.
 
 The Frontier cue in `lib/audio/music.ts` is an original composition, written
 to §42's brief and to nothing else: a sparse plucked lead, an occasional human whistle, 84 BPM,
@@ -338,11 +339,14 @@ this project": none, by design, and the licence section below is why.
 
 ## Two cues, and what neither of them is
 
-There are two pieces of music for the landing, compared behind a development
-switch. Only the Frontier cue can be heard in a production build. The switch
-is not in that build at all: the panel and its stylesheet leave the bundle,
-checked by searching the output for its markup, its labels and its CSS class,
-all of which return zero files.
+There are two pieces of music for the landing. They were compared behind a
+development switch, and the owner chose **Standoff**: it is the only cue the
+site plays, in development and production alike, and the switch has been
+removed from the audition panel. The Frontier cue's notes are still in
+`lib/audio/music.ts`, but nothing selects them. The panel itself never reaches
+a production build: it and its stylesheet leave the bundle, checked by
+searching the output for its markup, its labels and its CSS class, all of
+which return zero files.
 
 **Frontier**: 84 BPM, pedal-and-melody figures on the guitar, a whistle and a
 mouth organ, phrase and rest. This is the original motif, unchanged.

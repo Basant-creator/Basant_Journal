@@ -45,7 +45,7 @@
     "email": "basantbhushan89@gmail.com",
     "phone": "+91 8077519705",
     "resume": "/BasantBhushan_CV.pdf",
-    "resumeStatus": "unresolved"
+    "resumeStatus": "resolved"
   },
   "navigationLocations": [
     {
@@ -205,7 +205,7 @@
       ],
       "lessons": "Caching is an architecture decision, not an optimisation. Deciding where the cache lived — at the analysed-track boundary rather than the request boundary — is what makes a second look at the same playlist cost nothing instead of a full quota of third-party calls.",
       "github": "https://github.com/Basant-creator/TuneIt",
-      "liveUrl": null,
+      "liveUrl": "https://tuneit.co.in",
       "linksStatus": "resolved",
       "visualAssets": [],
       "metricsCaption": "Medians of five runs of the repository's own scale benchmark at N=500. The pool is built by duplicating 50 base tracks with jitter, so the absolute smoothness figures are optimistic — the comparison between engines is the result, not any single number. Throughput is deliberately not quoted: across the same five runs one engine measured between 82,000 and 172,000 tracks a second, which is warm-up and garbage collection rather than algorithm.",

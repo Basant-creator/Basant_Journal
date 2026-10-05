@@ -27,7 +27,6 @@ import {
   CUES,
   type Conductor,
   type Cue,
-  type CueName,
   type MusicState,
   conduct,
 } from "./music";
@@ -352,29 +351,12 @@ export function subscribeRunning(fn: () => void): () => void {
 }
 
 /**
- * Which piece of music the landing plays.
+ * The piece of music the site plays: the Standoff cue, and only it.
  *
- * Outside the rig for the same reason the state is: a cue chosen while the
- * sound is off has to survive until there is something to play it, or the
- * comparison switch would only work in the order somebody happened to press
- * the buttons.
- *
- * `frontier` is the shipping default. Nothing in production changes it — the
- * only caller is the development panel, which is compiled out. See AudioLab.
+ * The Frontier cue was auditioned beside it behind a development switch and
+ * the owner chose Standoff; the switch is gone with the choice.
  */
-let cue: Cue = CUES.frontier;
-let cueName: CueName = "frontier";
-
-export function setCue(name: CueName): void {
-  if (name === cueName) return;
-  cueName = name;
-  cue = CUES[name];
-  rig?.music.setCue(cue);
-}
-
-export function currentCue(): CueName {
-  return cueName;
-}
+const cue: Cue = CUES.standoff;
 
 /**
  * Play the cue's closing figure, then stop.
