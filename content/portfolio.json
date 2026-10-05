@@ -645,8 +645,8 @@
       "period": "Jun 2026 — Jul 2026",
       "detail": "Grade A",
       "body": "Wireframing, prototyping and usability testing, applied to responsive web and mobile interfaces.",
-      "certificate": null,
-      "certificateStatus": "unresolved"
+      "certificate": "https://drive.google.com/file/d/1vI_G8pO6VGsSpbV3WWej7a8Bj4yQhaIN/view",
+      "certificateStatus": "resolved"
     }
   ],
   "certifications": [
@@ -654,15 +654,15 @@
       "title": "Cloud Fundamentals with Proctored Exam",
       "issuer": null,
       "period": "Mar 2025",
-      "certificate": null,
-      "certificateStatus": "unresolved"
+      "certificate": "https://drive.google.com/file/d/1K3jF-VpU2VHt_89by72P9DSMz2bwHbm0/view",
+      "certificateStatus": "resolved"
     },
     {
       "title": "Web Development (Live MOOC)",
       "issuer": null,
       "period": "Jan 2025",
-      "certificate": null,
-      "certificateStatus": "unresolved"
+      "certificate": "https://drive.google.com/file/d/1uD0Johf8QQkEE_74gk9LTsCpfx_bTVar/view",
+      "certificateStatus": "resolved"
     }
   ],
   "ongoing": [

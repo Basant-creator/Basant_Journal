@@ -107,9 +107,18 @@ export default function ArchivePage() {
                     <p className={shared.paperMeta}>
                       {entry.period} · {entry.detail}
                     </p>
-                    {entry.certificateStatus === "unresolved" ? (
+                    {entry.certificateStatus === "resolved" && entry.certificate ? (
+                      <a
+                        href={entry.certificate}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className={styles.certificate}
+                      >
+                        View certificate
+                      </a>
+                    ) : (
                       <p className={styles.unresolved}>Certificate not yet filed</p>
-                    ) : null}
+                    )}
                   </PaperSurface>
                 </li>
               ))}
@@ -119,9 +128,18 @@ export default function ArchivePage() {
                     <h3 className={shared.paperTitle}>{entry.title}</h3>
                     {entry.issuer ? <p className={styles.institution}>{entry.issuer}</p> : null}
                     <p className={shared.paperMeta}>{entry.period}</p>
-                    {entry.certificateStatus === "unresolved" ? (
+                    {entry.certificateStatus === "resolved" && entry.certificate ? (
+                      <a
+                        href={entry.certificate}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className={styles.certificate}
+                      >
+                        View certificate
+                      </a>
+                    ) : (
                       <p className={styles.unresolved}>Certificate not yet filed</p>
-                    ) : null}
+                    )}
                   </PaperSurface>
                 </li>
               ))}

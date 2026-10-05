@@ -216,12 +216,26 @@ export default function ProfessionalPage() {
               <p className={styles.recordMeta}>
                 {entry.period} · {entry.detail}
               </p>
+              {entry.certificateStatus === "resolved" && entry.certificate ? (
+                <p className={styles.stack}>
+                  <a href={entry.certificate} target="_blank" rel="noreferrer noopener">
+                    Certificate
+                  </a>
+                </p>
+              ) : null}
             </div>
           ))}
           {certifications.map((entry) => (
             <div key={entry.title} className={styles.record}>
               <h3 className={styles.recordTitle}>{entry.title}</h3>
               <p className={styles.recordMeta}>{entry.period}</p>
+              {entry.certificateStatus === "resolved" && entry.certificate ? (
+                <p className={styles.stack}>
+                  <a href={entry.certificate} target="_blank" rel="noreferrer noopener">
+                    Certificate
+                  </a>
+                </p>
+              ) : null}
             </div>
           ))}
         </div>

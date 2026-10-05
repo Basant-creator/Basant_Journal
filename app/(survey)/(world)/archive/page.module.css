@@ -81,6 +81,21 @@
   max-width: 44ch;
 }
 
+/* A filed certificate, at the foot of its card where the unfiled note sits.
+   Red, because following a record to its proof is the hand's work. */
+.certificate {
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: var(--space-4);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: 0.03em;
+  color: var(--color-red-dark);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-red) 50%, transparent);
+  text-underline-offset: 0.25em;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
