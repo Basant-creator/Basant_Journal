@@ -10,6 +10,49 @@ rules that are not discoverable by reading any single file.
 
 ---
 
+## Current state: the site is the title cards
+
+As of 2026-11-15 (merged to `main`) the home page is **the title cards** — a
+sixties western's opening titles, one card on screen at a time — not the
+survey site described below.
+
+- **Where:** `app/(cards)` (the deck at `/`, case files at `/work/[project]`,
+  the professional view at `/professional`: same facts, same three faces,
+  one plain page that prints as a CV),
+  `components/cards` (Deck, Slam, Cylinder, Gunfire, Tumbleweed, styles),
+  `lib/cards` (`keys.ts` for ids next.config can read; `catalog.ts` for the
+  case files and the toolbox credits). Routes: `workRoute`, `cardRoute`,
+  `isCardsRoute` in `lib/routes.ts`.
+- **The deck owns its motion.** `Deck.tsx` owns every cut (eight kinds, one
+  per card); `transitionFor` returns NONE for cards routes, and the cards are
+  in `OFF_TRAIL`, so the earlier TransitionProvider, Lenis and the trail bar
+  stand aside. Read card colours once at mount, never at the moment of a cut
+  (getComputedStyle forced a full restyle inside the key press).
+- **Key projects:** Strata, TuneIt, OnSight (`KEY_CASES`). BobAI stays in
+  `portfolio.json` and the earlier site but is billed nowhere on the cards.
+  Strata's case file lives on its `ongoing` entry (`caseFile`), so the
+  earlier site's project list is untouched; the 2026 journey step has an
+  approved `retold` text the cards use.
+- **The earlier site** (`app/(survey)`, the map, camp, 3D) is kept for review,
+  unlinked: every old address redirects (307) to its place in the cards
+  (`next.config.ts`). The old home is parked unrouted in `app/_legacy/home`;
+  the boot screen is unmounted from the root layout. The rules below describe
+  that site — the five layers and "red is THE HAND only" do not apply to the
+  cards, which use their own `--titles-*` tokens (the token rule does).
+- **No audio.** The sound switch, the music and the audio lab are unmounted
+  from the root layout at the owner's request; `components/audio` and
+  `lib/audio` stay with the earlier site, and nothing mounted can start them.
+- **Pictures:** silhouettes are baked by `scripts/titles-silhouette.py`; the
+  full-size source scans live in git-ignored `assets/titles-source/` and are
+  fetched from Wikimedia Commons when missing.
+- **Frame drops in headless traces are not all real.** An eased animation's
+  tail moves less than a pixel per frame, nothing is redrawn, and Chrome's
+  `STATE_DROPPED` counts it anyway (a lone square with ease-out "drops" half
+  its frames). Judge cuts by work instead: main-thread tasks over 16ms, GPU
+  tasks over 8ms.
+
+---
+
 ## Non-negotiables
 
 1. **Never invent project content.** Every fact, figure, date and URL comes from

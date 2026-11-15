@@ -90,6 +90,33 @@ export const routes = {
 export type RouteKey = keyof typeof routes;
 export type Route = (typeof routes)[RouteKey];
 
+/**
+ * The title cards: the site.
+ *
+ * The home page is a deck of cards, one on screen at a time, each with an
+ * anchor of its own (`/#about`, `/#toolbox`); a project's case file is a page
+ * under /work; `routes.professional` is the same facts as one plain page.
+ * Every other address above is the earlier site's, kept in the repository
+ * for review and redirected into this one by next.config.ts.
+ */
+export const workRoot = "/work";
+export function workRoute(id: string): string {
+  return `${workRoot}/${id}`;
+}
+export function cardRoute(id: string): string {
+  return `${routes.home}#${id}`;
+}
+/** A page of the title cards (the deck, a case file, the professional
+    view), which owns its own arrivals and leavings. */
+export function isCardsRoute(pathname: string): boolean {
+  return (
+    pathname === routes.home ||
+    pathname === routes.professional ||
+    pathname === workRoot ||
+    pathname.startsWith(`${workRoot}/`)
+  );
+}
+
 /** Canonical record route for a project id. */
 export function projectRoute(id: string): string {
   return `${routes.projects}/${id}`;

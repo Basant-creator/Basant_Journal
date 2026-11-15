@@ -1,0 +1,44 @@
+/* A picture, chalked in and then rubbed back to colour (see Reveal.tsx).
+   The board is black until the hand starts; the picture underneath is held
+   back only while there is script to bring it on, and only for a reader
+   who has not asked for stillness. */
+
+.reveal {
+  position: absolute;
+  inset: 0;
+  background: var(--noir-bg);
+}
+
+.board {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transition: opacity 700ms var(--open-ease-out);
+}
+
+.reveal[data-stage="done"] .board {
+  opacity: 0;
+}
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .reveal:not([data-stage="done"]) .picture {
+    opacity: 0;
+  }
+}
+
+:global(html[data-motion="still"]) .reveal .picture {
+  opacity: 1;
+}
+
+:global(html[data-motion="still"]) .board {
+  display: none;
+}
+
+/* A picture that could not be had: the frame stays the dark it is drawn
+   on, and the picture's words stay for anything reading them (hidden from
+   the eye only, so the alt text is still in the accessibility tree). */
+.reveal[data-failed] .picture {
+  opacity: 0 !important;
+}

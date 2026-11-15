@@ -1,0 +1,525 @@
+/* ==========================================================================
+   The journal (Journal.tsx). Sized in cqw of the frame.
+
+   The book is two halves: the page block on the right, and the cover,
+   hinged on the spine, lying over it. The cover's inside carries the left
+   page, so when it swings open (rotateY -180 about its left edge) the two
+   pages lie side by side, both reading the right way round. Closed, the
+   whole book sits over to the left so the cover is in the middle of the
+   frame.
+   ========================================================================== */
+
+.scene {
+  --page-w: 38cqw;
+  --page-h: 53cqw;
+  --board: 1.3cqw;
+  padding: 7cqw 0 13cqw;
+}
+
+.desk {
+  position: absolute;
+  inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.5' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+    linear-gradient(160deg, var(--west-wood) 0%, var(--west-wood-deep) 100%);
+  background-blend-mode: overlay, normal;
+}
+
+.book {
+  position: relative;
+  width: calc(var(--page-w) * 2);
+  height: var(--page-h);
+  margin: 0 auto;
+  perspective: 2400px;
+  transform: translateX(calc(var(--page-w) * -0.5));
+  transition: transform 1400ms var(--open-ease-out) 300ms;
+}
+
+.book[data-open] {
+  transform: none;
+}
+
+/* --- the page block (right) ------------------------------------------------------ */
+
+.block {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 50%;
+  height: 100%;
+}
+
+/* The back board under the block, and the leaves seen at the fore-edge. */
+.block::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--board) * -1) calc(var(--board) * -1) calc(var(--board) * -1) 0;
+  z-index: -1;
+  border-radius: 0 0.8cqw 0.8cqw 0;
+  background: linear-gradient(90deg, var(--leather), var(--leather-mid));
+  box-shadow: 0 2cqw 3cqw var(--room-dark);
+}
+
+.page {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: start;
+  padding: 4.2cqw 3.6cqw 3cqw 6cqw;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--west-ink) 90%, transparent);
+  background:
+    /* The red margin line. */
+    linear-gradient(90deg, transparent calc(4.6cqw - 1px), color-mix(in srgb, var(--west-rust) 45%, transparent) calc(4.6cqw - 1px) 4.6cqw, transparent 4.6cqw),
+    /* Ruled, a line every 2.4cqw from below the heading. */
+    repeating-linear-gradient(transparent 0 calc(2.4cqw - 1px), color-mix(in srgb, var(--west-ink-soft) 22%, transparent) calc(2.4cqw - 1px) 2.4cqw) 0 8.4cqw / 100% 100% no-repeat,
+    radial-gradient(ellipse at 50% 40%, var(--west-paper-pale) 30%, var(--west-parchment) 85%, var(--west-parchment-deep) 100%);
+}
+
+.block .page {
+  box-shadow:
+    inset 2.2cqw 0 2cqw -1cqw color-mix(in srgb, var(--west-wood) 40%, transparent),
+    0.18cqw 0.18cqw 0 var(--west-parchment-deep),
+    0.36cqw 0.36cqw 0 var(--west-parchment),
+    0.54cqw 0.54cqw 0 var(--west-parchment-deep),
+    0.72cqw 0.72cqw 0 var(--west-parchment);
+}
+
+/* A ribbon marker, laid down the gutter and hanging out at the foot. */
+.ribbon {
+  position: absolute;
+  left: 1.6cqw;
+  top: -0.6cqw;
+  bottom: -4cqw;
+  width: 1.2cqw;
+  background: linear-gradient(90deg, var(--west-rust-deep), var(--west-blood) 50%, var(--west-rust-deep));
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 94%, 0 100%);
+}
+
+/* --- the cover ----------------------------------------------------------------------- */
+
+.cover {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: calc(var(--board) * -1);
+  width: calc(50% + var(--board));
+  height: calc(100% + var(--board) * 2);
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1600ms var(--open-ease) 600ms;
+}
+
+.book[data-open] .cover {
+  transform: rotateY(-180deg);
+}
+
+.front,
+.inside {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 0 0.8cqw 0.8cqw 0;
+}
+
+/* Leather: worn lighter where hands go, darker at the edges, grained. */
+.front {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23l)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 60% 50% at 70% 55%, color-mix(in srgb, var(--leather-light) 70%, transparent) 0%, transparent 100%),
+    radial-gradient(ellipse at 50% 50%, var(--leather-mid) 30%, var(--leather) 100%);
+  background-blend-mode: overlay, normal, normal;
+  box-shadow:
+    inset 0.5cqw 0 0.8cqw color-mix(in srgb, var(--room-dark) 60%, transparent),
+    inset -0.2cqw 0 0.4cqw color-mix(in srgb, var(--leather-light) 50%, transparent),
+    0 2cqw 3cqw var(--room-dark);
+}
+
+.stitch {
+  position: absolute;
+  inset: 1.4cqw 1.4cqw 1.4cqw 2.2cqw;
+  border: 0.18cqw dashed color-mix(in srgb, var(--west-parchment) 45%, transparent);
+  border-radius: 0.4cqw;
+}
+
+.titleBlock {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  display: grid;
+  justify-items: center;
+  gap: 1cqw;
+  translate: -50% 0;
+  text-align: center;
+}
+
+/* Gilt, mostly rubbed off: the letters show through a mask of wear. */
+.gilt {
+  font-family: var(--font-display);
+  font-size: 4.2cqw;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  color: var(--gilt);
+  text-shadow: 0 -0.08cqw 0 color-mix(in srgb, var(--room-dark) 80%, transparent), 0 0.1cqw 0 color-mix(in srgb, var(--leather-light) 60%, transparent);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.08' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 -0.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask-size: 18cqw;
+}
+
+.rule {
+  width: 14cqw;
+  height: 0.12cqw;
+  background: color-mix(in srgb, var(--gilt) 70%, transparent);
+}
+
+.owner {
+  font-family: var(--font-display);
+  font-size: 1.6cqw;
+  letter-spacing: 0.2em;
+  color: color-mix(in srgb, var(--gilt) 75%, transparent);
+}
+
+/* Brass corner guards on the outer corners. */
+.corner {
+  position: absolute;
+  right: -0.2cqw;
+  width: 4cqw;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--gilt) 70%, var(--west-white)), var(--gilt) 40%, color-mix(in srgb, var(--gilt) 60%, var(--room-dark)));
+}
+
+.cornerTop {
+  top: -0.2cqw;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+  border-top-right-radius: 0.8cqw;
+}
+
+.cornerBottom {
+  bottom: -0.2cqw;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  border-bottom-right-radius: 0.8cqw;
+}
+
+/* The inside of the cover: the board's leather turned in round the edge,
+   and the first page pasted down inside it. */
+.inside {
+  transform: rotateY(180deg);
+  border-radius: 0.8cqw 0 0 0.8cqw;
+  background: var(--leather);
+}
+
+.inside .page {
+  inset: var(--board) 0 var(--board) var(--board);
+  box-shadow: inset -2.2cqw 0 2cqw -1cqw color-mix(in srgb, var(--west-wood) 40%, transparent);
+}
+
+/* --- the strap ----------------------------------------------------------------------- */
+
+.strap {
+  position: absolute;
+  z-index: 3;
+  right: calc(var(--board) * -2.4);
+  top: 44%;
+  width: 11cqw;
+  height: 3.4cqw;
+  border-radius: 0.6cqw;
+  background:
+    linear-gradient(transparent 12%, color-mix(in srgb, var(--west-parchment) 30%, transparent) 12% 15%, transparent 15% 85%, color-mix(in srgb, var(--west-parchment) 30%, transparent) 85% 88%, transparent 88%),
+    linear-gradient(var(--leather-light), var(--leather));
+  box-shadow: 0 0.4cqw 0.8cqw var(--room-dark);
+  transform-origin: right center;
+  transition: transform 700ms var(--open-ease), opacity 500ms linear 200ms;
+}
+
+.buckle {
+  position: absolute;
+  left: 1.2cqw;
+  top: 50%;
+  width: 3cqw;
+  height: 4.4cqw;
+  translate: 0 -50%;
+  border: 0.5cqw solid var(--gilt);
+  border-radius: 0.5cqw;
+}
+
+.book[data-open] .strap {
+  transform: translate(3cqw, 6cqw) rotate(40deg);
+  opacity: 0;
+}
+
+/* --- the ink ------------------------------------------------------------------------- */
+
+.heading {
+  margin: 0 0 2cqw;
+  font-family: var(--font-display);
+  font-size: 2.5cqw;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.entries {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  display: grid;
+  margin-bottom: 2.4cqw;
+}
+
+.entry:last-child {
+  margin-bottom: 0;
+}
+
+/* Every line sits on a rule (2.4cqw apart), and is written from the left
+   once the book is open, each after the one before. */
+.ink {
+  display: block;
+  font-family: var(--font-hand);
+  line-height: 2.4cqw;
+  clip-path: inset(-20% 100% -20% 0);
+  transition: clip-path 700ms linear calc(2.3s + var(--d) * 0.42s);
+}
+
+.book[data-open] .ink {
+  clip-path: inset(-20% -4% -20% 0);
+}
+
+.book:not([data-open]) .ink {
+  transition-delay: 0s;
+  transition-duration: 200ms;
+}
+
+.date {
+  font-size: 1.5cqw;
+  color: var(--west-rust);
+}
+
+.title {
+  font-size: 2cqw;
+  font-weight: 600;
+}
+
+.by {
+  font-size: 1.55cqw;
+  color: color-mix(in srgb, var(--west-ink) 75%, transparent);
+}
+
+.proof a {
+  font-size: 1.55cqw;
+  color: var(--west-rust-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.folio {
+  position: absolute;
+  bottom: 1.8cqw;
+  left: 50%;
+  translate: -50% 0;
+  font-family: var(--font-display);
+  font-size: 1.3cqw;
+  color: var(--west-ink-soft);
+}
+
+/* --- the control --------------------------------------------------------------------- */
+
+.handle {
+  position: absolute;
+  left: 50%;
+  bottom: -6.5cqw;
+  translate: -50% 0;
+  padding: 0.8cqw 1.6cqw;
+  border: 1px solid color-mix(in srgb, var(--noir-text) 30%, transparent);
+  background: color-mix(in srgb, var(--room-dark) 50%, transparent);
+  color: var(--noir-text);
+  font-family: var(--font-ui);
+  font-size: max(0.75cqw, 11px);
+  font-weight: var(--weight-ui);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.handle:hover {
+  border-color: var(--noir-accent);
+}
+
+/* The control stays under the middle of the frame, closed or open. */
+.book:not([data-open]) .handle {
+  left: 75%;
+}
+
+/* --- a phone: bound at the top, a notebook ---------------------------------------------- */
+
+@media (max-width: 639px) {
+  .scene {
+    --page-w: 84cqw;
+    --page-h: 128cqw;
+    --board: 2.4cqw;
+    padding: 10cqw 0 30cqw;
+  }
+
+  .book {
+    width: var(--page-w);
+    height: calc(var(--page-h) * 2);
+    transform: translateY(calc(var(--page-h) * -0.5));
+  }
+
+  .block {
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 50%;
+  }
+
+  .block::before {
+    inset: 0 calc(var(--board) * -1) calc(var(--board) * -1);
+    border-radius: 0 0 1.6cqw 1.6cqw;
+  }
+
+  .cover {
+    left: calc(var(--board) * -1);
+    top: 50%;
+    width: calc(100% + var(--board) * 2);
+    height: calc(50% + var(--board));
+    transform-origin: center top;
+  }
+
+  .book[data-open] .cover {
+    transform: rotateX(180deg);
+  }
+
+  .front {
+    border-radius: 0 0 1.6cqw 1.6cqw;
+  }
+
+  .inside {
+    transform: rotateX(180deg);
+    border-radius: 1.6cqw 1.6cqw 0 0;
+  }
+
+  .inside .page {
+    inset: var(--board) var(--board) 0;
+  }
+
+  .stitch {
+    inset: 3.4cqw 2.6cqw 2.6cqw;
+  }
+
+  .titleBlock {
+    top: 34%;
+  }
+
+  .gilt {
+    font-size: 9cqw;
+  }
+
+  .owner {
+    font-size: 3.4cqw;
+  }
+
+  .rule {
+    width: 30cqw;
+  }
+
+  .corner {
+    width: 8cqw;
+  }
+
+  .cornerTop {
+    top: auto;
+    right: auto;
+    left: -0.2cqw;
+    bottom: -0.2cqw;
+    clip-path: polygon(0 0, 100% 100%, 0 100%);
+    border-radius: 0 0 0 1.6cqw;
+  }
+
+  .cornerBottom {
+    right: -0.2cqw;
+    border-radius: 0 0 1.6cqw 0;
+  }
+
+  .strap {
+    display: none;
+  }
+
+  .page {
+    padding: 8cqw 6cqw 6cqw 11cqw;
+    background:
+      linear-gradient(90deg, transparent calc(8.6cqw - 1px), color-mix(in srgb, var(--west-rust) 45%, transparent) calc(8.6cqw - 1px) 8.6cqw, transparent 8.6cqw),
+      repeating-linear-gradient(transparent 0 calc(6cqw - 1px), color-mix(in srgb, var(--west-ink-soft) 22%, transparent) calc(6cqw - 1px) 6cqw) 0 17cqw / 100% 100% no-repeat,
+      radial-gradient(ellipse at 50% 40%, var(--west-paper-pale) 30%, var(--west-parchment) 85%, var(--west-parchment-deep) 100%);
+  }
+
+  .block .page,
+  .inside .page {
+    box-shadow: none;
+  }
+
+  .heading {
+    font-size: 5.6cqw;
+    margin-bottom: 3.6cqw;
+  }
+
+  .ink {
+    line-height: 6cqw;
+  }
+
+  .entry {
+    margin-bottom: 6cqw;
+  }
+
+  .date,
+  .by,
+  .proof a {
+    font-size: 4.2cqw;
+  }
+
+  .title {
+    font-size: 5.2cqw;
+  }
+
+  .folio {
+    font-size: 3cqw;
+    bottom: 3cqw;
+  }
+
+  .ribbon {
+    width: 2.6cqw;
+    bottom: -7cqw;
+  }
+
+  .handle {
+    bottom: -14cqw;
+    font-size: 11px;
+    padding: 2cqw 4cqw;
+  }
+
+  .book:not([data-open]) .handle {
+    left: 50%;
+  }
+}
+
+/* --- still ------------------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .book,
+  .cover,
+  .strap,
+  .ink {
+    transition: none;
+  }
+}
+
+:global(html[data-motion="still"]) .book,
+:global(html[data-motion="still"]) .cover,
+:global(html[data-motion="still"]) .strap,
+:global(html[data-motion="still"]) .ink {
+  transition: none;
+}

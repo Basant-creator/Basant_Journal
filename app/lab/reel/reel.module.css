@@ -1,0 +1,1828 @@
+/* ==========================================================================
+   WANTED REEL (/lab/reel): a frontier newspaper with film stills set into
+   it. Old type, new motion.
+
+   Every effect here is a transform or an opacity, timed or read off the
+   scroll, so the compositor runs it at the screen's own rate (120 Hz where
+   the screen is) without asking the main thread for a frame. Loops stop
+   off screen (Press.tsx). Reduced motion and a machine with no GPU get
+   the finished page: everything that arrives has its resting state visible.
+   ========================================================================== */
+
+.reel {
+  --bill: var(--font-reel-bill, "Anton", Impact, sans-serif);
+  --wood: var(--font-reel-wood, "Ultra", Georgia, serif);
+  --text: var(--font-reel-text, "Old Standard TT", Georgia, serif);
+  --type: var(--font-reel-type, "Special Elite", "Courier New", monospace);
+  --pad: clamp(16px, 4.4vw, 64px);
+  --ease: cubic-bezier(0.7, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --bounce: cubic-bezier(0.2, 1.6, 0.4, 1);
+  /* How long the front page waits for the projector's countdown: none on a
+     return within the visit, after a skip, or for a still reader. */
+  --intro: 2100ms;
+  position: relative;
+  min-height: 100vh;
+  overflow-x: clip;
+  background: var(--reel-paper);
+  color: var(--reel-ink);
+  font-family: var(--text);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+:global(html[data-reel-seen]) .reel,
+:global(html[data-reel-skip]) .reel {
+  --intro: 0ms;
+}
+
+/* The page's grain and its age: one still layer of noise and a darkening
+   toward the edges, never redrawn. */
+.reel::before,
+.reel::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.reel::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='4'/%3E%3CfeColorMatrix values='0 0 0 0 .16 0 0 0 0 .11 0 0 0 0 .06 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.38;
+}
+
+.reel::after {
+  background: radial-gradient(ellipse at 50% 40%, transparent 55%, color-mix(in srgb, var(--reel-ink) 26%, transparent) 100%);
+}
+
+/* Links take the colour of what they sit in; without weight, so any link
+   with a colour of its own keeps it. */
+.reel :where(a) {
+  color: inherit;
+}
+
+.reel :focus-visible {
+  outline: 2px solid var(--reel-rust);
+  outline-offset: 4px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- the projector ------------------------------------------------------- */
+
+.projector {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--reel-night);
+  pointer-events: none;
+  animation: projectorOut 520ms var(--ease) var(--intro) both;
+}
+
+.leader {
+  position: relative;
+  width: min(60vmin, 520px);
+  aspect-ratio: 1;
+}
+
+.ring,
+.sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.ring {
+  border: 3px solid color-mix(in srgb, var(--reel-sand) 70%, transparent);
+  box-shadow: inset 0 0 0 26px color-mix(in srgb, var(--reel-sand) 6%, transparent), inset 0 0 0 29px color-mix(in srgb, var(--reel-sand) 40%, transparent);
+}
+
+.sweep {
+  background: conic-gradient(from 0deg, color-mix(in srgb, var(--reel-sand) 26%, transparent) 0 25%, transparent 25% 100%);
+  animation: sweep 700ms linear 3 both;
+}
+
+.crossH,
+.crossV {
+  position: absolute;
+  background: color-mix(in srgb, var(--reel-sand) 50%, transparent);
+}
+
+.crossH {
+  left: -20%;
+  right: -20%;
+  top: 50%;
+  height: 2px;
+}
+
+.crossV {
+  top: -20%;
+  bottom: -20%;
+  left: 50%;
+  width: 2px;
+}
+
+.count span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--bill);
+  font-size: min(38vmin, 330px);
+  line-height: 1;
+  color: var(--reel-sand);
+  opacity: 0;
+  animation: beat 700ms linear forwards;
+}
+
+.count span:nth-child(2) {
+  animation-delay: 700ms;
+}
+
+.count span:nth-child(3) {
+  animation-delay: 1400ms;
+}
+
+@keyframes sweep {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes beat {
+  0%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes projectorOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+:global(html[data-reel-seen]) .projector,
+:global(html[data-reel-skip]) .projector {
+  display: none;
+}
+
+/* --- the masthead --------------------------------------------------------- */
+
+.top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: 18px var(--pad) 10px;
+  border-bottom: 1px solid var(--reel-ink);
+  font-family: var(--type);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.topNav {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.topNav a {
+  text-decoration: none;
+  background: linear-gradient(var(--reel-rust), var(--reel-rust)) 0 100% / 0 2px no-repeat;
+  transition: background-size 380ms var(--ease-out);
+}
+
+.topNav a:hover,
+.topNav a:focus-visible {
+  background-size: 100% 2px;
+}
+
+.mast {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-8);
+  padding: 18px var(--pad) 10px;
+}
+
+.name {
+  margin: 0;
+  font-family: var(--bill);
+  font-size: clamp(3.4rem, 10.6vw, 10.6rem);
+  font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+}
+
+.word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.sort {
+  display: inline-block;
+}
+
+.mastSide {
+  max-width: 18ch;
+  margin: 0 0 var(--space-2);
+  font-family: var(--type);
+  font-size: 14px;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.rule {
+  height: 9px;
+  margin: 0 var(--pad);
+  border-top: 4px double var(--reel-ink);
+  border-bottom: 1px solid var(--reel-ink);
+  transform-origin: left;
+}
+
+/* --- the still -------------------------------------------------------------- */
+
+.still {
+  position: relative;
+  height: clamp(420px, 66vh, 640px);
+  margin: 28px var(--pad) 0;
+  overflow: hidden;
+  background: var(--reel-night);
+}
+
+.film {
+  position: absolute;
+  inset: -4%;
+}
+
+.filmImage {
+  object-fit: cover;
+  object-position: 50% 38%;
+  filter: sepia(0.5) saturate(1.2) contrast(1.15);
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--reel-night) 88%, transparent), transparent 62%),
+    linear-gradient(180deg, transparent 70%, color-mix(in srgb, var(--reel-night) 60%, transparent));
+}
+
+/* The film's own wear: two scratches jumping about the frame, and the
+   light breathing as the shutter turns. */
+.scratch {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 31%;
+  z-index: 2;
+  width: 1px;
+  background: color-mix(in srgb, var(--reel-sand) 55%, transparent);
+  opacity: 0;
+}
+
+.scratchB {
+  left: 66%;
+  width: 2px;
+}
+
+.flicker {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--reel-sand);
+  opacity: 0;
+}
+
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  height: 50%;
+  background: var(--reel-night);
+  transform: scaleY(0.16);
+}
+
+.barTop {
+  top: 0;
+  transform-origin: top;
+}
+
+.barBottom {
+  bottom: 0;
+  transform-origin: bottom;
+}
+
+.caption {
+  position: absolute;
+  left: clamp(20px, 3vw, 44px);
+  bottom: 13%;
+  z-index: 4;
+  max-width: 560px;
+  color: var(--reel-sand);
+}
+
+.kicker {
+  margin: 0 0 var(--space-3);
+  font-family: var(--type);
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--reel-ember);
+}
+
+.tagline {
+  margin: 0;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  font-style: italic;
+  line-height: 1.35;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: var(--space-6) 0 0;
+}
+
+.button,
+.buttonGhost {
+  display: inline-block;
+  padding: 13px 22px;
+  border: 2px solid var(--reel-sand);
+  font-family: var(--type);
+  font-size: 13px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 220ms var(--ease-out),
+    color 220ms var(--ease-out);
+}
+
+.button {
+  background: var(--reel-sand);
+  color: var(--reel-night) !important;
+}
+
+.button:hover,
+.buttonGhost:hover {
+  transform: translateY(-2px);
+}
+
+.buttonGhost:hover {
+  background: var(--reel-sand);
+  color: var(--reel-night) !important;
+}
+
+.button:active,
+.buttonGhost:active {
+  transform: translateY(1px);
+}
+
+/* The poster, nailed over the still's corner; it swings from its nail. */
+.poster {
+  position: absolute;
+  right: 4%;
+  top: 9%;
+  z-index: 5;
+  width: clamp(190px, 21vw, 300px);
+  margin: 0;
+  rotate: -3deg;
+  transform-origin: 50% 0;
+}
+
+.nail {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 2;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--reel-dust), var(--reel-ink));
+}
+
+.posterBody {
+  padding: 16px 16px 14px;
+  background: var(--reel-paper);
+  color: var(--reel-ink);
+  text-align: center;
+  box-shadow: 0 30px 60px color-mix(in srgb, var(--reel-night) 70%, transparent);
+  transform-origin: 50% 14px;
+}
+
+.posterWanted {
+  margin: 8px 0 0;
+  font-family: var(--wood);
+  font-size: clamp(2rem, 3.6vw, 3.25rem);
+  line-height: 0.95;
+}
+
+.posterPhoto {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  margin-top: 8px;
+  overflow: hidden;
+  border: 2px solid var(--reel-ink);
+}
+
+.posterPhoto img {
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.55);
+}
+
+.poster figcaption {
+  display: grid;
+  margin-top: 8px;
+}
+
+.posterName {
+  font-family: var(--wood);
+  font-size: clamp(1.1rem, 1.7vw, 1.6rem);
+  line-height: 1.05;
+}
+
+.posterFor {
+  margin-top: 4px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--reel-rust);
+}
+
+/* --- the front: three columns --------------------------------------------- */
+
+.front {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 var(--pad);
+  padding: var(--space-16) 0;
+}
+
+.col {
+  position: relative;
+  padding: 0 var(--space-8);
+  border-right: 1px solid var(--reel-ink);
+}
+
+.col:first-child {
+  padding-left: 0;
+}
+
+.col:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.colKicker {
+  margin: 0 0 var(--space-3);
+  font-family: var(--type);
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--reel-rust);
+}
+
+.dropCap {
+  margin: 0;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.dropCap::first-letter {
+  float: left;
+  padding: 6px 8px 0 0;
+  font-family: var(--wood);
+  font-size: 4em;
+  line-height: 0.8;
+  color: var(--reel-ink);
+}
+
+.interests,
+.years {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.interests li {
+  padding-bottom: var(--space-3);
+  border-bottom: 1px dotted var(--reel-ink-soft);
+  font-style: italic;
+}
+
+.years li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: var(--space-4);
+}
+
+.year {
+  font-family: var(--bill);
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.yearTitle {
+  font-family: var(--type);
+  text-transform: uppercase;
+}
+
+/* --- the wire ---------------------------------------------------------------- */
+
+.wire {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--reel-night);
+  color: var(--reel-sand);
+}
+
+.wireLabel {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  padding: 18px 22px;
+  background: var(--reel-ember);
+  color: var(--reel-night);
+  font-family: var(--type);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.wireRun {
+  display: flex;
+  width: max-content;
+  animation: wireRun 38s linear infinite;
+}
+
+.wire[data-paused] .wireRun {
+  animation-play-state: paused;
+}
+
+.wireSet {
+  display: flex;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wireSet li {
+  display: flex;
+  align-items: center;
+  font-family: var(--bill);
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.wireSet li::after {
+  content: "";
+  width: 0.24em;
+  height: 0.24em;
+  margin-inline: 0.8em;
+  rotate: 45deg;
+  background: var(--reel-ember);
+}
+
+@keyframes wireRun {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* --- section heads ------------------------------------------------------------ */
+
+.band {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  margin-bottom: var(--space-10);
+}
+
+.bandTitle {
+  margin: 0;
+  font-family: var(--bill);
+  font-size: clamp(3rem, 7vw, 6.4rem);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bandRule {
+  flex: 1;
+  height: 8px;
+  border-top: 3px solid var(--reel-ink);
+  border-bottom: 1px solid var(--reel-ink);
+  transform-origin: left;
+}
+
+.bandNote {
+  font-family: var(--type);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+/* --- the work: a strip of film run past the reader -------------------------- */
+
+.work {
+  position: relative;
+  padding: var(--space-20) 0 0;
+}
+
+.workPin {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.workPin .band {
+  margin-inline: var(--pad);
+}
+
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  padding-inline: var(--pad);
+}
+
+.reelCard {
+  display: flex;
+  flex-direction: column;
+  background: var(--reel-night);
+  color: var(--reel-sand);
+  box-shadow: 10px 12px 0 var(--reel-shade);
+}
+
+/* The film's edge: a row of sprocket holes, top and bottom. */
+.sprockets {
+  height: 22px;
+  background: radial-gradient(circle at 50% 50%, var(--reel-paper) 0 4px, transparent 4.5px) 0 50% / 26px 14px repeat-x;
+  opacity: 0.8;
+}
+
+.reelLink {
+  display: grid;
+  padding: 0 0 var(--space-6);
+  text-decoration: none;
+}
+
+.reelShot {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+}
+
+.reelShot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition:
+    opacity 700ms var(--ease-out),
+    transform 900ms var(--ease-out);
+}
+
+.reelSepia {
+  filter: sepia(0.75) contrast(1.1) brightness(0.82);
+}
+
+/* The same frame in colour, laid over: looked at, the still comes alive. */
+.reelColour {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.reelLink:hover .reelColour,
+.reelLink:focus-visible .reelColour {
+  opacity: 1;
+}
+
+.reelLink:hover .reelShot img,
+.reelLink:focus-visible .reelShot img {
+  transform: scale(1.04);
+}
+
+.reelNo {
+  margin: -30px var(--space-6) 0;
+  position: relative;
+  font-family: var(--type);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--reel-ember);
+}
+
+.reelTitle {
+  padding: var(--space-3) var(--space-6) 0;
+  font-family: var(--bill);
+  font-size: clamp(3rem, 6vw, 5.6rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.reelSub {
+  padding: var(--space-1) var(--space-6) 0;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: color-mix(in srgb, var(--reel-sand) 75%, transparent);
+}
+
+.reelMeta {
+  padding: var(--space-3) var(--space-6) 0;
+  font-family: var(--type);
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--reel-dust);
+}
+
+.reelCta {
+  justify-self: start;
+  margin: var(--space-5) var(--space-6) 0;
+  font-family: var(--type);
+  font-size: 13px;
+  text-transform: uppercase;
+  background: linear-gradient(var(--reel-ember), var(--reel-ember)) 0 100% / 0 2px no-repeat;
+  transition: background-size 420ms var(--ease-out);
+}
+
+.reelCta::after {
+  content: "\2192";
+  display: inline-block;
+  margin-left: 0.5em;
+  transition: translate 420ms var(--ease-out);
+}
+
+.reelLink:hover .reelCta,
+.reelLink:focus-visible .reelCta {
+  background-size: 100% 2px;
+}
+
+.reelLink:hover .reelCta::after,
+.reelLink:focus-visible .reelCta::after {
+  translate: 6px 0;
+}
+
+/* Wide, with scroll timelines and motion welcome: the page holds and the
+   strip runs sideways past it, one reel after another. */
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .work {
+      height: 300vh;
+      padding: 0;
+      view-timeline: --work block;
+    }
+
+    .workPin {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .strip {
+      flex-direction: row;
+      align-items: center;
+      width: max-content;
+      gap: 5vw;
+      animation: stripRun linear both;
+      animation-timeline: --work;
+      animation-range: contain 0% contain 100%;
+    }
+
+    .reelCard {
+      flex: none;
+      width: min(54vw, 760px);
+    }
+
+    .reelCard:nth-child(even) {
+      translate: 0 4vh;
+    }
+  }
+}
+
+@keyframes stripRun {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(-100% + 100vw), 0, 0);
+  }
+}
+
+:global(html[data-reel-still]) .work {
+  height: auto;
+}
+
+:global(html[data-reel-still]) .workPin {
+  position: static;
+  height: auto;
+}
+
+:global(html[data-reel-still]) .strip {
+  flex-direction: column;
+  width: auto;
+  animation: none;
+}
+
+/* --- case files ------------------------------------------------------------------ */
+
+.files,
+.toolbox,
+.record {
+  padding: var(--space-24) var(--pad) 0;
+}
+
+.feature {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+}
+
+.featureDark {
+  padding: var(--space-12) var(--space-10);
+  background: var(--reel-night);
+  color: var(--reel-sand);
+}
+
+.featureNo {
+  margin: 0;
+  font-family: var(--type);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--reel-ember);
+}
+
+.featureTitle {
+  margin: var(--space-2) 0 0;
+  font-family: var(--bill);
+  font-size: clamp(3rem, 6vw, 5.4rem);
+  font-weight: 400;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.featureDate {
+  margin: var(--space-2) 0 var(--space-8);
+  font-family: var(--type);
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--reel-dust);
+}
+
+.figure {
+  display: grid;
+  padding: var(--space-5) 0;
+  border-top: 1px solid color-mix(in srgb, var(--reel-sand) 22%, transparent);
+}
+
+.figureValue {
+  font-family: var(--bill);
+  font-size: clamp(2.6rem, 4.6vw, 4.4rem);
+  line-height: 1;
+  color: var(--reel-ember);
+  transform-origin: left;
+}
+
+.figureLabel {
+  margin-top: var(--space-1);
+  font-style: italic;
+}
+
+.featurePaper {
+  position: relative;
+  padding: var(--space-12) var(--space-10);
+  background: var(--reel-paper-deep);
+}
+
+.storyHead {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 var(--space-6);
+  padding-bottom: var(--space-2);
+  border-bottom: 4px double var(--reel-ink);
+  font-family: var(--type);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.storyCols {
+  columns: 2;
+  column-gap: var(--space-8);
+  column-rule: 1px solid var(--reel-ink);
+}
+
+.storyCols h4 {
+  margin: 0 0 var(--space-1);
+  font-family: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--reel-rust);
+  break-after: avoid;
+}
+
+.storyCols p {
+  margin: 0 0 var(--space-4);
+  text-align: justify;
+  hyphens: auto;
+}
+
+.readOn {
+  display: inline-block;
+  margin-top: var(--space-4);
+  font-family: var(--type);
+  text-transform: uppercase;
+  text-decoration: none;
+  background: linear-gradient(var(--reel-rust), var(--reel-rust)) 0 100% / 100% 2px no-repeat;
+}
+
+.readOn::after {
+  content: "\2192";
+  display: inline-block;
+  margin-left: 0.5em;
+  transition: translate 420ms var(--ease-out);
+}
+
+.readOn:hover::after {
+  translate: 6px 0;
+}
+
+.fileList {
+  margin: var(--space-12) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 3px solid var(--reel-ink);
+}
+
+.fileRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 70px minmax(0, 0.8fr) minmax(0, 1.6fr) auto;
+  align-items: baseline;
+  gap: var(--space-6);
+  padding: var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--reel-ink);
+  text-decoration: none;
+  isolation: isolate;
+}
+
+/* Under the pointer the row is inked in, from the left. */
+.fileRow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--reel-ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 520ms var(--ease);
+}
+
+.fileRow:hover::before,
+.fileRow:focus-visible::before {
+  transform: scaleX(1);
+}
+
+.fileRow:hover,
+.fileRow:focus-visible {
+  color: var(--reel-paper);
+}
+
+.fileRow,
+.fileRow * {
+  transition: color 300ms var(--ease-out);
+}
+
+.fileNo {
+  font-family: var(--wood);
+  font-size: 1.6rem;
+  color: var(--reel-rust);
+}
+
+.fileTitle {
+  font-family: var(--bill);
+  font-size: clamp(2rem, 3.6vw, 3.2rem);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.fileSummary {
+  font-style: italic;
+}
+
+.fileGo {
+  font-family: var(--type);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.fileGo::after {
+  content: "\2192";
+  display: inline-block;
+  margin-left: 0.5em;
+  transition: translate 420ms var(--ease-out);
+}
+
+.fileRow:hover .fileGo::after {
+  translate: 8px 0;
+}
+
+/* --- the toolbox ------------------------------------------------------------------ */
+
+.cases {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-8);
+}
+
+.typeCase {
+  padding: var(--space-6);
+  border: 2px solid var(--reel-ink);
+  box-shadow: 6px 6px 0 var(--reel-shade);
+}
+
+.caseName {
+  margin: 0 0 var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 3px double var(--reel-ink);
+  font-family: var(--bill);
+  font-size: 1.6rem;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.typeCase ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.typeCase li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.skill {
+  font-weight: 700;
+}
+
+.dots {
+  flex: 1;
+  border-bottom: 1px dotted var(--reel-ink-soft);
+}
+
+.used {
+  font-family: var(--type);
+  font-size: 12px;
+  text-align: right;
+  color: var(--reel-ink-soft);
+}
+
+/* --- the record --------------------------------------------------------------------- */
+
+.telegrams {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-8);
+}
+
+.telegram {
+  position: relative;
+  padding: var(--space-6);
+  background: var(--reel-paper-deep);
+  font-family: var(--type);
+  font-size: 15px;
+  box-shadow: 6px 8px 0 var(--reel-shade);
+}
+
+.telegram:nth-child(odd) {
+  rotate: -0.6deg;
+}
+
+.telegram:nth-child(even) {
+  rotate: 0.5deg;
+}
+
+.telegram h3 {
+  margin: var(--space-2) 0;
+  font-family: var(--text);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.telegram p {
+  margin: 0;
+}
+
+.telegramHead {
+  padding-bottom: var(--space-2);
+  border-bottom: 1px dashed var(--reel-ink-soft);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--reel-rust);
+}
+
+.telegramDate {
+  margin-top: var(--space-3) !important;
+  text-transform: uppercase;
+  color: var(--reel-ink-soft);
+}
+
+.proof {
+  display: inline-block;
+  margin-top: var(--space-3);
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.received {
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  padding: 4px 10px;
+  border: 2px solid var(--reel-rust);
+  color: var(--reel-rust);
+  font-size: 12px;
+  text-transform: uppercase;
+  rotate: -8deg;
+}
+
+.coming {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2) var(--space-10);
+  align-items: baseline;
+  margin-top: var(--space-12);
+  padding: var(--space-10);
+  background: var(--reel-night);
+  color: var(--reel-sand);
+}
+
+.comingLabel {
+  grid-row: span 2;
+  margin: 0;
+  font-family: var(--type);
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--reel-ember);
+}
+
+.comingTitle {
+  margin: 0;
+  font-family: var(--bill);
+  font-size: clamp(2.4rem, 4.6vw, 4rem);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.coming p:last-child {
+  margin: 0;
+  max-width: 70ch;
+  font-style: italic;
+}
+
+/* --- contact ----------------------------------------------------------------------- */
+
+.contact {
+  padding: var(--space-24) 0 var(--space-16);
+}
+
+.contactGrid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-10);
+  padding: var(--space-10) var(--pad) 0;
+}
+
+.sendWord {
+  margin: 0;
+  font-family: var(--bill);
+  font-size: clamp(4rem, 13vw, 12rem);
+  font-weight: 400;
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+
+.contactSide {
+  text-align: right;
+}
+
+.contactSide .kicker {
+  color: var(--reel-rust);
+}
+
+.email {
+  display: inline-block;
+  font-size: clamp(1.3rem, 2.4vw, 2rem);
+  font-style: italic;
+  text-decoration: none;
+  background: linear-gradient(var(--reel-rust), var(--reel-rust)) 0 100% / 100% 2px no-repeat;
+}
+
+.contactLinks {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-6);
+  margin: var(--space-4) 0 0;
+  font-family: var(--type);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.postmark {
+  position: absolute;
+  top: -20px;
+  right: 34%;
+  display: grid;
+  place-items: center;
+  width: 150px;
+  height: 150px;
+  padding: 18px;
+  border: 3px double var(--reel-rust);
+  border-radius: 50%;
+  color: var(--reel-rust);
+  font-family: var(--type);
+  font-size: 12px;
+  text-align: center;
+  text-transform: uppercase;
+  rotate: -14deg;
+  opacity: 0.85;
+}
+
+.colophon {
+  margin: var(--space-16) var(--pad) 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--reel-ink);
+  font-family: var(--type);
+  font-size: 12px;
+  color: var(--reel-ink-soft);
+}
+
+/* External destinations say so, with a small arrow out. */
+.reel a[target="_blank"]::after {
+  content: "\2197";
+  content: "\2197" / "";
+  margin-left: 0.25em;
+  font-size: 0.8em;
+}
+
+/* ====================================================================================
+   MOTION. Only where motion is welcome and the machine can composite it
+   (html[data-reel-still] is the reel's own judgement, see Press.tsx);
+   everything below animates from an offset toward where it already rests.
+   ==================================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Each letter of the name pressed onto the page, a sort at a time. */
+  :global(html:not([data-reel-still])) .sort {
+    animation: press 560ms var(--bounce) calc(var(--intro) + var(--i) * 52ms) both;
+  }
+
+  :global(html:not([data-reel-still])) .mast + .rule {
+    animation: ruleOut 900ms var(--ease) calc(var(--intro) + 500ms) both;
+  }
+
+  /* The still: the letterbox opens, the camera pushes in, the frame weaves
+     in the gate, the scratches jump and the light breathes. */
+  :global(html:not([data-reel-still])) .bar {
+    animation: letterbox 1300ms var(--ease) calc(var(--intro) + 200ms) both;
+  }
+
+  :global(html:not([data-reel-still])) .film {
+    animation:
+      push 24s ease-in-out calc(var(--intro) - 600ms) infinite alternate,
+      weave 420ms steps(4) infinite;
+  }
+
+  :global(html:not([data-reel-still])) .scratch {
+    animation: scratch 2.6s steps(1) infinite;
+  }
+
+  :global(html:not([data-reel-still])) .scratchB {
+    animation-duration: 3.4s;
+    animation-delay: -1.2s;
+  }
+
+  :global(html:not([data-reel-still])) .flicker {
+    animation: flicker 240ms steps(1) infinite;
+  }
+
+  /* Wherever a film still is set (the front page's, a case file's), its
+     wear rests while it is off screen. */
+  [data-paused] :is(.film, .scratch, .flicker) {
+    animation-play-state: paused;
+  }
+
+  :global(html:not([data-reel-still])) .caption > * {
+    animation: rise 900ms var(--ease-out) calc(var(--intro) + 900ms + var(--n, 0) * 140ms) both;
+  }
+
+  .caption > :nth-child(2) {
+    --n: 1;
+  }
+
+  .caption > :nth-child(3) {
+    --n: 2;
+  }
+
+  /* The poster drops onto its nail and swings to rest; it drifts against
+     the still as the page goes by; touched, it swings again. */
+  :global(html:not([data-reel-still])) .poster {
+    animation:
+      drop 1700ms linear calc(var(--intro) + 1100ms) both,
+      float linear both;
+    animation-timeline: auto, view();
+    animation-range: normal, cover 0% cover 100%;
+  }
+
+  :global(html:not([data-reel-still])) .poster:hover .posterBody {
+    animation: swing 1400ms linear;
+  }
+
+  /* What arrives as it is reached. Nothing is hidden until the page's
+     observer runs (data-arrivals), so without it all of this is there. */
+  :global(html:not([data-reel-still])) .reel[data-arrivals] [data-enter]:not([data-entered]) {
+    opacity: 0;
+  }
+
+  /* A section's head: its name slammed down, its rule run out after. */
+  :global(html:not([data-reel-still])) .band[data-entered=""] .bandTitle {
+    animation: slam 700ms var(--bounce) both;
+  }
+
+  :global(html:not([data-reel-still])) .band[data-entered=""] .bandRule {
+    animation: ruleOut 900ms var(--ease) 250ms both;
+  }
+
+  /* A column of type, printed: the press's roller goes across it. */
+  :global(html:not([data-reel-still])) :is(.col, .featurePaper, .coming)[data-entered=""] {
+    animation: fade 200ms linear calc(var(--i, 0) * 140ms) both;
+  }
+
+  :global(html:not([data-reel-still])) :is(.col, .featurePaper)[data-entered=""]::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    z-index: 3;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--reel-ink) 70%, transparent), var(--reel-paper) 2%);
+    transform-origin: right;
+    animation: roller 1000ms var(--ease) calc(var(--i, 0) * 140ms) both;
+  }
+
+  :global(html:not([data-reel-still])) .featurePaper[data-entered=""]::after {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--reel-ink) 70%, transparent), var(--reel-paper-deep) 2%);
+  }
+
+  /* The dark half of a feature comes in from the side, and its figures are
+     stamped down one after another. */
+  :global(html:not([data-reel-still])) .featureDark[data-entered=""] {
+    animation: fromLeft 900ms var(--ease-out) both;
+  }
+
+  :global(html:not([data-reel-still])) .featureDark[data-entered=""] .figureValue {
+    animation: stamp 520ms var(--bounce) calc(500ms + var(--i) * 180ms) both;
+  }
+
+  :global(html:not([data-reel-still])) .fileList li[data-entered=""] {
+    animation: fromRight 800ms var(--ease-out) calc(var(--i) * 110ms) both;
+  }
+
+  :global(html:not([data-reel-still])) .typeCase[data-entered=""] {
+    animation: drop 1200ms linear calc(var(--i) * 120ms) both;
+    transform-origin: 50% 0;
+  }
+
+  :global(html:not([data-reel-still])) .typeCase[data-entered=""] li {
+    animation: typeIn 420ms var(--ease-out) calc(400ms + var(--i) * 70ms) both;
+  }
+
+  :global(html:not([data-reel-still])) .telegram[data-entered=""] {
+    animation: delivered 800ms var(--ease-out) calc(var(--i) * 120ms) both;
+  }
+
+  :global(html:not([data-reel-still])) .telegram[data-entered=""] .received {
+    animation: stamp 480ms var(--bounce) calc(700ms + var(--i) * 120ms) both;
+  }
+
+  :global(html:not([data-reel-still])) .coming[data-entered=""] .comingTitle {
+    animation: slam 700ms var(--bounce) 200ms both;
+  }
+
+  :global(html:not([data-reel-still])) .contactGrid[data-entered=""] .sendWord {
+    animation: slam 800ms var(--bounce) both;
+  }
+
+  :global(html:not([data-reel-still])) .contactGrid[data-entered=""] .postmark {
+    animation: postmark 900ms var(--bounce) 500ms both;
+  }
+
+  :global(html:not([data-reel-still])) .contactGrid[data-entered=""] .contactSide {
+    animation: rise 900ms var(--ease-out) 300ms both;
+  }
+}
+
+@keyframes press {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -18%, 0) scale(1.55) rotate(-5deg);
+  }
+  55% {
+    opacity: 1;
+  }
+}
+
+@keyframes ruleOut {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes letterbox {
+  from {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes push {
+  from {
+    scale: 1.02;
+  }
+  to {
+    scale: 1.14;
+  }
+}
+
+@keyframes weave {
+  0% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -1px 1px;
+  }
+  50% {
+    translate: 1px 0;
+  }
+  75% {
+    translate: 0 -1px;
+  }
+}
+
+@keyframes scratch {
+  0% {
+    opacity: 0.55;
+    translate: 0 0;
+  }
+  10% {
+    opacity: 0;
+  }
+  38% {
+    opacity: 0.4;
+    translate: 18vw 0;
+  }
+  44% {
+    opacity: 0;
+  }
+  70% {
+    opacity: 0.45;
+    translate: -9vw 0;
+  }
+  76% {
+    opacity: 0;
+  }
+}
+
+@keyframes flicker {
+  0% {
+    opacity: 0.03;
+  }
+  33% {
+    opacity: 0.07;
+  }
+  66% {
+    opacity: 0.01;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes drop {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -60px, 0) rotate(-10deg);
+  }
+  22% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(9deg);
+  }
+  40% {
+    transform: rotate(-6deg);
+  }
+  58% {
+    transform: rotate(3.5deg);
+  }
+  74% {
+    transform: rotate(-1.8deg);
+  }
+  88% {
+    transform: rotate(0.7deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes swing {
+  0% {
+    transform: none;
+  }
+  18% {
+    transform: rotate(5deg);
+  }
+  38% {
+    transform: rotate(-3.5deg);
+  }
+  58% {
+    transform: rotate(2deg);
+  }
+  78% {
+    transform: rotate(-0.8deg);
+  }
+}
+
+@keyframes float {
+  from {
+    translate: 0 40px;
+  }
+  to {
+    translate: 0 -70px;
+  }
+}
+
+@keyframes slam {
+  from {
+    opacity: 0;
+    transform: scale(1.35) translate3d(0, -10px, 0);
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes roller {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes fromLeft {
+  from {
+    opacity: 0;
+    transform: translate3d(-60px, 0, 0);
+  }
+}
+
+@keyframes fromRight {
+  from {
+    opacity: 0;
+    transform: translate3d(80px, 0, 0);
+  }
+}
+
+@keyframes stamp {
+  from {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+  60% {
+    opacity: 1;
+  }
+}
+
+@keyframes typeIn {
+  from {
+    opacity: 0;
+    transform: translate3d(-14px, 0, 0);
+  }
+}
+
+@keyframes delivered {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 50px, 0) rotate(4deg);
+  }
+}
+
+@keyframes postmark {
+  from {
+    opacity: 0;
+    transform: scale(2.2) rotate(40deg);
+  }
+}
+
+/* Reduced motion, or a machine judged too weak: no countdown, the bars
+   open, nothing loops. The finished page. */
+@media (prefers-reduced-motion: reduce) {
+  .reel {
+    --intro: 0ms;
+  }
+
+  .projector {
+    display: none;
+  }
+
+  .wireRun {
+    animation: none;
+  }
+}
+
+:global(html[data-reel-still]) .projector {
+  display: none;
+}
+
+:global(html[data-reel-still]) .wireRun {
+  animation: none;
+}
+
+/* --- narrow ----------------------------------------------------------------------- */
+
+@media (max-width: 899px) {
+  .top {
+    flex-wrap: wrap;
+  }
+
+  .topNav {
+    order: 3;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-4);
+    width: 100%;
+  }
+
+  .mast {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .mastSide {
+    max-width: none;
+    text-align: left;
+  }
+
+  .still {
+    height: max(600px, 82svh);
+  }
+
+  .caption {
+    bottom: 10%;
+    right: var(--space-5);
+  }
+
+  .tagline {
+    font-size: 1.15rem;
+  }
+
+  .poster {
+    top: 6%;
+    right: 5%;
+    width: 36vw;
+  }
+
+  .posterBody {
+    padding: 10px 10px 8px;
+  }
+
+  .posterFor {
+    display: none;
+  }
+
+  .posterWanted {
+    font-size: clamp(1.2rem, 6.4vw, 2rem);
+  }
+
+  .front,
+  .feature,
+  .telegrams {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .col {
+    padding: var(--space-8) 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--reel-ink);
+  }
+
+  .cases {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .storyCols {
+    columns: 1;
+  }
+
+  .fileRow {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .fileSummary,
+  .fileGo {
+    grid-column: 2;
+  }
+
+  .coming {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .contactGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .contactSide {
+    text-align: left;
+  }
+
+  .contactLinks {
+    justify-content: flex-start;
+  }
+
+  .postmark {
+    right: var(--pad);
+    top: -40px;
+    width: 110px;
+    height: 110px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 599px) {
+  .cases {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bandTitle {
+    font-size: 2.6rem;
+    white-space: normal;
+  }
+
+  .bandRule {
+    min-width: 40px;
+  }
+
+  .featureDark,
+  .featurePaper,
+  .coming {
+    padding: var(--space-8) var(--space-6);
+  }
+}

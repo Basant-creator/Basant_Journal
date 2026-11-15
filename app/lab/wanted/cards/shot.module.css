@@ -1,0 +1,94 @@
+/* A frame of film (Shot.tsx): the room's dark, one lamp, a vignette, grain.
+   Everything in it is sized off the frame itself (it is an inline-size
+   container), so a scene drawn inside keeps its proportions at any width. */
+
+/* No frame round it: the scene runs out to the edges of the page and its
+   edges dissolve into the page's own dark, so it reads as a place you are
+   looking into rather than a picture hung on the wall. */
+.shot {
+  position: relative;
+  margin-inline: calc(-1 * var(--page-pad));
+  overflow: hidden;
+  isolation: isolate;
+  container-type: inline-size;
+  background: var(--room-dark);
+  mask-image:
+    linear-gradient(to right, transparent, black 7%, black 93%, transparent),
+    linear-gradient(to bottom, transparent, black 9%, black 91%, transparent);
+  mask-composite: intersect;
+}
+
+.light {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: radial-gradient(ellipse 70% 80% at var(--light), color-mix(in srgb, var(--lamp-glow) 30%, transparent) 0%, transparent 70%);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 21;
+  background: radial-gradient(
+    ellipse 72% 78% at 50% 50%,
+    transparent 0%,
+    color-mix(in srgb, var(--room-dark) 40%, transparent) 62%,
+    color-mix(in srgb, var(--room-dark) 88%, transparent) 100%
+  );
+  pointer-events: none;
+}
+
+/* One plate of noise, jumped a few times a second: stepped, a transform,
+   nothing repainted between steps. */
+.grain {
+  position: absolute;
+  inset: -50%;
+  z-index: 22;
+  opacity: 0.14;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  animation: grain 0.9s steps(1, end) infinite;
+}
+
+@keyframes grain {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  17% {
+    transform: translate3d(-4%, 3%, 0);
+  }
+  33% {
+    transform: translate3d(3%, -5%, 0);
+  }
+  50% {
+    transform: translate3d(-2%, 6%, 0);
+  }
+  67% {
+    transform: translate3d(5%, 2%, 0);
+  }
+  83% {
+    transform: translate3d(-5%, -3%, 0);
+  }
+}
+
+.shot[data-paused] .grain {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain {
+    animation: none;
+  }
+}
+
+:global(html[data-motion="still"]) .grain {
+  animation: none;
+}
+
+/* Low grade (quality.ts): the grain holds still. */
+:global([data-quality="low"]) .grain {
+  animation: none;
+}

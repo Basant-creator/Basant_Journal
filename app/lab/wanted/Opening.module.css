@@ -1,0 +1,629 @@
+/* ==========================================================================
+   The opening. A photograph, and the camera work around it.
+
+   Depth, back to front: the picture, the sun on the lens, banks of dust,
+   motes in the light. The pointer moves each by a different amount (--d,
+   in pixels at the edge of the screen); scrolling away sinks the lot.
+   Everything that moves is a transform or an opacity.
+   ========================================================================== */
+
+/* The pointer's place across the frame, written straight onto the three
+   depth layers and not inherited (see Opening.tsx): a change restyles
+   those three, not the motes and banks inside them. */
+@property --px {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --py {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+.opening {
+  position: relative;
+  height: 100dvh;
+  min-height: 560px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--noir-bg);
+  /* Named so what the page lays over the opening can leave with it. */
+  view-timeline-name: --opening;
+}
+
+.sink,
+.depth,
+.push {
+  position: absolute;
+  inset: 0;
+}
+
+.depth {
+  inset: -4%;
+  transform: translate3d(calc(var(--px) * var(--d) * -1px), calc(var(--py) * var(--d) * -1px), 0);
+}
+
+/* Depth by the pointer, kept slight: the picture is a photograph, and a
+   photograph that swims reads as a trick. Pixels at the screen's edge. */
+.depthFar {
+  --d: 8;
+}
+
+.depthMid {
+  --d: 20;
+  pointer-events: none;
+}
+
+.depthNear {
+  --d: 36;
+  pointer-events: none;
+}
+
+/* The camera, settling: a long push in from a wider frame. */
+.push {
+  animation: push 11s var(--open-ease-out) both;
+}
+
+/* In, and tracking a little with him as he crosses. */
+@keyframes push {
+  from {
+    transform: scale(1.16) translate3d(-1.2%, 0.4%, 0);
+  }
+  to {
+    transform: scale(1.03);
+  }
+}
+
+/* The rider sits in the middle of a tall frame; a wide screen takes the
+   band from his hat to the dust under the hooves. */
+.photo {
+  object-fit: cover;
+  object-position: 50% 44%;
+  filter: sepia(0.1) saturate(0.95) contrast(1.06);
+}
+
+/* The low sun on the lens, breathing. */
+.flare {
+  position: absolute;
+  left: 84%;
+  top: 40%;
+  width: 80vmax;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: radial-gradient(circle, var(--dust-flare) 0%, transparent 58%);
+  mix-blend-mode: screen;
+  opacity: 0.8;
+  animation: breathe 7s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes breathe {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Banks of dust, wider than the screen, drifting across the light. */
+.bank {
+  position: absolute;
+  width: 95vw;
+  height: 46vh;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--dust-bank) 0%, transparent 68%);
+  mix-blend-mode: screen;
+  animation: drift linear infinite alternate;
+}
+
+.bankA {
+  left: -30vw;
+  bottom: 6%;
+  animation-duration: 26s;
+}
+
+.bankB {
+  left: 30vw;
+  bottom: 20%;
+  height: 34vh;
+  animation-duration: 34s;
+  animation-direction: alternate-reverse;
+}
+
+.bankC {
+  left: 55vw;
+  bottom: -12%;
+  animation-duration: 21s;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(-9vw, 0, 0);
+  }
+  to {
+    transform: translate3d(9vw, -2vh, 0);
+  }
+}
+
+/* Motes: lifted by the hooves, carried off by the wind. Each is set going
+   by the opening itself (Opening.tsx), with its own numbers, so the
+   compositor carries it; at rest, and wherever nothing should move, a mote
+   is not there to be seen. */
+.mote {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--dust-mote) 0%, transparent 70%);
+  opacity: 0;
+}
+
+:global(html[data-motion="still"]) .mote {
+  visibility: hidden;
+}
+
+/* Dark where the words and the nav are, and at the foot for the cue. */
+.scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, color-mix(in srgb, var(--noir-bg) 72%, transparent), transparent 24%),
+    linear-gradient(to top, color-mix(in srgb, var(--noir-bg) 80%, transparent), transparent 34%),
+    linear-gradient(to right, color-mix(in srgb, var(--noir-bg) 80%, transparent) 0%, color-mix(in srgb, var(--noir-bg) 40%, transparent) 34%, transparent 58%),
+    radial-gradient(ellipse 80% 75% at 64% 46%, transparent 55%, color-mix(in srgb, var(--noir-bg) 50%, transparent));
+  pointer-events: none;
+}
+
+/* Scrolling away: the picture sinks and the dark closes over it. */
+@supports (animation-timeline: view()) {
+  .sink {
+    animation: sink linear both;
+    animation-timeline: view();
+    animation-range: exit 0% exit 100%;
+  }
+
+  .scrim::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--noir-bg);
+    opacity: 0;
+    animation: close linear both;
+    animation-timeline: view();
+    animation-range: exit 0% exit 90%;
+  }
+}
+
+@keyframes sink {
+  to {
+    transform: translate3d(0, 22%, 0) scale(1.05);
+  }
+}
+
+@keyframes close {
+  to {
+    opacity: 0.85;
+  }
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Black lifting off the picture. At rest it is gone. */
+.lift {
+  position: absolute;
+  inset: 0;
+  background: var(--noir-bg);
+  opacity: 0;
+  animation: lift 700ms var(--open-ease) var(--open-t-light) both;
+  pointer-events: none;
+}
+
+@keyframes lift {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Letterbox, opening. At rest it is open. */
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 12vh;
+  background: var(--noir-bg);
+  transform: scaleY(0);
+  animation: open 1100ms var(--open-ease) var(--open-t-bars) both;
+  pointer-events: none;
+}
+
+.barTop {
+  top: 0;
+  transform-origin: top;
+}
+
+.barBottom {
+  bottom: 0;
+  transform-origin: bottom;
+}
+
+@keyframes open {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0);
+  }
+}
+
+/* What the page puts over it arrives once the bars are open, each piece
+   after the one before (--i). */
+.opening :global([data-arrive]) {
+  animation: arrive 1300ms var(--open-ease-out) both;
+  animation-delay: calc(var(--open-t-reveal) + var(--i, 0) * 140ms);
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Scroll on: a hairline with light running down it. */
+.cue {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-6);
+  width: 1px;
+  height: 56px;
+  overflow: hidden;
+  background: var(--noir-line);
+  animation: arrive 1300ms var(--open-ease-out) both;
+  animation-delay: calc(var(--open-t-reveal) + 900ms);
+}
+
+.cueLine {
+  display: block;
+  height: 100%;
+  background: var(--noir-text);
+  animation: cue 2.4s var(--open-ease) infinite;
+}
+
+@keyframes cue {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* --- the words ------------------------------------------------------------
+   Low on the left, where the dust is and the rider is not: what he is, the
+   name a word to a line with a bank of dust drifting across its foot, what
+   the work is, and the way in. */
+
+.opening {
+  --name-size: clamp(3.2rem, 8vw, 8.5rem);
+}
+
+.copyLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-rows: 1fr auto auto auto clamp(var(--space-16), 13vh, 160px);
+  grid-template-areas: "." "above" "name" "below" ".";
+  justify-items: start;
+  padding-inline: var(--page-pad);
+  pointer-events: none;
+}
+
+.copyLayer > * {
+  pointer-events: auto;
+}
+
+/* Gone before it can reach the running head. */
+.nameSlot {
+  grid-area: name;
+  position: relative;
+}
+
+.nameDust {
+  position: absolute;
+  left: -20%;
+  right: -30%;
+  bottom: -35%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--dust-bank) 0%, transparent 70%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: drift 24s linear infinite alternate;
+}
+
+@supports (animation-timeline: view()) {
+  .copyLayer {
+    animation: copyAway linear both;
+    animation-timeline: --opening;
+    animation-range: exit 0% exit 45%;
+  }
+}
+
+@keyframes copyAway {
+  to {
+    opacity: 0;
+    transform: translate3d(0, -40px, 0);
+  }
+}
+
+@media (max-width: 767px) {
+  .opening {
+    --name-size: clamp(3rem, 15vw, 4.6rem);
+  }
+
+  .copyLayer {
+    grid-template-rows: 1fr auto auto auto var(--space-12);
+  }
+}
+
+/* --- skip intro --------------------------------------------------------------
+   Offered from the first frame until the name is set; it finishes all of it
+   at once. Above the letterbox's foot, where a thumb is. */
+
+.skip {
+  position: absolute;
+  z-index: 4;
+  right: var(--page-pad);
+  bottom: calc(12vh + var(--space-6));
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid var(--noir-line-strong);
+  background: color-mix(in srgb, var(--noir-bg) 45%, transparent);
+  color: var(--noir-text);
+  font-family: var(--font-ui);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-ui);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.skip:hover {
+  border-color: var(--noir-text);
+}
+
+.skip:active {
+  transform: translateY(1px);
+}
+
+/* Skipped: everything the intro would have played is where it ends. */
+.opening[data-skipped] .push,
+.opening[data-skipped] .lift,
+.opening[data-skipped] .bar,
+.opening[data-skipped] .cue,
+.opening[data-skipped] :global([data-arrive]) {
+  animation: none;
+}
+
+.opening[data-skipped] .camera,
+.opening[data-skipped] .depthMid,
+.opening[data-skipped] .depthNear,
+.opening[data-skipped] .flare,
+.opening[data-skipped] .tally {
+  transition: none;
+}
+
+/* With nothing to skip there is no control for it. */
+@media (prefers-reduced-motion: reduce) {
+  .skip {
+    display: none;
+  }
+}
+
+:global(html[data-motion="still"]) .skip {
+  display: none;
+}
+
+
+/* --- arriving: the page's loading screen ------------------------------------
+   Held close on the horse in chalk while the tally is kept, everything timed
+   in the opening paused where it starts (the bars shut, the name not yet
+   come, the camera not yet pushing), the air not yet in the frame. When the
+   last mark is in (data-ready) the camera pulls back, and everything paused
+   runs from its beginning. Only with script and with motion: otherwise
+   there is nothing to wait for and the opening is as it always was. */
+
+.camera {
+  position: absolute;
+  inset: 0;
+  /* Where the horse is in the frame: the camera starts on him. */
+  transform-origin: 72% 50%;
+  transition: transform 2400ms cubic-bezier(0.55, 0, 0.15, 1);
+}
+
+.depthMid,
+.depthNear {
+  transition: opacity 1600ms var(--open-ease-out) 1800ms;
+}
+
+.flare {
+  transition: filter 1600ms var(--open-ease-out) 1800ms;
+}
+
+.tally {
+  position: absolute;
+  z-index: 3;
+  left: var(--page-pad);
+  bottom: calc(12vh + var(--space-6));
+  display: grid;
+  gap: var(--space-2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms linear 500ms;
+}
+
+.tallyLabel {
+  font-family: var(--font-hand);
+  font-size: var(--text-xl);
+  color: var(--chalk);
+}
+
+.tallyMarks {
+  width: clamp(96px, 9vw, 140px);
+}
+
+/* A tall frame puts him higher and further left. */
+@media (max-width: 767px) {
+  .camera {
+    transform-origin: 72% 36%;
+  }
+}
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .opening:not([data-ready]) .camera {
+    transform: scale(1.8);
+  }
+
+  .opening:not([data-ready]) .tally {
+    opacity: 1;
+    transition: none;
+  }
+
+  .opening:not([data-ready]) .depthMid,
+  .opening:not([data-ready]) .depthNear {
+    opacity: 0;
+  }
+
+  .opening:not([data-ready]) .flare {
+    filter: opacity(0);
+  }
+
+  /* Not yet there, so not yet reachable: no tabbing onto words nobody can
+     see. Skip intro is the one thing on screen to use. */
+  .opening:not([data-ready]) .copyLayer {
+    visibility: hidden;
+  }
+
+  .opening:not([data-ready]) .push,
+  .opening:not([data-ready]) .bar,
+  .opening:not([data-ready]) .cue,
+  .opening:not([data-ready]) :global([data-arrive]) {
+    animation-play-state: paused;
+  }
+}
+
+:global(html[data-motion="still"]) .camera {
+  transform: none !important;
+  transition: none;
+}
+
+:global(html[data-motion="still"]) .tally {
+  display: none;
+}
+
+:global(html[data-motion="still"]) .opening .depthMid,
+:global(html[data-motion="still"]) .opening .depthNear {
+  opacity: 1;
+}
+
+:global(html[data-motion="still"]) .opening .flare {
+  filter: none;
+}
+
+.opening[data-paused] [data-loop] {
+  animation-play-state: paused;
+}
+
+@media (max-width: 767px) {
+  .photo {
+    object-position: 42% 40%;
+  }
+
+  .scrim {
+    background:
+      linear-gradient(to bottom, color-mix(in srgb, var(--noir-bg) 62%, transparent), transparent 18%),
+      linear-gradient(to top, var(--noir-bg) 0%, color-mix(in srgb, var(--noir-bg) 70%, transparent) 30%, transparent 55%);
+  }
+
+  .cue {
+    display: none;
+  }
+}
+
+/* A still composition: the finished frame, the air not moving. */
+@media (prefers-reduced-motion: reduce) {
+  .nameDust,
+  .push,
+  .lift,
+  .bar,
+  .flare,
+  .bank,
+  .mote,
+  .cue,
+  .cueLine,
+  .sink,
+  .scrim::after,
+  .opening :global([data-arrive]) {
+    animation: none;
+  }
+
+  .depth {
+    transform: none;
+  }
+}
+
+:global(html[data-motion="still"]) .nameDust,
+:global(html[data-motion="still"]) .push,
+:global(html[data-motion="still"]) .lift,
+:global(html[data-motion="still"]) .bar,
+:global(html[data-motion="still"]) .flare,
+:global(html[data-motion="still"]) .bank,
+:global(html[data-motion="still"]) .mote,
+:global(html[data-motion="still"]) .cue,
+:global(html[data-motion="still"]) .cueLine,
+:global(html[data-motion="still"]) .sink,
+:global(html[data-motion="still"]) .scrim::after,
+:global(html[data-motion="still"]) .opening :global([data-arrive]) {
+  animation: none;
+}
+
+:global(html[data-motion="still"]) .depth {
+  transform: none;
+}
+
+/* --- the world's grade (quality.ts) -----------------------------------------
+   Medium: half the motes and two banks of dust. Low: no motes, no banks,
+   no dust across the name, the flare and the cue still, and the held
+   chalk without its boil (tally.module.css): the frame and the words as
+   they are, nothing in the air a weak machine has to keep redrawing. */
+:global([data-quality="medium"]) .mote:nth-child(2n),
+:global([data-quality="medium"]) .bankC {
+  display: none;
+}
+
+:global([data-quality="low"]) .mote,
+:global([data-quality="low"]) .bank,
+:global([data-quality="low"]) .nameDust {
+  display: none;
+}
+
+:global([data-quality="low"]) .flare,
+:global([data-quality="low"]) .cueLine {
+  animation: none;
+}

@@ -119,3 +119,13 @@
   animation: none;
   transform: translate3d(1%, 0, 0) scale(1.09);
 }
+
+/* A page that is a world of its own (the lab's WANTED prototype: a fixed,
+   opaque layer over the whole window) covers this one completely. Nothing
+   here can be seen under it, so nothing here runs under it: the stepped
+   light still cost a style pass every frame it was hidden. */
+:global(html:has([data-world])) .texture,
+:global(html:has([data-reel])) .texture,
+:global(html:has([data-titles])) .texture {
+  display: none;
+}

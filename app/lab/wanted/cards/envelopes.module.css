@@ -1,0 +1,283 @@
+/* ==========================================================================
+   Telegrams in their envelopes (Envelopes.tsx).
+
+   Each envelope is its own inline-size container, so the envelope, the form
+   inside it and every word on the form are sized in cqw of one envelope.
+   Back to front: the inside of the envelope, the telegram (in a well that
+   clips it at the envelope's foot, so drawn out it still stands in the
+   envelope), the pocket with its V cut, and the flap.
+   ========================================================================== */
+
+.scene {
+  padding: 8cqw 10cqw 8cqw;
+}
+
+/* The desk the post was laid on. */
+.desk {
+  position: absolute;
+  inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.5' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+    linear-gradient(170deg, var(--west-wood) 0%, var(--west-wood-deep) 100%);
+  background-blend-mode: overlay, normal;
+}
+
+.posts {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4cqw;
+  align-items: end;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post {
+  container-type: inline-size;
+  /* Room above, for the form drawn out of it (a percentage of padding is
+     of the column's width, so it keeps step with the envelope). */
+  padding-top: 72%;
+  rotate: calc((var(--i) - 1) * 1.4deg);
+}
+
+.envelope {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.6;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--west-ink);
+  text-align: left;
+  cursor: pointer;
+  perspective: 900px;
+  filter: drop-shadow(0 2.4cqw 3cqw color-mix(in srgb, var(--room-dark) 80%, transparent));
+}
+
+.inside {
+  position: absolute;
+  inset: 0;
+  border-radius: 0.8cqw;
+  background: linear-gradient(color-mix(in srgb, var(--west-parchment-deep) 55%, var(--west-wood-deep)), color-mix(in srgb, var(--west-parchment-deep) 75%, var(--west-wood)));
+}
+
+.well {
+  position: absolute;
+  z-index: 2;
+  left: 5%;
+  right: 5%;
+  top: -100cqw;
+  bottom: 1.5cqw;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* --- the telegram -------------------------------------------------------------------- */
+
+.wire {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100cqw + 3cqw);
+  display: grid;
+  gap: 2.4cqw;
+  padding: 5cqw 5cqw 6cqw;
+  background: linear-gradient(var(--west-paper-pale), var(--west-parchment));
+  box-shadow: 0 0 1.4cqw color-mix(in srgb, var(--west-wood-deep) 40%, transparent);
+  transition: transform 700ms var(--open-ease);
+}
+
+.post[data-open] .wire {
+  transform: translateY(calc(-100% + 12cqw));
+  transition: transform 1100ms var(--open-ease-out) 450ms;
+}
+
+.wireHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2cqw;
+  padding-bottom: 2cqw;
+  border-bottom: 0.8cqw double var(--west-ink-soft);
+}
+
+.wireTitle {
+  font-family: var(--font-display);
+  font-size: 7.4cqw;
+  line-height: 1;
+}
+
+.wireCo,
+.fields em,
+.wireBody,
+.wireSign {
+  font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.wireCo {
+  font-size: 2.3cqw;
+  color: var(--west-ink-soft);
+}
+
+.fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1cqw 4cqw;
+  padding-bottom: 2cqw;
+  border-bottom: 0.3cqw solid var(--west-ink-soft);
+  font-size: 3.4cqw;
+}
+
+.fields em {
+  font-style: normal;
+  font-size: 2.3cqw;
+  color: var(--west-rust);
+}
+
+.wireBody {
+  font-size: 3.2cqw;
+  line-height: 1.75;
+  letter-spacing: var(--tracking-wide);
+}
+
+.wireSign {
+  justify-self: end;
+  font-size: 2.6cqw;
+}
+
+/* --- the envelope -------------------------------------------------------------------- */
+
+/* Its back, with the V the side flaps leave: the form shows in the V once
+   the flap is up. */
+.pocket {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  border-radius: 0.8cqw;
+  clip-path: polygon(0 0, 50% 44%, 100% 0, 100% 100%, 0 100%);
+  background:
+    linear-gradient(to top right, transparent calc(50% - 0.15cqw), color-mix(in srgb, var(--west-ink-soft) 25%, transparent) 50%, transparent calc(50% + 0.15cqw)) left bottom / 50% 100% no-repeat,
+    linear-gradient(to top left, transparent calc(50% - 0.15cqw), color-mix(in srgb, var(--west-ink-soft) 25%, transparent) 50%, transparent calc(50% + 0.15cqw)) right bottom / 50% 100% no-repeat,
+    radial-gradient(circle at 82% 78%, color-mix(in srgb, var(--west-rust) 10%, transparent) 0 6%, transparent 7%),
+    radial-gradient(ellipse at 40% 70%, var(--west-parchment) 20%, var(--west-parchment-deep) 100%);
+}
+
+.printed {
+  position: absolute;
+  left: 7%;
+  bottom: 31%;
+  padding: 0.6cqw 2cqw;
+  border: 0.5cqw solid color-mix(in srgb, var(--west-blood) 80%, transparent);
+  font-family: var(--font-display);
+  font-size: 5.2cqw;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--west-blood) 85%, transparent);
+  rotate: -3deg;
+  mix-blend-mode: multiply;
+}
+
+.address {
+  position: absolute;
+  left: 9%;
+  bottom: 8%;
+  font-family: var(--font-hand);
+  font-size: 5.6cqw;
+  line-height: 1.05;
+  color: color-mix(in srgb, var(--west-ink) 85%, transparent);
+}
+
+.stamp {
+  position: absolute;
+  right: 7%;
+  bottom: 30%;
+  display: grid;
+  place-items: center;
+  width: 13cqw;
+  aspect-ratio: 0.82;
+  border: 0.8cqw dotted var(--west-paper-pale);
+  background: radial-gradient(circle at 50% 40%, var(--west-rust) 0%, var(--west-rust-deep) 100%);
+  outline: 0.4cqw solid var(--west-paper-pale);
+  font-family: var(--font-figures);
+  font-size: 3.4cqw;
+  color: var(--west-paper-pale);
+}
+
+.postmark {
+  position: absolute;
+  right: 14%;
+  bottom: 22%;
+  width: 18cqw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 0.4cqw solid color-mix(in srgb, var(--west-ink) 55%, transparent);
+  background: repeating-linear-gradient(-8deg, transparent 0 1.6cqw, color-mix(in srgb, var(--west-ink) 35%, transparent) 1.6cqw 1.9cqw) right center / 160% 50% no-repeat;
+  rotate: -12deg;
+  mix-blend-mode: multiply;
+}
+
+.flap {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 58%;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: linear-gradient(color-mix(in srgb, var(--west-parchment) 80%, var(--west-paper-pale)), var(--west-parchment-deep));
+  transform-origin: top;
+  transition:
+    transform 600ms var(--open-ease) 650ms,
+    z-index 0s linear 950ms,
+    filter 600ms linear 650ms;
+}
+
+/* Lifted, and laid back behind the form it was holding in. */
+.post[data-open] .flap {
+  z-index: 1;
+  transform: rotateX(180deg);
+  filter: brightness(0.8);
+  transition:
+    transform 600ms var(--open-ease),
+    z-index 0s linear 300ms,
+    filter 600ms linear;
+}
+
+.envelope:hover .flap,
+.envelope:hover .pocket {
+  filter: brightness(1.05);
+}
+
+@media (max-width: 767px) {
+  .posts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10cqw;
+    padding-inline: 6cqw;
+  }
+
+  .post {
+    rotate: calc((var(--i) - 1) * 0.8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wire,
+  .post[data-open] .wire,
+  .flap,
+  .post[data-open] .flap {
+    transition: none;
+  }
+}
+
+:global(html[data-motion="still"]) .wire,
+:global(html[data-motion="still"]) .post[data-open] .wire,
+:global(html[data-motion="still"]) .flap,
+:global(html[data-motion="still"]) .post[data-open] .flap {
+  transition: none;
+}

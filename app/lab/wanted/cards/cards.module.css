@@ -1,0 +1,372 @@
+/* ==========================================================================
+   WANTED, the cards. Nine treatments of the same record, each a thing the
+   frontier carried words on. Same ground and voices as the page: Fell
+   names, Source Serif reads, Archivo letters the margin. Paper is lit
+   objects on the dark ground, never a section of its own.
+   ========================================================================== */
+
+.intro,
+.group,
+.option,
+.outro {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--page-pad);
+}
+
+.intro {
+  padding-block: var(--space-24) var(--space-12);
+}
+
+.kicker,
+.optionCode,
+.deedTabs button,
+.deedKind,
+.deedProof,
+.optionNote {
+  font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+}
+
+.kicker,
+.optionCode,
+.deedTabs button,
+.deedKind,
+.deedProof {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+}
+
+.kicker {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--noir-muted);
+}
+
+.introTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.introBody {
+  margin: var(--space-6) 0 0;
+  max-width: 62ch;
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--noir-muted);
+}
+
+.group {
+  margin-top: var(--space-24);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--noir-line-strong);
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 400;
+}
+
+.option {
+  padding-block: var(--space-16);
+}
+
+.optionHead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-6);
+  margin-bottom: var(--space-10);
+}
+
+.optionCode {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--noir-accent);
+  font-size: var(--text-xs);
+  color: var(--noir-accent);
+  align-self: start;
+}
+
+.optionTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 400;
+}
+
+.optionNote {
+  margin: var(--space-2) 0 0;
+  max-width: 70ch;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--noir-muted);
+}
+
+.outro {
+  padding-block: var(--space-16) var(--space-24);
+  font-size: var(--text-sm);
+}
+
+/* ==========================================================================
+   J1 - the trail
+   ========================================================================== */
+
+.trailYear {
+  font-family: var(--font-figures);
+  font-size: var(--text-xl);
+  line-height: 1;
+  color: var(--noir-accent);
+}
+
+.trailName {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  line-height: 1.05;
+}
+
+.trailNotes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-10);
+  margin: var(--space-12) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trailNotes li {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--noir-line);
+}
+
+.trailNotes p {
+  margin: var(--space-2) 0 0;
+  line-height: 1.6;
+  color: var(--noir-muted);
+}
+
+@media (max-width: 899px) {
+  .trailNotes {
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 0;
+  }
+}
+
+/* ==========================================================================
+   P1 - the stack of deeds
+   ========================================================================== */
+
+/* On the desk, under the lamp. */
+.deedScene {
+  padding: var(--space-16) 9cqw var(--space-12);
+}
+
+.deedDesk {
+  position: absolute;
+  inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.5' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+    linear-gradient(160deg, var(--west-wood) 0%, var(--west-wood-deep) 100%);
+  background-blend-mode: overlay, normal;
+}
+
+.deeds {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+  gap: var(--space-12);
+  align-items: start;
+}
+
+.deedTabs {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.deedTabs button {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-left: 2px solid var(--noir-line-strong);
+  background: color-mix(in srgb, var(--room-dark) 35%, transparent);
+  color: color-mix(in srgb, var(--noir-text) 70%, transparent);
+  font-size: var(--text-xs);
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+
+.deedTabs button:hover {
+  color: var(--noir-text);
+}
+
+.deedTabName {
+  font-family: var(--font-editorial);
+  font-size: var(--text-sm);
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.3;
+}
+
+.deedTabs button[aria-selected="true"] {
+  border-left-color: var(--noir-accent);
+  color: var(--noir-text);
+}
+
+.deedStack {
+  position: relative;
+  display: grid;
+  min-height: 22rem;
+  padding-bottom: var(--space-16);
+}
+
+/* A sheet in the stack. The shadow is on the sheet's holder, because the
+   paper itself is clipped to its deckle edge and would clip its shadow. */
+.deed {
+  position: relative;
+  grid-area: 1 / 1;
+  max-width: 34rem;
+  transform: translate(calc(var(--depth) * 22px), calc(var(--depth) * 12px)) rotate(calc(var(--depth) * 1.6deg - 0.6deg));
+  filter: drop-shadow(0 18px 22px color-mix(in srgb, var(--room-dark) 70%, transparent)) brightness(calc(1 - var(--depth) * 0.12));
+  transition: transform 700ms var(--open-ease-out), filter 700ms var(--open-ease-out);
+  cursor: pointer;
+}
+
+/* Drawn to the top: it slides out of the stack and settles back on it. */
+.deed[data-top] {
+  animation: drawn 700ms var(--open-ease-out);
+}
+
+@keyframes drawn {
+  0% {
+    transform: translate(60px, 30px) rotate(4deg);
+  }
+  45% {
+    transform: translate(-14px, -18px) rotate(-2deg);
+  }
+}
+
+.deedPaper {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-10) calc(var(--space-10) + 7% + 1.1rem) var(--space-8) var(--space-10);
+  color: color-mix(in srgb, var(--west-ink) 92%, transparent);
+  background:
+    linear-gradient(90deg, transparent 49.7%, color-mix(in srgb, var(--west-ink-soft) 14%, transparent) 50%, transparent 50.4%),
+    radial-gradient(ellipse at 40% 25%, var(--west-paper-pale) 25%, var(--west-parchment) 70%, var(--west-parchment-deep) 100%);
+  /* The deckle: an untrimmed, slightly ragged edge all round. */
+  clip-path: polygon(0.6% 1.2%, 12% 0.4%, 24% 1%, 37% 0.2%, 51% 0.9%, 63% 0.3%, 77% 1.1%, 89% 0.4%, 99.4% 1%, 99.8% 14%, 99.2% 28%, 99.9% 43%, 99.3% 58%, 99.8% 72%, 99.1% 86%, 99.6% 99%, 87% 99.6%, 74% 99%, 61% 99.8%, 47% 99.2%, 33% 99.7%, 20% 99%, 8% 99.6%, 0.4% 98.8%, 0.9% 85%, 0.2% 71%, 0.8% 57%, 0.1% 42%, 0.7% 28%, 0.2% 14%);
+}
+
+/* Age: foxing, a water ring, darkening toward the edges, and dust. */
+.deedAge {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.28'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 84% 78%, transparent 0 8%, color-mix(in srgb, var(--west-rust) 20%, transparent) 9% 10.5%, transparent 12%),
+    radial-gradient(circle at 8% 10%, color-mix(in srgb, var(--west-rust) 26%, transparent) 0%, transparent 18%),
+    radial-gradient(circle at 94% 6%, color-mix(in srgb, var(--west-rust) 20%, transparent) 0%, transparent 14%),
+    radial-gradient(circle at 22% 64%, color-mix(in srgb, var(--west-rust) 24%, transparent) 0 0.4%, transparent 0.8%),
+    radial-gradient(circle at 70% 30%, color-mix(in srgb, var(--west-rust) 24%, transparent) 0 0.35%, transparent 0.7%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, color-mix(in srgb, var(--west-wood) 22%, transparent) 100%);
+}
+
+/* A ribbon tied across the sheet, its ends loose. */
+.ribbon {
+  position: absolute;
+  top: -1%;
+  bottom: -1%;
+  right: 7%;
+  width: 1.1rem;
+  background: linear-gradient(90deg, var(--west-rust-deep), var(--west-blood) 45%, var(--west-rust-deep));
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.deedKind {
+  margin: 0;
+  font-size: var(--text-2xs);
+  color: var(--west-rust);
+}
+
+.deedTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.deedBy,
+.deedPeriod,
+.deedDetail {
+  margin: 0;
+  font-size: var(--text-md);
+}
+
+.deedPeriod {
+  font-family: var(--font-figures);
+  color: var(--west-ink-soft);
+}
+
+.deedProof {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  font-size: var(--text-xs);
+  color: var(--west-rust-deep);
+  text-decoration: none;
+}
+
+.deedProof:hover {
+  text-decoration: underline;
+}
+
+/* A wax seal. */
+.seal {
+  width: 38px;
+  height: 38px;
+  border-radius: 46% 54% 50% 48%;
+  background: radial-gradient(circle at 38% 34%, color-mix(in srgb, var(--west-blood) 60%, var(--west-white)) 0 8%, var(--west-blood) 30%, var(--west-rust-deep) 100%);
+  box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--west-rust-deep) 70%, transparent), 0 3px 6px var(--west-shade-deep);
+}
+
+@media (max-width: 767px) {
+  .deeds {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .deedTabs {
+    grid-auto-flow: column;
+    overflow-x: auto;
+  }
+
+  /* No room to fan sideways on a phone: the stack steps down and back. */
+  .deed {
+    transform: translateY(calc(var(--depth) * 12px)) scale(calc(1 - var(--depth) * 0.035));
+    transform-origin: top center;
+  }
+
+  .deedPaper {
+    padding: var(--space-8) calc(var(--space-4) + 7% + 1.1rem) var(--space-8) var(--space-6);
+  }
+}
+
+/* --- still --------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .deed[data-top] {
+    animation: none;
+  }
+}
+

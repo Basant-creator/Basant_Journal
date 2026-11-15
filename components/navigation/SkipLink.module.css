@@ -24,3 +24,10 @@
   outline: 2px solid var(--color-ink);
   outline-offset: 2px;
 }
+
+/* A way past the navigation means nothing on paper. */
+@media print {
+  .skip {
+    display: none;
+  }
+}

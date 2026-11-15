@@ -47,3 +47,22 @@
   flex-direction: column;
   gap: var(--space-10);
 }
+
+/* A bench that is a world of its own (WANTED: fixed over the whole window)
+   covers the bar. Hidden, it is not tabbed to behind the world, and it does
+   not shift under it as the type arrives. */
+.lab:has([data-world]) .bar {
+  display: none;
+}
+
+/* A bench that is a page of its own, full bleed (the reel): no bar over it,
+   and nothing holding it in the bench's column. */
+.lab:has([data-reel]) .bar {
+  display: none;
+}
+
+.lab:has([data-reel]) .main {
+  display: block;
+  max-width: none;
+  padding: 0;
+}

@@ -629,3 +629,131 @@ export function triggerSurveyTick(): void {
     // Silent fallback
   }
 }
+
+/*
+  Card foley, for the card table in the WANTED prototype (app/lab/wanted).
+  Cards are paper, so they go to the paper bus, dry, like the pages. Each is
+  noise shaped by a filter and an envelope, nothing recorded, and like every
+  one-shot here each is a no-op until the visitor has turned sound on.
+*/
+
+/** One burst of shaped noise into the paper bus, `at` seconds from now. */
+function cardNoise(
+  context: AudioContext,
+  desk: Desk,
+  at: number,
+  duration: number,
+  level: number,
+  filterType: BiquadFilterType,
+  from: number,
+  to: number,
+  decay: number,
+): void {
+  const buffer = context.createBuffer(1, Math.max(1, Math.floor(context.sampleRate * duration)), context.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i += 1) {
+    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (context.sampleRate * decay));
+  }
+  const source = context.createBufferSource();
+  source.buffer = buffer;
+  const filter = context.createBiquadFilter();
+  filter.type = filterType;
+  filter.Q.value = 0.9;
+  const start = context.currentTime + at;
+  filter.frequency.setValueAtTime(from, start);
+  filter.frequency.exponentialRampToValueAtTime(to, start + duration);
+  const gain = context.createGain();
+  gain.gain.setValueAtTime(level, start);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+  source.connect(filter).connect(gain).connect(desk.bus.paper);
+  source.onended = () => {
+    source.disconnect();
+    filter.disconnect();
+    gain.disconnect();
+  };
+  source.start(start);
+}
+
+/** A riffle: the two halves' corners let go a card at a time, fast in the
+    middle and slower at each end, then the bridge's soft push together. */
+export function triggerCardRiffle(): void {
+  if (!rig) return;
+  const { context, desk } = rig;
+  duck(desk, "music");
+  try {
+    const count = 38;
+    let t = 0.05;
+    for (let i = 0; i < count; i += 1) {
+      const u = i / (count - 1);
+      t += 0.006 + 0.012 * (1 - Math.sin(u * Math.PI));
+      cardNoise(context, desk, t, 0.012, 0.05 + Math.random() * 0.03, "bandpass", 3600 + Math.random() * 1400, 2600, 0.003);
+    }
+    cardNoise(context, desk, t + 0.08, 0.18, 0.05, "lowpass", 1400, 500, 0.06);
+  } catch {
+    // Silent fallback
+  }
+}
+
+/** A card dealt: thrown off the deck with a short slide through the air,
+    and the soft slap of it landing on the cloth. */
+export function triggerCardDeal(delay = 0): void {
+  if (!rig) return;
+  const { context, desk } = rig;
+  try {
+    cardNoise(context, desk, delay, 0.12, 0.045, "bandpass", 2200, 5200, 0.05);
+    cardNoise(context, desk, delay + 0.13, 0.05, 0.08, "lowpass", 900, 300, 0.012);
+  } catch {
+    // Silent fallback
+  }
+}
+
+/** A card picked up and turned over: a dry snap. */
+export function triggerCardFlip(): void {
+  if (!rig) return;
+  const { context, desk } = rig;
+  try {
+    cardNoise(context, desk, 0, 0.05, 0.07, "highpass", 2400, 1800, 0.01);
+  } catch {
+    // Silent fallback
+  }
+}
+
+/** A typewriter key: the typebar's strike on the platen, a hard little
+    click over a soft thud. */
+export function triggerTypeKey(): void {
+  if (!rig) return;
+  const { context, desk } = rig;
+  try {
+    cardNoise(context, desk, 0, 0.018, 0.09 + Math.random() * 0.03, "bandpass", 2600 + Math.random() * 900, 1800, 0.004);
+    cardNoise(context, desk, 0.004, 0.04, 0.05, "lowpass", 600, 200, 0.01);
+  } catch {
+    // Silent fallback
+  }
+}
+
+/** The end of a line: the margin bell, then the carriage thrown back. */
+export function triggerTypeReturn(): void {
+  if (!rig) return;
+  const { context, desk } = rig;
+  try {
+    const bell = context.createOscillator();
+    bell.type = "sine";
+    bell.frequency.value = 2350;
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.06, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.9);
+    bell.connect(gain).connect(desk.bus.paper);
+    bell.onended = () => {
+      bell.disconnect();
+      gain.disconnect();
+    };
+    bell.start();
+    bell.stop(context.currentTime + 0.92);
+    for (let i = 0; i < 6; i += 1) {
+      cardNoise(context, desk, 0.12 + i * 0.035, 0.02, 0.05, "bandpass", 1500, 900, 0.006);
+    }
+    cardNoise(context, desk, 0.36, 0.06, 0.08, "lowpass", 700, 250, 0.015);
+  } catch {
+    // Silent fallback
+  }
+}

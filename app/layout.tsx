@@ -2,9 +2,6 @@ import { SITE_ORIGIN } from "@/lib/routes";
 import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import type { Metadata, Viewport } from "next";
 import { Archivo, Caveat, IM_Fell_English_SC, Source_Serif_4 } from "next/font/google";
-import { AtmosphereControl } from "@/components/audio/AtmosphereControl";
-import { AudioLabMount } from "@/components/audio/AudioLabMount";
-import { CheckpointAudio } from "@/components/audio/CheckpointAudio";
 import { FrontierTrail } from "@/components/navigation/FrontierTrail";
 import { Quiet } from "@/components/shell/Quiet";
 import { MotionBudget } from "@/components/shell/MotionBudget";
@@ -13,9 +10,7 @@ import { TextureLayer } from "@/components/shell/TextureLayer";
 import { SkipLink } from "@/components/navigation/SkipLink";
 import { person } from "@/lib/content/portfolio";
 import { ENTRY_STAMP_SCRIPT } from "@/lib/motion/entry";
-import { BOOT_STAMP_SCRIPT } from "@/lib/boot/boot";
 import { HOUR_STAMP_SCRIPT } from "@/lib/world/hour";
-import { BootScreen } from "@/components/boot/BootScreen";
 import "./globals.css";
 /* After the site's own: Lenis's few rules (height, the stopped state, nested
    scrollers) are about the scroll root and are meant to have the last word. */
@@ -78,17 +73,19 @@ const caveat = Caveat({
   display: "swap",
 });
 
-const DESCRIPTION =
-  "The portfolio of Basant Bhushan — a Computer Science student building backend-heavy systems. Explored as a surveyor's record of territory still being mapped.";
+/* The site is the title cards (app/(cards)): the name, the role, and the
+   tagline, all the content file's. */
+const TITLE = `${person.name} — ${person.role}`;
+const DESCRIPTION = person.tagline;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_ORIGIN),
   title: {
-    default: `${person.name} — The Frontier`,
+    default: TITLE,
     template: `%s — ${person.name}`,
   },
   description: DESCRIPTION,
-  applicationName: "The Frontier",
+  applicationName: person.name,
   authors: [{ name: person.name }],
   creator: person.name,
   keywords: [
@@ -102,14 +99,14 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    siteName: "The Frontier",
-    title: `${person.name} — The Frontier`,
+    siteName: person.name,
+    title: TITLE,
     description: DESCRIPTION,
     locale: "en_IN",
   },
   twitter: {
     card: "summary_large_image",
-    title: `${person.name} — The Frontier`,
+    title: TITLE,
     description: DESCRIPTION,
   },
   robots: { index: true, follow: true },
@@ -143,15 +140,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Both run before first paint, and both have to.
+        {/* Runs before first paint, and has to: the entry stamp for the earlier
+            site's landing cinematic. If it fails to run, no rule matches and
+            the document renders complete — the right failure.
 
-            The boot stamp is what makes §1 possible: the browser must never
-            paint one frame of Home behind the boot layer, and React cannot
-            promise that because React runs after the first paint. The entry
-            stamp is the same trick for the landing cinematic. If either fails
-            to run, no rule matches and the document renders complete — which
-            is the right failure for both. */}
-        <script dangerouslySetInnerHTML={{ __html: BOOT_STAMP_SCRIPT }} />
+            The boot screen and its stamp are gone from here. They belonged to
+            the earlier site's home; the home is now the title cards, which
+            open with their own bars (components/cards). Their code is kept,
+            unmounted, in components/boot and lib/boot for review. */}
         <script dangerouslySetInnerHTML={{ __html: ENTRY_STAMP_SCRIPT }} />
         {/* The hour, stamped before first paint for the same reason as the
             two above. Without it the server renders dusk, the browser reads
@@ -178,27 +174,16 @@ export default function RootLayout({
           {/* How much this machine may move: the still composition for a
               machine that has shown it is weak. See lib/motion/budget. */}
           <Quiet name="MotionBudget"><MotionBudget /></Quiet>
-          {/* Everywhere the air can play, so it can always be stopped —
-              including the landing page, which has no navigation by design. */}
-          <Quiet name="AtmosphereControl"><AtmosphereControl /></Quiet>
-          {/* The cue comparison switch. Development only: the module and its
-              stylesheet leave the bundle entirely — see AudioLabMount. */}
-          <Quiet name="AudioLab"><AudioLabMount /></Quiet>
-          {/* One owner for the music, above the router, so a place cannot
-              silence the place the visitor is arriving at. See
-              CheckpointAudio; the landing keeps its own progression. */}
-          <Quiet name="CheckpointAudio"><CheckpointAudio /></Quiet>
+          {/* No audio. The air, the music and their switch (AtmosphereControl,
+              CheckpointAudio, AudioLabMount) are unmounted: the site is silent.
+              Their code is kept in components/audio and lib/audio with the
+              earlier site, and nothing else can start the audio engine. */}
           {/* The world's own navigation, mounted once so it survives every
               route change and can remember the walk. It draws nothing on
               the landing or off the trail; see FrontierTrail. */}
           <Quiet name="FrontierTrail"><FrontierTrail /></Quiet>
         </div>
 
-        {/* Server-rendered, so it is in the first painted frame. The boot
-            system and the route transition system are separate on purpose:
-            this happens once, before Home exists visually, and never again
-            because somebody clicked Gear. */}
-        <BootScreen />
       </body>
     </html>
   );

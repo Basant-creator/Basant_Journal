@@ -24,3 +24,8 @@ assets/horse-source/
 # baseline; the PNGs are 20MB a run and regenerate in three minutes.
 # Globbed, because comparing two passes means two output directories.
 .visual*/
+
+# Full-size scans the title cards' silhouettes are baked from (6.5MB and up),
+# public domain, fetched from Wikimedia Commons by scripts/titles-silhouette.py
+# when missing. The baked silhouettes are what ships and are committed.
+assets/titles-source/

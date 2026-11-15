@@ -1,0 +1,60 @@
+/* The tally (Tally.tsx): chalk strokes, each drawn on as its thing arrives,
+   and the boil that keeps a held chalk drawing alive. */
+
+.marks {
+  height: auto;
+  fill: none;
+  stroke: var(--chalk);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.marks path {
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 220ms ease-out;
+}
+
+.marks path[data-on] {
+  stroke-dashoffset: 0;
+}
+
+/* Swapped a few times a second: a stepped loop, so it repaints three times
+   a second rather than every frame. */
+.boil {
+  position: absolute;
+  inset: 0;
+}
+
+/* Only while it is being held: let go, the lines are still. */
+.boil[data-held] {
+  animation: boil 0.36s steps(1, end) infinite;
+}
+
+@keyframes boil {
+  0% {
+    filter: url(#chalk-boil-1);
+  }
+  33% {
+    filter: url(#chalk-boil-2);
+  }
+  66% {
+    filter: url(#chalk-boil-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boil {
+    animation: none;
+  }
+}
+
+:global(html[data-motion="still"]) .boil {
+  animation: none;
+}
+
+/* Low grade (quality.ts): the chalk held still, with no filter redrawn. */
+:global([data-quality="low"]) .boil[data-held] {
+  animation: none;
+  filter: none;
+}

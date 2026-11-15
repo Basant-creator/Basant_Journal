@@ -87,7 +87,8 @@ function prefersReduced(): boolean {
  *   - reduced motion: no instance at all, rather than a smoothed scroll at a
  *     lerp of 1 — the setting is honoured at the source (CLAUDE.md);
  *   - off the trail: the professional view is the facts without the walk, and
- *     a recruiter's scroll wheel should behave like everybody else's;
+ *     a recruiter's scroll wheel should behave like everybody else's — unless
+ *     the page is a world of its own that asks for the walk (below);
  *   - keyboard: Lenis only ever sees wheels, so Space, Page Down and the
  *     arrows scroll the way the browser scrolls them;
  *   - a machine that cannot carry it — see constrainedDevice above.
@@ -99,23 +100,64 @@ function prefersReduced(): boolean {
  * anything, so they stop it by hand — on popstate, before the router restores
  * the position the history entry remembers.
  *
+ * A page that scrolls inside its own container rather than the window (the
+ * lab's WANTED prototype, a fixed world over the site) asks for the glide by
+ * marking that container `data-glide`. It is still this one instance, only
+ * pointed at the container: Lenis drives the container's own scrollTop, so
+ * the scroll timelines inside it read the smoothed position exactly as the
+ * trail's do, and the container's height is read live because what is in
+ * it grows as its pictures arrive.
+ *
  * It renders nothing. The route never waits for it: stopping a glide is
  * synchronous, and nothing here delays or gates a navigation.
  */
 export function SmoothScroll() {
   const pathname = usePathname();
   const offTrail = isOffTrail(pathname);
+  /* Off the trail the effect is per page, since any page may be a world;
+     on it, one instance for the walk, as before. */
+  const page = offTrail ? pathname : null;
   /* True on the server, so nothing is decided until the client says so. */
   const reduced = useSyncExternalStore(subscribeReduced, prefersReduced, () => true);
 
   useEffect(() => {
-    if (offTrail || reduced || constrainedDevice() || nativeScrollChosen()) return;
+    const world = offTrail ? document.querySelector<HTMLElement>("[data-glide]") : null;
+    if ((offTrail && !world) || reduced || constrainedDevice() || nativeScrollChosen()) return;
 
     const lenis = new Lenis({
-      autoRaf: true,
+      autoRaf: false,
       lerp: PACE,
       stopInertiaOnNavigate: true,
+      ...(world ? { wrapper: world, content: world, naiveDimensions: true, anchors: true } : {}),
     });
+
+    /* Driven only while it is gliding. Lenis's own loop asks for every
+       frame for as long as the page is open, standing still included, and a
+       frame asked for is a frame the browser has to produce: measured on
+       the WANTED prototype at rest, it was the one script running, 120
+       times a second, and every one of those frames recalculated style. So
+       the loop starts when there is something to move (a wheel, a touch, a
+       scroll to an anchor) and ends the frame the glide comes to rest. The
+       clock is restarted on waking, or the first step after a pause would
+       be the whole pause long and land the glide at once. */
+    let frame = 0;
+    const tick = (time: number) => {
+      frame = 0;
+      if (destroyed) return;
+      lenis.raf(time);
+      if (lenis.isScrolling === "smooth") frame = requestAnimationFrame(tick);
+    };
+    const wake = () => {
+      if (frame) return;
+      lenis.time = 0;
+      frame = requestAnimationFrame(tick);
+    };
+    lenis.on("virtual-scroll", wake);
+    const glideTo = lenis.scrollTo.bind(lenis);
+    lenis.scrollTo = (...args: Parameters<Lenis["scrollTo"]>) => {
+      glideTo(...args);
+      wake();
+    };
 
     /* The glide's own health: frame gaps during Lenis's smoothing only, not
        during native scrolls it merely observes. */
@@ -155,15 +197,16 @@ export function SmoothScroll() {
        ends any glide in progress without moving anything, and the router's
        restoration then lands on a page that is standing still. */
     const onPop = () => {
-      if (!destroyed) lenis.scrollTo(window.scrollY, { immediate: true, force: true });
+      if (!destroyed) lenis.scrollTo(world ? world.scrollTop : window.scrollY, { immediate: true, force: true });
     };
     window.addEventListener("popstate", onPop);
 
     return () => {
       window.removeEventListener("popstate", onPop);
+      cancelAnimationFrame(frame);
       if (!destroyed) lenis.destroy();
     };
-  }, [offTrail, reduced]);
+  }, [offTrail, page, reduced]);
 
   return null;
 }

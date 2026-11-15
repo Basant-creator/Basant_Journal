@@ -1,3 +1,4 @@
+import { routes, workRoot } from "@/lib/routes";
 /**
  * The Frontier Trail: the world's own route, and where the visitor is on it.
  *
@@ -132,8 +133,12 @@ export const checkpoints: Checkpoint[] = [
  * facts without the walk, and making it a checkpoint would put the shortcut
  * inside the journey it exists to skip. It is reachable from the landing and
  * from the archive, and the trail never mentions it.
+ *
+ * The title cards are off it too: they are the site now (app/(cards)), with
+ * their own navigation and native scrolling, and the trail's bar and glide
+ * stand aside on them. "/" matches the home page exactly, never as a prefix.
  */
-export const OFF_TRAIL = ["/professional", "/lab"];
+export const OFF_TRAIL = ["/professional", "/lab", routes.home, workRoot];
 
 export function isOffTrail(pathname: string): boolean {
   return OFF_TRAIL.some((route) => pathname === route || pathname.startsWith(`${route}/`));

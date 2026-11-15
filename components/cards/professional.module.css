@@ -1,0 +1,444 @@
+/* ====================================================================================
+   THE PROFESSIONAL VIEW. The title cards' facts as one plain page: cream
+   paper, black ink, the rust of a rubber stamp for the labels, and the cards'
+   three voices (Anton names, Oswald labels, Libre Caslon reading). Nothing
+   moves. It prints as a CV.
+   ==================================================================================== */
+
+.page {
+  --display: var(--font-titles-display), Impact, "Arial Narrow", sans-serif;
+  --credit: var(--font-titles-credit), "Arial Narrow", sans-serif;
+  --text: var(--font-titles-text), Georgia, serif;
+  --gutter: clamp(20px, 5vw, 64px);
+  --rule: color-mix(in srgb, var(--titles-black) 22%, transparent);
+  min-height: 100svh;
+  background: var(--titles-cream);
+  color: var(--titles-black);
+  font-family: var(--text);
+}
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 var(--gutter) clamp(48px, 10vh, 110px);
+}
+
+.page a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.page a:hover {
+  color: var(--titles-rust);
+}
+
+.page a:focus-visible {
+  outline: 3px solid var(--titles-rust);
+  outline-offset: 3px;
+}
+
+/* ---- the way back, and where this is ------------------------------------------- */
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: clamp(16px, 3vh, 26px) 0;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--credit);
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.home {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.here {
+  color: var(--titles-rust);
+}
+
+/* ---- the name, and how to reach them ------------------------------------------- */
+.mast {
+  padding: clamp(36px, 7vh, 72px) 0 clamp(28px, 5vh, 48px);
+  border-bottom: 4px solid var(--titles-black);
+}
+
+.name {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(3.2rem, 9vw, 7.5rem);
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.role {
+  margin: 14px 0 0;
+  font-style: italic;
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+}
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--credit);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.status {
+  margin: 14px 0 0;
+  font-family: var(--credit);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--titles-rust);
+}
+
+.works {
+  margin: 18px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.label {
+  margin-right: 12px;
+  font-family: var(--credit);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--titles-rust);
+}
+
+/* ---- a section: its name in the margin, its matter beside it --------------------- */
+.section {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: clamp(16px, 4vw, 48px);
+  padding: clamp(28px, 5vh, 48px) 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.heading {
+  margin: 0;
+  font-family: var(--credit);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--titles-rust);
+}
+
+.lead {
+  max-width: 62ch;
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+
+.body {
+  max-width: 66ch;
+  margin: 6px 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.interests {
+  display: grid;
+  gap: 6px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--credit);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.interests li::before {
+  content: "— ";
+}
+
+/* ---- skills -------------------------------------------------------------------- */
+.skills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px clamp(20px, 4vw, 48px);
+}
+
+.sub {
+  margin: 0 0 8px;
+  font-family: var(--credit);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.skillList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 1rem;
+}
+
+.credit {
+  margin-left: 5px;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--titles-black) 62%, transparent);
+}
+
+/* ---- projects ------------------------------------------------------------------ */
+.projects {
+  display: grid;
+  gap: clamp(28px, 5vh, 44px);
+}
+
+.project {
+  scroll-margin-top: 24px;
+}
+
+.projectHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+.projectTitle {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 3.6vw, 2.8rem);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.when {
+  font-family: var(--credit);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.projectSub {
+  margin: 6px 0 0;
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--titles-black);
+  border-bottom: 2px solid var(--titles-black);
+}
+
+.metrics li {
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  padding: 12px 14px 14px;
+  border-left: 1px solid var(--rule);
+}
+
+.metrics li:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.metricValue {
+  font-family: var(--display);
+  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  line-height: 1;
+}
+
+.metricUnit {
+  font-family: var(--credit);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.metricLabel {
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.tech {
+  margin: 14px 0 0;
+  font-family: var(--credit);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--titles-black) 78%, transparent);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 12px 0 0;
+  font-family: var(--credit);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* ---- education, training, certifications ---------------------------------------- */
+.entries {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px clamp(20px, 4vw, 48px);
+}
+
+.entryTitle {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.meta {
+  margin: 6px 0 0;
+  font-family: var(--credit);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--titles-black) 70%, transparent);
+}
+
+.proof {
+  display: inline-block;
+  margin-top: 6px;
+  font-family: var(--credit);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* ---- contact -------------------------------------------------------------------- */
+.mail {
+  display: inline-block;
+  margin-top: 10px;
+  font-family: var(--display);
+  font-size: clamp(1.4rem, 3.4vw, 2.6rem);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+/* ---- narrower screens ----------------------------------------------------------- */
+@media (max-width: 759px) {
+  .section {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .skills,
+  .entries {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .metrics li,
+  .metrics li:first-child {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .metrics li:first-child {
+    border-top: 0;
+  }
+}
+
+/* ---- on paper: a CV ------------------------------------------------------------ */
+@media print {
+  /* The page's own paper, edge to edge, over the site's dark ground. */
+  :global(html):has(.page),
+  :global(html):has(.page) :global(body) {
+    background: var(--titles-cream);
+  }
+
+  .page {
+    min-height: 0;
+  }
+
+  .wrap {
+    max-width: none;
+    padding: 0;
+  }
+
+  .top {
+    display: none;
+  }
+
+  .mast {
+    padding-top: 0;
+  }
+
+  /* An A4 page is narrower than the phone breakpoint; keep the desk layout,
+     with a narrower margin column. */
+  .section {
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 20px;
+    padding: 18px 0;
+  }
+
+  .skills,
+  .entries {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .metrics li {
+    padding: 8px 10px 10px;
+    border-top: 0;
+    border-left: 1px solid var(--rule);
+  }
+
+  .metrics li:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  /* Sections flow across pages; a project or an entry is never cut in two,
+     and a heading never ends a page alone. */
+  .project,
+  .entry,
+  .metrics {
+    break-inside: avoid;
+  }
+
+  .heading,
+  .projectHead,
+  .entryTitle {
+    break-after: avoid;
+  }
+}

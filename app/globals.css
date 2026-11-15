@@ -637,6 +637,126 @@
      stays under a modal, which is the one thing a visitor opened on purpose. */
   --z-passage: 150;
   --z-modal: 200;
+
+  /* --- PROTOTYPE: WANTED -------------------------------------------------
+     Read only by app/lab/wanted. Nothing on the live site uses these; if
+     the direction is adopted they become the semantic layer, and if it is
+     not they go with the folder. Type is the site's own (Fell, Source
+     Serif, Archivo): this block sets colour and timing only.
+
+     First, the poster: the one paper object on that page, its inks, and
+     the true black and white its halftone is thresholded between (the
+     threshold only lands on the dot edges when the ends are the real
+     ends). */
+  --west-ink: #2b1d14;
+  --west-ink-soft: #5a4232;
+  --west-parchment: #f1e3c4;
+  --west-parchment-deep: #e2cc9f;
+  --west-rust: #8e3b1f;
+  --west-rust-deep: #5e2614;
+  --west-blood: #9b1f2a;
+  --west-steel: #6f757b;
+  --west-steel-light: #c2c6ca;
+  --west-white: #fffaf0;
+  --west-black: #000000;
+  --west-shade-deep: rgba(43, 29, 20, 0.45);
+
+  /* Wood and paper for the things the page pins up, prints and hands over:
+     a notice board, a printer's case, tickets, cards. */
+  --west-wood: #3b2719;
+  --west-wood-deep: #22160e;
+  --west-wood-light: #5c3f28;
+  --west-paper-pale: #f6ecd6;
+  --west-shade-soft: rgba(43, 29, 20, 0.22);
+
+  /* A card table: baize, the gilt line printed on it, and the rail. */
+  --felt: #1d4630;
+  --felt-deep: #0d2618;
+  --felt-light: #2a5f43;
+  --felt-line: rgba(226, 204, 150, 0.32);
+  --leather: #2a1710;
+  --leather-mid: #4a2a19;
+  --leather-light: #6e4329;
+  /* One lamp over the table: its light, and the dark of the room outside it. */
+  --lamp-glow: rgba(255, 186, 104, 0.5);
+  --lamp-core: rgba(255, 226, 170, 0.9);
+  --room-dark: #070504;
+
+  /* A bar's slate, and the chalk on it. */
+  --slate: #1d2622;
+  --slate-deep: #111714;
+  --chalk: rgba(242, 238, 228, 0.9);
+  --chalk-dust: rgba(242, 238, 228, 0.07);
+  /* A typewriter's black enamel, its gilt pinstripe, and its type. Courier
+     is the typewriter's own face; it is the one voice here that is not the
+     site's, and only the typed page uses it. */
+  --enamel: #15120f;
+  --enamel-edge: #2b2621;
+  --gilt: #b08d4f;
+  --font-type: "Courier Prime", "Courier New", Courier, monospace;
+
+  /* --- Noir: the page itself ------------------------------------------
+     One ground (warm off-black, never pure), bone text, a muted second
+     voice, hairlines, and a single accent, ember, used for what you can act
+     on and nothing else. */
+  --noir-bg: #0e0b0a;
+  --noir-raise: #16110f;
+  --noir-text: #ebe2d3;
+  --noir-muted: #a39383;
+  --noir-line: rgba(235, 226, 211, 0.14);
+  --noir-line-strong: rgba(235, 226, 211, 0.32);
+  --noir-accent: #d86a3a;
+  --noir-accent-deep: #a8481f;
+  --noir-scrim: rgba(14, 11, 10, 0.88);
+  --noir-tint: rgba(216, 106, 58, 0.35);
+
+  /* The air of the opening photograph: dust lit from behind by a low sun. */
+  --dust-mote: rgba(255, 222, 176, 0.7);
+  --dust-bank: rgba(214, 164, 108, 0.26);
+  --dust-flare: rgba(255, 206, 140, 0.4);
+
+  /* The ride (WANTED): the light the page is read under, from dawn to
+     night, and what is ridden through between chapters. */
+  --ride-dawn: #c9785a;
+  --ride-day: #b98a54;
+  --ride-dusk: #b4402a;
+  --ride-night: #0d1524;
+  --ride-night-glow: #2a3f63;
+  --ride-star: rgba(232, 238, 255, 0.85);
+  --ride-storm: #8a6640;
+  --ride-storm-deep: #3d2b1b;
+  --ride-sun: #ffd9a0;
+
+  /* The reel (/lab/reel): a frontier newspaper with film stills set into
+     it. Newsprint, press ink, the rust of a rubber stamp, and the night of
+     the cinema with its ember. */
+  --reel-paper: #e6dbc2;
+  --reel-paper-deep: #d6c6a2;
+  --reel-ink: #1c1712;
+  --reel-ink-soft: #4a3c2c;
+  --reel-rust: #8f2d17;
+  --reel-ember: #d9531c;
+  --reel-night: #0e0907;
+  --reel-sand: #e8cfa3;
+  --reel-dust: #a8865c;
+  --reel-shade: rgba(28, 23, 18, 0.25);
+
+  /* Title cards (/lab/titlecards): a sixties western's opening titles.
+     Flat poster fields, one per card, and the black of a silhouette. */
+  --titles-blood: #b3261e;
+  --titles-mustard: #e0a526;
+  --titles-black: #120d0a;
+  --titles-cream: #f2e3c2;
+  --titles-rust: #7a2e14;
+  --titles-teal: #1f5c5a;
+
+  /* The opening, in order: every beat an offset from the first frame. */
+  --open-t-light: 200ms;
+  --open-t-bars: 2700ms;
+  --open-t-reveal: 3100ms;
+  --open-ease: cubic-bezier(0.7, 0, 0.2, 1);
+  --open-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
 }
 
 /* ==========================================================================

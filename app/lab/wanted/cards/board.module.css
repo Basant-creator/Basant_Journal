@@ -1,0 +1,269 @@
+/* ==========================================================================
+   The notice board (NoticeBoard.tsx). Weathered planks, old scraps, bills.
+   Sized in cqw of the frame. Grain and stains are noise and gradients over
+   the palette's own wood, paper and rust; nothing here is a picture.
+   ========================================================================== */
+
+.scene {
+  padding: 8cqw 8cqw 9cqw;
+}
+
+/* --- the planks ----------------------------------------------------------------- */
+
+.planks {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+/* Wood left out in the weather goes grey before it goes soft; the foot of
+   each board, where the rain sits, has rotted dark (--rot is how high). */
+.plank {
+  position: relative;
+  flex: 0 0 var(--w);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='600'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5 0.006' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 120% 40% at 50% var(--rot), color-mix(in srgb, var(--room-dark) 70%, transparent) 0%, transparent 70%),
+    linear-gradient(color-mix(in srgb, var(--room-dark) var(--dark), transparent), transparent 40%, color-mix(in srgb, var(--room-dark) 30%, transparent)),
+    color-mix(in srgb, var(--west-wood-light), var(--west-steel) var(--grey));
+  background-size: 100% 220%, auto, auto, auto;
+  background-blend-mode: overlay, normal, normal, normal;
+  box-shadow:
+    inset 0.35cqw 0 0.5cqw color-mix(in srgb, var(--room-dark) 85%, transparent),
+    inset -0.12cqw 0 0 color-mix(in srgb, var(--west-parchment) 18%, transparent);
+}
+
+/* A knot, the grain swirled round it. */
+.knot {
+  position: absolute;
+  width: 2.6cqw;
+  aspect-ratio: 0.6;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(ellipse, transparent 0 0.25cqw, color-mix(in srgb, var(--west-wood-deep) 50%, transparent) 0.25cqw 0.35cqw),
+    radial-gradient(ellipse, var(--west-wood-deep) 0 30%, transparent 70%);
+  opacity: 0.8;
+}
+
+.scrap {
+  position: absolute;
+  background:
+    radial-gradient(circle at 30% 60%, color-mix(in srgb, var(--west-rust) 22%, transparent) 0 20%, transparent 45%),
+    linear-gradient(color-mix(in srgb, var(--west-parchment-deep) 70%, var(--west-wood)), color-mix(in srgb, var(--west-parchment-deep) 55%, var(--west-wood-deep)));
+  opacity: 0.75;
+}
+
+/* --- the bills -------------------------------------------------------------------- */
+
+.bills {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4.5cqw 4cqw;
+  align-items: start;
+  padding: 1cqw 2cqw;
+}
+
+.bill {
+  position: relative;
+  rotate: var(--tilt);
+  filter: drop-shadow(0 0.9cqw 0.9cqw color-mix(in srgb, var(--room-dark) 75%, transparent));
+  transition: transform 500ms var(--open-ease-out);
+}
+
+.bill:hover {
+  transform: translateY(-0.5cqw) rotate(calc(var(--tilt) * -0.5));
+}
+
+/* The paper: foxed, stained, folded once across the middle, sun-faded at
+   the top, and torn (its clip-path, set where it is drawn). */
+.paper {
+  position: relative;
+  padding: 3.4cqw 2.6cqw 2.4cqw;
+  color: color-mix(in srgb, var(--west-ink) 88%, transparent);
+  background:
+    linear-gradient(transparent 49.6%, color-mix(in srgb, var(--west-ink-soft) 22%, transparent) 50%, color-mix(in srgb, var(--west-white) 20%, transparent) 50.4%, transparent 51%),
+    linear-gradient(color-mix(in srgb, var(--west-white) 18%, transparent), transparent 30%),
+    radial-gradient(ellipse at 40% 35%, var(--west-parchment) 20%, var(--west-parchment-deep) 85%, color-mix(in srgb, var(--west-parchment-deep) 70%, var(--west-wood)) 100%);
+}
+
+.stains {
+  --ring-x: 78%;
+  --ring-y: 72%;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E"),
+    radial-gradient(circle at var(--ring-x) var(--ring-y), transparent 0 9%, color-mix(in srgb, var(--west-rust) 26%, transparent) 10% 11.5%, transparent 13%),
+    radial-gradient(ellipse at 12% 88%, color-mix(in srgb, var(--west-rust) 30%, transparent) 0%, transparent 35%),
+    radial-gradient(circle at 88% 12%, color-mix(in srgb, var(--west-wood) 30%, transparent) 0%, transparent 22%),
+    radial-gradient(circle at 30% 40%, color-mix(in srgb, var(--west-rust) 22%, transparent) 0 0.3%, transparent 0.6%),
+    radial-gradient(circle at 64% 22%, color-mix(in srgb, var(--west-rust) 22%, transparent) 0 0.4%, transparent 0.7%),
+    radial-gradient(circle at 46% 80%, color-mix(in srgb, var(--west-rust) 22%, transparent) 0 0.35%, transparent 0.6%);
+}
+
+.billTitle {
+  position: relative;
+  margin: 0 0 1.4cqw;
+  padding-bottom: 1cqw;
+  border-bottom: 0.12cqw solid color-mix(in srgb, var(--west-ink-soft) 70%, transparent);
+  font-family: var(--font-display);
+  font-size: 2.1cqw;
+  font-weight: 400;
+  line-height: 1.05;
+  text-align: center;
+}
+
+.paper ul {
+  position: relative;
+  display: grid;
+  gap: 0.5cqw;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.paper li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1cqw;
+  font-size: 1.3cqw;
+}
+
+.paper li[data-faint] {
+  color: color-mix(in srgb, var(--west-ink) 38%, transparent);
+}
+
+.dots {
+  font-size: 0.7cqw;
+  letter-spacing: 0.25em;
+  color: var(--west-rust);
+}
+
+.billFoot {
+  position: relative;
+  margin: 1.4cqw 0 0;
+  padding-top: 0.9cqw;
+  border-top: 0.12cqw dashed color-mix(in srgb, var(--west-ink-soft) 70%, transparent);
+  font-family: var(--font-ui);
+  font-size: 0.72cqw;
+  font-weight: var(--weight-ui);
+  letter-spacing: var(--tracking-label);
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--west-rust);
+}
+
+.bill:nth-child(2) .stains {
+  --ring-x: 30%;
+  --ring-y: 86%;
+}
+
+.bill:nth-child(3) .stains,
+.bill:nth-child(5) .stains {
+  --ring-x: -40%;
+}
+
+.bill:nth-child(4) .stains {
+  --ring-x: 18%;
+  --ring-y: 30%;
+}
+
+.bill:nth-child(6) .stains {
+  --ring-x: 66%;
+  --ring-y: 40%;
+}
+
+/* Rust, run down the paper from the nail. */
+.bleed {
+  position: absolute;
+  top: 1.4cqw;
+  left: 50%;
+  width: 1.1cqw;
+  height: 36%;
+  translate: -50% 0;
+  background: linear-gradient(color-mix(in srgb, var(--west-rust) 55%, transparent), color-mix(in srgb, var(--west-rust) 15%, transparent) 60%, transparent);
+  filter: blur(0.25cqw);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.nail {
+  position: absolute;
+  top: 1.1cqw;
+  left: 50%;
+  width: 1.1cqw;
+  aspect-ratio: 1;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--west-rust) 70%, var(--west-steel-light)) 0%, var(--west-rust-deep) 55%, var(--room-dark) 100%);
+  box-shadow: 0 0 0 0.35cqw color-mix(in srgb, var(--west-rust) 28%, transparent), 0.15cqw 0.25cqw 0.3cqw var(--room-dark);
+}
+
+@media (max-width: 899px) {
+  .bills {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .paper {
+    padding: 5cqw 4cqw 3.6cqw;
+  }
+
+  .billTitle {
+    font-size: 3.4cqw;
+  }
+
+  .paper li {
+    font-size: 2.2cqw;
+  }
+
+  .dots {
+    font-size: 1.2cqw;
+  }
+
+  .billFoot {
+    font-size: 1.2cqw;
+  }
+
+  .nail,
+  .bleed {
+    width: 1.8cqw;
+  }
+}
+
+@media (max-width: 559px) {
+  .bills {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 2cqw 6cqw;
+    gap: 8cqw;
+  }
+
+  .paper {
+    padding: 9cqw 7cqw 6cqw;
+  }
+
+  .billTitle {
+    font-size: 7cqw;
+  }
+
+  .paper li {
+    font-size: 4.4cqw;
+  }
+
+  .dots {
+    font-size: 2.6cqw;
+  }
+
+  .billFoot {
+    font-size: 2.6cqw;
+  }
+
+  .nail,
+  .bleed {
+    width: 3.4cqw;
+    top: 2.6cqw;
+  }
+}

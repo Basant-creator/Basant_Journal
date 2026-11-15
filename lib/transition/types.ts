@@ -1,4 +1,4 @@
-import { routes } from "@/lib/routes";
+import { isCardsRoute, routes } from "@/lib/routes";
 import { isInBook, isRearLeaf } from "@/lib/book/registry";
 import { isMajorRoute } from "./chapters";
 
@@ -137,6 +137,9 @@ const PROFILES: Record<TransitionType, TransitionProfile> = {
  */
 export function transitionFor(from: string | null, to: string): TransitionType {
   if (from === to) return "NONE";
+  /* The title cards own their arrivals and leavings (the deck's cuts, and
+     the bars a case file arrives under); nothing here plays over them. */
+  if (isCardsRoute(to)) return "NONE";
   if (to === routes.professional) return "ANY_TO_PROFESSIONAL";
 
   const toInBook = isInBook(to);

@@ -35,7 +35,8 @@
       {
         "year": "2026",
         "title": "Three systems",
-        "body": "Built BobAI, OnSight and TuneIt back to back — a code generator, an examination platform, and a music sequencing engine. Each forced a different part of engineering: scaffolding, security, and algorithmic throughput."
+        "body": "Built BobAI, OnSight and TuneIt back to back — a code generator, an examination platform, and a music sequencing engine. Each forced a different part of engineering: scaffolding, security, and algorithmic throughput.",
+        "retold": "Built OnSight and TuneIt back to back — an examination platform and a music sequencing engine — then began Strata in August: project memory for AI-assisted coding. Each forced a different part of engineering: security, algorithmic throughput, and what an agent can be trusted to know."
       }
     ]
   },
@@ -670,7 +671,178 @@
       "id": "strata",
       "title": "Strata",
       "idea": "A repository-local provenance framework: keep the reasoning, the dead ends and the constraints that normally evaporate once code is written, and hand an agent the minimum sufficient context instead of the whole history.",
-      "label": "Ongoing"
+      "label": "Ongoing",
+      "caseFile": {
+        "subtitle": "Project Memory for AI-Assisted Coding",
+        "date": "Aug 2026",
+        "dateStatus": "resolved",
+        "summary": "Remembers why code is the way it is: what changed, what was tried and failed, what rules a change must respect. It hands that to an AI coding agent before it starts work, with every statement labelled by how far it can be trusted.",
+        "problem": "When software is built with an AI agent, the code survives but the reasoning disappears: why one approach was chosen, which approaches failed and why, which constraints a change must keep. The next session, or the next model, starts from zero. It searches the code again, re-reads git history, and sometimes repeats a mistake that was already made and fixed.",
+        "objective": "Build a small memory that lives inside the repository, from git history, a code index and short records of intent, failed attempts and constraints, and turn it into a context pack for the task at hand: the target's current code, the commits that shaped it, whether each past decision still holds, and the relevant records. Delivered before the agent reads anything, and labelled so the agent can tell a checked fact from a claim.",
+        "architecture": "A TypeScript command-line tool on Node.js. Everything lives in .strata/ inside the repository, with no server and no cloud: records are one Markdown file per decision, and a SQLite database (Node's built-in SQLite) is a local cache that can be rebuilt. Git history, the code index and the records feed a context pack sized to a budget, 3,200 tokens by default and about 2,400 through the Claude Code hook, and the same store generates docs/strata/DECISIONS.md and FLOW.md for any agent or person. It reaches agents through a Claude Code prompt hook, an Antigravity always-on rule, and an MCP server.",
+        "implementation": [
+          "A context engine that resolves a request to its target and builds the pack: current behaviour quoted from the working tree, historical decisions with what each commit replaced, constraints and previous attempts. Each pack opens with an APPLICABILITY line (SUPPORTED, PARTIAL, LOW VALUE, NOT APPLICABLE) saying how far it can answer.",
+          "Trust labels on every statement: VERIFIED (read from git or the files on disk), DECLARED (a claim someone wrote down), INFERRED (Strata's own reading) and UNKNOWN. Records are checked against git: a wrong \"commit X changed file Y\" is marked CONTRADICTED by git, and a record written before later changes to its files is flagged as out of date.",
+          "A code index for TypeScript and JavaScript ES modules: functions, exports, imports and call sites. JSON, Prisma, SQL, YAML and similar files are known by path and history, and the packages a package.json declares are indexed.",
+          "Records as one Markdown file per decision in .strata/records/, to be read, reviewed and committed like any document. A file that breaks the format is reported with its line number and never skipped silently, and a VERIFIED label typed by hand is read as DECLARED.",
+          "strata derive turns a Claude Code or Antigravity session transcript into a record from what the session shows (the files changed, the checks run and how they ended, what was refused) rather than by asking the agent.",
+          "One-step strata setup: initialise, index, write the docs, add the cache to .gitignore, install a post-commit hook that never fails a commit, and wire each named editor. It merges existing settings, never overwrites what it did not write, and running it again changes nothing.",
+          "An MCP server (strata mcp) exposing tools such as strata_context, strata_explain and strata_record_change, for any agent that supports MCP.",
+          "More than 770 tests, many of them building real git repositories. The known limits are kept as tests marked as expected to fail, which start failing on the day a change removes the limit."
+        ],
+        "technologies": [
+          "TypeScript",
+          "Node.js",
+          "SQLite",
+          "Git",
+          "Model Context Protocol",
+          "Commander",
+          "Zod",
+          "Vitest",
+          "esbuild"
+        ],
+        "metrics": [
+          {
+            "value": "~21%",
+            "unit": "fewer tool calls",
+            "label": "History and \"why\" questions, Claude Code with Claude Opus"
+          },
+          {
+            "value": "~7%",
+            "unit": "lower cost",
+            "label": "The same questions, the same agent"
+          },
+          {
+            "value": "Unchanged",
+            "unit": "correct answers",
+            "label": "Less digging, not better answers"
+          }
+        ],
+        "metricsCaption": "Measured by running the same questions with and without Strata. It cuts how much an agent searches before it answers, most on history and \"why\" questions; it has not been shown to make answers more correct, since without it the agent reached the same answers by reading git and the code. Simple questions cost slightly more: the pack adds about 2,400 tokens. Records are not yet measured on their own.",
+        "evidence": {
+          "caption": "The same questions, with and without Strata",
+          "columns": [
+            "Agent",
+            "Questions",
+            "Tool calls",
+            "Cost",
+            "Correct answers"
+          ],
+          "rows": [
+            [
+              "Claude Code, Claude Opus",
+              "History and \"why\" questions",
+              "about 21% fewer",
+              "about 7% lower",
+              "unchanged"
+            ],
+            [
+              "Claude Code, Claude Opus",
+              "History questions on large public repositories",
+              "20% to 25% fewer",
+              "1% to 5% lower",
+              "unchanged"
+            ],
+            [
+              "Antigravity, Gemini 3.8 Flash",
+              "Questions about a project's own history",
+              "11% to 20% fewer",
+              "not measured",
+              "unchanged, all correct"
+            ],
+            [
+              "Antigravity, Gemini 3.8 Flash",
+              "History questions on large public repositories",
+              "no consistent difference",
+              "not measured",
+              "unchanged"
+            ],
+            [
+              "Claude Code, Claude Opus",
+              "Fixing bugs from real bug reports",
+              "no difference",
+              "no difference",
+              "unchanged"
+            ]
+          ],
+          "note": "Results vary by task: some history questions showed no saving, and stronger models made more of the pack than cheaper ones. Early-stage software (v0.1.0), tested with Claude Code and Antigravity on Windows."
+        },
+        "challenges": [
+          {
+            "challenge": "A record is someone's claim, and an agent cannot tell a checked fact from an assertion.",
+            "resolution": "Every statement carries a trust label, and the one kind of claim git can settle, \"commit X changed file Y\", is checked: a wrong one is marked CONTRADICTED by git rather than presented as fact. What cannot be checked stays DECLARED."
+          },
+          {
+            "challenge": "Requests in plain words rarely name a file, so the target of a task is often a guess.",
+            "resolution": "Requests are matched by paths, symbol names and words, and each pack opens by saying how well it matched: a vague request is labelled LOW VALUE or PARTIAL, and when nothing relevant is found Strata does not invent a target."
+          },
+          {
+            "challenge": "Context on every prompt costs tokens, even when the question is trivial.",
+            "resolution": "Packs are sized to a budget, and the hook skips prompts that are only conversation and stays silent when it has nothing useful. The remaining cost, about 2,400 tokens a prompt, is listed among the known limitations rather than hidden."
+          }
+        ],
+        "lessons": null,
+        "lessonsStatus": "unresolved",
+        "github": "https://github.com/Basant-creator/Strata",
+        "liveUrl": "https://strata-website-three.vercel.app",
+        "linksStatus": "resolved",
+        "version": "0.1.0",
+        "licence": "Source-available, view only",
+        "skills": [
+          {
+            "name": "TypeScript",
+            "group": "Languages"
+          },
+          {
+            "name": "JavaScript",
+            "group": "Languages"
+          },
+          {
+            "name": "SQL",
+            "group": "Languages"
+          },
+          {
+            "name": "Node.js",
+            "group": "Frameworks & Libraries"
+          },
+          {
+            "name": "Commander",
+            "group": "Frameworks & Libraries"
+          },
+          {
+            "name": "Zod",
+            "group": "Frameworks & Libraries"
+          },
+          {
+            "name": "SQLite",
+            "group": "Databases"
+          },
+          {
+            "name": "Model Context Protocol",
+            "group": "AI / APIs"
+          },
+          {
+            "name": "Git",
+            "group": "Cloud / Tools"
+          },
+          {
+            "name": "Vercel",
+            "group": "Cloud / Tools"
+          },
+          {
+            "name": "Vitest",
+            "group": "Cloud / Tools"
+          },
+          {
+            "name": "esbuild",
+            "group": "Cloud / Tools"
+          },
+          {
+            "name": "DBMS",
+            "group": "Core Subjects"
+          }
+        ]
+      }
     }
   ]
 }

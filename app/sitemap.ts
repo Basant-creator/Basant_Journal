@@ -1,43 +1,28 @@
 import type { MetadataRoute } from "next";
-import { projects } from "@/lib/content/portfolio";
-import { SITE_ORIGIN, routes } from "@/lib/routes";
+import { CASES } from "@/lib/cards/catalog";
+import { SITE_ORIGIN, routes, workRoute } from "@/lib/routes";
 
 /**
- * Every route, declared.
+ * Every page, declared: the title cards, the professional view, and a case
+ * file for each project they bill.
  *
- * Not "the twelve routes", which is what this said until a phase added one.
- * A count in prose drifts and the derivation does not — the same rule the
- * survey sheet follows about how many locations it draws.
- *
- * Built from `routes` and the content model rather than a hand-kept list, so a
- * route cannot exist without appearing here and cannot appear here after being
- * deleted. The `/lab` benches are absent on purpose — they are development
- * surfaces with placeholder content, and `app/robots.ts` disallows them for
- * the same reason.
- *
- * Priorities say what the site is for: the landing and the map first, the
- * records and the professional view next — those are what a reader was sent a
- * link to — and the territories after them.
+ * Built from the catalog rather than a hand-kept list, so a case file cannot
+ * exist without appearing here and cannot appear here after being dropped.
+ * The cards themselves are anchors on the home page, not pages, so they are
+ * not listed. The earlier site's addresses are absent because they redirect
+ * (next.config.ts), and the `/lab` benches because robots.ts disallows them.
  */
-const PRIORITY: Record<string, number> = {
-  [routes.home]: 1,
-  [routes.frontier]: 0.9,
-  [routes.projects]: 0.9,
-  [routes.professional]: 0.8,
-};
-
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
-
-  const pages = [
-    ...Object.values(routes),
-    ...projects.map((project) => project.route),
+  const pages: { path: string; priority: number }[] = [
+    { path: routes.home, priority: 1 },
+    { path: routes.professional, priority: 0.9 },
+    ...CASES.map((c) => ({ path: workRoute(c.id), priority: 0.8 })),
   ];
-
-  return pages.map((path) => ({
+  return pages.map(({ path, priority }) => ({
     url: new URL(path, SITE_ORIGIN).toString(),
     lastModified,
     changeFrequency: "monthly" as const,
-    priority: PRIORITY[path] ?? 0.7,
+    priority,
   }));
 }

@@ -45,6 +45,12 @@ export interface JourneyStep {
   year: string;
   title: string;
   body: string;
+  /**
+   * A newer telling of the step, approved by its author, read by the title
+   * cards trial (/lab/titlecards), which bills Strata in BobAI's place. The
+   * site keeps `body` until the newer telling is adopted.
+   */
+  retold?: string;
 }
 
 export interface Person {
@@ -167,17 +173,58 @@ export interface Project {
 }
 
 /**
- * Work in progress: a name and an idea, and deliberately nothing else.
+ * Work in progress: a name and an idea.
  *
  * Not a Project and not a route. A field record is a filing — it has a period,
  * a stamp and a result — and something still being built has none of those. It
  * earns a record by being finished, not by being mentioned.
+ *
+ * It may carry a case file: the story so far, told the way a project's is,
+ * from the work's own published material. The site's record pages still read
+ * only the name and the idea; the case file is read by the lab's trials.
  */
 export interface OngoingWork {
   id: string;
   title: string;
   idea: string;
   label: string;
+  caseFile?: OngoingCaseFile;
+}
+
+/**
+ * A case file for work still in progress. The fields a Project has, less the
+ * ones only a finished filing earns (a route, a chapter), and with the two
+ * that can honestly be unknown made nullable: when it began, and what it
+ * taught, which is the author's to say.
+ */
+export interface OngoingCaseFile {
+  subtitle: string;
+  date: string | null;
+  dateStatus?: UnresolvedStatus;
+  summary: string;
+  problem: string;
+  objective: string;
+  architecture: string;
+  implementation: string[];
+  technologies: string[];
+  metrics: ProjectMetric[];
+  metricsCaption?: string;
+  evidence?: EvidenceTable;
+  challenges: ProjectChallenge[];
+  lessons: string | null;
+  lessonsStatus?: UnresolvedStatus;
+  github: string | null;
+  liveUrl: string | null;
+  linksStatus: UnresolvedStatus;
+  version?: string;
+  licence?: string;
+  /**
+   * What the work is built with, each placed in one of the toolbox's
+   * groups (Skill groups, by name). A finished project is credited from the
+   * toolbox's own lists; work in progress is not in them yet, so it says
+   * here which of the toolbox's skills it uses, and which new ones.
+   */
+  skills?: { name: string; group: string }[];
 }
 
 export interface HeadlineMetric {

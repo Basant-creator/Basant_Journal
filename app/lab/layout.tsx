@@ -16,6 +16,10 @@ const BENCHES = [
   { href: "/lab/record", label: "Record system" },
   { href: "/lab/identities", label: "Identities" },
   { href: "/lab/canvas", label: "3D boundary" },
+  { href: "/lab/wanted", label: "Wanted (trial)" },
+  { href: "/lab/wanted/cards", label: "Wanted (cards)" },
+  { href: "/lab/wanted/loading", label: "Wanted (loader)" },
+  { href: "/lab/reel", label: "Wanted reel" },
 ];
 
 /**
