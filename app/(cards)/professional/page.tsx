@@ -36,7 +36,7 @@ export default function ProfessionalView() {
   const resume = links.resumeStatus === "resolved" ? links.resume : null;
 
   return (
-    <div className={styles.page} data-titles="">
+    <div id="main" tabIndex={-1} className={styles.page} data-titles="">
       <div className={styles.wrap}>
         <nav className={styles.top} aria-label="Views">
           <Link href={routes.home} className={styles.home}>

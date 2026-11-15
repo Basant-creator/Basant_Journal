@@ -1,0 +1,66 @@
+/* A notice, as a title card: the 404 and the route error. The blood field,
+   the name of what went wrong in Anton, a line of Caslon, and the way back. */
+
+.notice {
+  --display: var(--font-titles-display), Impact, "Arial Narrow", sans-serif;
+  --credit: var(--font-titles-credit), "Arial Narrow", sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 18px;
+  min-height: 100svh;
+  padding: clamp(84px, 13vh, 130px) clamp(20px, 5vw, 80px) clamp(40px, 9vh, 100px);
+  background: var(--titles-blood);
+  color: var(--titles-cream);
+}
+
+.notice:focus {
+  outline: none;
+}
+
+.kicker {
+  font-family: var(--credit);
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-family: var(--display);
+  font-size: clamp(3.4rem, 12vw, 11rem);
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.body {
+  max-width: 44ch;
+  font-style: italic;
+  font-size: clamp(1.05rem, 1.6vw, 1.4rem);
+  line-height: 1.45;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 22px;
+  margin-top: 8px;
+  font-family: var(--credit);
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.go {
+  display: inline-block;
+  padding: 13px 20px;
+  border: 2px solid currentColor;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.go:hover,
+.go:focus-visible {
+  background: var(--titles-cream);
+  color: var(--titles-blood);
+}

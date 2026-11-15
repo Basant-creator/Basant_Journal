@@ -1,32 +1,24 @@
 /**
- * Guards custom properties against silently resolving to nothing.
+ * Guards the site's tokens.
  *
- * `var(--x)` with no fallback and no definition is not an error anywhere in
- * the toolchain. The declaration becomes invalid at computed-value time and
- * the property falls back to `unset`, which for most of what this site uses
- * it for means the rule simply does not happen. Nothing warns. The build is
- * green. The page is subtly wrong, and stays wrong.
+ * 1. Custom properties that resolve to nothing. `var(--x)` with no fallback
+ *    and no definition is not an error anywhere in the toolchain: the
+ *    declaration becomes invalid at computed-value time and falls back to
+ *    `unset`, so the rule simply does not happen, and nothing warns. A
+ *    property is fine if anything defines it, if any `var()` reading it
+ *    supplies a fallback, if a component sets it as an inline style, or if
+ *    next/font emits it from a `variable:` option (the .tsx scan is for the
+ *    last two, which appear in no stylesheet).
  *
- * Three of these were live when this script was written, and the worst of
- * them is the reason it exists: CampScene's record sheet read
- * `animation: sheetArrives var(--duration-slow) var(--ease-weighted) both`,
- * `--ease-weighted` was defined only in design/tokens.css — which is
- * documentation and is imported by nobody — so the whole shorthand was
- * invalid and the sheet had no arrival animation at all. The other two were
- * `--map-label` (same cause) and `--space-7`, a step that has never existed
- * on the spacing scale.
- *
- * The check is deliberately narrow. A property is fine if anything defines
- * it, if any `var()` reading it supplies a fallback, if a component sets it
- * as an inline style, or if next/font emits it from a `variable:` option.
- * The last two are why the .tsx scan is here — plenty of these are written
- * at runtime and appear in no stylesheet.
+ * 2. Raw colours in a component's stylesheet. Every colour comes from a
+ *    token in app/globals.css; a hex code written into any other stylesheet
+ *    is a colour that will not follow the palette.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const ROOT = process.cwd();
-const SCAN = ["app", "components", "design", "lib"];
+const SCAN = ["app", "components", "lib"];
 
 function walk(dir, out = []) {
   for (const entry of readdirSync(dir)) {
@@ -70,12 +62,31 @@ for (const file of files) {
 
 const missing = [...bare].filter(([name]) => !defined.has(name));
 
-if (missing.length === 0) {
+/* Raw hex colours in any stylesheet but the one that defines the tokens. */
+const raw = [];
+for (const file of files) {
+  const rel = relative(ROOT, file).split("\\").join("/");
+  if (!rel.endsWith(".css") || rel === "app/globals.css") continue;
+  const lines = readFileSync(file, "utf8").split(/\r?\n/);
+  lines.forEach((line, i) => {
+    const hit = line.match(/#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3}(?:[0-9a-fA-F]{2})?)?\b/);
+    if (hit) raw.push(`${rel}:${i + 1}  ${hit[0]}`);
+  });
+}
+
+if (raw.length) {
+  console.error("Raw colours outside app/globals.css (use a --titles-* token):");
+  for (const r of raw) console.error(`  ${r}`);
+  console.error("");
+}
+
+if (missing.length === 0 && raw.length === 0) {
   console.log(
-    `Tokens intact: ${bare.size} custom properties read without a fallback, all defined.`,
+    `Tokens intact: ${bare.size} custom properties read without a fallback, all defined; no raw colours in components.`,
   );
   process.exit(0);
 }
+if (missing.length === 0) process.exit(1);
 
 console.error("Custom properties read with no definition and no fallback:\n");
 for (const [name, where] of missing) {

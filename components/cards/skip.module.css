@@ -1,0 +1,30 @@
+/* Out of sight until it has focus, then a cream tag in the corner. */
+.skip {
+  position: fixed;
+  z-index: 100;
+  top: 12px;
+  left: 12px;
+  padding: 10px 18px;
+  border: 2px solid var(--titles-black);
+  background: var(--titles-cream);
+  color: var(--titles-black);
+  font-family: var(--font-titles-credit), "Arial Narrow", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip:focus {
+  transform: none;
+  outline: 2px solid var(--titles-cream);
+  outline-offset: 2px;
+}
+
+/* A way past the navigation means nothing on paper. */
+@media print {
+  .skip {
+    display: none;
+  }
+}

@@ -43,7 +43,7 @@ const finished: CaseFile[] = projects.map((p) => ({ ...p, status: null }));
 /**
  * The key projects, in the order the cards deal them (lib/cards/keys.ts).
  * Strata leads. BobAI is not billed: it stays in the content file, and in
- * the earlier site kept in the repository for review.
+ * the repository's history.
  */
 const all = [...inProgress, ...finished];
 export const CASES: CaseFile[] = KEY_CASES.flatMap((id) => all.filter((c) => c.id === id));

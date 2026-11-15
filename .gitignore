@@ -10,22 +10,14 @@ npm-debug.log*
 next-env.d.ts
 tsconfig.tsbuildinfo
 
-# Supplied asset packs. Source material for scripts/bake-camp-props.mjs, not
-# a deliverable: 5.1MB of which about a tenth is used, and the licence is
-# unresolved (see docs/camp-assets.md). The baked output is committed; the
-# packs are not redistributed from here.
+# The earlier site's supplied 3D asset packs (a camp and a horse), kept only
+# on the machine they were supplied to: their licence was never resolved, so
+# they were never committed, and the site no longer uses them.
 assets/camp-source/
-
-# The supplied horse, at 1.08 MB. The baked 314 kB version is what ships and
-# is committed; the source stays out for the same reason the camp packs do.
-# Provenance and licence status: docs/landing-assets.md.
 assets/horse-source/
-# Rendered frames from scripts/visual-baseline.mjs. The script is the
-# baseline; the PNGs are 20MB a run and regenerate in three minutes.
-# Globbed, because comparing two passes means two output directories.
-.visual*/
 
-# Full-size scans the title cards' silhouettes are baked from (6.5MB and up),
-# public domain, fetched from Wikimedia Commons by scripts/titles-silhouette.py
-# when missing. The baked silhouettes are what ships and are committed.
+# The sources the title cards' silhouettes are baked from: the rider
+# photograph (Unsplash) and the full-size public-domain Remington scan
+# (6.5MB, fetched from Wikimedia Commons by scripts/titles-silhouette.py when
+# missing). The baked silhouettes in components/cards/art are what ships.
 assets/titles-source/

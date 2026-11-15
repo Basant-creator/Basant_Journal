@@ -67,80 +67,44 @@ function resolveOrigin(): string {
 
 export const SITE_ORIGIN = resolveOrigin();
 
+/** The site's pages. */
 export const routes = {
+  /* The title cards: one card on screen at a time, each an anchor of its own. */
   home: "/",
+  /* The same facts as one plain page; it prints as a CV. */
+  professional: "/professional",
+} as const;
+
+const workRoot = "/work";
+
+/** A project's case file. */
+export function workRoute(id: string): string {
+  return `${workRoot}/${id}`;
+}
+
+/** A card on the deck, by id (`/#about`, `/#toolbox`, `/#strata`). */
+export function cardRoute(id: string): string {
+  return `${routes.home}#${id}`;
+}
+
+/**
+ * The earlier site's addresses. Nothing is served at them any more: they
+ * exist only as the sources of the redirects in next.config.ts, so links
+ * shared before the title cards still land somewhere that makes sense.
+ */
+export const earlier = {
   frontier: "/frontier",
   projects: "/projects",
-  /* The book's journey leaf. Camp keeps the fire and the table; the timeline
-     of how the surveyor got there is a page of the field book, which is where
-     a journey belongs and where the reader is already turning pages. */
   journey: "/journey",
-  professional: "/professional",
   about: "/about",
   skills: "/skills",
-  /* The book's closing leaf: what the ground taught, collected from the
-     records themselves. Nothing is written here that is not already written
-     in a project's own `lessons`. */
   notes: "/notes",
   bounties: "/bounties",
   archive: "/archive",
   contact: "/contact",
 } as const;
 
-export type RouteKey = keyof typeof routes;
-export type Route = (typeof routes)[RouteKey];
-
-/**
- * The title cards: the site.
- *
- * The home page is a deck of cards, one on screen at a time, each with an
- * anchor of its own (`/#about`, `/#toolbox`); a project's case file is a page
- * under /work; `routes.professional` is the same facts as one plain page.
- * Every other address above is the earlier site's, kept in the repository
- * for review and redirected into this one by next.config.ts.
- */
-export const workRoot = "/work";
-export function workRoute(id: string): string {
-  return `${workRoot}/${id}`;
+/** The earlier site's record page for a project. */
+export function earlierProjectRoute(id: string): string {
+  return `${earlier.projects}/${id}`;
 }
-export function cardRoute(id: string): string {
-  return `${routes.home}#${id}`;
-}
-/** A page of the title cards (the deck, a case file, the professional
-    view), which owns its own arrivals and leavings. */
-export function isCardsRoute(pathname: string): boolean {
-  return (
-    pathname === routes.home ||
-    pathname === routes.professional ||
-    pathname === workRoot ||
-    pathname.startsWith(`${workRoot}/`)
-  );
-}
-
-/** Canonical record route for a project id. */
-export function projectRoute(id: string): string {
-  return `${routes.projects}/${id}`;
-}
-
-/**
- * The professional view highlights a project through a fragment rather than a
- * route of its own: it is the same document, scrolled to a section.
- */
-export function professionalAnchor(id: string): string {
-  return `${routes.professional}#${id}`;
-}
-
-/**
- * Sections inside a field record. These are fragments, not routes — one long
- * document with anchors, never a route per section.
- */
-export const PROJECT_SECTIONS = [
-  { id: "overview", label: "Overview" },
-  { id: "architecture", label: "Architecture" },
-  { id: "implementation", label: "Implementation" },
-  { id: "metrics", label: "Metrics" },
-  { id: "technology", label: "Technology" },
-  { id: "notes", label: "Field notes" },
-] as const;
-
-export type ProjectSectionId = (typeof PROJECT_SECTIONS)[number]["id"];

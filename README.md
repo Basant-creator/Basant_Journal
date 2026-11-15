@@ -1,44 +1,40 @@
-# THE FRONTIER
+# Basant Bhushan — the title cards
 
-A personal portfolio for **Basant Bhushan**, built as a surveyor's record of
-territory still being mapped.
+A personal portfolio for **Basant Bhushan**, set as the opening titles of a
+sixties western: one full-screen card at a time, flat poster fields, black
+silhouettes, names that slam on a letter at a time, and a different cut
+between every card. The genre, never any film or game inside it.
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
-npm run build      # production build (stop dev and delete .next first)
-npm run start      # serve the production build
-npm run typecheck  # tsc --noEmit
-npm run check:3d   # guards the 3D import boundary — must pass before commit
-npm run check:tokens  # catches var(--x) that resolves to nothing
-npm run perf          # frame timing per place, against `npm run start`
+npm run dev            # http://localhost:3000
+npm run build          # production build (stop dev and delete .next first)
+npm run start          # serve the production build
+npm run typecheck      # tsc --noEmit
+npm run check:tokens   # var(--x) that resolves to nothing; raw colours in components
 ```
 
-`CLAUDE.md` carries the invariants that are not visible in any single file,
-and `docs/` carries the contracts: routing, design direction, and the phase
-notes recording what was measured and why.
+`CLAUDE.md` carries the rules that are not visible in any single file.
 
 ---
 
-## The five-layer model
+## The site
 
-Every visual decision in this repository resolves against one model. If a
-component does not belong to exactly one of these layers, it is wrong.
+| Address | What it is |
+| --- | --- |
+| `/` | **The deck.** Eight cards: the name over a rider, About, a card for each key project (Strata, TuneIt, OnSight), the toolbox billed like a cast ("Featuring"), the record (education, training, certifications), and Send Word. Each card is an anchor: `/#about`, `/#toolbox`, `/#strata`. |
+| `/work/[project]` | **A case file** per key project: the problem, the objective, how it is built, the figures and their evidence, the workings, the trouble and the fix, the lesson, the stack. |
+| `/professional` | **The same facts as one plain page**, in the same three faces, for somebody who wants them in a minute. It prints as a CV. |
 
-| Layer | What it is | Where it lives |
-|---|---|---|
-| **THE DARK** | Atmosphere, shell, navigation. Ink ground, vignette, grain. | `app/globals.css`, `components/shell`, `components/navigation` |
-| **THE SCENE** | Places. Depth bands, air, camera, the world an artifact sits in. | `components/scene` (the engine), `components/scenes` (the places), `lib/world` |
-| **THE TERRAIN** | The survey sheet: parchment field, ink cartography, routes, locations. | `lib/map`, `components/terrain`, `components/map` |
-| **THE PAPER** | Documents and reading surfaces. | `components/paper` (the stock), `components/record` (the document system) |
-| **THE HAND** | Red ink. Measurement, annotation, human intervention. ~3% of any view. | `components/annotations`, the map's annotation layer |
+The deck is moved through by scroll or trackpad (one cut per gesture), swipe,
+the arrow and page keys, Home and End, the dots, or any `#card` link. Each card
+arrives by a cut of its own — crash zoom, letterbox, iris, bars, split, blinds,
+push, slash — and its title slams on. The count is a revolver cylinder that
+turns a chamber per cut; a click on an empty part of a card leaves a bullet
+hole; a tumbleweed crosses the opening now and then; every title kicks up dust.
 
-Three rules follow, and they are enforceable:
-
-- Long-form content never floats on the dark without a paper surface.
-- Red is THE HAND only — never a background field, never a generic accent on
-  every button.
-- Handwriting annotates; it never carries information.
+Every earlier address of the site (the survey map, the field book) redirects to
+its place here: see `next.config.ts`.
 
 ---
 
@@ -46,165 +42,71 @@ Three rules follow, and they are enforceable:
 
 ```
 app/
-  layout.tsx              fonts, metadata, pre-paint entry stamp, texture layer
-  page.tsx                /            the landing — arrival, two doors
-  (survey)/
-    layout.tsx            the dark field every page inside the frontier shares
-    (world)/              WORLD SCALE — places on the trail
-      frontier/           /frontier    the interactive survey map
-      about/              /about       Camp
-      bounties/           /bounties    the Board
-      archive/            /archive     the Archive
-      contact/            /contact     Trail End
-      professional/       /professional off-trail (layer model inverted)
-    (book)/               DOCUMENT SCALE — leaves of the field book
-      journey/            /journey     the Journey
-      projects/           /projects    the Journal index
-        [project]/        /projects/*  the three field records
-      skills/             /skills      Gear
-      notes/              /notes       Field Notes
-  opengraph-image.tsx     share card, drawn from the same tokens
+  layout.tsx            the three faces, metadata, the skip link
+  globals.css           the inks (--titles-*), the base, the reduced-motion backstop
+  (cards)/page.tsx      /                the deck
+  (cards)/work/[project]/page.tsx        a case file
+  (cards)/professional/page.tsx          the professional view
+  not-found.tsx, error.tsx, global-error.tsx   the same cards, saying what went wrong
+  opengraph-image.tsx   the share card: the opening card
+  sitemap.ts, robots.ts
 
-components/
-  map/          FrontierMap, LocationNode, Trail, MapLayer, MapLegend,
-                MapCompass, MobileTrail, SheetReference, symbols
-  journal/      RecordNav — section rail and scroll spy for a field record
-  terrain/      TerrainLayer — the sheet, in draughtsman's layer order
-  paper/        PaperSurface — the reusable document surface
-  annotations/  SurveyAnnotation — THE HAND in the DOM
-  navigation/   FrontierTrail (the world route), TrailOnward, SkipLink
-  book/         BookShell, BookSpread, LeafOnward — the document scale
-  metrics/      Metric
-  shell/        TextureLayer, Quiet (a boundary for decoration),
-                SmoothScroll — the one owner for scroll (Lenis)
-  shared/       Button, PageHeader, OnwardNav, Territory styles
-  scene/        the scene engine: Scene, layers, depth, objects, camera
-  scenes/       the places themselves — Camp's art, controls and stage
-  record/       the field-record document system
-  transition/   one owner for route-entry choreography
-  boot/         the landing sequence, once per session
-  audio/        the atmosphere control, and CheckpointAudio — one owner for
-                what each place on the trail sounds like
-  world/        Place (the ground the 2D checkpoints stand on), torn paper,
-                stamps, the journal cover, the photograph
-  three/        everything that imports three — see its own README
+components/cards/
+  Deck.tsx              the projectionist: which card is up, every cut, the keys
+  Slam.tsx              a title set a letter at a time, with its dust
+  Cylinder.tsx          the count
+  Gunfire.tsx           the bullet holes
+  Tumbleweed.tsx        the tumbleweed, drawn from a seeded stream
+  SkipLink.tsx          the way past the navigation
+  titles.module.css     the deck; case.module.css, professional.module.css, notice.module.css
+  art/                  the baked silhouettes and their credits
+  shots.ts              each project's front page
 
 lib/
-  routes.ts     the single definition of where things are
-  content/      types + the single read point for portfolio.json
-  map/          rng, geometry, terrain, locations, directional traversal
-  motion/       entry choreography, shared Motion transitions
-  world/        seeded generators — ridges, scrub, camp objects, tear seams
-  transition/   the chapter registry and transition profiles
-  boot/         the pre-paint stamp and its timings
-  three/        the capability check, which imports no 3D at all
+  routes.ts             every address, and the earlier site's (redirect sources only)
+  content/              the types, and the single read point for portfolio.json
+  cards/                keys (ids next.config reads), the catalog (case files,
+                        toolbox credits), the GPU check, the seeded RNG
 
-content/
-  portfolio.json          the only source of facts
-
-design/tokens.css         Phase 1 token reference (globals.css is the runtime copy)
-docs/                     design direction, visual spec, phase notes,
-                          routing & interaction contract
+content/portfolio.json  the only source of facts
+scripts/
+  titles-silhouette.py  bakes the silhouettes from assets/titles-source/
+  check-tokens.mjs      the token check
 ```
 
 ---
 
-## Four decisions worth knowing
+## Decisions worth knowing
 
-**The map is generated, not drawn.** `lib/map/terrain.ts` emits every ridge,
-contour, hachure, river bank and stipple mark from seeded generators
-(`lib/map/rng.ts`). Nothing is a hand-authored `d` string. That keeps the
-composition re-tunable by changing a number, gives the linework its
-irregularity for free, and — because the seed is fixed — renders byte-identical
-on the server and the client.
+**Content lives in one file.** `content/portfolio.json` is read by the deck, the
+case files and the professional view alike, through `lib/content/portfolio.ts`.
+Unknown values are `null` beside a `*Status: "unresolved"` marker, so missing
+data is visible rather than invented. `lib/cards/catalog.ts` is the cards'
+reading of it: which projects are key, in what order, and which skills each
+uses. Strata is work in progress, so its case file sits on its `ongoing` entry.
 
-**The map is an object in a place, not a panel.** `/frontier` renders the same
-map engine it always did — same SVG, same camera, same markers, same keys — set
-into a frame of world: ridgelines receding through haze above its top edge,
-near scrub crossing its bottom one, and the whole thing drifting a few pixels
-under the pointer. The environment moves; the interactive sheet does not,
-because parallax on a control makes the thing you are aiming at drift away from
-you. The margins are stated twice — `SHEET_INSET` in `lib/world/vista.ts` and
-the padding in `FrontierMap.module.css` — and they have to agree, or the
-horizon stops landing on the sheet's edge.
+**The deck owns its motion.** `Deck.tsx` is the one place a card changes. Every
+piece of a wipe is a single compositor animation (on, hold, off), and the card
+is swapped under the cover by a timer, so nothing waits on the main thread
+mid-cut. Card colours are read once at mount, never in the key press.
 
-**Route strings live in one place.** `lib/routes.ts` holds the map, and the
-content model carries each location's and project's own canonical `route`. No
-component writes a URL inline, so a route can be changed without drift.
+**The resting state is the finished one.** Everything animates from an offset
+toward where it already rests, so a browser that runs none of it shows every
+card complete. Reduced motion, or a browser compositing without a GPU
+(`html[data-titles-still]`), gets plain cuts and no loops.
 
-**Content lives in one file.** `content/portfolio.json` is read by the creative
-renderer and the professional renderer alike. A project added once appears
-correctly in both. Unknown values are `null` beside a `*Status: "unresolved"`
-marker, so missing data is visible in the type system rather than invented.
+**Pictures are baked, not filtered.** The silhouettes are black-on-clear PNGs
+made once by `scripts/titles-silhouette.py`, so no card carries a filter or a
+blend at run time. The rider is a photograph by Cemrecan Yurtman (Unsplash
+licence); the gate is Frederic Remington's *The Fall of the Cowboy* (1895,
+public domain). Credits are on the last card and in `components/cards/art/credits.ts`.
 
-**The entry sequence is CSS; the interaction is Motion.** A pre-paint inline
-script stamps `data-entry` on `<html>` (see `lib/motion/entry.ts`), and the
-choreography hangs off that attribute. Two consequences: there is never a frame
-of the finished map before it rewinds, and if JavaScript never runs, nothing is
-left at `opacity: 0` — the document renders complete. Motion handles the camera,
-where its interruptibility earns its keep.
+## Accessibility
 
----
-
-## The rendered layer
-
-Camp and the country behind the survey sheet are drawn twice: as
-illustrations, and — where a machine can afford it — as a rendered scene.
-The illustrated version is not a placeholder. It is the drawing the whole
-site is made of, and it is what phones, reduced motion, missing WebGL and
-the first painted frame all get.
-
-Three rules hold it in place, and `components/three/README.md` is the full
-contract:
-
-- **`three` is imported only inside `components/three`.** It is ~880 kB
-  against a 104 kB shared bundle. `npm run check:3d` enforces this.
-- **The canvas carries atmosphere; the DOM carries everything else.** The
-  map's markers, links and arrow-key navigation stay in the DOM even when
-  the country behind them is rendered. A renderer that swallowed them would
-  trade a guarantee for a picture.
-- **Both renderings are described identically.** Same role, same label, same
-  controls — a screen reader cannot tell which one it got.
-
----
-
-## Navigation rules
-
-- Every destination has a stable URL and works as a direct link, with no prior
-  navigation required.
-- Map interaction — hover, focus, camera, the engaged marker — never reaches
-  the URL and never creates a history entry. `/frontier` is the only map URL.
-- Navigation is never delayed by an animation. Markers are plain links; the
-  camera starts on pointer-down and plays alongside the route change.
-- Following the trail is a *passage*: the map plays Camp to Journal while a
-  sheet of paper is laid over the view, and the arriving page tears it open.
-  The wipe lives in the survey layout because that is the only thing that
-  survives the route change. It never delays, gates or traps anything — see
-  [docs/routing-contract.md](docs/routing-contract.md) §6.
-- A location whose page does not exist stays visible and focusable but goes
-  nowhere: `status: "surveying"` in the content model, no fake URL.
-- The record sequence does not wrap. TuneIt → OnSight → BobAI → Journal.
-- Every page ends in a way onward, and the way out of a field record is the
-  map. See [docs/routing-contract.md](docs/routing-contract.md).
-
-## Accessibility contract
-
-- The map is one composite widget: a single tab stop, arrow keys (and WASD)
-  moving to the nearest location in that direction, Home/End for trail order,
-  Escape to leave.
-- The mobile drawer is a real dialog: background interaction disabled, focus
-  trapped, Escape closes and returns focus to the button, and it never survives
-  a navigation.
-- `MapLegend` is the non-spatial route through the same six locations — a
-  plain list of links, and simultaneously the sheet's legend.
-- Every marker state differs by ring weight, fill and label plate, not colour
-  alone. Labels are legible at rest; only the supporting note is on hover, and
-  that note is duplicated in the legend.
-- A scene is described the same way whether it is rendered or drawn, and its
-  controls are the same elements in the same places — projected from the
-  renderer when there is one, and falling back to the illustrated positions
-  by the same CSS expression when there is not.
-- Focus rings are surface-scoped: paper-light on the dark, ink on paper.
-- Touch targets are ≥44px, independent of the drawn marker size.
-- `prefers-reduced-motion` collapses every duration and removes the camera; the
-  composition still has to read as deliberate with it all switched off.
+- One card at a time is reachable: the rest are `inert`, so focus and assistive
+  technology meet only the card on screen, and every cut is announced.
+- Titles are read once, whole, from a visually hidden copy; the slamming
+  letters are hidden from assistive technology.
+- Every control has a visible focus ring; the skip link leads to the card on
+  screen, or to the page.
+- `prefers-reduced-motion` gives the finished composition with plain cuts.

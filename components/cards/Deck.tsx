@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { probeGpu } from "@/lib/three/quality";
+import { compositesInSoftware } from "@/lib/cards/gpu";
 import { Cylinder } from "./Cylinder";
 import styles from "./titles.module.css";
 
@@ -12,6 +12,8 @@ export type DeckCard = { id: string; label: string };
 const KINDS = ["zoom", "letterbox", "iris", "bars", "split", "blinds", "push", "slash"] as const;
 type Kind = (typeof KINDS)[number];
 const EASE = "cubic-bezier(0.8, 0, 0.2, 1)";
+/* The skip link's target (SkipLink.tsx). */
+const MAIN = "main";
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /**
@@ -59,7 +61,7 @@ export function Deck({ cards }: { cards: DeckCard[] }) {
     const deck = document.querySelector<HTMLElement>("[data-titles]");
     if (!deck) return;
     const html = document.documentElement;
-    if (probeGpu()?.software) html.dataset.titlesStill = "1";
+    if (compositesInSoftware()) html.dataset.titlesStill = "1";
     const still = () => matchMedia("(prefers-reduced-motion: reduce)").matches || Boolean(html.dataset.titlesStill);
     const els = [...deck.querySelectorAll<HTMLElement>("[data-card]")];
     /* Each card's field and ink, read once here. Read at the moment of a cut
@@ -336,7 +338,16 @@ export function Deck({ cards }: { cards: DeckCard[] }) {
     };
 
     const onHash = () => {
-      const i = indexOf(location.hash.slice(1));
+      const id = location.hash.slice(1);
+      const i = indexOf(id);
+      /* The skip link (#main) means "the content": the card on screen, not
+         a cut. Put the address back to that card's. */
+      if (id === MAIN) {
+        els[at].focus({ preventScroll: true });
+        const hash = at === 0 ? "" : `#${els[at].dataset.card}`;
+        history.replaceState(history.state, "", `${location.pathname}${location.search}${hash}`);
+        return;
+      }
       void cut(i < 0 ? 0 : i);
     };
 

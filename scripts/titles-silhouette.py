@@ -11,9 +11,10 @@ photograph, so it is softened a touch first and lone specks are cleared
 after, or its brushwork prints as grit.
 
 Each is baked wide enough to stay sharp full-screen on a high-density
-display (a 1440px screen at 2x is 2880 device pixels). The full-size
-painting is fetched from Wikimedia Commons into assets/titles-source/
-(git-ignored) when it is not there.
+display (a 1440px screen at 2x is 2880 device pixels). The sources live in
+assets/titles-source/ (git-ignored): the rider photograph is kept there
+(Unsplash, see components/cards/art/credits.ts), and the full-size painting
+is fetched from Wikimedia Commons when it is not there.
 
     python scripts/titles-silhouette.py
 
@@ -26,14 +27,16 @@ from pathlib import Path
 from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "app/lab/titlecards/art"
+OUT = ROOT / "components/cards/art"
 SOURCES = ROOT / "assets/titles-source"
 
 # name, source file, where to fetch it if missing, width, middle grey,
 # soften (px at the baked width), despeckle (median size, 0 = none)
 JOBS = [
-    # The opening: a photograph of a rider (Unsplash licence), at its full width.
-    ("rider", ROOT / "app/lab/wanted/art/dust-rider.jpg", None, 2560, 0.5, 0, 0),
+    # The opening: a photograph of a rider (Unsplash licence), at its full width,
+    # and small for the share card (app/opengraph-image.tsx).
+    ("rider", SOURCES / "dust-rider.jpg", None, 2560, 0.5, 0, 0),
+    ("rider-og", SOURCES / "dust-rider.jpg", None, 700, 0.5, 0, 0),
     # The last card: Frederic Remington, "The Fall of the Cowboy" (1895),
     # public domain; the Amon Carter Museum's scan, 4500 x 3124.
     (

@@ -1,55 +1,17 @@
-# THE FRONTIER — working notes
+# The title cards — working notes
 
-A cinematic developer portfolio for **Basant Bhushan** (3rd-year B.Tech CSE, Lovely
-Professional University). Next.js 15 App Router, React 19, TypeScript, CSS Modules.
+A personal portfolio for **Basant Bhushan** (3rd-year B.Tech CSE, Lovely
+Professional University). Next.js 15 App Router, React 19, TypeScript, CSS
+Modules. No other runtime dependencies.
 
-The aesthetic is a **surveyor's field record** — a frontier *inspired* by the
-western genre, never a copy of any game. Read `README.md` for the design system
-and `docs/design-direction.md` for the intent. This file is the short list of
+The site is **the title cards**: a sixties western's opening titles, one
+full-screen card at a time. The genre, never a copy of any film or game.
+`README.md` has the site map and structure; this file is the short list of
 rules that are not discoverable by reading any single file.
 
----
-
-## Current state: the site is the title cards
-
-As of 2026-11-15 (merged to `main`) the home page is **the title cards** — a
-sixties western's opening titles, one card on screen at a time — not the
-survey site described below.
-
-- **Where:** `app/(cards)` (the deck at `/`, case files at `/work/[project]`,
-  the professional view at `/professional`: same facts, same three faces,
-  one plain page that prints as a CV),
-  `components/cards` (Deck, Slam, Cylinder, Gunfire, Tumbleweed, styles),
-  `lib/cards` (`keys.ts` for ids next.config can read; `catalog.ts` for the
-  case files and the toolbox credits). Routes: `workRoute`, `cardRoute`,
-  `isCardsRoute` in `lib/routes.ts`.
-- **The deck owns its motion.** `Deck.tsx` owns every cut (eight kinds, one
-  per card); `transitionFor` returns NONE for cards routes, and the cards are
-  in `OFF_TRAIL`, so the earlier TransitionProvider, Lenis and the trail bar
-  stand aside. Read card colours once at mount, never at the moment of a cut
-  (getComputedStyle forced a full restyle inside the key press).
-- **Key projects:** Strata, TuneIt, OnSight (`KEY_CASES`). BobAI stays in
-  `portfolio.json` and the earlier site but is billed nowhere on the cards.
-  Strata's case file lives on its `ongoing` entry (`caseFile`), so the
-  earlier site's project list is untouched; the 2026 journey step has an
-  approved `retold` text the cards use.
-- **The earlier site** (`app/(survey)`, the map, camp, 3D) is kept for review,
-  unlinked: every old address redirects (307) to its place in the cards
-  (`next.config.ts`). The old home is parked unrouted in `app/_legacy/home`;
-  the boot screen is unmounted from the root layout. The rules below describe
-  that site — the five layers and "red is THE HAND only" do not apply to the
-  cards, which use their own `--titles-*` tokens (the token rule does).
-- **No audio.** The sound switch, the music and the audio lab are unmounted
-  from the root layout at the owner's request; `components/audio` and
-  `lib/audio` stay with the earlier site, and nothing mounted can start them.
-- **Pictures:** silhouettes are baked by `scripts/titles-silhouette.py`; the
-  full-size source scans live in git-ignored `assets/titles-source/` and are
-  fetched from Wikimedia Commons when missing.
-- **Frame drops in headless traces are not all real.** An eased animation's
-  tail moves less than a pixel per frame, nothing is redrawn, and Chrome's
-  `STATE_DROPPED` counts it anyway (a lone square with ease-out "drops" half
-  its frames). Judge cuts by work instead: main-thread tasks over 16ms, GPU
-  tasks over 8ms.
+(It replaced an earlier "surveyor's field record" site in November 2026. That
+site's code is gone from the tree and lives only in git history; its
+addresses redirect into the cards from `next.config.ts`.)
 
 ---
 
@@ -58,201 +20,123 @@ survey site described below.
 1. **Never invent project content.** Every fact, figure, date and URL comes from
    `content/portfolio.json`. Unknown values are `null` with a matching
    `*Status: "unresolved"` marker — leave them unresolved rather than filling
-   them in. An invented metric is worse than a missing one.
-2. **No copyrighted assets.** No game logos, no ripped models, no reproduced
-   loading animations or iconography. The vocabulary is the genre, not any
-   product inside it.
-3. **Route strings are never inline.** Everything resolves through `lib/routes.ts`
-   or the content model's own `route` field.
-4. **Colour is never raw.** No hex, no ad-hoc `rgba()` in a component. Everything
-   comes from `design/tokens.css` — 193 distinct custom properties, and the
-   same rule covers motion, spacing and type. (It said 254 for a long time and
-   the file has never held that many; a count in prose drifts, the rule does
-   not.)
+   them in (Strata's `lessons` is one: the owner's to write). An invented
+   metric is worse than a missing one. Labels the cards add ("Featuring",
+   "Send Word") are copy, not facts, and the owner reviews them.
+2. **No copyrighted assets.** No film stills, logos or reproduced title
+   sequences. Pictures are public domain or openly licensed, credited on the
+   last card and in `components/cards/art/credits.ts`.
+3. **Route strings are never inline.** Everything resolves through
+   `lib/routes.ts` (`routes`, `workRoute`, `cardRoute`). Card ids live in
+   `lib/cards/keys.ts`, which `next.config.ts` can import.
+4. **Colour is never raw.** No hex in a component's stylesheet: every colour is
+   a `--titles-*` token in `app/globals.css`, mixed with `color-mix()` where it
+   needs strength. `npm run check:tokens` enforces both this and that no
+   `var(--x)` resolves to nothing. The only hex outside globals is where a
+   stylesheet cannot reach: the share card, the global error page, the icon,
+   the viewport's theme colour.
 
-## The five layers
+## Architecture
 
-Every visual decision belongs to exactly one layer. Mixing them is the fastest
-way to make this look like a generic dark portfolio.
-
-| Layer | Owns | Lives in |
-| --- | --- | --- |
-| THE DARK | Atmosphere, shell, navigation | `app/globals.css`, `components/shell`, `components/navigation` |
-| THE SCENE | Places, depth bands, air | `components/scene` (engine), `components/scenes` (places), `lib/world` |
-| THE TERRAIN | The survey sheet, cartography | `lib/map`, `components/terrain`, `components/map` |
-| THE PAPER | Documents and reading surfaces | `components/paper`, `components/record` |
-| THE HAND | Red ink: annotation, measurement | `components/annotations` |
-
-**Red is THE HAND only** — never a background field, never a generic accent.
-Roughly 3% of any view. (The layer comment at the top of `design/tokens.css`
-predates SCENE and TERRAIN and lists only three; README is authoritative.)
-
-## Architecture invariants
-
-- **One owner per behaviour.** Route-entry choreography is owned solely by
-  `components/transition/TransitionProvider.tsx`, mounted in the root layout.
-  If a page needs different arrival behaviour, register it in
-  `lib/transition/chapters.ts` — do **not** add a `useEffect` to the page.
-  (This exact mistake produced the chapter bug fixed in Phase 5.1; see
-  `docs/phase-5.1-transition-notes.md`.)
-- **One owner for scroll, too.** `components/shell/SmoothScroll.tsx` makes the
-  only Lenis instance: weighted wheel scrolling on the trail, native on touch,
-  none at all under reduced motion or off the trail (`/professional`, `/lab`),
-  and native on any machine that cannot carry it — a constrained device, or a
-  glide measured stuttering, which hands scroll back to the browser for the
-  visit.
-  Scroll-linked effects read the real scroll position through CSS scroll
-  timelines and get the smoothing for free — do not make a second instance,
-  and do not listen to Lenis to drive layout.
-- **Boot ≠ transition.** The boot sequence (`lib/boot/boot.ts`) runs once, on
-  `/` only, before first paint. Route transitions are a separate system. Never
-  conflate them; the boot loader must never reappear on navigation.
-- **The 3D boundary.** `three` and `@react-three/fiber` may be imported *only*
-  inside `components/three` and `lib/three`. Measured: ~880 kB of renderer
-  against a 104 kB shared bundle. Enforced by `npm run check:3d` — run it
-  before every commit that touches imports. `components/three/README.md` is
-  the full contract and is kept current; read it before changing anything in
-  that folder.
-- **Content is read, never duplicated.** Both the exploration renderer and the
-  professional renderer read the same JSON.
+- **One source of facts.** `lib/content/portfolio.ts` is the only reader of the
+  JSON. `lib/cards/catalog.ts` is the cards' reading of it: the key projects in
+  deal order (`KEY_CASES`), finished projects and work in progress alike as
+  `CaseFile`s (Strata's lives on its `ongoing` entry as `caseFile`), and the
+  toolbox credits (`CAST`), which credit only projects on the deck.
+- **The deck owns its motion.** `components/cards/Deck.tsx` is the one place a
+  card changes: which card is up, every cut, the keys, the wheel, swipes, the
+  address. A card that arrives gets `data-in`, which restarts its letters and
+  lines (each animated part has two keyframe copies, `…0` at load and `…1` on
+  arrival, so changing the name restarts it). Pages do not add their own
+  arrival effects.
+- **Cuts are compositor-only.** Each piece of a wipe is one animation (on,
+  hold, off) on `transform`/`opacity`; the card is swapped under the cover by a
+  timer. Push and zoom move the cards themselves, the old one kept visible with
+  `data-leaving`. The wipe layer is appended to `document.body`, outside any
+  stacking context.
+- **Stillness is the cards' own.** `prefers-reduced-motion`, or a browser
+  compositing in software (`lib/cards/gpu.ts` → `html[data-titles-still]`),
+  gives plain cuts and no loops. Every loop needs both guards, saying the same
+  thing.
+- **The other cards are inert.** Only the card on screen is reachable by focus
+  and assistive technology; each cut is announced in a live region. The skip
+  link's `#main` focuses the card on screen (Deck reads it as that, not a cut).
 
 ## Traps that have already cost time
 
-- **Round every generated coordinate.** Seeded output (`lib/map/rng.ts`,
-  `createRng` / `seedFrom`) must be rounded — `Math.round(n * 100) / 100` — or
-  Node and the browser differ in the 15th decimal and React reports a hydration
-  mismatch. This has bitten three separate components.
-- **SVG `filter` lengths are user units, not screen pixels.** In a 1600-wide
-  viewBox rendered at ~700 px, `blur(1.1px)` is half a real pixel and looks
-  like nothing. Scale to the viewBox.
+- **Never read layout or style in the key press.** `getComputedStyle` at the
+  moment of a cut forced a full restyle inside the handler: 10–15ms on a slow
+  phone, every cut. Read anything a cut needs once, at mount.
+- **Frame drops in headless traces are not all real.** An eased animation's
+  tail moves less than a pixel per frame, nothing is redrawn, and Chrome's
+  `STATE_DROPPED` counts it anyway (a lone square with ease-out "drops" half
+  its frames). Judge by work instead: main-thread tasks over 16ms, GPU tasks
+  over 8ms.
+- **Round every generated coordinate.** Seeded output (`lib/cards/rng.ts`) must
+  be rounded — `Math.round(n * 100) / 100` — or Node and the browser differ in
+  the 15th decimal and React reports a hydration mismatch.
+- **An animation inside an SVG repaints all of it.** Moving parts are HTML
+  boxes or a whole `<svg>` a CSS transform moves (the cylinder turns as one
+  element; the tumbleweed rolls in three nested boxes).
 - **A CSS `transform` silently replaces an SVG `transform` attribute.** Pick one.
-- **`role="img"` makes an element a leaf** in the accessibility tree — children
-  become invisible to assistive tech. Don't put a `label` on a container whose
-  children are interactive.
+- **Pictures are baked, never filtered or blended live.** A filter or a blend
+  on a card's picture repaints it whenever the card is shown. Silhouettes are
+  black-on-clear PNGs from `scripts/titles-silhouette.py`; sources are in the
+  git-ignored `assets/titles-source/` (the painting is fetched from Wikimedia
+  Commons when missing). Bake wide enough for 2× screens, and give `<Image>`
+  a `sizes` that matches its cover-fitted width, or phones get a small copy
+  stretched three times.
 - **`opacity: 0` hides a thing from the eye and from nothing else.** An
-  absolutely positioned child keeps its parent's hit area whatever it
-  overhangs, so an invisible label beside a small control silently steals its
-  neighbours' clicks — measured at 12 of 36 for the Camp's notebook. Test hit
-  areas with `elementFromPoint` on a grid, never by looking; `getBoundingClientRect`
-  on the control alone does not include the overhang.
-- **An animation inside an SVG repaints all of it.** A flicker, a rising
-  plume, a stepping dash — anything that moves inside an `<svg>` re-records
-  and re-rasterises the whole drawing, every gradient and filter in it, every
-  frame. Measured on the Camp's drawing at 4× CPU: 69% of the main thread, for
-  a picture that had not changed. Moving parts go in their own small overlay
-  `<svg>` (see `CampArt`), or on an outer `<svg>` a CSS transform can move
-  (see the ridges in `Place`).
-- **A loop on a property the compositor cannot animate never stops costing.**
-  `background-position`, `stroke-dashoffset`, anything but `transform` and
-  `opacity` repaints on the main thread for as long as it runs. The book's
-  dust and the map's trail drift both did it on every frame of every visit.
-  Loop on transform/opacity, or step the loop (`steps(n)`) so it repaints a
-  few times a second. `npm run perf` shows it as `busy` at rest.
-- **Never read storage during render.** Session or local state that render
-  depends on goes through `useSyncExternalStore` with an empty server
-  snapshot, and render reads only the snapshot (see `visitedFrom` in
-  `lib/world/trail.ts`). Reading storage directly handed the hydration render
-  the real history: a reload after walking the trail ahead mismatched, React
-  discarded the page and rebuilt it on the client, and Camp loaded twice.
+  invisible element still takes clicks. Test hit areas with
+  `elementFromPoint`, never by looking.
+- **Never read storage during render.** State render depends on goes through
+  `useSyncExternalStore` with an empty server snapshot.
 - **StrictMode double-invokes effects.** An effect that reads state it wrote
-  itself (a "seen" flag) will bail on the second run. Use a ref for the decision
-  and hang cleanup off state, not mount.
-- **Exact complementary clip paths leave a hairline.** Both halves anti-alias
-  against the shared boundary; overlap by ~0.0025.
-- **`position: fixed` does not escape a stacking context.** `ThreeScene`'s
-  picture layer sets `z-index: 0`, which makes one — so a fixed overlay
-  rendered anywhere inside a scene is trapped at that layer's depth however
-  large its own z-index is, and loses to content painted later at no z-index
-  at all. Portal it to `document.body`, the way `TransitionDebug` avoids the
-  problem by being mounted in the root layout.
-- **Anything drawn on a GPU has its own trap list.** The short version:
-  damping must be frame-rate independent (`1 - exp(-lambda * dt)`, never a
-  fixed fraction); nothing is allocated per frame; releasing a renderer needs
-  `forceContextLoss()` and not just `dispose()`, deferred one task past
-  StrictMode's effect replay — and that deferral lands *ahead* of R3F's own
-  unmount, so the scene has to be released by hand first or every
-  `texture.dispose()` frees nothing; and whatever a scene writes onto the page
-  must be cleared when it unmounts. The reasons are in
-  `components/three/README.md`.
-- **Derive text colour with `color-mix(in srgb, var(--paper-ink) N%, transparent)`**
-  so a stock variant (e.g. cyanotype) inverts correctly instead of going
-  invisible. Check contrast on `BLUEPRINT` specifically — it is dark-on-dark.
+  itself will bail on the second run. Use a ref for the decision.
+- **In CSS Modules, `:global(html:has(.x))` does not hash `.x`.** Write
+  `:global(html):has(.x)`.
 
 ## Motion rules
 
-- **Never delay route navigation for an animation.** The router changes when it
-  changes; choreography plays over a page that is already interactive.
+- **Never delay route navigation for an animation.** The case-file link lays
+  its bars while the router goes; the case file arrives under the same bars.
 - **The resting state is the visible one.** Animate *from* an offset toward
   normal with `animation-fill-mode: both`, so a browser that never runs the
-  animation shows finished content, not empty content.
-- **Honour `prefers-reduced-motion` at the source**, not with a blanket
-  override. Reduced motion means a still composition, not a broken one.
-  There *is* a blanket in `app/globals.css` — durations to 1ms, animations to
-  a single iteration — and it is a backstop, not the mechanism. It only lands
-  correctly because of the rule above it: an animation that runs from an
-  offset toward normal with `fill-mode: both` jumps to its finished state.
-  Anything whose finished state is wrong needs its own guard, which is why
-  `CampArt` sets the flame's resting opacity by hand — one 1ms iteration of an
-  alternating flicker lands on whichever keyframe happens to be last.
-- **A weak machine gets the still composition too.** `lib/motion/budget.ts`
-  decides it from evidence — no GPU, a scene that struggled, a glide that
-  stuttered — and `MotionBudget` stamps `html[data-motion="still"]`. Every
-  ambient loop mirrors its `prefers-reduced-motion` block under that
-  selector, so a new loop needs both, and the two must say the same thing.
-- **Replay per subject, not once per session.** Keying arrival on a session flag
-  means walking between sibling records shows nothing.
+  animation shows finished content. Decoration that should not be seen at
+  rest (dust, the muzzle flash) rests at `opacity: 0` and plays from there.
+- **Honour `prefers-reduced-motion` at the source.** The blanket in
+  `app/globals.css` (durations and delays to nothing, one iteration) is a
+  backstop, not the mechanism.
+- **Replay per subject.** A card's title slams every time it arrives, not
+  once per visit.
 
 ## Commands
 
 ```
-npm run dev          # do NOT run concurrently with build
-npm run build        # stop dev and delete .next first — they clobber each other
+npm run dev            # do NOT run concurrently with build
+npm run build          # stop dev and delete .next first — they clobber each other
 npm run typecheck
-npm run check:3d     # must pass before commit
-npm run check:tokens # var(--x) with no definition and no fallback
-npm run perf         # frame timing per place, against a running production
-                     # server: --cpu 4 --dsf 2 is a weaker laptop, --gpu
-                     # software a machine with no GPU (see the script's head)
+npm run check:tokens   # unresolved var(--x); raw colours in components
+python scripts/titles-silhouette.py   # re-bake the silhouettes
 ```
 
 ## Environment notes
 
-- **A hidden browser pane stops the render loop**, and every 3D measurement
-  taken while it is hidden reads as a dead scene: zero frames, a canvas left
-  at its default 300x150, no projected positions. That is correct behaviour
-  being mismeasured, not a bug — take a screenshot to make the pane paint
-  before believing a zero. The same applies to CSS scroll-driven animations,
-  which are never sampled while it is hidden, and to `requestAnimationFrame`,
-  which simply never fires. Frame rate *is* measurable once it is painting —
-  120 fps, sustained, over 2,068 frames — so a low number means the pane, not
-  the scene. Interleave small screenshots through anything being timed.
+- **A hidden browser pane stops the render loop**: `requestAnimationFrame` never
+  fires and animations are not sampled, so timings read as dead. Take a
+  screenshot to make the pane paint before believing a zero, or test in
+  headless Chrome (puppeteer-core is a dev dependency for that).
 - **The pane does not hold OS focus**, so `element.focus()` moves
-  `document.activeElement` and fires no focus event at all — React’s
-  `onFocus` never runs and focus-driven behaviour reads as dead code.
-  `document.hasFocus()` returns false and is the tell. Test focus by
-  dispatching a bubbling `focusin`, and treat a silent `.focus()` as
-  unmeasured rather than as broken.
-- Viewport emulation in the pane does **not** reach `matchMedia`: no `change`
-  events fire and `innerWidth` can stay stale. Breakpoint behaviour can only
-  be tested by loading fresh at the width.
-- The in-app browser pane is unreliable here: scrolled screenshots composite
-  blank and CSS transitions freeze when the pane isn't painting, so
-  `getComputedStyle` returns stuck intermediate values. **Verify structurally
-  via the DOM**, and say plainly when a visual could not be confirmed by eye.
-- **`navigator.connection.effectiveType` lies here.** On this machine, on
-  localhost, it reports `3g` one minute and `4g` the next. If the Camp
-  suddenly renders as the illustrated fallback with `data-scene-mode="reduced"`
-  on a machine that drew it fine a moment ago, check that before suspecting the
-  code. `localStorage["frontier:quality"] = "high"` overrides the tier for a
-  measurement; clear it afterwards.
+  `document.activeElement` and fires no focus event. Test focus by dispatching
+  a bubbling `focusin`.
+- Viewport emulation in the pane does **not** reach `matchMedia`; test
+  breakpoints by loading fresh at the width.
 - `next dev` and `next build` share `.next` and corrupt each other. Stop the dev
   server and remove `.next` before building.
 - **`pkill -f "next start"` does not kill it in Git Bash here.** A stale server
-  keeps port 3000 and serves HTML from its own older build, referencing CSS
-  hashes the current build no longer contains — so pages render completely
-  unstyled and every measurement taken against them is fiction. It survives a
-  clean rebuild, a cache-busting query and a brand-new tab, so it does not
-  look like a server problem; it looks like your code. The tell is on disk:
-  compare the stylesheets the prerendered HTML references against the ones
-  the browser actually requested. Kill it with PowerShell:
+  keeps its port and serves HTML from its own older build, referencing CSS
+  hashes the current build no longer contains — pages render unstyled and look
+  like your bug. Kill it with PowerShell:
   `Get-NetTCPConnection -LocalPort 3000 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }`
+- Google Fonts fetches during `next build` fail now and then (`ETIMEDOUT`, or a
+  `next/font` "Cannot read properties of null"); retry the build.

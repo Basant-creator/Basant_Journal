@@ -1,83 +1,40 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { person } from "@/lib/content/portfolio";
 
-export const alt = `${person.name} — The Frontier`;
+export const alt = `${person.name} — ${person.role}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+/* The cards' inks, written out (--titles-blood, --titles-cream): a share
+   card is drawn outside the stylesheet. */
+const BLOOD = "#b3261e";
+const CREAM = "#f2e3c2";
+
 /**
- * Share card. Drawn with the same tokens as the site so a link preview reads
- * as the same publication — ink ground, warm type, one red rule.
+ * The share card is the opening card: the name in cream over the blood
+ * field, the rider printed black beside it. The rider is the small bake
+ * (components/cards/art/rider-og.png, scripts/titles-silhouette.py).
  */
-export default function OpengraphImage() {
+export default async function OpengraphImage() {
+  const rider = await readFile(join(process.cwd(), "components/cards/art/rider-og.png"));
+  const src = `data:image/png;base64,${rider.toString("base64")}`;
+  const [first, ...rest] = person.name.split(" ");
+
   return new ImageResponse(
     (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          padding: "80px 88px",
-          background: "#1B1713",
-          color: "#F2E9D7",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 22,
-            letterSpacing: 8,
-            textTransform: "uppercase",
-            color: "#A49476",
-            marginBottom: 28,
-          }}
-        >
-          Volume I · A survey
-        </div>
-
-        <div
-          style={{
-            fontSize: 116,
-            letterSpacing: 6,
-            textTransform: "uppercase",
-            lineHeight: 1,
-            color: "#F2E9D7",
-          }}
-        >
-          The Frontier
-        </div>
-
-        <div
-          style={{
-            width: 168,
-            height: 3,
-            background: "#7A2E2E",
-            margin: "40px 0 34px",
-          }}
-        />
-
-        <div
-          style={{
-            fontSize: 38,
-            letterSpacing: 10,
-            textTransform: "uppercase",
-            color: "#E7D9BC",
-          }}
-        >
-          {person.name}
-        </div>
-
-        <div
-          style={{
-            fontSize: 28,
-            lineHeight: 1.45,
-            color: "#C6B99F",
-            marginTop: 22,
-            maxWidth: 840,
-          }}
-        >
-          {person.role}
+      <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", background: BLOOD, color: CREAM }}>
+        <img src={src} alt="" width={420} height={746} style={{ position: "absolute", right: 70, top: -60 }} />
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "0 72px 72px", width: "100%" }}>
+          <div style={{ fontSize: 22, letterSpacing: 6, textTransform: "uppercase", marginBottom: 18 }}>
+            {`${person.location} · ${person.role}`}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", fontSize: 150, fontWeight: 900, lineHeight: 0.9, textTransform: "uppercase" }}>
+            <span>{first}</span>
+            <span>{rest.join(" ")}</span>
+          </div>
+          <div style={{ fontSize: 28, lineHeight: 1.35, marginTop: 24, maxWidth: 640, fontStyle: "italic" }}>{person.tagline}</div>
         </div>
       </div>
     ),

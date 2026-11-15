@@ -1,4 +1,4 @@
-import { createRng, seedFrom } from "@/lib/map/rng";
+import { createRng, seedFrom } from "@/lib/cards/rng";
 import styles from "./titles.module.css";
 
 /* Two decimals, so the server and the browser draw the same scribble. */

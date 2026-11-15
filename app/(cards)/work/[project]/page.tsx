@@ -53,7 +53,7 @@ export default async function CaseFile({ params }: { params: Promise<{ project: 
   const nextField = base[PROJECT_FIELD[next.id] ?? "mustard"];
 
   return (
-    <div className={`${styles.page} ${field}`} data-titles="">
+    <div id="main" tabIndex={-1} className={`${styles.page} ${field}`} data-titles="">
       <div className={styles.bars} aria-hidden="true">
         {[0, 1, 2, 3, 4].map((k) => (
           <i key={k} style={{ "--k": k } as CSSProperties} />

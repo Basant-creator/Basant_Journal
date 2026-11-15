@@ -9,8 +9,8 @@ import { SITE_ORIGIN, routes, workRoute } from "@/lib/routes";
  * Built from the catalog rather than a hand-kept list, so a case file cannot
  * exist without appearing here and cannot appear here after being dropped.
  * The cards themselves are anchors on the home page, not pages, so they are
- * not listed. The earlier site's addresses are absent because they redirect
- * (next.config.ts), and the `/lab` benches because robots.ts disallows them.
+ * not listed. The earlier site's addresses are absent because they only
+ * redirect (next.config.ts).
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();

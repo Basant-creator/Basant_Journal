@@ -17,6 +17,11 @@
   font-family: var(--text);
 }
 
+/* The skip link's target: focused to move the reader here, never ringed. */
+.page:focus {
+  outline: none;
+}
+
 .page a {
   color: inherit;
 }

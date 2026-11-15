@@ -23,6 +23,11 @@
   padding: 0 var(--gutter) clamp(48px, 10vh, 110px);
 }
 
+/* The skip link's target: focused to move the reader here, never ringed. */
+.page:focus {
+  outline: none;
+}
+
 .page a {
   color: inherit;
   text-decoration-thickness: 1px;

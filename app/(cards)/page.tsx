@@ -155,7 +155,7 @@ export default function TitleCards() {
                 <li key={step.year} className={styles.rise} style={d(i + 2)}>
                   <span className={styles.year}>{step.year}</span>
                   <span className={styles.stepTitle}>{step.title}</span>
-                  <p>{plain(step.retold ?? step.body)}</p>
+                  <p>{plain(step.body)}</p>
                 </li>
               ))}
             </ol>
